@@ -1,7 +1,13 @@
-import std/macros
+include private/tusb
+const
+  KeyboardReportId* = 1u8
+  MouseReportId* = 2u8
 
 {.push header: "tusb.h".}
 type
+  UsbSpeed* {.pure, importc: "tusb_speed_t".} = enum
+    Full, Low, High
+
   HidReport* {.pure, importC: "hid_report_type_t".} = enum
     invalid, input, output, feature
 
@@ -73,13 +79,41 @@ type
   KeyboardLed* {.pure, importC: "hid_keyboard_led_bm_t".} = enum
     numLock, capsLock, scrollLock, compose, kana
 
+  Keycode* = array[6, byte]
+
   KeyboardReport* {.packed, importC: "hid_keyboard_report_t".} = object
     modifier: set[KeyModifier]
     reserved: byte
-    keycode: array[6, byte]
+    keycode: Keycode
 
+proc usbInit*(): bool {.importc: "tusb_init".}
 
+proc usbInitialized*: bool {.importc: "tsub_inited".}
+proc usbTask* {.importC: "tud_task".}
+proc usbMounted*: bool {.importC: "tud_mounted".}
+proc usbSuspended*: bool {.importC: "tud_suspended".}
+proc usbRemoteWakeup*: bool {.importC: "tud_remote_wakeup".}
+proc usbDisconnect*: bool {.importC: "tud_disconnect".}
+proc usbConnect*: bool {.importC: "tud_connect".}
+
+proc hidReady*: bool {.importC: "tud_hid_ready".}
+
+proc ledWrite*(state: bool){.importC: "board_led_write".}
+
+proc hidReport*(reportId: byte, report: ptr UncheckedArray[byte], len: byte){.
+    importc: "tud_hid_report".}
+proc mouseReport*(id: byte, buttons: set[MouseButton], x, y, vert, horz: byte): bool {.
+    importc: "tud_hid_mouse_report".}
+proc keyboardReport*(id: byte, modifiers: set[KeyModifier], keycode: Keycode): bool {.
+    importc: "tuid_hid_keyboard_report".}
 {.pop.}
+
+{.push header: "bsp/board.h".}
+proc boardInit*(){.importC: "board_init".}
+proc millis*(): uint32 {.importc: "board_millis".}
+proc delay*(ms: uint32) {.importc: "board_delay".}
+{.pop.}
+
 
 template mountCallback*(body: untyped): untyped =
   proc tudMountCb{.exportC: "tud_mount_cb".} =
@@ -101,4 +135,10 @@ template getReportCb*(reportId, reportType, buffer, reqLen, body) =
   proc tudGetReportCb(reportId: byte, reportType: HidReport,
       buffer: ptr UncheckedArray[byte], reqLen: uint16): uint16{.
       exportC: "tud_hid_get_report_cb".} =
+    body
+
+template setReportCb*(reportId, reportType, buffer, reqLen, body) =
+  proc tudSetReportCb(reportId: byte, reportType: HidReport,
+      buffer: ptr UncheckedArray[byte], reqLen: uint16): uint16{.
+      exportC: "tud_hid_set_report_cb".} =
     body
