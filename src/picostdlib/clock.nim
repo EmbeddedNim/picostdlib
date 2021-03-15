@@ -1,7 +1,7 @@
 
 {.push header: "hardware/structs/clocks.h".}
 type
-  ClockIndex* {.pure, importC: "clock_index".} = enum
+  ClockIndex* {.pure, importC: "enum clock_index".} = enum
     gpOut0
     gpOut1
     gpOut2
