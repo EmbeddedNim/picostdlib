@@ -132,3 +132,6 @@ bool tusb_inited(void);
 
 #endif /* _TUSB_H_ */
 """.}
+
+const
+  TudHidMouseReport*{.importC: "TUD_HID_REPORT_DESC_MOUSETUD_HID_REPORT_DESC_MOUSE(HID_REPORT_ID(REPORT_ID_MOUSE))".}: uint32 = 0

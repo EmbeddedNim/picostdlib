@@ -2,11 +2,10 @@ include private/tusb
 const
   KeyboardReportId* = 1u8
   MouseReportId* = 2u8
-
-{.push header: "tusb.h".}
+  EndpointSize* = 64
+  HidBufSize* = 16
+{.push header: "class/hid/hid.h".}
 type
-  UsbSpeed* {.pure, importc: "tusb_speed_t".} = enum
-    Full, Low, High
 
   HidReport* {.pure, importC: "hid_report_type_t".} = enum
     invalid, input, output, feature
@@ -85,7 +84,10 @@ type
     modifier: set[KeyModifier]
     reserved: byte
     keycode: Keycode
-
+{.pop.}
+{.push header: "class/hid/hid_device.h".}
+type UsbSpeed* {.pure, importc: "tusb_speed_t".} = enum
+  Full, Low, High
 proc usbInit*(): bool {.importc: "tusb_init".}
 
 proc usbInitialized*: bool {.importc: "tsub_inited".}
@@ -115,6 +117,55 @@ proc delay*(ms: uint32) {.importc: "board_delay".}
 {.pop.}
 
 
+{.push header: "common/tusb_types.h".}
+type
+  DescriptionType* {.pure, importc: "tusb_desc_type_t".} = enum
+    device = 0x01
+    configuration = 0x02
+    dtString = 0x03
+    dtInterface = 0x04
+    endpoint = 0x05
+    qualifier = 0x06
+    otherSpeedConifg = 0x07
+    interfacePower = 0x08
+    otg = 0x09
+    debug = 0x0A
+    interfaceAssociation = 0x0B
+    bos = 0x0f
+    deviceCapabillity = 0x10
+    functional = 0x21
+    csConfig = 0x22
+    csString = 0x23
+    csInterface = 0x24
+    csEndPoint = 0x25
+    superSpeedEndpointComp = 0x30
+    superSpeedIsoEndpointComp = 0x31
+
+  UsbPid* {.pure, size: sizeof(uint16).} = enum
+    cdc, msc, hid, midi, vendor
+
+  DeviceDescription* {.packed, importc: "tusb_desc_device_t", completeStruct.} = object
+    len*: byte
+    descType*: DescriptionType
+    binCodeUsb*: uint16
+    class*, subclass*, protocol*, maxPacketSize*: byte
+    vendorId*: uint16
+    productId*: set[UsbPid]
+    binaryCodeDev*: uint16
+    manufacturer*, product*, serialNumber*, configNumber*: byte
+
+  BinaryDeviceStore* {.packed, importc: "tusb_desc_configuration_t".} = object
+    len*, descType*: byte
+    totalLength*: uint16
+    deviceCapabilities*: byte
+
+
+assert DeviceDescription.sizeof == 18, "Incorrect type size"
+
+{.pop.}
+
+
+
 template mountCallback*(body: untyped): untyped =
   proc tudMountCb{.exportC: "tud_mount_cb".} =
     body
@@ -132,13 +183,21 @@ template resumeCallback*(body: untyped): untyped =
     body
 
 template getReportCb*(reportId, reportType, buffer, reqLen, body) =
-  proc tudGetReportCb(reportId: byte, reportType: HidReport,
-      buffer: ptr UncheckedArray[byte], reqLen: uint16): uint16{.
+  proc tudGetReportCb(reportId: uint8, reportType: HidReport,
+      buffer: ptr uint8, reqLen: uint16): uint16{.
       exportC: "tud_hid_get_report_cb".} =
     body
 
 template setReportCb*(reportId, reportType, buffer, reqLen, body) =
-  proc tudSetReportCb(reportId: byte, reportType: HidReport,
-      buffer: ptr UncheckedArray[byte], reqLen: uint16): uint16{.
+  proc tudSetReportCb(reportId: uint8, reportType: HidReport,
+      buffer: ptr UncheckedArray[byte], reqLen: uint16){.
       exportC: "tud_hid_set_report_cb".} =
+    body
+
+template deviceDescriptorCallback*(body) =
+  proc tudDescriptorDeviceCb: ptr uint8 {.exportC: "tud_descriptor_device_cb".} =
+    body
+
+template deviceDescriptorReportCallback*(body) =
+  proc tudDescruptorReportCb: ptr uint8 {.exportC: "tud_hid_descriptor_report_cb".} =
     body
