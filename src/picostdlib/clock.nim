@@ -37,6 +37,7 @@ type
     xoscClksrc
     clkSrcGpin0
     clkSrcGpin1
+  ResusCallback* = proc(){.noConv.}
 
 const
   Fc0SrcOffset* = 0x00000094u32
@@ -65,12 +66,14 @@ const
   Khz* = 1000
   Mhz* = 1000000
 
+
+
 {.push header: "hardware/clocks.h".}
 proc getHz*(clkInd: ClockIndex): uint32 {.importc: "clock_get_hz".}
 proc setReportedHz*(clkInd: ClockIndex, hz: cuint) {.importC: "clock_set_reported_hz".}
 proc frequencyCountKhz*(src: cuint): uint32 {.importC: "frequency_count_khz".}
 proc frequencyCountKhz*(src: Fc0SrcValue): uint32 {.importC: "frequency_count_khz".}
-
+proc enableResus*(callBack: ResusCallback) {.importc: "clocks_enable_resus".}
 proc clockConfigure*(clkInd: ClockIndex, src, auxSrc, srcFreq, freq: uint32): bool {.
     importC: "clock_configure".}
 {.pop.}
