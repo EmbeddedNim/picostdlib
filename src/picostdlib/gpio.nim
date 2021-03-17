@@ -1,11 +1,13 @@
 type
-  GpioFunction* {.size: sizeof(cint).} = enum
+  GpioFunction* {.size: sizeof(uint32).} = enum
     XIP, SPI, UART, I2C, PWM, SIO, PIO0, PIO1, GPCK, USB, NULL
   Gpio* = distinct uint32
   Value* = distinct uint32
 
 proc `==`*(a, b: Value): bool {.borrow.}
 proc `==`*(a, b: Gpio): bool {.borrow.}
+proc `$`*(a: Gpio): string {.borrow.}
+
 
 const
   High* = 1.Value
@@ -43,6 +45,14 @@ proc getAll*: uint32 {.importC: "gpio_get_all".}
 proc put*(gpio: Gpio, value: Value){.importC: "gpio_put".}
 
 proc setDir*(gpio: Gpio, isOut: bool) {.importC: "gpio_set_dir".}
+
+type
+  IrqLevel* {.pure, importc: "enum gpio_irq_level", size: sizeof(cuint).} = enum
+    low, high, fall, rise
+  IrqCallback* {.importC: "gpio_irq_callback_t".} = proc(gpio: Gpio, evt: set[IrqLevel]){.cDecl.}
+
+proc enableIrqWithCallback*(gpio: Gpio, events: set[IrqLevel], enabled: bool, event: IrqCallback){.
+    importC: "gpio_set_irq_enabled_with_callback".}
 
 {.pop.}
 

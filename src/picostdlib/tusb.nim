@@ -165,26 +165,25 @@ assert DeviceDescription.sizeof == 18, "Incorrect type size"
 {.pop.}
 
 
-
 template mountCallback*(body: untyped): untyped =
-  proc tudMountCb{.exportC: "tud_mount_cb".} =
+  proc tudMountCb{.cdecl, exportC: "tud_mount_cb".} =
     body
 
 template unmountCallback*(body: untyped): untyped =
-  proc tudUnmountCb{.exportC: "tud_umount_cb".} =
+  proc tudUnmountCb{.cdecl, exportC: "tud_umount_cb".} =
     body
 
 template suspendCallback*(boolName, body: untyped): untyped =
-  proc tudMountCb(boolName: bool){.exportC: "tud_suspend_cb".} =
+  proc tudMountCb(boolName: bool){.cdecl, exportC: "tud_suspend_cb".} =
     body
 
 template resumeCallback*(body: untyped): untyped =
-  proc tudResumeCb*{.exportC: "tud_resume_cb".} =
+  proc tudResumeCb*{.cdecl, exportC: "tud_resume_cb".} =
     body
 
 template getReportCb*(reportId, reportType, buffer, reqLen, body) =
   proc tudGetReportCb(reportId: uint8, reportType: HidReport,
-      buffer: ptr uint8, reqLen: uint16): uint16{.
+      buffer: ptr uint8, reqLen: uint16): uint16{.cdecl,
       exportC: "tud_hid_get_report_cb".} =
     body
 
@@ -195,9 +194,9 @@ template setReportCb*(reportId, reportType, buffer, reqLen, body) =
     body
 
 template deviceDescriptorCallback*(body) =
-  proc tudDescriptorDeviceCb: ptr uint8 {.exportC: "tud_descriptor_device_cb".} =
+  proc tudDescriptorDeviceCb: ptr uint8 {.cdecl, exportC: "tud_descriptor_device_cb".} =
     body
 
 template deviceDescriptorReportCallback*(body) =
-  proc tudDescruptorReportCb: ptr uint8 {.exportC: "tud_hid_descriptor_report_cb".} =
+  proc tudDescruptorReportCb: ptr uint8 {.cdecl, exportC: "tud_hid_descriptor_report_cb".} =
     body
