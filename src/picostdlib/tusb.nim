@@ -1,4 +1,3 @@
-include private/tusb
 const
   KeyboardReportId* = 1u8
   MouseReportId* = 2u8
@@ -166,37 +165,97 @@ assert DeviceDescription.sizeof == 18, "Incorrect type size"
 
 
 template mountCallback*(body: untyped): untyped =
-  proc tudMountCb{.cdecl, exportC: "tud_mount_cb".} =
+  {.emit: """
+void tud_mount_cb(void) {
+  tudMountCb();
+}
+  """.}
+  proc tudMountCb{.exportC.} =
     body
 
 template unmountCallback*(body: untyped): untyped =
-  proc tudUnmountCb{.cdecl, exportC: "tud_umount_cb".} =
+  {.emit: """
+void tud_umount_cb(void) {
+  tudUnmountCb();
+}
+  """.}
+  proc tudUnmountCb{.exportC.} =
     body
 
 template suspendCallback*(boolName, body: untyped): untyped =
-  proc tudMountCb(boolName: bool){.cdecl, exportC: "tud_suspend_cb".} =
+  {.emit: """
+void tud_suspend_cb(bool remote_wakeup_en) {
+    tudSuspendCb(remote_wakeup_en);
+}
+  """.}
+  proc tudSuspendCb(boolName: bool){.exportC.} =
     body
 
 template resumeCallback*(body: untyped): untyped =
-  proc tudResumeCb*{.cdecl, exportC: "tud_resume_cb".} =
+  {.emit: """
+void tud_resume_cb(void) {
+  tudResumeCb();
+}
+  """.}
+  proc tudResumeCb*{.exportC.} =
     body
 
 template getReportCb*(reportId, reportType, buffer, reqLen, body) =
+  {.emit: """
+uint16_t tud_hid_get_report_cb(uint8_t report_id, hid_report_type_t report_type, uint8_t *buffer, uint16_t reqlen) {
+  return tudGetReportCb(report_id, report_type, buffer, reqlen);
+}
+  """.}
   proc tudGetReportCb(reportId: uint8, reportType: HidReport,
-      buffer: ptr uint8, reqLen: uint16): uint16{.cdecl,
-      exportC: "tud_hid_get_report_cb".} =
+      buffer: ptr uint8, reqLen: uint16): uint16{.exportC.} =
     body
 
 template setReportCb*(reportId, reportType, buffer, reqLen, body) =
+  {.emit: """
+void tud_hid_set_report_cb(uint8_t report_id, hid_report_type_t report_type, uint8_t const *buffer, uint16_t bufsize) {
+  tudSetReportCb(report_id, report_type, buffer, bufsize);
+}
+  """.}
   proc tudSetReportCb(reportId: uint8, reportType: HidReport,
-      buffer: ptr UncheckedArray[byte], reqLen: uint16){.
-      exportC: "tud_hid_set_report_cb".} =
+      buffer: ptr UncheckedArray[byte], reqLen: uint16){.exportC.} =
     body
 
+
 template deviceDescriptorCallback*(body) =
-  proc tudDescriptorDeviceCb: ptr uint8 {.cdecl, exportC: "tud_descriptor_device_cb".} =
+  {.emit: """
+uint8_t const *tud_descriptor_device_cb(void) {
+  return tudDescriptorDeviceCb();
+}
+  """.}
+  proc tudDescriptorDeviceCb: ptr uint8 {.exportC.} =
     body
 
 template deviceDescriptorReportCallback*(body) =
-  proc tudDescruptorReportCb: ptr uint8 {.cdecl, exportC: "tud_hid_descriptor_report_cb".} =
+  {.emit: """
+uint8_t const *tud_hid_descriptor_report_cb(void) {
+  return tudDescriptorReportCb();
+}
+  """.}
+  proc tudDescriptorReportCb: ptr uint8 {.exportC.} =
     body
+
+template deviceDescriptorConfigurationCallback*(index, body) =
+  {.emit: """
+uint8_t const *tud_descriptor_configuration_cb(uint8_t index) {
+  return tudDescriptorConfigCb(index);
+}
+  """.}
+  proc tudDescriptorConfigCb(index: byte): ptr int8 {.exportC.} =
+    body
+
+template deviceDescriptorStringCallback*(index, langId, body) =
+  {.emit: """
+uint16_t const *tud_descriptor_string_cb(uint8_t index, uint16_t langid) {
+  return tudDescriptorStringCb(index, langid);
+}
+  """.}
+  proc tudDescriptorStringCb(index: byte, langId: uint16): ptr uint16 {.exportC.} =
+    body
+
+const
+  TudHidMouseReport*{.importC: "TUD_HID_REPORT_DESC_MOUSETUD_HID_REPORT_DESC_MOUSE(HID_REPORT_ID(REPORT_ID_MOUSE))".}: uint32 = 0
