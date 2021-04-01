@@ -3,7 +3,7 @@ const
   MouseReportId* = 2u8
   EndpointSize* = 64
   HidBufSize* = 16
-{.push header: "class/hid/hid.h".}
+{.push header: "tusb.h".}
 type
 
   HidReport* {.pure, importC: "hid_report_type_t".} = enum
@@ -83,13 +83,13 @@ type
     modifier: set[KeyModifier]
     reserved: byte
     keycode: Keycode
-{.pop.}
-{.push header: "class/hid/hid_device.h".}
-type UsbSpeed* {.pure, importc: "tusb_speed_t".} = enum
-  Full, Low, High
-proc usbInit*(): bool {.importc: "tusb_init".}
 
-proc usbInitialized*: bool {.importc: "tsub_inited".}
+type UsbSpeed* {.pure, header: "tusb_types.h", importc: "tusb_speed_t".} = enum
+  Full, Low, High
+
+proc usbInit*(): bool {.importc: "tusb_init".}
+proc usbInitialized*: bool {.importc: "tusb_inited".}
+proc initUsb*: bool {.importC: "tud_init".}
 proc usbTask* {.importC: "tud_task".}
 proc usbMounted*: bool {.importC: "tud_mounted".}
 proc usbSuspended*: bool {.importC: "tud_suspended".}
@@ -97,6 +97,8 @@ proc usbRemoteWakeup*: bool {.importC: "tud_remote_wakeup".}
 proc usbDisconnect*: bool {.importC: "tud_disconnect".}
 proc usbConnect*: bool {.importC: "tud_connect".}
 
+{.pop.}
+{.push header: "class/hid/hid_device.h".}
 proc hidReady*: bool {.importC: "tud_hid_ready".}
 
 proc ledWrite*(state: bool){.importC: "board_led_write".}
@@ -107,16 +109,24 @@ proc mouseReport*(id: byte, buttons: set[MouseButton], x, y, vert, horz: byte): 
     importc: "tud_hid_mouse_report".}
 proc keyboardReport*(id: byte, modifiers: set[KeyModifier], keycode: Keycode): bool {.
     importc: "tuid_hid_keyboard_report".}
-{.pop.}
 
+proc hidReady*(itf: byte): bool {.importC: "tud_hid_n_ready".}
+proc hidIsBoot*(itf: byte): bool {.importC: "tud_hid_n_boot_mode".}
+proc hidReport*(itf, id: byte, report: pointer, len: byte): bool {.importc: "tud_hid_n_report".}
+proc hidKeyboardReport*(itf, id: byte, modifier: set[KeyModifier],
+    keycode: Keycode): bool {.importc: "tud_hid_n_keyboard_report".}
+proc hidMousReport*(itf, id: byte, buttons: set[MouseButton], x, y, vertical,
+    horizontal: byte): bool {.importc: "tud_hid_n_mouse_report".}
+
+
+{.pop.}
 {.push header: "bsp/board.h".}
 proc boardInit*(){.importC: "board_init".}
 proc millis*(): uint32 {.importc: "board_millis".}
 proc delay*(ms: uint32) {.importc: "board_delay".}
 {.pop.}
 
-
-{.push header: "common/tusb_types.h".}
+{.push header: "tusb.h".}
 type
   DescriptionType* {.pure, importc: "tusb_desc_type_t".} = enum
     device = 0x01
@@ -125,7 +135,7 @@ type
     dtInterface = 0x04
     endpoint = 0x05
     qualifier = 0x06
-    otherSpeedConifg = 0x07
+    otherSpeedConfig = 0x07
     interfacePower = 0x08
     otg = 0x09
     debug = 0x0A
@@ -158,104 +168,56 @@ type
     totalLength*: uint16
     deviceCapabilities*: byte
 
-
 assert DeviceDescription.sizeof == 18, "Incorrect type size"
-
 {.pop.}
 
-
 template mountCallback*(body: untyped): untyped =
-  {.emit: """
-void tud_mount_cb(void) {
-  tudMountCb();
-}
-  """.}
-  proc tudMountCb{.exportC.} =
+  proc tudMountCb{.exportC: "tud_mount_cb", codegendecl: "$1 $2$3".} =
     body
 
 template unmountCallback*(body: untyped): untyped =
-  {.emit: """
-void tud_umount_cb(void) {
-  tudUnmountCb();
-}
-  """.}
-  proc tudUnmountCb{.exportC.} =
+  proc tudUnmountCb{.exportC: "tud_umount_cb", codegendecl: "$1 $2$3".} =
     body
 
 template suspendCallback*(boolName, body: untyped): untyped =
-  {.emit: """
-void tud_suspend_cb(bool remote_wakeup_en) {
-    tudSuspendCb(remote_wakeup_en);
-}
-  """.}
-  proc tudSuspendCb(boolName: bool){.exportC.} =
+  proc tudSuspendCb(boolName: bool){.exportC: "tud_suspend_cb", codegendecl: "$1 $2$3".} =
     body
 
 template resumeCallback*(body: untyped): untyped =
-  {.emit: """
-void tud_resume_cb(void) {
-  tudResumeCb();
-}
-  """.}
-  proc tudResumeCb*{.exportC.} =
+  proc tudResumeCb*{.exportC: "tud_resume_cb", codegendecl: "$1 $2$3".} =
     body
 
 template getReportCb*(reportId, reportType, buffer, reqLen, body) =
-  {.emit: """
-uint16_t tud_hid_get_report_cb(uint8_t report_id, hid_report_type_t report_type, uint8_t *buffer, uint16_t reqlen) {
-  return tudGetReportCb(report_id, report_type, buffer, reqlen);
-}
-  """.}
   proc tudGetReportCb(reportId: uint8, reportType: HidReport,
-      buffer: ptr uint8, reqLen: uint16): uint16{.exportC.} =
+      buffer: ptr uint8, reqLen: uint16): uint16{.exportC: "tud_hid_get_report_cb",
+          codegendecl: "$1 $2$3".} =
     body
 
 template setReportCb*(reportId, reportType, buffer, reqLen, body) =
-  {.emit: """
-void tud_hid_set_report_cb(uint8_t report_id, hid_report_type_t report_type, uint8_t const *buffer, uint16_t bufsize) {
-  tudSetReportCb(report_id, report_type, buffer, bufsize);
-}
-  """.}
   proc tudSetReportCb(reportId: uint8, reportType: HidReport,
-      buffer: ptr UncheckedArray[byte], reqLen: uint16){.exportC.} =
+      buffer: ptr UncheckedArray[byte], reqLen: uint16){.exportC: "tud_hid_set_report_cb",
+          codegendecl: "$1 $2$3".} =
     body
 
 
 template deviceDescriptorCallback*(body) =
-  {.emit: """
-uint8_t const *tud_descriptor_device_cb(void) {
-  return tudDescriptorDeviceCb();
-}
-  """.}
-  proc tudDescriptorDeviceCb: ptr uint8 {.exportC.} =
+  proc tudDescriptorDeviceCb: ptr uint8 {.exportC: "tud_descriptor_device_cb",
+      codegendecl: "uint8_t const * $2$3".} =
     body
 
 template deviceDescriptorReportCallback*(body) =
-  {.emit: """
-uint8_t const *tud_hid_descriptor_report_cb(void) {
-  return tudDescriptorReportCb();
-}
-  """.}
-  proc tudDescriptorReportCb: ptr uint8 {.exportC.} =
+  proc tudDescriptorReportCb: ptr uint8 {.exportC: "tud_hid_descriptor_report_cb",
+      codegendecl: "uint8_t const * $2$3".} =
     body
 
 template deviceDescriptorConfigurationCallback*(index, body) =
-  {.emit: """
-uint8_t const *tud_descriptor_configuration_cb(uint8_t index) {
-  return tudDescriptorConfigCb(index);
-}
-  """.}
-  proc tudDescriptorConfigCb(index: byte): ptr int8 {.exportC.} =
+  proc tudDescriptorConfigCb(index: byte): ptr int8 {.exportC: "tud_descriptor_configuration_cb",
+      codegendecl: "uint8_t const * $2$3".} =
     body
 
 template deviceDescriptorStringCallback*(index, langId, body) =
-  {.emit: """
-uint16_t const *tud_descriptor_string_cb(uint8_t index, uint16_t langid) {
-  return tudDescriptorStringCb(index, langid);
-}
-  """.}
-  proc tudDescriptorStringCb(index: byte, langId: uint16): ptr uint16 {.exportC.} =
+  proc tudDescriptorStringCb(index: byte, langId: uint16): ptr uint16 {.
+      exportC: "tud_descriptor_string_cb", codegendecl: "uint16_t const * $2$3".} =
     body
-
 const
   TudHidMouseReport*{.importC: "TUD_HID_REPORT_DESC_MOUSETUD_HID_REPORT_DESC_MOUSE(HID_REPORT_ID(REPORT_ID_MOUSE))".}: uint32 = 0

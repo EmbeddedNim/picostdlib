@@ -9,4 +9,16 @@ type
     hour*: 0u8..23u8
     min*, sec*: 0u8..59u8
 
-proc getTime*: AbsoluteTime {.importC:"get_absolute_time", header: "pico/time.h".}
+{.push header:"pico/time.h".}
+type 
+  AlarmCallback* {.importC: "alarm_callback_t".} = proc(id: uint32, data: pointer){.cDecl.}
+  AlarmId* = distinct uint32
+
+
+proc getTime*: AbsoluteTime {.importC:"get_absolute_time".}
+proc addAlarm*(time: AbsoluteTime, callBack: AlarmCallback, data: pointer, fireIfPast: bool): AlarmId{.importc: "add_alarm_at".}
+proc addAlarm*(ms: uint32, callBack: AlarmCallback, data: pointer, fireIfPast: bool): AlarmId{.importc: "add_alarm_in_ms".}
+proc addAlarm*(us: uint64, callBack: AlarmCallback, data: pointer, fireIfPast: bool): AlarmId{.importc: "add_alarm_in_us".}
+proc cancel*(alarm: AlarmId): bool {.importC: "cancel_alarm".}
+
+{.pop.}
