@@ -5,7 +5,7 @@ author        = "Jason"
 description   = "Raspberry Pi Pico stdlib bindings/libraries"
 license       = "MIT"
 srcDir        = "src"
-bin           = @["piconim"]
+bin           = @["../piconim", "picostdlib"]
 
 # Dependencies
 
