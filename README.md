@@ -28,15 +28,14 @@ have it, consider using [choosenim](https://github.com/dom96/choosenim)
 library [dependencies](https://github.com/raspberrypi/pico-sdk#quick-start-your-own-project) 
 (Step 1 in the quick start section)
 
-3. From the terminal, run `nimble install picostdlib`. ADDITIONALLY, 
-run `nimble install --deps-only`.
+3. From the terminal, run `nimble install https://github.com/beef331/picostdlib`.
 
 4. Run `piconim init <project-name>` to create a new project directory from a 
 template. This will create a new folder, so make sure you are in the parent folder.
 You can also provide the following options to the subcommand:
     - (--sdk, -s) -> specify the path to a locally installed `pico-sdk` repository, 
     ex.  `--sdk:/home/casey/pico-sdk`
-    - (--nimbase, -h) -> similarly, you can provide the path to a locally installed 
+    - (--nimbase, -n) -> similarly, you can provide the path to a locally installed 
     `nimbase.h` file. Otherwise, the program attempts to download the file from
     the nim-lang github repository. ex. `-h:/path/to/nimbase.h`
     - (--overwrite, -O) -> a flag to specify overwriting an exisiting directory 

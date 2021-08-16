@@ -8,7 +8,10 @@ srcDir        = "src"
 
 bin           = @["piconim"]
 installExt    = @["nim", "txt", "cmake"]
+skipDirs = @["examples"]
+installDirs = @["template"]
+
 # Dependencies
 
 requires "nim >= 1.2.0"
-requires "https://github.com/casey-SK/commandant"
+requires "https://github.com/casey-SK/commandant >= 0.15.1"
