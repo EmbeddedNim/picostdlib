@@ -1,14 +1,13 @@
 # Package
 
-version       = "0.2.0"
+version       = "0.2.3"
 author        = "Jason"
 description   = "Raspberry Pi Pico stdlib bindings/libraries"
 license       = "MIT"
-srcDir        = "picostdlib"
+srcDir        = "src"
 
 bin           = @["piconim"]
-installDirs   = @["picostdlibpkg"]
-installExt    = @["nim"]
+installExt    = @["nim", "txt", "cmake"]
 # Dependencies
 
 requires "nim >= 1.2.0"

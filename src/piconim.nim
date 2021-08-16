@@ -39,7 +39,7 @@ proc validateBuildInputs(program: string, output = "") =
   
 proc createProject(name: string; sdk = "", nimbase = "", override = false) = 
   # copy the template over to the current directory
-  let sourcePath = joinPath(getAppDir(), "picostdlibpkg/template")
+  let sourcePath = joinPath(getAppDir(), "template")
   let newProjectFolder = joinPath(getCurrentDir(), name)
   copyDir(sourcePath, newProjectFolder)
   # rename nim file
@@ -47,7 +47,7 @@ proc createProject(name: string; sdk = "", nimbase = "", override = false) =
 
   # get nimbase.h file from github
   if nimbase == "":
-    let nimbaseError: int = execShellCmd(fmt"curl --silent --output {newProjectFolder}/csource/nimbase.h https://raw.githubusercontent.com/nim-lang/Nim/v{NimVersion}/lib/nimbase.h")
+    let nimbaseError: int = execCmd(fmt"curl --silent --output {newProjectFolder}/csource/nimbase.h https://raw.githubusercontent.com/nim-lang/Nim/v{NimVersion}/lib/nimbase.h")
     if nimbaseError != 0:
       raise newException(OSError, fmt"failed to download `nimbase.h` from nim-lang repository, use --nimbase:<path> to specify a local file")
   else:
