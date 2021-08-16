@@ -4,9 +4,10 @@ version       = "0.2.0"
 author        = "Jason"
 description   = "Raspberry Pi Pico stdlib bindings/libraries"
 license       = "MIT"
+srcDir        = "picostdlib"
 
 bin           = @["piconim"]
-installDirs   = @["template", "picostdlibpkg"]
+installDirs   = @["picostdlibpkg"]
 installExt    = @["nim"]
 # Dependencies
 

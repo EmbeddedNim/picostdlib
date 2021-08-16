@@ -39,7 +39,7 @@ proc validateBuildInputs(program: string, output = "") =
   
 proc createProject(name: string; sdk = "", nimbase = "", override = false) = 
   # copy the template over to the current directory
-  let sourcePath = joinPath(getAppDir(), "template")
+  let sourcePath = joinPath(getAppDir(), "picostdlibpkg/template")
   let newProjectFolder = joinPath(getCurrentDir(), name)
   copyDir(sourcePath, newProjectFolder)
   # rename nim file
