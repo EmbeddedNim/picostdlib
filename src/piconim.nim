@@ -1,5 +1,10 @@
 import commandant
-import std/[strformat, strutils, os, osproc, httpclient, strscans]
+import std/[strformat, strutils, os, osproc, httpclient, strscans, terminal]
+
+
+proc printError(msg: string) =
+  echo ansiForegroundColorCode(fgRed), msg, ansiResetCode
+  quit 1 # Should not be using this but short lived program
 
 
 proc helpMessage(): string =
@@ -14,7 +19,7 @@ proc builder(program: string, output = "") =
   # compile the nim program to .c file
   let compileError = execCmd(fmt"nim c -c --nimcache:csource --gc:arc --cpu:arm --os:any -d:release -d:useMalloc ./src/{program}")
   if not compileError == 0:
-    raise newException(OSError, fmt"unable to compile the provided nim program: {program}")
+    printError(fmt"unable to compile the provided nim program: {program}")
   # rename the .c file
   moveFile(("csource/" & fmt"@m{program}.c"), ("csource/" & fmt"""{program.replace(".nim")}.c"""))
   # update file timestamps
@@ -35,12 +40,12 @@ proc getActiveNimVersion: string =
 
 proc validateBuildInputs(program: string, output = "") =
   if not program.endsWith(".nim"):
-    raise newException(ValueError, fmt"provided main program argument is not a nim file: {program}")
+    printError(fmt"provided main program argument is not a nim file: {program}")
   if not fileExists(fmt"src/{program}"):
-    raise newException(ValueError, fmt"provided main program argument does not exist: {program}")
+    printError(fmt"provided main program argument does not exist: {program}")
   if output != "":
     if not dirExists(output):
-      raise newException(ValueError, fmt"provided output option is not a valid directory: {output}")
+      printError(fmt"provided output option is not a valid directory: {output}")
 
 proc downloadNimbase(path: string): bool =
   ## Attempts to download the nimbase if it fails returns false
@@ -69,12 +74,12 @@ proc createProject(projectPath: string; sdk = "", nimbase = "", override = false
   if nimbase == "":
     let nimbaseError = downloadNimbase(projectPath / "csource/nimbase.h")
     if not nimbaseError:
-      raise newException(OSError, fmt"failed to download `nimbase.h` from nim-lang repository, use --nimbase:<path> to specify a local file")
+      printError(fmt"failed to download `nimbase.h` from nim-lang repository, use --nimbase:<path> to specify a local file")
   else:
     try:
       copyFile(nimbase, (projectPath / "csource/nimbase.h"))
     except OSError:
-      raise newException(OSError, fmt"failed to copy provided nimbase.h file")
+      printError"failed to copy provided nimbase.h file"
 
   # move the CMakeLists.txt file, based on if an sdk was provided or not
   discard existsOrCreateDir((projectPath / "csource/build"))
@@ -87,7 +92,7 @@ proc createProject(projectPath: string; sdk = "", nimbase = "", override = false
     cmakelists.writeFile cmakelists.readFile.replace("blink", name)
     let errorCode = execCmd(fmt"cmake -DPICO_SDK_PATH={sdk} ..")
     if errorCode != 0:
-      raise newException(OSError, fmt"while using provided sdk path, cmake exited with error code: {errorCode}")
+      printError(fmt"while using provided sdk path, cmake exited with error code: {errorCode}")
 
   else:
     copyFile((projectPath / "csource/CMakeLists/downloadSDK_CMakeLists.txt"), ((
@@ -98,7 +103,7 @@ proc createProject(projectPath: string; sdk = "", nimbase = "", override = false
     cmakelists.writeFile cmakelists.readFile.replace("blink", name)
     let errorCode = execCmd(fmt"cmake ..")
     if errorCode != 0:
-      raise newException(OSError, fmt"cmake exited with error code: {errorCode}")
+      printError(fmt"cmake exited with error code: {errorCode}")
 
 
 proc validateInitInputs(name: string, sdk, nimbase: string = "", overwrite: bool) =
@@ -106,27 +111,27 @@ proc validateInitInputs(name: string, sdk, nimbase: string = "", overwrite: bool
 
   # check if name is valid filename
   if not name.isValidFilename():
-    raise newException(ValueError, fmt"provided --name argument will not work as filename: {name}")
+    printError(fmt"provided --name argument will not work as filename: {name}")
 
   # check if the name already has a directory with the same name
   if dirExists(joinPath(getCurrentDir(), name)) and overwrite == false:
-    raise newException(ValueError, fmt"provided project name ({name}) already has directory, use --overwrite if you wish to replace contents")
+    printError(fmt"provided project name ({name}) already has directory, use --overwrite if you wish to replace contents")
 
   # check if the sdk option path exists and has the appropriate cmake file (very basic check...)
   if sdk != "":
     if not sdk.dirExists():
-      raise newException(ValueError, fmt"could not find an existing directory with the provided --sdk argument : {sdk}")
+      printError(fmt"could not find an existing directory with the provided --sdk argument : {sdk}")
 
     if not fileExists(fmt"{sdk}/pico_sdk_init.cmake"):
-      raise newException(ValueError, fmt"directory provided with --sdk argument does not appear to be a valid pico-sdk library: {sdk}")
+      printError(fmt"directory provided with --sdk argument does not appear to be a valid pico-sdk library: {sdk}")
 
   if nimbase != "":
     if not nimbase.fileExists():
-      raise newException(ValueError, fmt"could not find an existing `nimbase.h` file using provided --nimbase argument : {nimbase}")
+      printError(fmt"could not find an existing `nimbase.h` file using provided --nimbase argument : {nimbase}")
 
     let (_, name, ext) = nimbase.splitFile()
     if name != "nimbase" or ext != ".h":
-      raise newException(ValueError, fmt"invalid filename or extension (expecting `nimbase.h`, recieved `{name}{ext}`")
+      printError(fmt"invalid filename or extension (expecting `nimbase.h`, recieved `{name}{ext}`")
 
 # --- MAIN PROGRAM ---
 when isMainModule:
