@@ -88,8 +88,8 @@ proc createProject(projectPath: string; sdk = "", nimbase = "", override = false
         projectPath / "csource/CMakeLists.txt"))
     # change all instances of template `blink` to the project name
     let cmakelists = (projectPath / "/csource/CMakeLists.txt")
-    cmakelists.writeFile cmakelists.readFile.replace("blink", name)    # BROKEN
-    # run make from build directory
+    cmakelists.writeFile cmakelists.readFile.replace("blink", name)   
+    # run cmake from build directory
     setCurrentDir((projectPath / "/csource/build"))
     let errorCode = execCmd(fmt"cmake -DPICO_SDK_PATH={sdk} ..")
     if errorCode != 0:
