@@ -24,9 +24,7 @@ proc builder(program: string, output = "") =
   moveFile(("csource/" & fmt"@m{program}.c"), ("csource/" & fmt"""{program.replace(".nim")}.c"""))
   # update file timestamps
   when not defined(windows):
-    echo "here"
     let touchError = execCmd("touch csource/CMakeLists.txt")
-    echo "here2"
   when defined(windows):
     let copyError = execCmd("copy /b csource/CMakeLists.txt +,,")
   # run make
