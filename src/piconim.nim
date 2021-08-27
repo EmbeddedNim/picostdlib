@@ -86,10 +86,11 @@ proc createProject(projectPath: string; sdk = "", nimbase = "", override = false
   if sdk != "":
     copyFile((projectPath / "csource/CMakeLists/existingSDK_CMakeLists.txt"), (
         projectPath / "csource/CMakeLists.txt"))
-    setCurrentDir((projectPath / "/csource/build"))
     # change all instances of template `blink` to the project name
     let cmakelists = (projectPath / "/csource/CMakeLists.txt")
-    cmakelists.writeFile cmakelists.readFile.replace("blink", name)
+    cmakelists.writeFile cmakelists.readFile.replace("blink", name)   
+    # run cmake from build directory
+    setCurrentDir((projectPath / "/csource/build"))
     let errorCode = execCmd(fmt"cmake -DPICO_SDK_PATH={sdk} ..")
     if errorCode != 0:
       printError(fmt"while using provided sdk path, cmake exited with error code: {errorCode}")
@@ -97,10 +98,11 @@ proc createProject(projectPath: string; sdk = "", nimbase = "", override = false
   else:
     copyFile((projectPath / "csource/CMakeLists/downloadSDK_CMakeLists.txt"), ((
         projectPath / "csource/CMakeLists.txt")))
-    setCurrentDir((projectPath / "csource/build"))
     # change all instances of template `blink` to the project name
     let cmakelists = (projectPath / "csource/CMakeLists.txt")
     cmakelists.writeFile cmakelists.readFile.replace("blink", name)
+    # run cmake from build directory
+    setCurrentDir((projectPath / "csource/build"))
     let errorCode = execCmd(fmt"cmake ..")
     if errorCode != 0:
       printError(fmt"cmake exited with error code: {errorCode}")
