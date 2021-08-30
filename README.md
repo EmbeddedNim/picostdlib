@@ -37,7 +37,7 @@ You can also provide the following options to the subcommand:
     ex.  `--sdk:/home/casey/pico-sdk`
     - (--nimbase, -n) -> similarly, you can provide the path to a locally installed 
     `nimbase.h` file. Otherwise, the program attempts to download the file from
-    the nim-lang github repository. ex. `-h:/path/to/nimbase.h`
+    the nim-lang github repository. ex. `-n:/path/to/nimbase.h`
     - (--overwrite, -O) -> a flag to specify overwriting an exisiting directory 
     with the `<project-name>` already created. Be careful with this. 
     ex. `piconim myProject --overwrite` will replace a folder named `myProject`
