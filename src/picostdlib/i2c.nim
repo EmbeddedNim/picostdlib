@@ -23,6 +23,9 @@ type
     hw*: ptr I2Hw
     restartOnNext*: bool
 
+var i2c0*: I2cInst {.importC: "i2c0_inst".}
+var i2c1*: I2cInst {.importC: "i2c1_inst".}
+
 proc init*(i2c: var I2cInst, baudrate: cuint) {.importC: "i2c_init".}
 proc deinit*(i2c: var I2cInst) {.importc: "i2c_deinit".}
 proc setBaudrate*(i2c: var I2cInst, baudRate: cuint): cuint {.importc: "i2c_set_baudrate".}
