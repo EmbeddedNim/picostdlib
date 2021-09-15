@@ -4,7 +4,7 @@ import picostdlib
 stdioInitAll() #is necessary for initializzate usb
 
 #const led1 = 25.Gpio; led1.init(); led1.setDir(Out) #enable a led on board try (old statment)
-setupGpio(led1,25.Gpio,Out) #new "sugar" style statement
+setupGpio(led1,25.Gpio, Out) #new "sugar" style statement
 var charX: char #create a char variable (getCharwithTimeOut return a char!!)
 sleep (600)
 
