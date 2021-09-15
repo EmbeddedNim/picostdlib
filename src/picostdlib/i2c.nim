@@ -23,12 +23,18 @@ type
     hw*: ptr I2Hw
     restartOnNext*: bool
 
-var i2c0*: I2cInst {.importC: "i2c0_inst".}
-var i2c1*: I2cInst {.importC: "i2c1_inst".}
+var i2c0* {.importC: "i2c0_inst".}: I2cInst
+var i2c1* {.importC: "i2c1_inst".}: I2cInst
 
 proc init*(i2c: var I2cInst, baudrate: cuint) {.importC: "i2c_init".}
 proc deinit*(i2c: var I2cInst) {.importc: "i2c_deinit".}
 proc setBaudrate*(i2c: var I2cInst, baudRate: cuint): cuint {.importc: "i2c_set_baudrate".}
 proc setSlaveMode*(i2c: var I2cInst, slave: bool, address: uint8) {.importc: "i2c_set_slave_mode".}
+
+proc writeBlocking*(i2c: var I2cInst, address: uint8, data: pointer, len: csize_t,
+    noStop: bool){.importc: "i2c_write_blockin".}
+
+proc readBlocking*(i2c: var I2cInst, address: uint8, dest: pointer, size: csize_t,
+    noStop: bool): cint {.importC: "i2c_read_blocking".}
 
 {.pop.}
