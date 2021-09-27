@@ -166,8 +166,8 @@ proc put*(gpio: Gpio, value: bool) =
     else:
       Low)
 
-#template setupGpio*(name: untyped, pin: Gpio, dir: bool) =
+template setupGpio*(name: untyped, pin: Gpio, dir: bool) =
   # Makes a `const 'name' = pin; init(name); name.setDir(dir)
-#  const name = pin
-#  init(name)
-#  setDir(name, dir)
+  const name = pin
+  init(name)
+  setDir(name, dir)
