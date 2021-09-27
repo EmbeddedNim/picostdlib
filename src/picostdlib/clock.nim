@@ -2,6 +2,7 @@
 {.push header: "hardware/structs/clocks.h".}
 type
   ClockIndex* {.pure, importC: "enum clock_index".} = enum
+    ## hardware clock identifiers
     gpOut0
     gpOut1
     gpOut2
@@ -70,10 +71,58 @@ const
 
 {.push header: "hardware/clocks.h".}
 proc getHz*(clkInd: ClockIndex): uint32 {.importc: "clock_get_hz".}
+  ## Get the current frequency of the specified clock. 
+  ## 
+  ## **Parameters:**
+  ## 
+  ## ============  ====== 
+  ## **clkInd**    clock
+  ## ============  ====== 
+  ## 
+  ## **Returns:** Clock frequency in Hz 
+
 proc setReportedHz*(clkInd: ClockIndex, hz: cuint) {.importC: "clock_set_reported_hz".}
+  ## Set the "current frequency" of the clock as reported by clock_get_hz 
+  ## without actually changing the clock.
+  ## 
+  ## **Parameters:**
+  ## 
+  ## ============  ====== 
+  ## **clkInd**     clock
+  ## **hz**         frequency in hz to set the new reporting value of the clock
+  ## ============  ====== 
+
 proc frequencyCountKhz*(src: cuint): uint32 {.importC: "frequency_count_khz".}
+  ## Measure a clocks frequency using the Frequency counter. 
+  ## 
+  ## Uses the inbuilt frequency counter to measure the specified clocks 
+  ## frequency. Currently, this function is accurate to +-1KHz. See the 
+  ## datasheet for more details. 
+  ## 
 proc frequencyCountKhz*(src: Fc0SrcValue): uint32 {.importC: "frequency_count_khz".}
+  ## Measure a clocks frequency using the Frequency counter. 
+  ## 
+  ## Uses the inbuilt frequency counter to measure the specified clocks 
+  ## frequency. Currently, this function is accurate to +-1KHz. See the 
+  ## datasheet for more details. 
+  ## 
 proc enableResus*(callBack: ResusCallback) {.importc: "clocks_enable_resus".}
+  ## Enable the resus function. Restarts clk_sys if it is accidentally stopped. 
+  ## 
+  ## The resuscitate function will restart the system clock if it falls below a 
+  ## certain speed (or stops). This could happen if the clock source the system 
+  ## clock is running from stops. For example if a PLL is stopped.
+  ## 
+  ## **Parameters:**
+  ## 
+  ## ============  ====== 
+  ## **callBack**   a function pointer provided by the user to call if a resus event happens. 
+  ## ============  ======
 proc clockConfigure*(clkInd: ClockIndex, src, auxSrc, srcFreq, freq: uint32): bool {.
     importC: "clock_configure".}
+  ## Configure the specified clock. 
+  ## 
+  ## See the tables in the adc module description for details on the possible 
+  ## values for clock sources.
+  ## 
 {.pop.}
