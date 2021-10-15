@@ -24,7 +24,7 @@ proc sleep*(ms: uint32){.importc: "sleep_ms".}
   ## =========  ====== 
   ## **ms**     the number of milliseconds to sleep 
 
-proc sleepMicroseconds*(us: uint32){.importc: "sleep_us".}
+proc sleepMicroseconds*(us: uint64){.importc: "sleep_us".}
   ## Wait for the given number of microseconds before returning. 
   ## 
   ## Note: This procedure attempts to perform a lower power sleep (using WFE) as much as possible.
