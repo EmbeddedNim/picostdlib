@@ -20,3 +20,6 @@ while true:
 
   while true:
     sleep(50)
+ 
+#[ in ...csource/CMakeLists.txt add target_link_libraries(tests pico_stdlib hardware_adc) 
+add--> (hardware_watchdog) ]#
