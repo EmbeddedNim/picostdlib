@@ -38,3 +38,21 @@ proc readBlocking*(i2c: var I2cInst, address: uint8, dest: pointer, size: csize_
     noStop: bool): cint {.importC: "i2c_read_blocking".}
 
 {.pop.}
+
+import picostdlib/[gpio]
+template setupI2c*(blokk: I2cInst, psda, pscl: Gpio, freq: int, pull = true) =
+#sugar setup for i2c: 
+#blokk= block i2c0 / i2c1 (see pinout)
+#sda/pscl = the pins tou want use (ex: 2.Gpio, 3.Gpio) I do not recommend the use of 0.Gpio, 1.Gpio
+#freq = is the working frequency of the i2c device (see device manual; ex: 100000)
+#pull = use or not to use pullup (default = ture)
+  var i2cx = blokk
+  i2cx.init(freq)
+  psda.setFunction(I2C)
+  pscl.setFunction(I2C)
+  if pull == true:
+      psda.pullup()
+      pscl.pullup()
+  else:
+      psda.pulldown()
+      pscl.pulldown()
