@@ -5,7 +5,7 @@ import picostdlib
 stdioInitAll()
 sleep(1000)
 while true:
-  if watchdogCausedReboot() == true:
+  if watchdogCauseReboot() == true:
     print("Reboot by WatchDog!" & '\n')
   else:
     print("Clean Boot" & '\n')
@@ -14,12 +14,12 @@ while true:
 
   for i in countup(0,5):
     print("Updating Watchdog" & $i & '\n')
-    watchdogUpade()
+    watchdogUpdate()
 
   print("Waiting to be Rebooted by Watchdog" & '\n')
 
   while true:
     sleep(50)
- 
+    
 #[ in ...csource/CMakeLists.txt add target_link_libraries(tests pico_stdlib hardware_adc) 
 add--> (hardware_watchdog) ]#
