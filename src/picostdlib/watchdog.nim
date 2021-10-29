@@ -1,8 +1,8 @@
 {.push header: "hardware/watchdog.h".}
 
-proc watchdogEnable*(delayms: uint32, pauseOnDebug: bool) {.importC: "watchdog_enable".}
+proc watchdogEnable*(delayms: uint32, pauseondebug: bool) {.importC: "watchdog_enable".}
 
-proc watchdogUpade*() {.importC: "watchdog_update".}
+proc watchdogUpdate*() {.importC: "watchdog_update".}
 
 proc watchdogCausedReboot*(): bool {.importC: "watchdog_caused_reboot".}
 
