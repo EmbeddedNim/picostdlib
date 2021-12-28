@@ -119,7 +119,6 @@ proc cancel*(alarm: AlarmId): bool {.importC: "cancel_alarm".}
   ## 
   ## **Returns:**    true if the alarm was cancelled, false if it didn't exist 
 
-#{.pop.}
 
 
 {.push header: "hardware/timer.h".}
