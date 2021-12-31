@@ -118,5 +118,15 @@ proc cancel*(alarm: AlarmId): bool {.importC: "cancel_alarm".}
   ## =============  ======
   ## 
   ## **Returns:**    true if the alarm was cancelled, false if it didn't exist 
-
 {.pop.}
+
+
+{.push header: "hardware/timer.h".}
+proc timeUs32*(): uint32 {.importC: "time_us_32".}
+  ## Return time from the start of the microcontroller to microseconds (32-bit) 
+  
+proc timeUs64*(): uint64 {.importC: "time_us_64".}
+  ## ## Return time from the start of the microcontroller to microseconds (64-bit)
+{.pop.}
+
+
