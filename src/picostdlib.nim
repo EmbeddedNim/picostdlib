@@ -10,9 +10,12 @@ proc stdioInitAll*{.importc: "stdio_init_all".}
   ## respective libraries in the binary.
 
 
-proc stdioInitUsb*{.importC: "stdio_usb_init".}
+proc stdioInitUsb*: bool{.importC: "stdio_usb_init".}
   ## Explicitly initialize USB stdio and add it to the current set of stdin 
   ## drivers. 
+
+proc usbConnected*: bool {.importC: "stdio_usb_connected".}
+  ## Returns true if USB uart is connected.
 
 proc sleep*(ms: uint32){.importc: "sleep_ms".}
   ## Wait for the given number of milliseconds before returning. 
@@ -46,6 +49,11 @@ proc getCharWithTimeout*(timeout: uint32): char {.importC: "getchar_timeout_us".
   ## 
   ## **Returns:** the character from 0-255 or PICO_ERROR_TIMEOUT if timeout occurs  
 {.pop.}
+
+
+proc blockUntilUsbConnected*() =
+  ## Blocks until the usb is connected, useful if reliant on USB interface.
+  while not usbConnected(): discard
 
 proc print*(s: cstring) {.inline.} = cPrintf(s)
   ## write output directly to the console (or serial console)
