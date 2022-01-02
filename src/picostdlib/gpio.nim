@@ -154,6 +154,17 @@ type
     
   IrqCallback* {.importC: "gpio_irq_callback_t".} = proc(gpio: Gpio, evt: set[IrqLevel]){.cDecl.}
 
+proc enableIrq*(gpio: Gpio, events: set[IrqLevel], enabled: bool){.importC: "gpio_set_irq_enabled".}
+  ## Enable or disable interrupts for specified GPIO. 
+  ## 
+  ## **Parameters:**
+  ## 
+  ## ==============  ====== 
+  ## **gpio**        Gpio number to be monitored for event
+  ## **event**       Which events will cause an interrupt 
+  ## **enabled**     Enable or disable flag for turning on and off the interupt
+
+
 proc enableIrqWithCallback*(gpio: Gpio, events: set[IrqLevel], enabled: bool, event: IrqCallback){.
     importC: "gpio_set_irq_enabled_with_callback".}
 
