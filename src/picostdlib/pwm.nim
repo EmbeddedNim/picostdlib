@@ -177,7 +177,7 @@ proc setClockDivide*(sliceNum: cuint, divider: float){.importC: "pwm_set_clkdiv"
   ## **divider**     Floating point clock divider, 1.float <= value < 256.float 
   ## =============  ====== 
   ## 
-proc setClockDivide*(pwmConfig: PwmConfig, divider: float){.importC: "pwm_config_set_clkdiv".}
+proc setClockDivide*(pwmConfig: ptr PwmConfig, divider: float){.importC: "pwm_config_set_clkdiv".}
   ## Set clock divider in a PWM configuration. 
   ## 
   ## If the divide mode is free-running, the PWM counter runs at clk_sys / div. 
@@ -191,7 +191,7 @@ proc setClockDivide*(pwmConfig: PwmConfig, divider: float){.importC: "pwm_config
   ## **divider**     Floating point clock divider, 1.float <= value < 256.float 
   ## =============  ====== 
   ## 
-proc setClockDivide*(pwmConfig: PwmConfig, divider: cuint){.importC: "pwm_config_set_clkdiv_int".}
+proc setClockDivide*(pwmConfig: ptr PwmConfig, divider: cuint){.importC: "pwm_config_set_clkdiv_int".}
   ## Set PWM clock divider in a PWM configuration. 
   ## 
   ## If the divide mode is free-running, the PWM counter runs at clk_sys / div. 
@@ -205,7 +205,7 @@ proc setClockDivide*(pwmConfig: PwmConfig, divider: cuint){.importC: "pwm_config
   ## **divider**     Integer value to reduce counting rate by. Must be greater than or equal to 1.
   ## =============  ====== 
   ## 
-proc setWrap*(pwmConfig: PwmConfig, wrap: uint16){.importc: "pwm_config_set_wrap".}
+proc setWrap*(pwmConfig: ptr PwmConfig, wrap: uint16){.importc: "pwm_config_set_wrap".}
   ## Set PWM counter wrap value in a PWM configuration. 
   ## 
   ## Set the highest value the counter will reach before returning to 0. Also 
@@ -219,7 +219,7 @@ proc setWrap*(pwmConfig: PwmConfig, wrap: uint16){.importc: "pwm_config_set_wrap
   ## =============  ====== 
   ## 
 
-proc init*(sliceNum: cuint, pwmConfig: PwmConfig, start: bool){.importC: "pwm_init".}
+proc init*(sliceNum: cuint, pwmConfig: ptr PwmConfig, start: bool){.importC: "pwm_init".}
   ## Initialise a PWM with settings from a configuration object. 
   ## 
   ## Use the getDefaultConfig() procedure to initialise a config objecture, 
@@ -234,7 +234,7 @@ proc init*(sliceNum: cuint, pwmConfig: PwmConfig, start: bool){.importC: "pwm_in
   ## **start**       If true the PWM will be started running once configured. If false you will need to start manually using pwm_set_enabled() or pwm_set_mask_enabled() 
   ## =============  ====== 
 
-proc getDefaultConfig*: PwmConfig {.importc: "pwm_get_default_config".}
+proc getDefaultConfig*(): PwmConfig {.importc: "pwm_get_default_config".}
   ## Get a set of default values for PWM configuration. 
   ## 
   ## PWM config is free running at system clock speed, no phase correction, 
@@ -263,7 +263,7 @@ proc setClockDivideMode*(sliceNum: cuint, mode: ClockDivideMode){.importc: "pwm_
   ## **mode**        Required divider mode 
   ## =============  ====== 
 
-proc setClockDivideMode*(pwmConfig: PwmConfig, mode: ClockDivideMode){.
+proc setClockDivideMode*(pwmConfig: ptr PwmConfig, mode: ClockDivideMode){.
     importc: "pwm_config_set_clkdiv_mode".}
   ## Set PWM counting mode in a PWM configuration. 
   ## 
@@ -285,7 +285,7 @@ proc setPhaseCorrect*(sliceNum: cuint, phaseCorrect: bool){.importC: "pwm_set_ph
   ## when the wrap point is reached, the PWM starts counting back down. The 
   ## output frequency is halved when phase-correct mode is enabled. 
 
-proc setPhaseCorrect*(pwmcfg: PwmConfig, phaseCorrect: bool){.
+proc setPhaseCorrect*(pwmcfg: ptr PwmConfig, phaseCorrect: bool){.
     importC: "pwm_config_set_phase_correct".}
   ## Set phase correction in a PWM configuration. 
   ## 
