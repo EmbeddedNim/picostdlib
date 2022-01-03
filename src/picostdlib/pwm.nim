@@ -16,7 +16,7 @@ type
     ##
     ## 
     freeRunning, high, rising, falling
-  PwmConfig* {.importC: "pwm_config".} = object
+  PwmConfig* {.byref, importC: "pwm_config".} = object
     ## Configuration object for PWM  tasks
     csr, divide, top: uint32
 
