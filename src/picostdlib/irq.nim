@@ -1,5 +1,17 @@
-{.push header: "hardware_irq/irq.h".}
-proc setExclusiveHandler*(num: cuint, handler: proc()){.importC: "irq_set_exclusive_handler".}
+const
+  TimerIrq0* = 0.cuint
+  TimerIrq1* = 1.cuint
+  TimerIrq2* = 2.cuint
+  TimerIrq3* = 3.cuint
+  PwmIrqWrap* = 4.cuint
+  # more required for full compatibility
+
+{.push header: "hardware/irq.h".}
+
+type
+  IrqHandler* {.importC: "irq_handler_t".} = proc(){.cDecl.}
+
+proc setExclusiveHandler*(num: cuint, handler: IrqHandler){.importC: "irq_set_exclusive_handler".}
 
 
 {.pop.}
