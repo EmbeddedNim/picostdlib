@@ -38,5 +38,9 @@ proc blockUntilUsbConnected*() =
 proc print*(s: cstring) {.inline.} = cPrintf(s)
   ## write output directly to the console (or serial console)
 
+proc print*(s: string) =
+  print(cstring s)
+  print(cstring "\n")
+
 proc defaultTxWaitBlocking*(){.importC: "uart_default_tx_wait_blocking", header: "hardware/uart.h".}
   ## Wait for the default UART'S TX fifo to be drained. 
