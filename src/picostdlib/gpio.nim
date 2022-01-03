@@ -7,7 +7,7 @@ type
     ## GPIOs, the peripheral sees the logical OR of these GPIO inputs.
     XIP, SPI, UART, I2C, PWM, SIO, PIO0, PIO1, GPCK, USB, NULL
 
-  Gpio* = distinct uint32
+  Gpio* = distinct range[0.uint32 .. 35.uint32]
     ## Gpio pins available to the RP2040. Not all pins may be available on some 
     ## microcontroller boards.
   Value* = distinct uint32
@@ -182,3 +182,14 @@ template setupGpio*(name: untyped, pin: Gpio, dir: bool) =
   const name = pin
   init(name)
   setDir(name, dir)
+  
+proc init*( _ : typedesc[Gpio], pin: range[0 .. 35], dir = Out): Gpio =
+  ## perform the typical assignment, init(), and setDir() steps all in one proc. 
+  ## 
+  ## **parameters**
+  ## **pin** : *int* (between 0 and 35) - the pin number corresponding the the Gpio pin
+  ## **dir** : *bool* [optional, defaults to Out] - *Out* or *In*
+  
+  result = pin.Gpio
+  result.init() 
+  result.setDir(dir) 
