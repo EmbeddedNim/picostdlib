@@ -20,6 +20,27 @@ type
     ## The identifier for an alarm. 
 
 
+proc sleep*(ms: uint32){.importc: "sleep_ms".}
+  ## Wait for the given number of milliseconds before returning. 
+  ## 
+  ## Note: This procedure attempts to perform a lower power sleep (using WFE) as much as possible.
+  ##
+  ## **Parameters:**
+  ## 
+  ## =========  ====== 
+  ## **ms**     the number of milliseconds to sleep 
+
+proc sleepMicroseconds*(us: uint64){.importc: "sleep_us".}
+  ## Wait for the given number of microseconds before returning. 
+  ## 
+  ## Note: This procedure attempts to perform a lower power sleep (using WFE) as much as possible.
+  ##
+  ## **Parameters:**
+  ## 
+  ## =========  ====== 
+  ## **us**     the number of microseconds to sleep 
+
+
 proc getTime*: AbsoluteTime {.importC:"get_absolute_time".}
   ## Return a representation of the current time.
   ## 
