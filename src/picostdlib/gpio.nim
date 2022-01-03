@@ -184,6 +184,12 @@ template setupGpio*(name: untyped, pin: Gpio, dir: bool) =
   setDir(name, dir)
   
 proc init*( _ : typedesc[Gpio], pin: range[0 .. 35], dir = Out): Gpio =
+  ## perform the typical assignment, init(), and setDir() steps all in one proc. 
+  ## 
+  ## **parameters**
+  ## **pin** : *int* (between 0 and 35) - the pin number corresponding the the Gpio pin
+  ## **dir** : *bool* [optional, defaults to Out] - *Out* or *In*
+  
   result = pin.Gpio
   result.init() 
   result.setDir(dir) 
