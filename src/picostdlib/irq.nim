@@ -12,6 +12,6 @@ type
   IrqHandler* {.importC: "irq_handler_t".} = proc(){.cDecl.}
 
 proc setExclusiveHandler*(num: cuint, handler: IrqHandler){.importC: "irq_set_exclusive_handler".}
-
+proc setEnabled*(num: cuint, enabled: bool) {.importc: "irq_set_enabled".}
 
 {.pop.}

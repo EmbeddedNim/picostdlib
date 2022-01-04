@@ -177,7 +177,7 @@ proc setClockDivide*(sliceNum: cuint, divider: float){.importC: "pwm_set_clkdiv"
   ## **divider**     Floating point clock divider, 1.float <= value < 256.float 
   ## =============  ====== 
   ## 
-proc setClockDivide*(pwmConfig: PwmConfig, divider: float){.importC: "pwm_config_set_clkdiv".}
+proc setClockDivide*(pwmConfig: PwmConfig, divider: cfloat(1) .. cfloat(256)){.importC: "pwm_config_set_clkdiv".}
   ## Set clock divider in a PWM configuration. 
   ## 
   ## If the divide mode is free-running, the PWM counter runs at clk_sys / div. 
