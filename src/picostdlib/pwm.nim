@@ -24,8 +24,10 @@ type
     ## Alias for channel parameter in the setChanLevel() procedure
     A, B
 
+  SliceNum* = distinct cuint
 
-proc toSliceNum*(gpio: Gpio): cuint {.importC: "pwm_gpio_to_slice_num".}
+
+proc toSliceNum*(gpio: Gpio): SliceNum {.importC: "pwm_gpio_to_slice_num".}
   ## Determine the PWM slice that is attached to the specified GPIO. 
   ## 
   ## **Parameters:**
@@ -36,7 +38,7 @@ proc toSliceNum*(gpio: Gpio): cuint {.importC: "pwm_gpio_to_slice_num".}
   ##
   ## **Returns** The PWM slice number that controls the specified GPIO. 
 
-proc setWrap*(sliceNum: cuint, wrap: uint16) {.importC: "pwm_set_wrap".}
+proc setWrap*(sliceNum: SliceNum, wrap: uint16) {.importC: "pwm_set_wrap".}
   ## Set the highest value the counter will reach before returning to 0. Also known as TOP.
   ## 
   ## The counter wrap value is double-buffered in hardware. This means that, 
@@ -52,7 +54,7 @@ proc setWrap*(sliceNum: cuint, wrap: uint16) {.importC: "pwm_set_wrap".}
   ## **wrap**         Value to set wrap to 
   ## ==============  ====== 
  
-proc setChanLevel*(sliceNum: cuint, chan: PwmChannel, level: uint16){.
+proc setChanLevel*(sliceNum: SliceNum, chan: PwmChannel, level: uint16){.
     importC: "pwm_set_chan_level".}
   ## Set the value of the PWM counter compare value, for either channel A or channel B 
   ## 
@@ -70,7 +72,7 @@ proc setChanLevel*(sliceNum: cuint, chan: PwmChannel, level: uint16){.
   ## **level**        new level for the selected output 
   ## ==============  ====== 
 
-proc setBothLevels*(sliceNum: cuint, levelA, levelB: uint16){.importC: "pwm_set_both_levels".}
+proc setBothLevels*(sliceNum: SliceNum, levelA, levelB: uint16){.importC: "pwm_set_both_levels".}
   ## Set the value of the PWM counter compare values, A and B
   ## 
   ## The counter compare register is double-buffered in hardware. This means 
@@ -110,7 +112,7 @@ proc setLevel*(gpio: Gpio, level: uint16){.importC: "pwm_set_gpio_level".}
   ## **level**    PWM level for this GPIO 
   ## ==========  ====== 
 
-proc getCounter*(sliceNum: cuint): uint16 {.importC: "pwm_get_counter".}
+proc getCounter*(sliceNum: SliceNum): uint16 {.importC: "pwm_get_counter".}
   ## Get current value of PWM counter
   ## 
   ## **Parameters:**
@@ -121,7 +123,7 @@ proc getCounter*(sliceNum: cuint): uint16 {.importC: "pwm_get_counter".}
   ## 
   ## **Returns:** Current value of PWM counter 
 
-proc setCounter*(sliceNum: cuint, level: uint16) {.importC: "pwm_set_counter".}
+proc setCounter*(sliceNum: SliceNum, level: uint16) {.importC: "pwm_set_counter".}
   ## Set the value of the PWM counter
   ## 
   ## **Parameters:**
@@ -131,7 +133,7 @@ proc setCounter*(sliceNum: cuint, level: uint16) {.importC: "pwm_set_counter".}
   ## **level**       Value to set the PWM counter to 
   ## =============  ====== 
   ## 
-proc advanceCount*(sliceNum: cuint){.importC: "pwm_advance_count".}
+proc advanceCount*(sliceNum: SliceNum){.importC: "pwm_advance_count".}
   ## Advance the phase of a running the counter by 1 count.
   ## 
   ## This procedure will return once the increment is complete.
@@ -143,7 +145,7 @@ proc advanceCount*(sliceNum: cuint){.importC: "pwm_advance_count".}
   ## =============  ====== 
   ## 
 
-proc retardCount*(sliceNum: cuint){.importC: "pwm_retard_count".}
+proc retardCount*(sliceNum: SliceNum){.importC: "pwm_retard_count".}
   ## Retard the phase of a running counter by 1 count
   ## This procedure will return once the retardation is complete.
   ## 
@@ -154,7 +156,7 @@ proc retardCount*(sliceNum: cuint){.importC: "pwm_retard_count".}
   ## =============  ====== 
   ## 
 
-proc setClockDivide*(sliceNum: cuint, integer, divide: byte){.importC: "pwm_set_clkdiv_int_frac".}
+proc setClockDivide*(sliceNum: SliceNum, integer, divide: byte){.importC: "pwm_set_clkdiv_int_frac".}
   ## Set the clock divider. Counter increment will be on sysclock divided by 
   ## this value, taking in to account the gating.
   ## 
@@ -166,7 +168,7 @@ proc setClockDivide*(sliceNum: cuint, integer, divide: byte){.importC: "pwm_set_
   ## **divide**      4 bit fractional part of the clock divider 
   ## =============  ====== 
   ## 
-proc setClockDivide*(sliceNum: cuint, divider: float){.importC: "pwm_set_clkdiv".}
+proc setClockDivide*(sliceNum: SliceNum, divider: float){.importC: "pwm_set_clkdiv".}
   ## Set the clock divider. Counter increment will be on sysclock divided by 
   ## this value, taking in to account the gating.
   ## 
@@ -219,7 +221,7 @@ proc setWrap*(pwmConfig: PwmConfig, wrap: uint16){.importc: "pwm_config_set_wrap
   ## =============  ====== 
   ## 
 
-proc init*(sliceNum: cuint, pwmConfig: PwmConfig, start: bool){.importC: "pwm_init".}
+proc init*(sliceNum: SliceNum, pwmConfig: PwmConfig, start: bool){.importC: "pwm_init".}
   ## Initialise a PWM with settings from a configuration object. 
   ## 
   ## Use the getDefaultConfig() procedure to initialise a config objecture, 
@@ -242,7 +244,7 @@ proc getDefaultConfig*: PwmConfig {.importc: "pwm_get_default_config".}
   ## 
   ## **Returns:** Set of default values. 
 
-proc setOutputPolarity*(sliceNum: cuint, a, b: bool){.importC: "pwm_set_output_polarity".}
+proc setOutputPolarity*(sliceNum: SliceNum, a, b: bool){.importC: "pwm_set_output_polarity".}
   ## Set PWM output polarity. 
   ## 
   ## **Parameters**
@@ -253,7 +255,7 @@ proc setOutputPolarity*(sliceNum: cuint, a, b: bool){.importC: "pwm_set_output_p
   ## **b**           true to invert output B 
   ## =============  ====== 
 
-proc setClockDivideMode*(sliceNum: cuint, mode: ClockDivideMode){.importc: "pwm_set_clkdiv_mode".}
+proc setClockDivideMode*(sliceNum: SliceNum, mode: ClockDivideMode){.importc: "pwm_set_clkdiv_mode".}
   ## Set PWM divider mode. 
   ## 
   ## **Parameters**
@@ -278,7 +280,7 @@ proc setClockDivideMode*(pwmConfig: PwmConfig, mode: ClockDivideMode){.
   ## **mode**        Required divider mode 
   ## =============  ====== 
 
-proc setPhaseCorrect*(sliceNum: cuint, phaseCorrect: bool){.importC: "pwm_set_phase_correct".}
+proc setPhaseCorrect*(sliceNum: SliceNum, phaseCorrect: bool){.importC: "pwm_set_phase_correct".}
   ## Set PWM phase correct on/off. 
   ## 
   ## Setting phase control to true means that instead of wrapping back to zero 
@@ -293,7 +295,7 @@ proc setPhaseCorrect*(pwmcfg: PwmConfig, phaseCorrect: bool){.
   ## when the wrap point is reached, the PWM starts counting back down. The 
   ## output frequency is halved when phase-correct mode is enabled. 
   
-proc setEnabled*(sliceNum: cuint, enabled: bool){.importC: "pwm_set_enabled".}
+proc setEnabled*(sliceNum: SliceNum, enabled: bool){.importC: "pwm_set_enabled".}
   ## Enable/Disable PWM. 
   ## 
   ## **Parameters:**
@@ -303,7 +305,7 @@ proc setEnabled*(sliceNum: cuint, enabled: bool){.importC: "pwm_set_enabled".}
   ## **enabled**     true to enable the specified PWM, false to disable 
   ## =============  ====== 
   ##
-proc setEnabled*(sliceNum: cuint, mask: set[0..7]){.importc: "pwm_set_mask_enabled".}
+proc setEnabled*(sliceNum: SliceNum, mask: set[0..7]){.importc: "pwm_set_mask_enabled".}
   ## Enable/Disable multiple PWM slices simultaneously. 
   ## 
   ## **Parameters:**
@@ -313,7 +315,7 @@ proc setEnabled*(sliceNum: cuint, mask: set[0..7]){.importc: "pwm_set_mask_enabl
   ## **mask**        Bitmap of PWMs to enable/disable. Bits 0 to 7 enable slices 0-7 respectively 
   ## =============  ====== 
   ## 
-proc setIrqEnabled*(sliceNum: cuint, enabled: bool){.importc: "pwm_set_irq_enabled".}
+proc setIrqEnabled*(sliceNum: SliceNum, enabled: bool){.importc: "pwm_set_irq_enabled".}
   ## Used to enable a single PWM instance interrupt
   ## 
   ## **Parameters:**
@@ -333,7 +335,7 @@ proc setIrqEnabled*(sliceMask: set[0..31], enabled: bool){.importC: "pwm_set_irq
   ## **enabled**     true to enable, false to disable
   ## =============  ====== 
   ## 
-proc clear*(sliceNim: cuint){.importC: "pwm_clear_irq".}
+proc clear*(sliceNim: SliceNum){.importC: "pwm_clear_irq".}
   ## Clear single PWM channel interrupt. 
   ## 
   ## **Parameters:**
@@ -347,7 +349,7 @@ proc getStatus*: uint32 {.importc: "pwm_get_irq_status_mask".}
   ## 
   ## **Returns:** The PWM channel that controls the specified Gpio
 
-proc forceIrq*(sliceNum: cuint){.importc: "pwm_force_irq".}
+proc forceIrq*(sliceNum: SliceNum){.importc: "pwm_force_irq".}
   ## Force PWM interrupt. 
   ## 
   ## **Parameters:**
