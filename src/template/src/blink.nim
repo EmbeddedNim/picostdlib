@@ -1,6 +1,5 @@
 import picostdlib/[gpio, time]
 
-
 DefaultLedPin.init()
 DefaultLedPin.setDir(Out)
 while true:
