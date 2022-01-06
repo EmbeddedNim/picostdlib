@@ -1,5 +1,4 @@
-import picostdlib/[gpio]
-import picostdlib
+import picostdlib/[gpio, time]
 
 DefaultLedPin.init()
 DefaultLedPin.setDir(Out)
