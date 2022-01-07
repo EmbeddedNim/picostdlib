@@ -1,5 +1,5 @@
 import commandant
-import std/[strformat, strutils, os, osproc, httpclient, strscans, terminal]
+import std/[strformat, strutils, os, osproc, httpclient, strscans, terminal, sequtils]
 
 
 proc printError(msg: string) =
@@ -20,8 +20,59 @@ proc builder(program: string, output = "") =
   let compileError = execCmd(fmt"nim c -c --nimcache:csource --gc:arc --cpu:arm --os:any -d:release -d:useMalloc ./src/{program}")
   if not compileError == 0:
     printError(fmt"unable to compile the provided nim program: {program}")
-  # rename the .c file
-  moveFile(("csource/" & fmt"@m{program}.c"), ("csource/" & fmt"""{program.replace(".nim")}.c"""))
+  
+  const libs = ["hardware/adc.h", "hardware/pwm.h", "pico/multicore.h", "hardware/i2c.h"]
+  const links = ["hardware_adc", "hardware_pwm", "pico_multicore", "hardware_i2c"]
+  var projLinks: seq[string]
+  # rename all `.nim.c` files to `.c` files and remove the `@m` symbol in front
+  for oldFile in walkFiles("csource/*.nim.c"):
+    let 
+      (head, tail) = splitPath(oldFile)
+      newFile = head & "/" & tail[2..^1].replace(".nim")
+    moveFile(oldFile, newFile)
+
+    for line in newFile.lines:
+      if line.contains("#include "):
+        var ln = line
+        ln.removePrefix("#include ")
+        ln = strip(ln)
+        ln = strip(ln, true, true, {'"'})
+        if libs.contains(ln):
+          let idx = libs.find(ln)
+          projLinks.add(links[idx])
+  
+  projLinks = projLinks.deduplicate()
+  var projLinksStr: string
+  for i in projLinks:
+    projLinksStr = projLinksStr & i & " "
+  const listsFile = "csource/CMakeLists.txt"
+  let newLinkString = "target_link_libraries(" & 
+                      program.replace(".nim") & 
+                      " pico_stdlib " &
+                      projLinksStr.strip() &
+                      ")\n"
+
+
+  var file = listsFile.readFile()
+  let idx = file.find("target_link_libraries(")
+
+  var 
+    count: int = idx
+    newline: bool = false
+
+  while not newline:
+    if file[count] == '\n':
+      newline = true
+    else:
+      count += 1
+
+  listsFile.writeFile(file.replace(file[idx..count], newLinkString))
+        
+  
+
+  # is there a better way to search for this?
+
+  
   # update file timestamps
   when not defined(windows):
     let touchError = execCmd("touch csource/CMakeLists.txt")
