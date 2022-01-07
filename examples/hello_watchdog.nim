@@ -1,11 +1,9 @@
-import picostdlib/[gpio, watchdog]
-import picostdlib
-
+import picostdlib/[stdio, watchdog, time]
 
 stdioInitAll()
 sleep(1000)
 while true:
-  if watchdogCauseReboot() == true:
+  if watchdog.watchdogCausedReboot() == true:
     print("Reboot by WatchDog!" & '\n')
   else:
     print("Clean Boot" & '\n')
