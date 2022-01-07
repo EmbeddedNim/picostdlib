@@ -1,5 +1,5 @@
-import picostdlib
-import picostdlib/[pll, clock]
+import picostdlib/[pll, clock, stdio]
+
 proc measure =
   let
     pllSys = frequencyCountKhz(pllSysClksrcPrimary)

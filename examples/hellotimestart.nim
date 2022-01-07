@@ -1,5 +1,4 @@
-import picostdlib/[gpio, time]
-import picostdlib
+import picostdlib/[time, stdio]
 
 stdioInitAll()
 

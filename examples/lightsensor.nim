@@ -1,5 +1,4 @@
-import picostdlib
-import picostdlib/[sevensegdisplay, adc, gpio]
+import picostdlib/[sevensegdisplay, adc, gpio, stdio]
 
 # This module reads the voltage on pin 26 using ADC and outputs the value between 3.15 - 3.3 in hex(0-F) on the
 # seven segmented display.

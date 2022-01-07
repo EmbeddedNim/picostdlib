@@ -1,5 +1,4 @@
-import picostdlib
-import picostdlib/[adc, gpio]
+import picostdlib/[adc, gpio, stdio, time]
 
 stdioInitAll()
 adcInit()

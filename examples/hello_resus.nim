@@ -1,5 +1,4 @@
-import picostdlib
-import picostdlib/[pll, clock, gpio]
+import picostdlib/[pll, clock, gpio, stdio]
 var seenResus = false
 # Uses the LedPin to indicate life since I cannot see the response on the usb connection.
 proc resusCallback {.noConv.} =
