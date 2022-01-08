@@ -17,6 +17,11 @@ pico_sdk_init()
 file(GLOB MyCSources build/nimcache/*.c)
 add_executable(blink ${MyCSources})
 
+# Add directory containing this CMakeLists file to include search path.
+# This is required so that the nimbase.h file is found. Other headers
+# required for a project can also be placed here.
+target_include_directories(blink PUBLIC ${CMAKE_CURRENT_LIST_DIR})
+
 # pull in our pico_stdlib which pulls in commonly used features
 # hardware_adc tinyusb_device tinyusb_board Currently supported.
 target_link_libraries(blink pico_stdlib hardware_adc)

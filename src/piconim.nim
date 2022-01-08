@@ -25,9 +25,6 @@ proc builder(program: string, output = "") =
   # rename the .c file
   moveFile((nimcache / fmt"@m{program}.c"), (nimcache / fmt"""{program.replace(".nim")}.c"""))
 
-  # Copy nimbase.h so it is besides the nim generated .c files
-  copyFile ("csource" / "nimbase.h"), (nimcache / "nimbase.h")
-
   # update file timestamps
   when not defined(windows):
     let touchError = execCmd("touch csource/CMakeLists.txt")
