@@ -77,7 +77,11 @@ proc doSetup(projectPath: string, sdk: string = "") =
   echo cmakeCmd.quoteShellCommand
   let buildDir = projectPath / "csource/build"
   discard existsOrCreateDir(buildDir)
-  let cmakeResult = execCmdEx(cmakeCmd.quoteShellCommand, workingDir=buildDir)
+  let cmakeResult = execCmdEx(
+    cmakeCmd.quoteShellCommand,
+    workingDir=buildDir,
+    options={poEchoCmd, poUsePath, poParentStreams}
+  )
   if cmakeResult.exitCode != 0:
     printError(fmt"cmake exited with error code: {cmakeResult.exitCode}")
 
