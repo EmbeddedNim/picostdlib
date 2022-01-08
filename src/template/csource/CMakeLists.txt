@@ -14,7 +14,7 @@ project(blink)
 pico_sdk_init()
 
 # add program file(s)
-file(GLOB MyCSources *.c)
+file(GLOB MyCSources build/nimcache/*.c)
 add_executable(blink ${MyCSources})
 
 # pull in our pico_stdlib which pulls in commonly used features

@@ -11,17 +11,18 @@ proc helpMessage(): string =
   result = "some useful message here..."
 
 proc builder(program: string, output = "") =
+  let nimcache = "csource" / "build" / "nimcache"
   # remove previous builds
-  for _, file in walkDir("csource"):
-    if file.endsWith(".c"):
+  for kind, file in walkDir(nimcache):
+    if kind == pcFile and file.endsWith(".c"):
       removeFile(file)
 
   # compile the nim program to .c file
-  let compileError = execCmd(fmt"nim c -c --nimcache:csource --gc:arc --cpu:arm --os:any -d:release -d:useMalloc ./src/{program}")
+  let compileError = execCmd(fmt"nim c -c --nimcache:{nimcache} --gc:arc --cpu:arm --os:any -d:release -d:useMalloc ./src/{program}")
   if not compileError == 0:
     printError(fmt"unable to compile the provided nim program: {program}")
   # rename the .c file
-  moveFile(("csource/" & fmt"@m{program}.c"), ("csource/" & fmt"""{program.replace(".nim")}.c"""))
+  moveFile((nimcache & fmt"@m{program}.c"), (nimcache & fmt"""{program.replace(".nim")}.c"""))
   # update file timestamps
   when not defined(windows):
     let touchError = execCmd("touch csource/CMakeLists.txt")
