@@ -22,7 +22,7 @@ proc builder(program: string, output = "") =
   if not compileError == 0:
     printError(fmt"unable to compile the provided nim program: {program}")
   # rename the .c file
-  moveFile((nimcache & fmt"@m{program}.c"), (nimcache & fmt"""{program.replace(".nim")}.c"""))
+  moveFile((nimcache / fmt"@m{program}.c"), (nimcache / fmt"""{program.replace(".nim")}.c"""))
   # update file timestamps
   when not defined(windows):
     let touchError = execCmd("touch csource/CMakeLists.txt")
