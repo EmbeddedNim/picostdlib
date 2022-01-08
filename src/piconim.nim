@@ -70,7 +70,7 @@ proc findProjectName(): string =
     printError "Unexpected: found multiple .nimble files"
   result = allNimbleFiles[0].splitFile[1]
 
-proc setup(projectPath: string, sdk: string = "") =
+proc doSetup(projectPath: string, sdk: string = "") =
   if not dirExists(projectPath):
     printError "Could not find csource directory, run \"setup\" from the root of a project created by piconim"
   if sdk != "":
@@ -128,7 +128,7 @@ proc createProject(projectPath: string; sdk = "", nimbase = "", override = false
   let cmakelists = (projectPath / "/csource/CMakeLists.txt")
   cmakelists.writeFile cmakelists.readFile.replace("blink", name)   
 
-  setup(projectPath, sdk=sdk)
+  doSetup(projectPath, sdk=sdk)
 
 proc validateInitInputs(name: string, sdk, nimbase: string = "", overwrite: bool) =
   ## ensures that provided setup cli parameters will work
@@ -161,6 +161,10 @@ when isMainModule:
       option(nimbase, string, "nimbase", "n")
       flag(overwriteTemplate, "overwrite", "O")
 
+  commandline:
+    subcommand(setup, "setup"):
+      option(setup_sdk, string, "sdk", "s")
+
     subcommand(build, "build", "b"):
       argument(mainProgram, string)
       option(output, string, "output", "o")
@@ -173,6 +177,8 @@ when isMainModule:
   elif build:
     validateBuildInputs(mainProgram, output)
     builder(mainProgram, output)
+  elif setup:
+    doSetup(".", setup_sdk)
   else:
     echo helpMessage()
 
