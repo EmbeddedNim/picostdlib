@@ -1,5 +1,5 @@
 import commandant
-import std/[strformat, strutils, os, osproc, httpclient, strscans, terminal]
+import std/[strformat, strutils, os, osproc, httpclient, strscans, terminal, sequtils]
 
 
 proc printError(msg: string) =
@@ -47,6 +47,45 @@ proc validateBuildInputs(program: string, output = "") =
     if not dirExists(output):
       printError(fmt"provided output option is not a valid directory: {output}")
 
+proc validateSdkPath(sdk: string) =
+  # check if the sdk option path exists and has the appropriate cmake file (very basic check...)
+  if not sdk.dirExists():
+    printError(fmt"could not find an existing directory with the provided --sdk argument : {sdk}")
+
+  if not fileExists(fmt"{sdk}/pico_sdk_init.cmake"):
+    printError(fmt"directory provided with --sdk argument does not appear to be a valid pico-sdk library: {sdk}")
+
+proc findProjectName(): string =
+  # Use .nimble file to find project name
+  let allNimbleFiles = toSeq(walkFiles "*.nimble")
+  if allNimbleFiles.len == 0:
+    printError "Could not .nimble file, run \"setup\" from the root of a project created by piconim"
+  elif allNimbleFiles.len > 1:
+    printError "Unexpected: found multiple .nimble files"
+  result = allNimbleFiles[0].splitFile[1]
+
+proc setup(sdk: string = "") =
+  const projectPath = "."
+
+  if not dirExists(projectPath):
+    printError "Could not find csource directory, run \"setup\" from the root of a project created by piconim"
+  if sdk != "":
+    validateSdkPath sdk
+
+  var cmakeCmd = @["cmake"]
+  if sdk != "":
+    cmakeCmd.add fmt"-DPICO_SDK_PATH={sdk}"
+  else:
+    cmakeCmd.add "-DPICO_SDK_FETCH_FROM_GIT=on"
+  cmakeCmd.add ".."
+
+  echo cmakeCmd.quoteShellCommand
+  let buildDir = projectPath / "csource/build"
+  discard existsOrCreateDir(buildDir)
+  let cmakeResult = execCmdEx(cmakeCmd.quoteShellCommand, workingDir=buildDir)
+  if cmakeResult.exitCode != 0:
+    printError(fmt"cmake exited with error code: {cmakeResult.exitCode}")
+
 proc downloadNimbase(path: string): bool =
   ## Attempts to download the nimbase if it fails returns false
   let
@@ -81,32 +120,11 @@ proc createProject(projectPath: string; sdk = "", nimbase = "", override = false
     except OSError:
       printError"failed to copy provided nimbase.h file"
 
-  # move the CMakeLists.txt file, based on if an sdk was provided or not
-  discard existsOrCreateDir((projectPath / "csource/build"))
-  if sdk != "":
-    copyFile((projectPath / "csource/CMakeLists/existingSDK_CMakeLists.txt"), (
-        projectPath / "csource/CMakeLists.txt"))
-    # change all instances of template `blink` to the project name
-    let cmakelists = (projectPath / "/csource/CMakeLists.txt")
-    cmakelists.writeFile cmakelists.readFile.replace("blink", name)   
-    # run cmake from build directory
-    setCurrentDir((projectPath / "/csource/build"))
-    let errorCode = execCmd(fmt"cmake -DPICO_SDK_PATH={sdk} ..")
-    if errorCode != 0:
-      printError(fmt"while using provided sdk path, cmake exited with error code: {errorCode}")
+  # change all instances of template `blink` to the project name
+  let cmakelists = (projectPath / "/csource/CMakeLists.txt")
+  cmakelists.writeFile cmakelists.readFile.replace("blink", name)   
 
-  else:
-    copyFile((projectPath / "csource/CMakeLists/downloadSDK_CMakeLists.txt"), ((
-        projectPath / "csource/CMakeLists.txt")))
-    # change all instances of template `blink` to the project name
-    let cmakelists = (projectPath / "csource/CMakeLists.txt")
-    cmakelists.writeFile cmakelists.readFile.replace("blink", name)
-    # run cmake from build directory
-    setCurrentDir((projectPath / "csource/build"))
-    let errorCode = execCmd(fmt"cmake ..")
-    if errorCode != 0:
-      printError(fmt"cmake exited with error code: {errorCode}")
-
+  setup(sdk=sdk)
 
 proc validateInitInputs(name: string, sdk, nimbase: string = "", overwrite: bool) =
   ## ensures that provided setup cli parameters will work
@@ -119,13 +137,8 @@ proc validateInitInputs(name: string, sdk, nimbase: string = "", overwrite: bool
   if dirExists(joinPath(getCurrentDir(), name)) and overwrite == false:
     printError(fmt"provided project name ({name}) already has directory, use --overwrite if you wish to replace contents")
 
-  # check if the sdk option path exists and has the appropriate cmake file (very basic check...)
   if sdk != "":
-    if not sdk.dirExists():
-      printError(fmt"could not find an existing directory with the provided --sdk argument : {sdk}")
-
-    if not fileExists(fmt"{sdk}/pico_sdk_init.cmake"):
-      printError(fmt"directory provided with --sdk argument does not appear to be a valid pico-sdk library: {sdk}")
+    validateSdkPath sdk
 
   if nimbase != "":
     if not nimbase.fileExists():

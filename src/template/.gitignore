@@ -1,0 +1,4 @@
+csource/build
+csource/*.json
+csource/*.c
+
