@@ -61,15 +61,6 @@ proc validateSdkPath(sdk: string) =
   if not fileExists(fmt"{sdk}/pico_sdk_init.cmake"):
     printError(fmt"directory provided with --sdk argument does not appear to be a valid pico-sdk library: {sdk}")
 
-proc findProjectName(): string =
-  # Use .nimble file to find project name
-  let allNimbleFiles = toSeq(walkFiles "*.nimble")
-  if allNimbleFiles.len == 0:
-    printError "Could not .nimble file, run \"setup\" from the root of a project created by piconim"
-  elif allNimbleFiles.len > 1:
-    printError "Unexpected: found multiple .nimble files"
-  result = allNimbleFiles[0].splitFile[1]
-
 proc doSetup(projectPath: string, sdk: string = "") =
   if not dirExists(projectPath):
     printError "Could not find csource directory, run \"setup\" from the root of a project created by piconim"
