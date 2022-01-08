@@ -67,23 +67,25 @@ proc doSetup(projectPath: string, sdk: string = "") =
   if sdk != "":
     validateSdkPath sdk
 
-  var cmakeCmd = @["cmake"]
+  var cmakeArgs: seq[string]
   if sdk != "":
-    cmakeCmd.add fmt"-DPICO_SDK_PATH={sdk}"
+    cmakeArgs.add fmt"-DPICO_SDK_PATH={sdk}"
   else:
-    cmakeCmd.add "-DPICO_SDK_FETCH_FROM_GIT=on"
-  cmakeCmd.add ".."
+    cmakeArgs.add "-DPICO_SDK_FETCH_FROM_GIT=on"
+  cmakeArgs.add ".."
 
-  echo cmakeCmd.quoteShellCommand
   let buildDir = projectPath / "csource/build"
   discard existsOrCreateDir(buildDir)
-  let cmakeResult = execCmdEx(
-    cmakeCmd.quoteShellCommand,
+
+  let cmakeProc = startProcess(
+    "cmake",
+    args=cmakeArgs,
     workingDir=buildDir,
     options={poEchoCmd, poUsePath, poParentStreams}
   )
-  if cmakeResult.exitCode != 0:
-    printError(fmt"cmake exited with error code: {cmakeResult.exitCode}")
+  let cmakeExit = cmakeProc.waitForExit()
+  if cmakeExit != 0:
+    printError(fmt"cmake exited with error code: {cmakeExit}")
 
 proc downloadNimbase(path: string): bool =
   ## Attempts to download the nimbase if it fails returns false
