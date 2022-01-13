@@ -1,6 +1,5 @@
 import commandant
-import std/[strformat, strutils, os, osproc, httpclient, strscans, terminal]
-
+import std/[strformat, strutils, os, osproc, httpclient, strscans, terminal, options, streams]
 
 proc printError(msg: string) =
   echo ansiForegroundColorCode(fgRed), msg, ansiResetCode
@@ -9,6 +8,57 @@ proc printError(msg: string) =
 
 proc helpMessage(): string =
   result = "some useful message here..."
+
+type
+  LinkableLib = enum
+    stdio = "pico_stdlib"
+    multicore = "pico_multicore"
+    adc = "hardware_adc"
+    pio = "hardware_pio"
+    dma = "hardware_dma"
+    i2c = "hardware_i2c"
+    rtc = "hardware_rtc"
+    uart = "hardware_uart"
+    spi = "hardware_spi"
+    clock = "hardware_clocks"
+    reset = "hardware_resets"
+    flash = "hardware_flash"
+    pwm = "hardware_pwm"
+    interp = "hardware_interp"
+
+proc getLinkedLib(fileName: string): set[LinkableLib] =
+  ## Iterates over lines searching for includes adding to result
+  let file = open(fileName)
+  for line in file.lines:
+    echo line
+    if not line.startsWith("typedef"):
+      var incld = ""
+      if line.scanf("""#include "$+.""", incld) or line.scanf("""#include <$+.""", incld):
+        if incld == "stdio":
+          result.incl stdio
+        let incld = incld.replace('/', '_')
+        try:
+          result.incl parseEnum[LinkableLib](incld)
+        except: discard
+    else:
+      break
+  close file
+
+proc genLinkLibs() =
+  ## Will create a text file in the csources containing all libs to link
+  var libs: set[LinkableLib]
+  for kind, path in walkDir("csource"):
+    if kind == pcFile and path.endsWith(".c"):
+      libs.incl getLinkedLib(path)
+
+  const importPath = "csource" / "imports.txt"
+  discard tryRemoveFile(importPath)
+
+  let importStrm = newFileStream(importPath, fmWrite)
+  for lib in libs:
+    importStrm.writeLine $lib
+  close importStrm
+
 
 proc builder(program: string, output = "") =
   # remove previous builds
@@ -20,6 +70,7 @@ proc builder(program: string, output = "") =
   let compileError = execCmd(fmt"nim c -c --nimcache:csource --gc:arc --cpu:arm --os:any -d:release -d:useMalloc ./src/{program}")
   if not compileError == 0:
     printError(fmt"unable to compile the provided nim program: {program}")
+  genLinkLibs()
   # rename the .c file
   moveFile(("csource/" & fmt"@m{program}.c"), ("csource/" & fmt"""{program.replace(".nim")}.c"""))
   # update file timestamps
@@ -140,13 +191,13 @@ when isMainModule:
   commandline:
     subcommand(init, "init", "i"):
       argument(name, string)
-      option(sdk, string, "sdk", "s")
-      option(nimbase, string, "nimbase", "n")
+      commandant.option(sdk, string, "sdk", "s")
+      commandant.option(nimbase, string, "nimbase", "n")
       flag(overwriteTemplate, "overwrite", "O")
 
     subcommand(build, "build", "b"):
       argument(mainProgram, string)
-      option(output, string, "output", "o")
+      commandant.option(output, string, "output", "o")
 
   echo "pico-nim : create raspberry pi pico projects using Nim"
 
