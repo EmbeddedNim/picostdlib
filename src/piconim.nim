@@ -34,8 +34,6 @@ proc getLinkedLib(fileName: string): set[LinkableLib] =
     if not line.startsWith("typedef"):
       var incld = ""
       if line.scanf("""#include "$+.""", incld) or line.scanf("""#include <$+.""", incld):
-        if incld == "stdio":
-          result.incl stdio
         let incld = incld.replace('/', '_')
         try:
           result.incl parseEnum[LinkableLib](incld)
