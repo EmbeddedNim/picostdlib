@@ -501,7 +501,7 @@ proc readString*(itf: UsbSerialInterface, n: Positive = 1): string {.inline.} =
   let actualNumBytes = cdcRead(itf.uint8, result[0].unsafeAddr, n.uint32)
   result.setLen(actualNumBytes)
 
-template writeData(itf: uint8, data: untyped) =
+template writeData(itf: uint8, data: string or openArray[uint8]) =
   var
     i = 0
     remain = data.len
