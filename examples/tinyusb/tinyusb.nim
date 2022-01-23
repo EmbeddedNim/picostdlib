@@ -154,10 +154,10 @@ main()
 # USB Callbacks
 
 # hidGetReport and hidSetReport must be defined, here we do nothing
-hidGetReportCb(instance, reportId, reportType, buffer, reqLen):
+hidGetReportCallback(instance, reportId, reportType, buffer, reqLen):
   discard
 
-hidSetReportCb(instance, reportId, reportType, buffer, reqLen):
+hidSetReportCallback(instance, reportId, reportType, buffer, reqLen):
   discard
 
 # These callbacks are optional.
