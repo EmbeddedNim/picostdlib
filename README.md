@@ -2,7 +2,14 @@
 
 This library provides the library and build system necessary to write programs for RP2040 based devices (such as the Raspberry Pi Pico) in the [Nim](https://nim-lang.org/) programming language
 
-The libary provides wrappers for the original [Raspberry Pi Pico SDK](https://github.com/raspberrypi/pico-sdk). Currently, standard library features such as GPIO are supported. Libraries such as TinyUSB are in development.
+The libary provides wrappers for the original [Raspberry Pi Pico
+SDK](https://github.com/raspberrypi/pico-sdk). The following features are 
+currently implemented:
+
+* Automatic project scaffolding using the `piconim` tool
+* Standard library features such as GPIO, time, ADC, PWM and many more
+* Rudimentary TinyUSB support: USB device, HID and CDC (serial port) classes
+
 
 ## Table of Contents
 
