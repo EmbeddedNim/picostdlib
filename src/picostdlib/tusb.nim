@@ -394,6 +394,20 @@ proc sendKeyboardReport*(itf: UsbHidInterface, id: byte, modifiers: set[KeyModif
   let keyArr = [key0, key1, key2, key3, key4, key5]
   result = sendKeyboardReport(itf, id, cast[uint8](modifiers), cast[ptr uint8](keyArr.unsafeAddr))
 
+proc sendKeyboardReport*(itf: UsbHidInterface, id: byte, modifiers: set[KeyModifier],
+    keys: array[6, KeyboardKeypress]): bool =
+  ## Convenient helper to send keyboard report if application
+  ## uses template layout report as defined by hid_keyboard_report_t
+  ##
+  ## ==========     ===================
+  ## **itf**        HID interface index.
+  ## **id**         Report index for the interface.
+  ## **modifiers**  Currently pressed modifier keys
+  ## **keys**       Up to 6 keys currently pressed (use `keyNone` if fewer keys are desired)
+
+  var k = keys
+  result = sendKeyboardReport(itf, id, cast[uint8](modifiers), cast[ptr uint8](k[0].addr))
+
 
 # CDC
 
