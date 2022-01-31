@@ -311,7 +311,7 @@ type
 
   MouseReport* {.packed, importC: "hid_mouse_report_t".} = object
     buttons: set[MouseButton]
-    x, y, wheel, pan: byte
+    x, y, wheel, pan: int8
 {.pop.}
 
 static:
@@ -347,8 +347,9 @@ proc sendReport*(itf: UsbHidInterface, id: byte, report: pointer, len: byte):
 proc sendKeyboardReport(itf: UsbHidInterface, id: byte, modifier: uint8,
     keycode: ptr uint8): bool {.importc: "tud_hid_n_keyboard_report".}
 
-proc sendMouseReport*(itf: UsbHidInterface, id: byte, buttons: set[MouseButton], x, y, vertical,
-    horizontal: byte): bool {.importc: "tud_hid_n_mouse_report".}
+proc sendMouseReport*(itf: UsbHidInterface, id: byte,
+    buttons: set[MouseButton], x, y, vertical, horizontal: int8): bool
+    {.importc: "tud_hid_n_mouse_report".}
   ## Convenient helper to send mouse report if application
   ## use template layout report as defined by hid_mouse_report_t
   ## **Parameters:**
