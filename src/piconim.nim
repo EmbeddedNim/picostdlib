@@ -1,5 +1,5 @@
 import commandant
-import std/[strformat, strutils, os, osproc, httpclient, strscans, terminal]
+import std/[strformat, strutils, os, osproc, httpclient, strscans, terminal, sequtils]
 
 
 proc printError(msg: string) =
@@ -11,17 +11,20 @@ proc helpMessage(): string =
   result = "some useful message here..."
 
 proc builder(program: string, output = "") =
+  let nimcache = "csource" / "build" / "nimcache"
   # remove previous builds
-  for _, file in walkDir("csource"):
-    if file.endsWith(".c"):
+  for kind, file in walkDir(nimcache):
+    if kind == pcFile and file.endsWith(".c"):
       removeFile(file)
 
   # compile the nim program to .c file
-  let compileError = execCmd(fmt"nim c -c --nimcache:csource --gc:arc --cpu:arm --os:any -d:release -d:useMalloc ./src/{program}")
+  let compileError = execCmd(fmt"nim c -c --nimcache:{nimcache} --gc:arc --cpu:arm --os:any -d:release -d:useMalloc ./src/{program}")
   if not compileError == 0:
     printError(fmt"unable to compile the provided nim program: {program}")
+
   # rename the .c file
-  moveFile(("csource/" & fmt"@m{program}.c"), ("csource/" & fmt"""{program.replace(".nim")}.c"""))
+  moveFile((nimcache / fmt"@m{program}.c"), (nimcache / fmt"""{program.replace(".nim")}.c"""))
+
   # update file timestamps
   when not defined(windows):
     let touchError = execCmd("touch csource/CMakeLists.txt")
@@ -46,6 +49,40 @@ proc validateBuildInputs(program: string, output = "") =
   if output != "":
     if not dirExists(output):
       printError(fmt"provided output option is not a valid directory: {output}")
+
+proc validateSdkPath(sdk: string) =
+  # check if the sdk option path exists and has the appropriate cmake file (very basic check...)
+  if not sdk.dirExists():
+    printError(fmt"could not find an existing directory with the provided --sdk argument : {sdk}")
+
+  if not fileExists(fmt"{sdk}/pico_sdk_init.cmake"):
+    printError(fmt"directory provided with --sdk argument does not appear to be a valid pico-sdk library: {sdk}")
+
+proc doSetup(projectPath: string, sdk: string = "") =
+  if not dirExists(projectPath):
+    printError "Could not find csource directory, run \"setup\" from the root of a project created by piconim"
+  if sdk != "":
+    validateSdkPath sdk
+
+  var cmakeArgs: seq[string]
+  if sdk != "":
+    cmakeArgs.add fmt"-DPICO_SDK_PATH={sdk}"
+  else:
+    cmakeArgs.add "-DPICO_SDK_FETCH_FROM_GIT=on"
+  cmakeArgs.add ".."
+
+  let buildDir = projectPath / "csource/build"
+  discard existsOrCreateDir(buildDir)
+
+  let cmakeProc = startProcess(
+    "cmake",
+    args=cmakeArgs,
+    workingDir=buildDir,
+    options={poEchoCmd, poUsePath, poParentStreams}
+  )
+  let cmakeExit = cmakeProc.waitForExit()
+  if cmakeExit != 0:
+    printError(fmt"cmake exited with error code: {cmakeExit}")
 
 proc downloadNimbase(path: string): bool =
   ## Attempts to download the nimbase if it fails returns false
@@ -81,32 +118,11 @@ proc createProject(projectPath: string; sdk = "", nimbase = "", override = false
     except OSError:
       printError"failed to copy provided nimbase.h file"
 
-  # move the CMakeLists.txt file, based on if an sdk was provided or not
-  discard existsOrCreateDir((projectPath / "csource/build"))
-  if sdk != "":
-    copyFile((projectPath / "csource/CMakeLists/existingSDK_CMakeLists.txt"), (
-        projectPath / "csource/CMakeLists.txt"))
-    # change all instances of template `blink` to the project name
-    let cmakelists = (projectPath / "/csource/CMakeLists.txt")
-    cmakelists.writeFile cmakelists.readFile.replace("blink", name)   
-    # run cmake from build directory
-    setCurrentDir((projectPath / "/csource/build"))
-    let errorCode = execCmd(fmt"cmake -DPICO_SDK_PATH={sdk} ..")
-    if errorCode != 0:
-      printError(fmt"while using provided sdk path, cmake exited with error code: {errorCode}")
+  # change all instances of template `blink` to the project name
+  let cmakelists = (projectPath / "/csource/CMakeLists.txt")
+  cmakelists.writeFile cmakelists.readFile.replace("blink", name)   
 
-  else:
-    copyFile((projectPath / "csource/CMakeLists/downloadSDK_CMakeLists.txt"), ((
-        projectPath / "csource/CMakeLists.txt")))
-    # change all instances of template `blink` to the project name
-    let cmakelists = (projectPath / "csource/CMakeLists.txt")
-    cmakelists.writeFile cmakelists.readFile.replace("blink", name)
-    # run cmake from build directory
-    setCurrentDir((projectPath / "csource/build"))
-    let errorCode = execCmd(fmt"cmake ..")
-    if errorCode != 0:
-      printError(fmt"cmake exited with error code: {errorCode}")
-
+  doSetup(projectPath, sdk=sdk)
 
 proc validateInitInputs(name: string, sdk, nimbase: string = "", overwrite: bool) =
   ## ensures that provided setup cli parameters will work
@@ -119,13 +135,8 @@ proc validateInitInputs(name: string, sdk, nimbase: string = "", overwrite: bool
   if dirExists(joinPath(getCurrentDir(), name)) and overwrite == false:
     printError(fmt"provided project name ({name}) already has directory, use --overwrite if you wish to replace contents")
 
-  # check if the sdk option path exists and has the appropriate cmake file (very basic check...)
   if sdk != "":
-    if not sdk.dirExists():
-      printError(fmt"could not find an existing directory with the provided --sdk argument : {sdk}")
-
-    if not fileExists(fmt"{sdk}/pico_sdk_init.cmake"):
-      printError(fmt"directory provided with --sdk argument does not appear to be a valid pico-sdk library: {sdk}")
+    validateSdkPath sdk
 
   if nimbase != "":
     if not nimbase.fileExists():
@@ -144,6 +155,10 @@ when isMainModule:
       option(nimbase, string, "nimbase", "n")
       flag(overwriteTemplate, "overwrite", "O")
 
+  commandline:
+    subcommand(setup, "setup"):
+      option(setup_sdk, string, "sdk", "s")
+
     subcommand(build, "build", "b"):
       argument(mainProgram, string)
       option(output, string, "output", "o")
@@ -156,6 +171,8 @@ when isMainModule:
   elif build:
     validateBuildInputs(mainProgram, output)
     builder(mainProgram, output)
+  elif setup:
+    doSetup(".", setup_sdk)
   else:
     echo helpMessage()
 

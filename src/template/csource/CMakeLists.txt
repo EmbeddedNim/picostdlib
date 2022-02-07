@@ -2,8 +2,7 @@ cmake_minimum_required(VERSION 3.13)
 
 # initialize pico-sdk from GIT
 # (note this can come from environment, CMake cache etc)
-set(PICO_SDK_FETCH_FROM_GIT on)
-
+#set(PICO_SDK_FETCH_FROM_GIT on)
 
 # pico_sdk_import.cmake is a single file copied from this SDK
 # note: this must happen before project()
@@ -15,8 +14,13 @@ project(blink)
 pico_sdk_init()
 
 # add program file(s)
-file(GLOB MyCSources *.c)
+file(GLOB MyCSources build/nimcache/*.c)
 add_executable(blink ${MyCSources})
+
+# Add directory containing this CMakeLists file to include search path.
+# This is required so that the nimbase.h file is found. Other headers
+# required for a project can also be placed here.
+target_include_directories(blink PUBLIC ${CMAKE_CURRENT_LIST_DIR})
 
 # pull in our pico_stdlib which pulls in commonly used features
 # hardware_adc tinyusb_device tinyusb_board Currently supported.
