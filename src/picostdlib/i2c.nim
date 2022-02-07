@@ -23,7 +23,7 @@ type
     hw*: ptr I2Hw
     restartOnNext*: bool
 
-  I2cAddress = distinct range[0'u8 .. 127'u8]
+  I2cAddress* = distinct range[0'u8 .. 127'u8]
 
 var i2c0* {.importC: "i2c0_inst".}: I2cInst
 var i2c1* {.importC: "i2c1_inst".}: I2cInst
@@ -95,4 +95,4 @@ proc readBlocking*[N: Natural](
   ## to Pico SDK documentation). In case of error return a 0-length seq. If
   ## `noStop` is `true`, master retains control of the bus at the end of the
   ## transfer.
-  result = readBlocking(i2c, address.uint8, dest[0].addr, dest.len, noStop)
+  result = readBlocking(i2c, address.uint8, dest[0].addr, dest.len.uint, noStop)
