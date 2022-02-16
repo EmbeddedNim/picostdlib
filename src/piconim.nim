@@ -18,7 +18,9 @@ proc builder(program: string, output = "") =
       removeFile(file)
 
   # compile the nim program to .c file
-  let compileError = execCmd(fmt"nim c -c --nimcache:{nimcache} --gc:arc --cpu:arm --os:any -d:release -d:useMalloc ./src/{program}")
+  let nimcmd = fmt"nim c -c --nimcache:{nimcache} --cpu:arm --os:any -d:useMalloc ./src/{program}"
+  echo fmt"Nim command line: {nimcmd}"
+  let compileError = execCmd(nimcmd)
   if not compileError == 0:
     printError(fmt"unable to compile the provided nim program: {program}")
 
