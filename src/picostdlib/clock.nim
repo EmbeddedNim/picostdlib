@@ -16,7 +16,7 @@ type
 {.pop.}
 
 type
-  Fc0SrcValue* {.pure, size: sizeof(cuint).} = enum
+  Fc0SrcValue* {.pure.} = enum
     null
     pllSysClksrcPrimary
     pllUsbClksrcPrimary
@@ -31,7 +31,7 @@ type
     clkUsb
     clkAdc
     clkRtc
-  AuxSrcValue* {.pure, size: sizeof(cuint).} = enum
+  AuxSrcValue* {.pure.} = enum
     clksrcPllSys
     clksrcPllUsb
     roscClksrc
