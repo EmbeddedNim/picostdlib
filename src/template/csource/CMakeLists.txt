@@ -22,9 +22,8 @@ add_executable(blink ${MyCSources})
 # required for a project can also be placed here.
 target_include_directories(blink PUBLIC ${CMAKE_CURRENT_LIST_DIR})
 
-# pull in our pico_stdlib which pulls in commonly used features
-# hardware_adc tinyusb_device tinyusb_board Currently supported.
-target_link_libraries(blink pico_stdlib hardware_adc)
+include(imports.cmake) # Include our generated file
+link_imported_libs(blink) # call our generated function to import all libs we're using
 
 # enable usb output, disable uart output
 pico_enable_stdio_usb(blink 1)

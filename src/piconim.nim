@@ -1,5 +1,5 @@
-import commandant
-import std/[strformat, strutils, os, osproc, httpclient, strscans, terminal, sequtils]
+import pkg/[commandant, micros]
+import std/[strformat, strutils, os, osproc, httpclient, strscans, terminal, sequtils, sets, genasts]
 
 
 proc printError(msg: string) =
@@ -73,30 +73,27 @@ function(link_imported_libs name)
 endFunction()
 """
 
+const nimcache = "csource" / "build" / "nimcache"
+
 proc genLinkLibs() =
   ## Will create a text file in the csources containing all libs to link
   var libs: set[LinkableLib]
-  for kind, path in walkDir("csource"):
+  for kind, path in walkDir(nimcache):
     if kind == pcFile and path.endsWith(".c"):
       libs.incl getLinkedLib(path)
   const importPath = "csource" / "imports.cmake"
   discard tryRemoveFile(importPath)
 
   let
-    importStrm = newFileStream(importPath, fmWrite)
     strLibs = block:
       var res = ""
       for lib in libs:
         res.add $lib
         res.add " "
       res
-  defer: importStrm.close()
-  importStrm.write linkingFile.replace("$libs", strLibs)
-
-
+  writeFile(importPath, linkingFile.replace("$libs", strLibs))
 
 proc builder(program: string, output = "") =
-  let nimcache = "csource" / "build" / "nimcache"
   # remove previous builds
   for kind, file in walkDir(nimcache):
     if kind == pcFile and file.endsWith(".c"):
@@ -111,7 +108,7 @@ proc builder(program: string, output = "") =
 
   # rename the .c file
   moveFile((nimcache / fmt"@m{program}.c"), (nimcache / fmt"""{program.replace(".nim")}.c"""))
-
+  genLinkLibs()
   # update file timestamps
   when not defined(windows):
     let touchError = execCmd("touch csource/CMakeLists.txt")
@@ -244,7 +241,7 @@ when isMainModule:
 
   commandline:
     subcommand(setup, "setup"):
-      option(setup_sdk, string, "sdk", "s")
+      commandant.option(setup_sdk, string, "sdk", "s")
 
     subcommand(build, "build", "b"):
       argument(mainProgram, string)
