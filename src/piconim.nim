@@ -1,5 +1,5 @@
-import commandant
-import std/[strformat, strutils, os, osproc, httpclient, strscans, terminal, sequtils]
+import pkg/[commandant, micros]
+import std/[strformat, strutils, os, osproc, httpclient, strscans, terminal, sequtils, sets, genasts]
 
 
 proc printError(msg: string) =
@@ -10,8 +10,90 @@ proc printError(msg: string) =
 proc helpMessage(): string =
   result = "some useful message here..."
 
+type
+  LinkableLib = enum
+    stdio = "pico_stdlib"
+    multicore = "pico_multicore"
+    gpio = "pico_stdlib"
+    adc = "hardware_adc"
+    pio = "hardware_pio"
+    dma = "hardware_dma"
+    i2c = "hardware_i2c"
+    rtc = "hardware_rtc"
+    uart = "hardware_uart"
+    spi = "hardware_spi"
+    clock = "hardware_clocks"
+    reset = "hardware_resets"
+    flash = "hardware_flash"
+    pwm = "hardware_pwm"
+    interp = "hardware_interp"
+
+macro parseLinkableLib(s: string) =
+  ## Parses enum using the field name and field str
+  let
+    lLib = bindSym"LinkableLib".enumDef
+    caseStmt = caseStmt(NimName s)
+  var usedLabels = initHashSet[string]()
+  for field in lLib.fields:
+    let
+      fieldName = NimNode(field)[0]
+      strName = newLit $fieldName
+      valStr = NimNode(field)[^1].strVal
+    caseStmt.add:
+      let ofBrch = ofBranch(strName, fieldName)
+      if valStr notin usedLabels:
+        ofBrch.addCondition NimNode(field)[^1]
+      ofBrch
+    usedLabels.incl valStr
+  caseStmt.add:
+    elseBranch():
+      genast():
+        raise newException(ValueError, "Not found field")
+  result = NimNode caseStmt
+
+proc getLinkedLib(fileName: string): set[LinkableLib] =
+  ## Iterates over lines searching for includes adding to result
+  let file = open(fileName)
+  defer: file.close
+  for line in file.lines:
+    if not line.startsWith("typedef"):
+      var incld = ""
+      if line.scanf("""#include "$+.""", incld) or line.scanf("""#include <$+.""", incld):
+        let incld = incld.replace('/', '_')
+        try:
+          result.incl incld.splitFile.name.parseLinkableLib()
+        except: discard
+    else:
+      break
+
+const linkingFile = """
+# This is a generated file do not modify it, 'piconim' makes it every run.
+function(link_imported_libs name)
+  target_link_libraries(${name} $libs)
+endFunction()
+"""
+
+const nimcache = "csource" / "build" / "nimcache"
+
+proc genLinkLibs() =
+  ## Will create a text file in the csources containing all libs to link
+  var libs: set[LinkableLib]
+  for kind, path in walkDir(nimcache):
+    if kind == pcFile and path.endsWith(".c"):
+      libs.incl getLinkedLib(path)
+  const importPath = "csource" / "imports.cmake"
+  discard tryRemoveFile(importPath)
+
+  let
+    strLibs = block:
+      var res = ""
+      for lib in libs:
+        res.add $lib
+        res.add " "
+      res
+  writeFile(importPath, linkingFile.replace("$libs", strLibs))
+
 proc builder(program: string, output = "") =
-  let nimcache = "csource" / "build" / "nimcache"
   # remove previous builds
   for kind, file in walkDir(nimcache):
     if kind == pcFile and file.endsWith(".c"):
@@ -26,7 +108,7 @@ proc builder(program: string, output = "") =
 
   # rename the .c file
   moveFile((nimcache / fmt"@m{program}.c"), (nimcache / fmt"""{program.replace(".nim")}.c"""))
-
+  genLinkLibs()
   # update file timestamps
   when not defined(windows):
     let touchError = execCmd("touch csource/CMakeLists.txt")
@@ -153,17 +235,17 @@ when isMainModule:
   commandline:
     subcommand(init, "init", "i"):
       argument(name, string)
-      option(sdk, string, "sdk", "s")
-      option(nimbase, string, "nimbase", "n")
+      commandant.option(sdk, string, "sdk", "s")
+      commandant.option(nimbase, string, "nimbase", "n")
       flag(overwriteTemplate, "overwrite", "O")
 
   commandline:
     subcommand(setup, "setup"):
-      option(setup_sdk, string, "sdk", "s")
+      commandant.option(setup_sdk, string, "sdk", "s")
 
     subcommand(build, "build", "b"):
       argument(mainProgram, string)
-      option(output, string, "output", "o")
+      commandant.option(output, string, "output", "o")
 
   echo "pico-nim : create raspberry pi pico projects using Nim"
 
