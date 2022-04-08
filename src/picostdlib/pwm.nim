@@ -20,7 +20,7 @@ type
     ## Configuration object for PWM  tasks
     csr, divide, top: uint32
 
-  PwmChannel* {.pure, importC: "enum pwm_chan", size: sizeof(cuint).} = enum
+  PwmChannel* {.pure, importC: "enum pwm_chan".} = enum
     ## Alias for channel parameter in the setChanLevel() procedure
     A, B
 

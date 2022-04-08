@@ -1,6 +1,6 @@
 import gpio
 
-type AdcInput* {.pure, size: sizeof(cuint).} = enum
+type AdcInput* {.pure.} = enum
   ## Aliases for selectInput() procedure 
   ## ADC input. 0...3 are GPIOs 26...29 respectively. Input 4 is the onboard temperature sensor.
   Adc26 = 0, Adc27 = 1, Adc28 = 2, Adc29 = 3, AdcTemp = 4

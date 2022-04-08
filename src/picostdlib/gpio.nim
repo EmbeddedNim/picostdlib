@@ -1,5 +1,5 @@
 type
-  GpioFunction* {.size: sizeof(uint32).} = enum
+  GpioFunction* = enum
     ## GPIO function definitions for use with function select. 
     ## Each GPIO can have one function selected at a time. Likewise, 
     ## each peripheral input (e.g. UART0 RX) should only be selected on one 
@@ -133,7 +133,7 @@ proc setDir*(gpio: Gpio, isOut: bool) {.importC: "gpio_set_dir".}
   ## **In**, **Out**, **true**, **false**   true or Output for output; In or false for input
 
 type
-  IrqLevel* {.pure, importc: "enum gpio_irq_level", size: sizeof(cuint).} = enum
+  IrqLevel* {.pure, importc: "enum gpio_irq_level".} = enum
     ## GPIO Interrupt level definitions. 
     ## 
     ## An interrupt can be generated for every GPIO pin in 4 scenarios:

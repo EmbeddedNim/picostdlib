@@ -23,6 +23,8 @@ type
     hw*: ptr I2Hw
     restartOnNext*: bool
 
+  I2cAddress* = distinct range[0'u8 .. 127'u8]
+
 var i2c0* {.importC: "i2c0_inst".}: I2cInst
 var i2c1* {.importC: "i2c1_inst".}: I2cInst
 
@@ -41,7 +43,7 @@ proc readBlocking*(i2c: var I2cInst, address: uint8, dest: pointer, size: csize_
 
 import picostdlib/[gpio]
 template setupI2c*(blokk: I2cInst, psda, pscl: Gpio, freq: int, pull = true) =
-#sugar setup for i2c: 
+#sugar setup for i2c:
 #blokk= block i2c0 / i2c1 (see pinout)
 #sda/pscl = the pins tou want use (ex: 2.Gpio, 3.Gpio) I do not recommend the use of 0.Gpio, 1.Gpio
 #freq = is the working frequency of the i2c device (see device manual; ex: 100000)
@@ -56,3 +58,41 @@ template setupI2c*(blokk: I2cInst, psda, pscl: Gpio, freq: int, pull = true) =
   else:
       psda.pulldown()
       pscl.pulldown()
+
+proc writeBlocking*(
+    i2c: var I2cInst,
+    address: I2cAddress,
+    data: openArray[uint8],
+    noStop: bool = false
+  ) =
+  ## Write bytes to I2C bus.
+  ## If `noStop` is `true`, master retains control of the bus at the end of
+  ## the transfer.
+  writeBlocking(i2c, address.uint8, data[0].unsafeAddr, data.len.uint, noStop)
+
+proc readBlocking*(
+    i2c: var I2cInst,
+    address: I2cAddress,
+    numBytes: Natural,
+    noStop: bool = false
+  ): seq[uint8] =
+  ## Read `numBytes` bytes from I2C bus and return a seq containing the bytes
+  ## that were read. In case of error return a 0-length seq. If `noStop` is
+  ## `true`, master retains control of the bus at the end of the transfer.
+
+  result.setLen(numBytes)
+  let n = readBlocking(i2c, address.uint8, result[0].addr, numBytes.uint, noStop)
+  result.setLen(max(0, n))
+
+proc readBlocking*[N: Natural](
+    i2c: var I2cInst,
+    address: I2cAddress,
+    dest: var array[N, uint8],
+    noStop: bool = false
+  ): int =
+  ## Fill the array `dest` with bytes read from I2C bus. Return the number of
+  ## bytes that were read successfully. Negative values are error codes (refer
+  ## to Pico SDK documentation). In case of error return a 0-length seq. If
+  ## `noStop` is `true`, master retains control of the bus at the end of the
+  ## transfer.
+  result = readBlocking(i2c, address.uint8, dest[0].addr, dest.len.uint, noStop)
