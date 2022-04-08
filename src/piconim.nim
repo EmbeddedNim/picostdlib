@@ -1,5 +1,6 @@
 import commandant
-import std/[strformat, strutils, os, osproc, httpclient, strscans, terminal, options, streams]
+import micros
+import std/[strformat, strutils, os, osproc, httpclient, strscans, terminal, options, streams, genasts, sets]
 
 proc printError(msg: string) =
   echo ansiForegroundColorCode(fgRed), msg, ansiResetCode
@@ -13,6 +14,7 @@ type
   LinkableLib = enum
     stdio = "pico_stdlib"
     multicore = "pico_multicore"
+    gpio = "pico_stdlib"
     adc = "hardware_adc"
     pio = "hardware_pio"
     dma = "hardware_dma"
@@ -26,21 +28,50 @@ type
     pwm = "hardware_pwm"
     interp = "hardware_interp"
 
+macro parseLinkableLib(s: string) =
+  ## Parses enum using the field name and field str
+  let
+    lLib = bindSym"LinkableLib".enumDef
+    caseStmt = caseStmt(NimName s)
+  var usedLabels = initHashSet[string]()
+  for field in lLib.fields:
+    let
+      fieldName = NimNode(field)[0]
+      strName = newLit $fieldName
+      valStr = NimNode(field)[^1].strVal
+    caseStmt.add:
+      let ofBrch = ofBranch(strName, fieldName)
+      if valStr notin usedLabels:
+        ofBrch.addCondition NimNode(field)[^1]
+      ofBrch
+    usedLabels.incl valStr
+  caseStmt.add:
+    elseBranch():
+      genast():
+        raise newException(ValueError, "Not found field")
+  result = NimNode caseStmt
+
 proc getLinkedLib(fileName: string): set[LinkableLib] =
   ## Iterates over lines searching for includes adding to result
   let file = open(fileName)
+  defer: file.close
   for line in file.lines:
-    echo line
     if not line.startsWith("typedef"):
       var incld = ""
       if line.scanf("""#include "$+.""", incld) or line.scanf("""#include <$+.""", incld):
         let incld = incld.replace('/', '_')
         try:
-          result.incl parseEnum[LinkableLib](incld)
+          result.incl incld.splitFile.name.parseLinkableLib()
         except: discard
     else:
       break
-  close file
+
+const linkingFile = """
+# This is a generated file do not modify it, 'piconim' makes it every run.
+function(link_imported_libs name)
+  target_link_libraries(${name} $libs)
+endFunction()
+"""
 
 proc genLinkLibs() =
   ## Will create a text file in the csources containing all libs to link
@@ -48,14 +79,20 @@ proc genLinkLibs() =
   for kind, path in walkDir("csource"):
     if kind == pcFile and path.endsWith(".c"):
       libs.incl getLinkedLib(path)
-
-  const importPath = "csource" / "imports.txt"
+  const importPath = "csource" / "imports.cmake"
   discard tryRemoveFile(importPath)
 
-  let importStrm = newFileStream(importPath, fmWrite)
-  for lib in libs:
-    importStrm.writeLine $lib
-  close importStrm
+  let
+    importStrm = newFileStream(importPath, fmWrite)
+    strLibs = block:
+      var res = ""
+      for lib in libs:
+        res.add $lib
+        res.add " "
+      res
+  defer: importStrm.close()
+  importStrm.write linkingFile.replace("$libs", strLibs)
+
 
 
 proc builder(program: string, output = "") =
