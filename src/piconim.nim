@@ -2,9 +2,14 @@ import pkg/[commandant, micros]
 import std/[strformat, strutils, os, osproc, httpclient, strscans, terminal, sequtils, sets, genasts]
 
 
+type PicoSetupError = object of CatchableError
+
 proc printError(msg: string) =
   echo ansiForegroundColorCode(fgRed), msg, ansiResetCode
-  quit 1 # Should not be using this but short lived program
+
+
+template picoError(msg: string) =
+  raise newException(PicoSetupError, msg)
 
 
 proc helpMessage(): string =
@@ -104,18 +109,19 @@ proc builder(program: string, output = "") =
   echo fmt"Nim command line: {nimcmd}"
   let compileError = execCmd(nimcmd)
   if not compileError == 0:
-    printError(fmt"unable to compile the provided nim program: {program}")
+    picoError(fmt"unable to compile the provided nim program: {program}")
 
   # rename the .c file
-  moveFile((nimcache / fmt"@m{program}.c"), (nimcache / fmt"""{program.replace(".nim")}.c"""))
+  let nimprogram = program.changeFileExt"nim"
+  moveFile(nimcache / fmt"@m{nimprogram}.c", nimcache / program.changeFileExt("c"))
   genLinkLibs()
   # update file timestamps
   when not defined(windows):
-    let touchError = execCmd("touch csource/CMakeLists.txt")
-  when defined(windows):
-    let copyError = execCmd("copy /b csource/CMakeLists.txt +,,")
+    discard execCmd("touch csource/CMakeLists.txt")
+  else:
+    discard execCmd("copy /b csource/CMakeLists.txt +,,")
   # run make
-  let makeError = execCmd("make -C csource/build")
+  discard execCmd("make -C csource/build")
 
 proc getActiveNimVersion: string =
   let res = execProcess("nim -v")
@@ -124,27 +130,17 @@ proc getActiveNimVersion: string =
   result.removeSuffix(' ')
 
 
-
-proc validateBuildInputs(program: string, output = "") =
-  if not program.endsWith(".nim"):
-    printError(fmt"provided main program argument is not a nim file: {program}")
-  if not fileExists(fmt"src/{program}"):
-    printError(fmt"provided main program argument does not exist: {program}")
-  if output != "":
-    if not dirExists(output):
-      printError(fmt"provided output option is not a valid directory: {output}")
-
 proc validateSdkPath(sdk: string) =
   # check if the sdk option path exists and has the appropriate cmake file (very basic check...)
   if not sdk.dirExists():
-    printError(fmt"could not find an existing directory with the provided --sdk argument : {sdk}")
+    picoError fmt"could not find an existing directory with the provided --sdk argument : {sdk}"
 
-  if not fileExists(fmt"{sdk}/pico_sdk_init.cmake"):
-    printError(fmt"directory provided with --sdk argument does not appear to be a valid pico-sdk library: {sdk}")
+  if not fileExists(sdk / "pico_sdk_init.cmake"):
+    picoError fmt"directory provided with --sdk argument does not appear to be a valid pico-sdk library: {sdk}"
 
 proc doSetup(projectPath: string, sdk: string = "") =
   if not dirExists(projectPath):
-    printError "Could not find csource directory, run \"setup\" from the root of a project created by piconim"
+    picoError "Could not find csource directory, run \"setup\" from the root of a project created by piconim"
   if sdk != "":
     validateSdkPath sdk
 
@@ -166,7 +162,7 @@ proc doSetup(projectPath: string, sdk: string = "") =
   )
   let cmakeExit = cmakeProc.waitForExit()
   if cmakeExit != 0:
-    printError(fmt"cmake exited with error code: {cmakeExit}")
+    picoError fmt"cmake exited with error code: {cmakeExit}"
 
 proc downloadNimbase(path: string): bool =
   ## Attempts to download the nimbase if it fails returns false
@@ -195,12 +191,12 @@ proc createProject(projectPath: string; sdk = "", nimbase = "", override = false
   if nimbase == "":
     let nimbaseError = downloadNimbase(projectPath / "csource/nimbase.h")
     if not nimbaseError:
-      printError(fmt"failed to download `nimbase.h` from nim-lang repository, use --nimbase:<path> to specify a local file")
+      picoError fmt"failed to download `nimbase.h` from nim-lang repository, use --nimbase:<path> to specify a local file"
   else:
     try:
       copyFile(nimbase, (projectPath / "csource/nimbase.h"))
     except OSError:
-      printError"failed to copy provided nimbase.h file"
+      picoError "failed to copy provided nimbase.h file"
 
   # change all instances of template `blink` to the project name
   let cmakelists = (projectPath / "/csource/CMakeLists.txt")
@@ -213,22 +209,22 @@ proc validateInitInputs(name: string, sdk, nimbase: string = "", overwrite: bool
 
   # check if name is valid filename
   if not name.isValidFilename():
-    printError(fmt"provided --name argument will not work as filename: {name}")
+    picoError fmt"provided --name argument will not work as filename: {name}"
 
   # check if the name already has a directory with the same name
   if dirExists(joinPath(getCurrentDir(), name)) and overwrite == false:
-    printError(fmt"provided project name ({name}) already has directory, use --overwrite if you wish to replace contents")
+    picoError fmt"provided project name ({name}) already has directory, use --overwrite if you wish to replace contents"
 
   if sdk != "":
     validateSdkPath sdk
 
   if nimbase != "":
     if not nimbase.fileExists():
-      printError(fmt"could not find an existing `nimbase.h` file using provided --nimbase argument : {nimbase}")
+      picoError fmt"could not find an existing `nimbase.h` file using provided --nimbase argument : {nimbase}"
 
     let (_, name, ext) = nimbase.splitFile()
     if name != "nimbase" or ext != ".h":
-      printError(fmt"invalid filename or extension (expecting `nimbase.h`, recieved `{name}{ext}`")
+      picoError fmt"invalid filename or extension (expecting `nimbase.h`, recieved `{name}{ext}`"
 
 # --- MAIN PROGRAM ---
 when isMainModule:
@@ -251,9 +247,17 @@ when isMainModule:
 
   if init:
     validateInitInputs(name, sdk, nimbase, overwriteTemplate)
-    createProject(name, sdk)
+    let dirDidExist = dirExists(name)
+    try:
+      createProject(name, sdk)
+    except PicoSetupError as e:
+      printError(e.msg)
+      if not dirDidExist:
+        try:
+         removeDir(name) # We failed remove file
+        except IOError:
+          discard
   elif build:
-    validateBuildInputs(mainProgram, output)
     builder(mainProgram, output)
   elif setup:
     doSetup(".", setup_sdk)
