@@ -13,7 +13,20 @@ template picoError(msg: string) =
 
 
 proc helpMessage(): string =
-  result = "some useful message here..."
+  result = """Create and build raspberry pi pico nim projects
+
+Run piconim init <project-name> to create a new project directory from a template. This will create a new folder, so make sure you are in the parent folder. You can also provide the following options to the subcommand:
+
+    (--sdk, -s) -> specify the path to a locally installed pico-sdk repository, ex. --sdk:/home/casey/pico-sdk
+    (--nimbase, -n) -> similarly, you can provide the path to a locally installed nimbase.h file. Otherwise, the program attempts to download the file from the nim-lang github repository. ex. -n:/path/to/nimbase.h
+    (--overwrite, -O) -> a flag to specify overwriting an exisiting directory with the <project-name> already created. Be careful with this. ex. piconim myProject --overwrite will replace a folder named myProject
+
+Run piconim setup <project-name> to create the `csource/build` directory
+
+    (--sdk, -s) -> specify the path to a locally installed pico-sdk repository, ex. --sdk:/home/casey/pico-sdk
+   
+Run piconim build <main-program> to compile the project, the <main-program>.uf2 file will be located in `csource/build`
+"""
 
 type
   LinkableLib = enum
@@ -105,7 +118,7 @@ proc builder(program: string, output = "") =
       removeFile(file)
 
   # compile the nim program to .c file
-  let nimcmd = fmt"nim c -c --nimcache:{nimcache} --cpu:arm --os:any -d:useMalloc ./src/{program}"
+  let nimcmd = fmt"nim c -c --nimcache:{nimcache} ./src/{program}"
   echo fmt"Nim command line: {nimcmd}"
   let compileError = execCmd(nimcmd)
   if not compileError == 0:
