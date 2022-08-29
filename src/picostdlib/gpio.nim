@@ -113,7 +113,15 @@ proc getAll*: uint32 {.importC: "gpio_get_all".}
   ## Get raw value of all Gpios. 
   ## 
   ## **Returns:** uint32 of raw Gpio values, as bits 0-29  
-
+  
+proc putAll*(value: uint32) {.importC: "gpio_put_all".}
+  ## He writes the entire register (all bits) in one time only
+  ##
+  ## **Parameters:**
+  ##
+  ## =======================================  ====== 
+  ## **uint32**
+  
 proc put*(gpio: Gpio, value: Value){.importC: "gpio_put".}
   ## Drive a single Gpio high/low. 
   ## 
@@ -167,6 +175,7 @@ proc enableIrq*(gpio: Gpio, events: set[IrqLevel], enabled: bool){.importC: "gpi
 
 proc enableIrqWithCallback*(gpio: Gpio, events: set[IrqLevel], enabled: bool, event: IrqCallback){.
     importC: "gpio_set_irq_enabled_with_callback".}
+
 
 {.pop.}
 
