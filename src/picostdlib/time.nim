@@ -48,7 +48,17 @@ proc getTime*: AbsoluteTime {.importC:"get_absolute_time".}
   ## sampled during the call.
   ## 
   ## **Returns:** the absolute time (now) of the hardware timer
-
+# --------- test -------------------
+proc absoluteTimeDiff*(time1, time2: AbsoluteTime): int64 {.importc: "absolute_time_diff_us".}
+ ## Return a representation of the current time.
+ ##
+ ## Returns an opaque high fidelity representation of the current time sampled during the call.
+ ## **Parameters:**
+ ##
+ ## ========= =======
+ ## **time1, time2## absolute time of the hardware
+ ## ============
+ ## **Returns:** uint64
 proc addAlarm*(time: AbsoluteTime, callBack: AlarmCallback, data: pointer, fireIfPast: bool): AlarmId{.importc: "add_alarm_at".}
   ## Add an alarm callback to be called at a specific time. 
   ## 
