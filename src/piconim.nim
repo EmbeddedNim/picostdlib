@@ -13,19 +13,38 @@ template picoError(msg: string) =
 
 
 proc helpMessage(): string =
-  result = """Create and build raspberry pi pico nim projects
+  result = """Create and build raspberry pi pico nim projects.
 
-Run piconim init <project-name> to create a new project directory from a template. This will create a new folder, so make sure you are in the parent folder. You can also provide the following options to the subcommand:
+Subcommands:
+  init
+  setup
+  build
 
-    (--sdk, -s) -> specify the path to a locally installed pico-sdk repository, ex. --sdk:/home/casey/pico-sdk
-    (--nimbase, -n) -> similarly, you can provide the path to a locally installed nimbase.h file. Otherwise, the program attempts to download the file from the nim-lang github repository. ex. -n:/path/to/nimbase.h
-    (--overwrite, -O) -> a flag to specify overwriting an exisiting directory with the <project-name> already created. Be careful with this. ex. piconim myProject --overwrite will replace a folder named myProject
+Run piconim init <project-name> to create a new project directory from a
+template. This will create a new folder, so make sure you are in the parent
+folder. You can also provide the following options to the subcommand:
 
-Run piconim setup <project-name> to create the `csource/build` directory
+    (--sdk, -s) ->       specify the path to a locally installed pico-sdk
+                         repository. ex: --sdk:/home/casey/pico-sdk
+    (--nimbase, -n) ->   similarly, you can provide the path to a locally
+                         installed nimbase.h file. Otherwise, the program
+                         attempts to download the file from the nim-lang github
+                         repository. ex: -n:/path/to/nimbase.h
+    (--overwrite, -O) -> a flag to specify overwriting an exisiting directory
+                         with the <project-name> already created. Be careful
+                         with this. ex: piconim myProject --overwrite will
+                         replace a folder named myProject.
 
-    (--sdk, -s) -> specify the path to a locally installed pico-sdk repository, ex. --sdk:/home/casey/pico-sdk
+Run piconim setup <project-name> to create the "csource/build" directory. This
+is required before building if the "csource/build" does not yet exist (for
+example after a fresh clone or git clean of an existing project.) The following
+options are available:
+
+    (--sdk, -s) -> specify the path to a locally installed pico-sdk repository.
+                   ex: --sdk:/home/casey/pico-sdk
    
-Run piconim build <main-program> to compile the project, the <main-program>.uf2 file will be located in `csource/build`
+Run piconim build <main-program> to compile the project, the <main-program>.uf2
+file will be located in `csource/build`
 """
 
 type
