@@ -1,5 +1,5 @@
 import pkg/[commandant, micros]
-import std/[strformat, strutils, os, osproc, httpclient, strscans, terminal, sequtils, sets, genasts]
+import std/[strformat, strutils, os, osproc, strscans, terminal, sequtils, sets, genasts]
 
 
 type PicoSetupError = object of CatchableError
@@ -26,10 +26,6 @@ folder. You can also provide the following options to the subcommand:
 
     (--sdk, -s) ->       specify the path to a locally installed pico-sdk
                          repository. ex: --sdk:/home/casey/pico-sdk
-    (--nimbase, -n) ->   similarly, you can provide the path to a locally
-                         installed nimbase.h file. Otherwise, the program
-                         attempts to download the file from the nim-lang github
-                         repository. ex: -n:/path/to/nimbase.h
     (--overwrite, -O) -> a flag to specify overwriting an exisiting directory
                          with the <project-name> already created. Be careful
                          with this. ex: piconim myProject --overwrite will
@@ -42,7 +38,7 @@ options are available:
 
     (--sdk, -s) -> specify the path to a locally installed pico-sdk repository.
                    ex: --sdk:/home/casey/pico-sdk
-   
+
 Run piconim build <main-program> to compile the project, the <main-program>.uf2
 file will be located in `csource/build`
 """
@@ -103,32 +99,54 @@ proc getLinkedLib(fileName: string): set[LinkableLib] =
     else:
       break
 
-const linkingFile = """
+proc getNimLibPath: string =
+  let (nimOutput, nimExitCode) = execCmdEx(
+    "nim --verbosity:0 --eval:\"import std/os; echo getCurrentCompilerExe()\"",
+    options={poUsePath}
+  )
+
+  if nimExitCode != 0:
+    echo nimOutput
+    picoError fmt"Error while trying to locate nim executable (exit code {nimExitCode})"
+
+  result = nimOutput.parentDir.parentDir / "lib"
+
+const cMakeIncludeTemplate = """
 # This is a generated file do not modify it, 'piconim' makes it every run.
 function(link_imported_libs name)
-  target_link_libraries(${name} $libs)
+  target_link_libraries(${{name}} {strLibs})
 endFunction()
+
+target_include_directories({projectName} PUBLIC "{nimLibPath}")
 """
 
 const nimcache = "csource" / "build" / "nimcache"
 
-proc genLinkLibs() =
-  ## Will create a text file in the csources containing all libs to link
+proc getPicoLibs: string =
   var libs: set[LinkableLib]
   for kind, path in walkDir(nimcache):
     if kind == pcFile and path.endsWith(".c"):
       libs.incl getLinkedLib(path)
+
+  for lib in libs:
+    result.add $lib
+    result.add " "
+
+proc genCMakeInclude(projectName: string) =
+  ## Create a CMake include file in the csources containing:
+  ##  - all pico-sdk libs to link
+  ##  - path to current Nim compiler "lib" path, to be added to the
+  ##    C compiler include path
   const importPath = "csource" / "imports.cmake"
   discard tryRemoveFile(importPath)
 
-  let
-    strLibs = block:
-      var res = ""
-      for lib in libs:
-        res.add $lib
-        res.add " "
-      res
-  writeFile(importPath, linkingFile.replace("$libs", strLibs))
+  # pico-sdk libs
+  let strLibs = getPicoLibs()
+
+  # include Nim lib path for nimbase.h
+  let nimLibPath = getNimLibPath()
+
+  writeFile(importPath, fmt(cMakeIncludeTemplate))
 
 proc builder(program: string, output = "") =
   # remove previous builds
@@ -146,7 +164,7 @@ proc builder(program: string, output = "") =
   # rename the .c file
   let nimprogram = program.changeFileExt"nim"
   moveFile(nimcache / fmt"@m{nimprogram}.c", nimcache / program.changeFileExt("c"))
-  genLinkLibs()
+  genCMakeInclude(program)
   # update file timestamps
   when not defined(windows):
     discard execCmd("touch csource/CMakeLists.txt")
@@ -154,13 +172,6 @@ proc builder(program: string, output = "") =
     discard execCmd("copy /b csource/CMakeLists.txt +,,")
   # run make
   discard execCmd("make -C csource/build")
-
-proc getActiveNimVersion: string =
-  let res = execProcess("nim -v")
-  if not res.scanf("Nim Compiler Version $+[", result):
-    result = NimVersion
-  result.removeSuffix(' ')
-
 
 proc validateSdkPath(sdk: string) =
   # check if the sdk option path exists and has the appropriate cmake file (very basic check...)
@@ -196,18 +207,7 @@ proc doSetup(projectPath: string, sdk: string = "") =
   if cmakeExit != 0:
     picoError fmt"cmake exited with error code: {cmakeExit}"
 
-proc downloadNimbase(path: string): bool =
-  ## Attempts to download the nimbase if it fails returns false
-  let
-    nimVer = getActiveNimVersion()
-    downloadPath = fmt"https://raw.githubusercontent.com/nim-lang/Nim/v{nimVer}/lib/nimbase.h"
-  try:
-    let client = newHttpClient()
-    client.downloadFile(downloadPath, path)
-    result = true
-  except: echo getCurrentExceptionMsg()
-
-proc createProject(projectPath: string; sdk = "", nimbase = "", override = false) =
+proc createProject(projectPath: string; sdk = "", override = false) =
   # copy the template over to the current directory
   let
     sourcePath = joinPath(getAppDir(), "template")
@@ -219,24 +219,13 @@ proc createProject(projectPath: string; sdk = "", nimbase = "", override = false
   moveFile(projectPath / "template.nimble", projectPath /
       fmt"{name}.nimble")
 
-  # get nimbase.h file from github
-  if nimbase == "":
-    let nimbaseError = downloadNimbase(projectPath / "csource/nimbase.h")
-    if not nimbaseError:
-      picoError fmt"failed to download `nimbase.h` from nim-lang repository, use --nimbase:<path> to specify a local file"
-  else:
-    try:
-      copyFile(nimbase, (projectPath / "csource/nimbase.h"))
-    except OSError:
-      picoError "failed to copy provided nimbase.h file"
-
   # change all instances of template `blink` to the project name
   let cmakelists = (projectPath / "/csource/CMakeLists.txt")
-  cmakelists.writeFile cmakelists.readFile.replace("blink", name)   
+  cmakelists.writeFile cmakelists.readFile.replace("blink", name)
 
   doSetup(projectPath, sdk=sdk)
 
-proc validateInitInputs(name: string, sdk, nimbase: string = "", overwrite: bool) =
+proc validateInitInputs(name: string, sdk: string = "", overwrite: bool) =
   ## ensures that provided setup cli parameters will work
 
   # check if name is valid filename
@@ -250,13 +239,6 @@ proc validateInitInputs(name: string, sdk, nimbase: string = "", overwrite: bool
   if sdk != "":
     validateSdkPath sdk
 
-  if nimbase != "":
-    if not nimbase.fileExists():
-      picoError fmt"could not find an existing `nimbase.h` file using provided --nimbase argument : {nimbase}"
-
-    let (_, name, ext) = nimbase.splitFile()
-    if name != "nimbase" or ext != ".h":
-      picoError fmt"invalid filename or extension (expecting `nimbase.h`, recieved `{name}{ext}`"
 
 # --- MAIN PROGRAM ---
 when isMainModule:
@@ -264,7 +246,6 @@ when isMainModule:
     subcommand(init, "init", "i"):
       argument(name, string)
       commandant.option(sdk, string, "sdk", "s")
-      commandant.option(nimbase, string, "nimbase", "n")
       flag(overwriteTemplate, "overwrite", "O")
 
   commandline:
@@ -278,7 +259,7 @@ when isMainModule:
   echo "pico-nim : create raspberry pi pico projects using Nim"
 
   if init:
-    validateInitInputs(name, sdk, nimbase, overwriteTemplate)
+    validateInitInputs(name, sdk, overwriteTemplate)
     let dirDidExist = dirExists(name)
     try:
       createProject(name, sdk)
