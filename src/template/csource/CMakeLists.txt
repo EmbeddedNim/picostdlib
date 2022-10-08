@@ -17,8 +17,12 @@ set(Imports imports.cmake)
 if(EXISTS "../${Imports}")
 
 # add program file(s)
-file(GLOB MyCSources build/nimcache/*.c)
-add_executable(blink ${MyCSources})
+file(GLOB NimSources build/nimcache/*.c)
+
+# Suppress gcc warnings for nim-generated files
+set_source_files_properties(${NimSources} PROPERTIES COMPILE_OPTIONS "-w")
+
+add_executable(blink ${NimSources})
 
 # Add directory containing this CMakeLists file to include search path.
 # This is required so that the nimbase.h file is found. Other headers
