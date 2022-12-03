@@ -13,7 +13,7 @@ template picoError(msg: string) =
 
 
 proc helpMessage(): string =
-  result = """Create and build raspberry pi pico nim projects.
+  result = """Create and build Raspberry Pi Pico Nim projects.
 
 Subcommands:
   init
@@ -155,7 +155,7 @@ proc builder(program: string, output = "") =
       removeFile(file)
 
   # compile the nim program to .c file
-  let nimcmd = fmt"nim c -c --nimcache:{nimcache} ./src/{program}"
+  let nimcmd = fmt"nimble c --compileOnly:on --nimcache:{nimcache} ./src/{program}"
   echo fmt"Nim command line: {nimcmd}"
   let compileError = execCmd(nimcmd)
   if not compileError == 0:

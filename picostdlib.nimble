@@ -2,14 +2,14 @@
 
 version       = "0.3.2"
 author        = "Jason"
-description   = "Raspberry Pi Pico stdlib bindings/libraries"
+description   = "Raspberry Pi Pico stdlib bindings"
 license       = "MIT"
 srcDir        = "src"
 
 bin           = @["piconim"]
 installExt    = @["nim", "txt", "cmake"]
-skipDirs = @["examples"]
-installDirs = @["template"]
+skipDirs      = @["examples"]
+installDirs   = @["template"]
 
 # Dependencies
 

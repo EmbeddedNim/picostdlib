@@ -11,30 +11,30 @@ proc usbInitialized*: bool {.importc: "tusb_inited".}
 ## Check if USB stack is initialized.
 
 # I don't think we need this. None of the TinyUSB examples ever use it.
-# proc usbDeviceInit*: bool {.importC: "tud_init".}
+# proc usbDeviceInit*: bool {.importc: "tud_init".}
 # ## Initialize USB Device stack
 
-proc usbDeviceTask* {.importC: "tud_task".}
+proc usbDeviceTask* {.importc: "tud_task".}
 ## Task function to be called frequently in main loop.
 
 proc usbDeviceConnected*: bool {.importc: "tud_connected".}
 ## Check if device is connected (may not mounted/configured yet)
 ## True if just got out of Bus Reset and received the very first data from host
 
-proc usbDeviceMounted*: bool {.importC: "tud_mounted".}
+proc usbDeviceMounted*: bool {.importc: "tud_mounted".}
 ## Check if device is connected and configured
 
-proc usbDeviceSuspended*: bool {.importC: "tud_suspended".}
+proc usbDeviceSuspended*: bool {.importc: "tud_suspended".}
 ## Check if device is suspended
 
-proc usbDeviceRemoteWakeup*: bool {.importC: "tud_remote_wakeup".}
+proc usbDeviceRemoteWakeup*: bool {.importc: "tud_remote_wakeup".}
 ## Remote wake up host, only if suspended and enabled by host
 
-proc usbDeviceDisconnect*: bool {.importC: "tud_disconnect".}
+proc usbDeviceDisconnect*: bool {.importc: "tud_disconnect".}
 ## Enable pull-up resistor on D+ D-
 ## Return false on unsupported MCUs
 
-proc usbDeviceConnect*: bool {.importC: "tud_connect".}
+proc usbDeviceConnect*: bool {.importc: "tud_connect".}
 ## Disable pull-up resistor on D+ D-
 ## Return false on unsupported MCUs
 
@@ -43,7 +43,7 @@ proc usbDeviceConnect*: bool {.importC: "tud_connect".}
 # Board API
 
 {.push header: "bsp/board.h".}
-proc boardInit*(){.importC: "board_init", header: "bsp/board.h".}
+proc boardInit*() {.importc: "board_init", header: "bsp/board.h".}
 ## Initialize on-board peripherals : led, button, uart and USB
 
 proc board_button_read(): uint32 {.importc: "board_button_read", header: "bsp/board.h".}
@@ -224,7 +224,7 @@ type KeyModifier* {.pure, size: 1.} = enum
   ## HID Keyboard modifier codes, to be used as set.
   lCtrl, lShift, lAlt, lGui, rCtrl, rShift, rAlt, rGui
 
-type KeyboardLed* {.pure, importC: "hid_keyboard_led_bm_t".} = enum
+type KeyboardLed* {.pure, importc: "hid_keyboard_led_bm_t".} = enum
     numLock, capsLock, scrollLock, compose, kana
 
 type GamepadButton* {.pure.} = enum
@@ -250,20 +250,20 @@ type MouseButton* {.pure, size: 1.} = enum
 
 {.push header: "tusb.h".}
 type
-  HidReportType* {.pure, importC: "hid_report_type_t".} = enum
+  HidReportType* {.pure, importc: "hid_report_type_t".} = enum
     ## HID Request Report Type
     invalid, input, output, feature
 
-  HidProtocol* {.pure, importC: "hid_protocol_type_t".} = enum
+  HidProtocol* {.pure, importc: "hid_protocol_type_t".} = enum
     none, mouse, keyboard
 
-  HidSubClass* {.pure, importC: "hid_subclass_type_t".} = enum
+  HidSubClass* {.pure, importc: "hid_subclass_type_t".} = enum
     none, boot
 
-  HidDescriptorType* {.pure, importC: "hid_descriptor_type_t".} = enum
+  HidDescriptorType* {.pure, importc: "hid_descriptor_type_t".} = enum
     hid = 0x21, report = 0x22, physical = 0x23
 
-  HidRequestType* {.pure, importC: "hid_request_type_t".} = enum
+  HidRequestType* {.pure, importc: "hid_request_type_t".} = enum
     getReport = 0x01,
     getIdle = 0x02,
     getProtocol = 0x03,
@@ -271,7 +271,7 @@ type
     setIdle = 0x0a,
     setProtocol = 0x0b
 
-  HidCountryCode* {.pure, importC: "hid_country_code_t".} = enum
+  HidCountryCode* {.pure, importc: "hid_country_code_t".} = enum
     notSupported,
     arabic,
     belgian,
@@ -309,7 +309,7 @@ type
     yugoslavia,
     turkish_f
 
-  MouseReport* {.packed, importC: "hid_mouse_report_t".} = object
+  MouseReport* {.packed, importc: "hid_mouse_report_t".} = object
     buttons*: set[MouseButton]
     x*, y*, wheel*, pan*: int8
 
@@ -333,7 +333,7 @@ type UsbHidInterface* = distinct range[0'u8 .. uint8.high]
 
 {.push header: "tusb.h".}
 
-proc ready*(itf: UsbHidInterface): bool {.importC: "tud_hid_n_ready".}
+proc ready*(itf: UsbHidInterface): bool {.importc: "tud_hid_n_ready".}
   ## Check if the interface is ready to use
 
 proc sendReport*(itf: UsbHidInterface, id: byte, report: pointer, len: byte):
@@ -709,7 +709,7 @@ template suspendCallback*(boolName, body: untyped): untyped =
     when calledSuspendCallback:
       {.error: "called suspendCallback twice".}
     calledSuspendCallback = true
-  proc tudSuspendCb(boolName: bool){.exportC: "tud_suspend_cb", codegendecl: "$1 $2$3".} =
+  proc tudSuspendCb(boolName: bool) {.exportC: "tud_suspend_cb", codegendecl: "$1 $2$3".} =
     body
 
 var calledResumeCallback {.compileTime.} = false
