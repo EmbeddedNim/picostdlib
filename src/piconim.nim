@@ -45,21 +45,59 @@ file will be located in `csource/build`
 
 type
   LinkableLib = enum
-    stdio = "pico_stdlib"
-    multicore = "pico_multicore"
-    gpio = "pico_stdlib"
     adc = "hardware_adc"
-    pio = "hardware_pio"
+    base = "hardware_base"
+    claim = "hardware_claim"
+    clocks = "hardware_clocks"
+    # divider = "hardware_divider"  ## collides with pico_divider
     dma = "hardware_dma"
-    i2c = "hardware_i2c"
-    rtc = "hardware_rtc"
-    uart = "hardware_uart"
-    spi = "hardware_spi"
-    clock = "hardware_clocks"
-    reset = "hardware_resets"
+    exception = "hardware_exception"
     flash = "hardware_flash"
-    pwm = "hardware_pwm"
+    gpio = "pico_stdlib"
+    i2c = "hardware_i2c"
     interp = "hardware_interp"
+    irq = "hardware_irq"
+    pio = "hardware_pio"
+    pll = "hardware_pll"
+    pwm = "hardware_pwm"
+    reset = "hardware_resets"
+    rtc = "hardware_rtc"
+    spi = "hardware_spi"
+    # sync = "hardware_sync"  ## collides with pico_sync
+    timer = "hardware_timer"
+    uart = "pico_stdlib"
+    vreg = "hardware_vreg"
+    watchdog = "hardware_watchdog"
+    xosc = "hardware_xosc"
+
+    multicore = "pico_multicore"
+
+    ## pico_stdlib group
+    binary_info = "pico_stdlib"
+    runtime = "pico_stdlib"
+    platform = "pico_stdlib"
+    # printf = "pico_stdlib"  ## TODO
+    stdio = "pico_stdlib"
+    util = "pico_stdlib"
+
+    sync = "pico_sync"
+
+    time = "pico_time"
+
+    unique_id = "pico_unique_id"
+
+    ## pico_runtime group, part of pico_stdlib
+    bit_ops = "pico_stdlib"
+    divider = "pico_stdlib"
+    double = "pico_stdlib"
+    # int64_ops = "pico_stdlib"  ## TODO
+    `float` = "pico_stdlib"
+    # malloc = "pico_stdlib"  ## TODO
+    # mem_ops = "pico_stdlib"  ## TODO
+    # standard_link = "pico_stdlib"  ## TODO
+
+    # util = "pico_util"  ## in group pico_stdlib already
+
 
 macro parseLinkableLib(s: string) =
   ## Parses enum using the field name and field str
@@ -80,7 +118,7 @@ macro parseLinkableLib(s: string) =
     usedLabels.incl valStr
   caseStmt.add:
     elseBranch():
-      genast():
+      genAst():
         raise newException(ValueError, "Not found field")
   result = NimNode caseStmt
 
@@ -117,7 +155,7 @@ function(link_imported_libs name)
   target_link_libraries(${{name}} {strLibs})
 endFunction()
 
-target_include_directories({projectName} PUBLIC "{nimLibPath}")
+target_include_directories(${{OUTPUT_NAME}} PUBLIC "{nimLibPath}")
 """
 
 const nimcache = "csource" / "build" / "nimcache"
@@ -148,7 +186,7 @@ proc genCMakeInclude(projectName: string) =
 
   writeFile(importPath, fmt(cMakeIncludeTemplate))
 
-proc builder(program: string, output = "") =
+proc builder(program: string) =
   # remove previous builds
   for kind, file in walkDir(nimcache):
     if kind == pcFile and file.endsWith(".c"):
@@ -170,8 +208,9 @@ proc builder(program: string, output = "") =
     discard execCmd("touch csource/CMakeLists.txt")
   else:
     discard execCmd("copy /b csource/CMakeLists.txt +,,")
-  # run make
-  discard execCmd("make -C csource/build")
+
+  # run cmake build
+  discard execCmd("cmake --build csource/build")
 
 proc validateSdkPath(sdk: string) =
   # check if the sdk option path exists and has the appropriate cmake file (very basic check...)
@@ -181,8 +220,9 @@ proc validateSdkPath(sdk: string) =
   if not fileExists(sdk / "pico_sdk_init.cmake"):
     picoError fmt"directory provided with --sdk argument does not appear to be a valid pico-sdk library: {sdk}"
 
-proc doSetup(projectPath: string, sdk: string = "") =
-  if not dirExists(projectPath):
+proc doSetup(program: string, sdk: string = "") =
+  let projectPath = "."
+  if not dirExists(projectPath / "csource"):
     picoError "Could not find csource directory, run \"setup\" from the root of a project created by piconim"
   if sdk != "":
     validateSdkPath sdk
@@ -192,15 +232,16 @@ proc doSetup(projectPath: string, sdk: string = "") =
     cmakeArgs.add fmt"-DPICO_SDK_PATH={sdk}"
   else:
     cmakeArgs.add "-DPICO_SDK_FETCH_FROM_GIT=on"
-  cmakeArgs.add ".."
-
-  let buildDir = projectPath / "csource/build"
-  discard existsOrCreateDir(buildDir)
+  cmakeArgs.add "-DOUTPUT_NAME=" & program
+  cmakeArgs.add "-S"
+  cmakeArgs.add projectPath / "csource"
+  cmakeArgs.add "-B"
+  cmakeArgs.add projectPath / "csource/build"
 
   let cmakeProc = startProcess(
     "cmake",
     args=cmakeArgs,
-    workingDir=buildDir,
+    workingDir=projectPath,
     options={poEchoCmd, poUsePath, poParentStreams}
   )
   let cmakeExit = cmakeProc.waitForExit()
@@ -250,11 +291,12 @@ when isMainModule:
 
   commandline:
     subcommand(setup, "setup"):
+      argument(programSetup, string)
       commandant.option(setup_sdk, string, "sdk", "s")
 
     subcommand(build, "build", "b"):
-      argument(mainProgram, string)
-      commandant.option(output, string, "output", "o")
+      argument(programBuild, string)
+      # commandant.option(output, string, "output", "o")
 
   echo "pico-nim : create raspberry pi pico projects using Nim"
 
@@ -271,9 +313,9 @@ when isMainModule:
         except IOError:
           discard
   elif build:
-    builder(mainProgram, output)
+    builder(programBuild)
   elif setup:
-    doSetup(".", setup_sdk)
+    doSetup(programSetup, setup_sdk)
   else:
     echo helpMessage()
 
