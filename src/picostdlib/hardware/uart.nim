@@ -1,5 +1,5 @@
 
-{.push header:"hardware/uart.h".}
+{.push header: "hardware/uart.h".}
 
 type
   UartInst* {.importc: "struct uart_inst_t".} = object

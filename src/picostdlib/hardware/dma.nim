@@ -1,4 +1,4 @@
-{.push header:"hardware/dma.h".}
+{.push header: "hardware/dma.h".}
 
 type
   DmaChannelTransferSize* {.importc: "enum dma_channel_transfer_size".} = enum

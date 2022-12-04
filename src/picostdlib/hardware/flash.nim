@@ -1,4 +1,4 @@
-{.push header:"hardware/exception.h".}
+{.push header: "hardware/exception.h".}
 
 const
   FlashPageSize* = (1'u shl typeof(1'u)(8))
@@ -8,8 +8,7 @@ const
 
 proc flashRangeErase*(flashOffs: uint32; count: cuint) {.importc: "flash_range_erase".}
   ## ```
-  ##   PICO_CONFIG: PICO_FLASH_SIZE_BYTES, size of primary flash in bytes, type=int, group=hardware_flash
-  ##     ! \brief  Erase areas of flash
+  ##   ! \brief  Erase areas of flash
   ##     \ingroup hardware_flash
   ## 
   ##    \param flash_offs Offset into flash, in bytes, to start the erase. Must be aligned to a 4096-byte flash sector.

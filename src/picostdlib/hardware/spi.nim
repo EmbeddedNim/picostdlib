@@ -1,5 +1,5 @@
 
-{.push header:"hardware/spi.h".}
+{.push header: "hardware/spi.h".}
 
 type
   SpiInst* {.importc: "struct spi_inst_t".} = object

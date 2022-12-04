@@ -1,4 +1,4 @@
-{.push header:"hardware/vreg.h".}
+{.push header: "hardware/vreg.h".}
 
 type
   VregVoltage* {.pure, importc: "enum vreg_voltage".} = enum

@@ -78,6 +78,7 @@ proc putcharRaw*(c: cint): cint {.importc: "putchar_raw".}
   ##   ! \brief putchar variant that skips any CR/LF conversion if enabled
   ##    \ingroup pico_stdio
   ## ```
+
 proc putsRaw*(s: cstring): cint {.importc: "puts_raw".}
   ## ```
   ##   ! \brief puts variant that skips any CR/LF conversion if enabled

@@ -5,6 +5,7 @@ proc breakpoint*() {.importc: "__breakpoint".}
   ##   ! \brief Execute a breakpoint instruction
   ##     \ingroup pico_platform
   ## ```
+
 proc compiler_memory_barrier*() {.importc: "__compiler_memory_barrier".}
   ## ```
   ##   ! \brief Ensure that the compiler does not move memory access across this method call
@@ -19,12 +20,14 @@ proc compiler_memory_barrier*() {.importc: "__compiler_memory_barrier".}
   ##    The compiler will not move the load from some_other_memory_location above the memory barrier (which it otherwise
   ##    might - even above the memory store!)
   ## ```
+
 proc panic_unsupported*() {.importc.}
   ## ```
   ##   ! \brief Panics with the message "Unsupported"
   ##     \ingroup pico_platform
   ##     \see panic
   ## ```
+
 proc panic*(fmt: cstring) {.importc, varargs.}
   ## ```
   ##   ! \brief Displays a panic message and halts execution
@@ -43,12 +46,14 @@ proc rp2040_chip_version*(): uint8 {.importc.}
   ##     \ingroup pico_platform
   ##    @return the RP2040 chip revision number (1 for B0/B1, 2 for B2)
   ## ```
+
 proc rp2040_rom_version*(): uint8 {.importc.}
   ## ```
   ##   ! \brief Returns the RP2040 rom version number
   ##     \ingroup pico_platform
   ##    @return the RP2040 rom version number (1 for RP2040-B0, 2 for RP2040-B1, 3 for RP2040-B2)
   ## ```
+
 proc tight_loop_contents*() {.importc.}
   ## ```
   ##   ! \brief No-op function for the body of tight loops
@@ -58,6 +63,7 @@ proc tight_loop_contents*() {.importc.}
   ##    makes it much easier to find tight loops, but also in the future \#ifdef-ed support for lockup
   ##    debugging might be added
   ## ```
+
 proc mul_instruction*(a: int32; b: int32): int32 {.importc: "__mul_instruction".}
   ## ```
   ##   ! \brief Multiply two integers using an assembly MUL instruction
@@ -70,6 +76,7 @@ proc mul_instruction*(a: int32; b: int32): int32 {.importc: "__mul_instruction".
   ##    \param b the second operand
   ##    \return a b
   ## ```
+
 proc get_current_exception*(): uint {.importc: "__get_current_exception".}
   ## ```
   ##   ! \brief Get the current exception level on this core
@@ -77,6 +84,7 @@ proc get_current_exception*(): uint {.importc: "__get_current_exception".}
   ##   
   ##    \return the exception number if the CPU is handling an exception, or 0 otherwise
   ## ```
+
 proc busy_wait_at_least_cycles*(minimum_cycles: uint32) {.importc.}
   ## ```
   ##   ! \brief Helper method to busy-wait for at least the given number of cycles
@@ -93,6 +101,7 @@ proc busy_wait_at_least_cycles*(minimum_cycles: uint32) {.importc.}
   ##   
   ##    \param minimum_cycles the minimum number of system clock cycles to delay for
   ## ```
+
 proc get_core_num*(): uint {.importc.}
   ## ```
   ##   ! \brief Get the current core number

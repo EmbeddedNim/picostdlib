@@ -1,6 +1,6 @@
 import gpio
 
-{.push header:"hardware/adc.h".}
+{.push header: "hardware/adc.h".}
 
 type AdcInput* {.pure.} = enum
   ## Aliases for selectInput() procedure 

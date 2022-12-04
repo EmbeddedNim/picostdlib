@@ -1,6 +1,6 @@
 import ../pico/types
 
-{.push header:"hardware/timer.h".}
+{.push header: "hardware/timer.h".}
 
 type
   HardwareAlarmCallback* {.importc: "hardware_alarm_callback_t".} = proc (alarmNum: cuint) {.noconv.}

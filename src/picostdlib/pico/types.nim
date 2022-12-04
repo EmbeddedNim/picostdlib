@@ -1,4 +1,4 @@
-{.push header:"pico/types.h".}
+{.push header: "pico/types.h".}
 
 when defined(NDEBUG):
   type

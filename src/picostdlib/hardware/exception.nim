@@ -1,4 +1,4 @@
-{.push header:"hardware/exception.h".}
+{.push header: "hardware/exception.h".}
 
 type
   ExceptionNumber* {.pure, importc: "enum exception_number".} = enum
@@ -47,6 +47,7 @@ proc exceptionSetExclusiveHandler*(num: ExceptionNumber; handler: ExceptionHandl
   ##    \param handler The handler to set
   ##    \see exception_number
   ## ```
+
 proc exceptionRestoreHandler*(num: ExceptionNumber; originalHandler: ExceptionHandler) {.importc: "exception_restore_handler".}
   ## ```
   ##   ! \brief Restore the original exception handler for an exception on this core
@@ -60,6 +61,7 @@ proc exceptionRestoreHandler*(num: ExceptionNumber; originalHandler: ExceptionHa
   ##    \param original_handler The original handler returned from \ref exception_set_exclusive_handler
   ##    \see exception_set_exclusive_handler()
   ## ```
+
 proc exception_get_vtable_handler*(num: ExceptionNumber): ExceptionHandler {.importc: "exception_get_vtable_handler".}
   ## ```
   ##   ! \brief Get the current exception handler for the specified exception from the currently installed vector table

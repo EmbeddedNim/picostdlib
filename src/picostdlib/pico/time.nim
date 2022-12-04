@@ -1,6 +1,6 @@
 import ./types
 
-{.push header:"pico/time.h".}
+{.push header: "pico/time.h".}
 
 type 
   AlarmId* {.importc: "alarm_id_t".} = distinct int32

@@ -210,6 +210,7 @@ proc user_irq_claim*(irqNum: InterruptNumber) {.importc: "user_irq_claim".}
   ##   
   ##    \param irq_num the user IRQ to claim
   ## ```
+
 proc userIrqUnclaim*(irqNum: InterruptNumber) {.importc: "user_irq_unclaim".}
   ## ```
   ##   ! \brief Mark a user IRQ as no longer used on the calling core

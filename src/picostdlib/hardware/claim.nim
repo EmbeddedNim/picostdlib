@@ -1,4 +1,4 @@
-{.push header:"hardware/claim.h".}
+{.push header: "hardware/claim.h".}
 
 type
   HwClaimToken* = distinct uint32

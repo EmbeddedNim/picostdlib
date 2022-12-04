@@ -1,4 +1,4 @@
-{.push header:"hardware/divider.h".}
+{.push header: "hardware/divider.h".}
 
 type
   HwDivmodResult* = uint64

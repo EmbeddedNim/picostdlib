@@ -1,6 +1,6 @@
 import ../pico/types
 
-{.push header:"hardware/rtc.h".}
+{.push header: "hardware/rtc.h".}
 
 type
   RtcCallback* {.importc: "rtc_callback_t".} = proc () {.noconv.}

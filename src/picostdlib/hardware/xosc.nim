@@ -1,13 +1,7 @@
-{.push header:"hardware/xosc.h".}
+{.push header: "hardware/xosc.h".}
 
 proc xoscInit*() {.importc: "xosc_init".}
-  ## ```
-  ##   \file hardware/xosc.h
-  ##     \defgroup hardware_xosc hardware_xosc
-  ##   
-  ##    Crystal Oscillator (XOSC) API
-  ##    
-  ##     ! \brief  Initialise the crystal oscillator system
+  ##   ! \brief  Initialise the crystal oscillator system
   ##     \ingroup hardware_xosc
   ##   
   ##    This function will block until the crystal oscillator has stabilised.
