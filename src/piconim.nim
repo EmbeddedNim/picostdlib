@@ -220,8 +220,7 @@ proc validateSdkPath(sdk: string) =
   if not fileExists(sdk / "pico_sdk_init.cmake"):
     picoError fmt"directory provided with --sdk argument does not appear to be a valid pico-sdk library: {sdk}"
 
-proc doSetup(program: string, sdk: string = "") =
-  let projectPath = "."
+proc doSetup(projectPath: string, program: string, sdk: string = "") =
   if not dirExists(projectPath / "csource"):
     picoError "Could not find csource directory, run \"setup\" from the root of a project created by piconim"
   if sdk != "":
@@ -234,9 +233,11 @@ proc doSetup(program: string, sdk: string = "") =
     cmakeArgs.add "-DPICO_SDK_FETCH_FROM_GIT=on"
   cmakeArgs.add "-DOUTPUT_NAME=" & program
   cmakeArgs.add "-S"
-  cmakeArgs.add projectPath / "csource"
+  cmakeArgs.add "csource"
   cmakeArgs.add "-B"
-  cmakeArgs.add projectPath / "csource/build"
+  cmakeArgs.add "csource/build"
+
+  echo "Project path: ", projectPath
 
   let cmakeProc = startProcess(
     "cmake",
@@ -264,7 +265,7 @@ proc createProject(projectPath: string; sdk = "", override = false) =
   let cmakelists = (projectPath / "/csource/CMakeLists.txt")
   cmakelists.writeFile cmakelists.readFile.replace("blink", name)
 
-  doSetup(projectPath, sdk=sdk)
+  doSetup(projectPath, name, sdk=sdk)
 
 proc validateInitInputs(name: string, sdk: string = "", overwrite: bool) =
   ## ensures that provided setup cli parameters will work
@@ -315,7 +316,7 @@ when isMainModule:
   elif build:
     builder(programBuild)
   elif setup:
-    doSetup(programSetup, setup_sdk)
+    doSetup(".", programSetup, setup_sdk)
   else:
     echo helpMessage()
 
