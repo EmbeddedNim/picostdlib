@@ -1,9 +1,9 @@
-import picostdlib/[gpio, time]
+import picostdlib/[hardware/gpio, pico/time]
 
-DefaultLedPin.init()
-DefaultLedPin.setDir(Out)
+DefaultLedPin.gpioInit()
+DefaultLedPin.gpioSetDir(Out)
 while true:
-  DefaultLedPin.put(High)
-  sleep(250)
-  DefaultLedPin.put(Low)
-  sleep(250) 
+  DefaultLedPin.gpioPut(High)
+  sleepMs(250)
+  DefaultLedPin.gpioPut(Low)
+  sleepMs(250)

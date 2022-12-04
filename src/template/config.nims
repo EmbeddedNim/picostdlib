@@ -3,8 +3,8 @@ switch("os", "any")
 # switch("os", "freertos")
 
 switch("define", "release")
-# switch("opt", "size")
-switch("mm", "orc") # use "arc", "orc" or "none"
+switch("opt", "size")
+switch("mm", "arc") # use "arc", "orc" or "none"
 
 switch("define", "checkAbi")
 switch("define", "useMalloc")
