@@ -251,9 +251,11 @@ proc doSetup(projectPath: string, program: string, sdk: string = "") =
 
 proc createProject(projectPath: string; sdk = "", override = false) =
   # copy the template over to the current directory
-  let
-    sourcePath = joinPath(getAppDir(), "template")
-    name = projectPath.splitPath.tail
+  var sourcePath = joinPath(getAppDir(), "template")
+  # if it doesn't exist we're probably in the source tree
+  if not dirExists(sourcePath):
+    sourcePath = joinPath(getAppDir(), "../../src/picostdlib/private/template")
+  let name = projectPath.splitPath.tail
   discard existsOrCreateDir(projectPath)
   copyDir(sourcePath, projectPath)
   # rename nim file
