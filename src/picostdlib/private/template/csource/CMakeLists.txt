@@ -11,19 +11,29 @@ endif()
 # Set board type here
 # set(PICO_BOARD pico_w)
 
+# Support C++ exceptions with Nim
+set(PICO_CXX_ENABLE_EXCEPTIONS 1)
+
 # pico_sdk_import.cmake is a single file copied from this SDK
 # note: this must happen before project()
 include(pico_sdk_import.cmake)
 
 project(${OUTPUT_NAME})
+
+# Set standards
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
+
 # initialize the Raspberry Pi Pico SDK
 pico_sdk_init()
 
 set(Imports imports.cmake)
 
 if(EXISTS "../${Imports}")
+  include(${Imports}) # Include our generated file
+
   # add program file(s)
-  file(GLOB NimSources build/nimcache/*.c)
+  file(GLOB NimSources build/nimcache/*.${NIM_BACKEND_EXTENSION})
 
   # Suppress gcc warnings for nim-generated files
   set_source_files_properties(${NimSources} PROPERTIES COMPILE_OPTIONS "-w")
@@ -35,8 +45,9 @@ if(EXISTS "../${Imports}")
   # required for a project can also be placed here.
   target_include_directories(${OUTPUT_NAME} PUBLIC ${CMAKE_CURRENT_LIST_DIR})
 
-  include(${Imports}) # Include our generated file
   link_imported_libs(${OUTPUT_NAME}) # call our generated function to import all libs we're using
+
+  include_nim(${OUTPUT_NAME}) # link to Nim includes
 
   # Add additional libraries, such as the wifi package. It's not automatically loaded
   # target_link_libraries(${OUTPUT_NAME} pico_cyw43_arch_lwip_threadsafe_background)

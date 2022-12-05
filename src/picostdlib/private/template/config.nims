@@ -14,3 +14,6 @@ switch("define", "useMalloc")
 # switch("passC", "-flto")
 # switch("passL", "-flto")
 
+# when using cpp backend
+# see for similar issue: https://github.com/nim-lang/Nim/issues/17040
+switch("d", "nimEmulateOverflowChecks")

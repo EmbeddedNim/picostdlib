@@ -1,5 +1,6 @@
 import pkg/[commandant, micros]
 import std/[strformat, strutils, os, osproc, strscans, terminal, sequtils, sets, genasts]
+import std/[parsecfg, streams]
 
 
 type PicoSetupError = object of CatchableError
@@ -98,6 +99,9 @@ type
 
     # util = "pico_util"  ## in group pico_stdlib already
 
+  BackendExtension {.pure.} = enum
+    c, cpp
+
 
 macro parseLinkableLib(s: string) =
   ## Parses enum using the field name and field str
@@ -149,28 +153,45 @@ proc getNimLibPath: string =
 
   result = nimOutput.parentDir.parentDir / "lib"
 
+proc getNimbleBackend(projectDir: string = ""): string =
+  let (nimbleOutput, nimbleExitCode) = execCmdEx(
+    "nimble dump",
+    options={poUsePath},
+    workingDir=projectDir
+  )
+  if nimbleExitCode != 0:
+    echo nimbleOutput
+    picoError fmt"Error while trying to run nimble dump (exit code {nimbleExitCode})"
+  let cfg = loadConfig(newStringStream(nimbleOutput))
+  return cfg.getSectionValue("", "backend", "c")
+
 const cMakeIncludeTemplate = """
 # This is a generated file do not modify it, 'piconim' makes it every run.
+
+set(NIM_BACKEND_EXTENSION {extension})
+
 function(link_imported_libs name)
   target_link_libraries(${{name}} {strLibs})
 endFunction()
 
-target_include_directories(${{OUTPUT_NAME}} PUBLIC "{nimLibPath}")
+function(include_nim name)
+  target_include_directories(${{name}} PUBLIC "{nimLibPath}")
+endFunction()
 """
 
 const nimcache = "csource" / "build" / "nimcache"
 
-proc getPicoLibs: string =
+proc getPicoLibs(extension: string): string =
   var libs: set[LinkableLib]
   for kind, path in walkDir(nimcache):
-    if kind == pcFile and path.endsWith(".c"):
+    if kind == pcFile and path.endsWith(fmt".{extension}"):
       libs.incl getLinkedLib(path)
 
   for lib in libs:
     result.add $lib
     result.add " "
 
-proc genCMakeInclude(projectName: string) =
+proc genCMakeInclude(projectName: string, extension: string) =
   ## Create a CMake include file in the csources containing:
   ##  - all pico-sdk libs to link
   ##  - path to current Nim compiler "lib" path, to be added to the
@@ -179,7 +200,7 @@ proc genCMakeInclude(projectName: string) =
   discard tryRemoveFile(importPath)
 
   # pico-sdk libs
-  let strLibs = getPicoLibs()
+  let strLibs = getPicoLibs(extension)
 
   # include Nim lib path for nimbase.h
   let nimLibPath = getNimLibPath()
@@ -187,13 +208,17 @@ proc genCMakeInclude(projectName: string) =
   writeFile(importPath, fmt(cMakeIncludeTemplate))
 
 proc builder(program: string) =
-  # remove previous builds
-  for kind, file in walkDir(nimcache):
-    if kind == pcFile and file.endsWith(".c"):
-      removeFile(file)
 
-  # compile the nim program to .c file
-  let nimcmd = fmt"nimble c --compileOnly:on --nimcache:{nimcache} ./src/{program}"
+  let backend = getNimbleBackend()
+  let extension = $parseEnum[BackendExtension](backend)
+
+  # remove previous builds
+  # for kind, file in walkDir(nimcache):
+  #   if kind == pcFile and file.endsWith(fmt".{extension}"):
+  #     removeFile(file)
+
+  # compile the nim program to .c/.cpp file
+  let nimcmd = fmt"nimble {backend} --compileOnly:on --nimcache:{nimcache} ./src/{program}"
   echo fmt"Nim command line: {nimcmd}"
   let compileError = execCmd(nimcmd)
   if not compileError == 0:
@@ -201,8 +226,8 @@ proc builder(program: string) =
 
   # rename the .c file
   let nimprogram = program.changeFileExt"nim"
-  moveFile(nimcache / fmt"@m{nimprogram}.c", nimcache / program.changeFileExt("c"))
-  genCMakeInclude(program)
+  moveFile(nimcache / fmt"@m{nimprogram}.{extension}", nimcache / program.changeFileExt(extension))
+  genCMakeInclude(program, extension)
   # update file timestamps
   when not defined(windows):
     discard execCmd("touch csource/CMakeLists.txt")
@@ -237,7 +262,7 @@ proc doSetup(projectPath: string, program: string, sdk: string = "") =
   cmakeArgs.add "-B"
   cmakeArgs.add "csource/build"
 
-  echo "Project path: ", projectPath
+  removeDir(nimcache)
 
   let cmakeProc = startProcess(
     "cmake",
@@ -301,7 +326,7 @@ when isMainModule:
       argument(programBuild, string)
       # commandant.option(output, string, "output", "o")
 
-  echo "pico-nim : create raspberry pi pico projects using Nim"
+  echo "piconim : Create Raspberry Pi Pico projects using Nim"
 
   if init:
     validateInitInputs(name, sdk, overwriteTemplate)
