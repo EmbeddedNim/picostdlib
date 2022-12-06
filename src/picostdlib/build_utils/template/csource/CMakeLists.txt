@@ -27,13 +27,8 @@ set(CMAKE_CXX_STANDARD 17)
 # initialize the Raspberry Pi Pico SDK
 pico_sdk_init()
 
-set(Imports imports.cmake)
-
-if(EXISTS "../${Imports}")
-  include(${Imports}) # Include our generated file
-
-  # add program file(s)
-  file(GLOB NimSources build/nimcache/*.${NIM_BACKEND_EXTENSION})
+if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/imports.cmake)
+  include(imports.cmake) # Include our generated file
 
   # Suppress gcc warnings for nim-generated files
   set_source_files_properties(${NimSources} PROPERTIES COMPILE_OPTIONS "-w")
@@ -61,6 +56,5 @@ if(EXISTS "../${Imports}")
   pico_add_extra_outputs(${OUTPUT_NAME})
 
   # add url via pico_set_program_url
-  pico_set_program_url(${OUTPUT_NAME} 1)
+  # pico_set_program_url(${OUTPUT_NAME} "")
 endif()
-

@@ -6,9 +6,9 @@ description   = "Raspberry Pi Pico SDK bindings"
 license       = "MIT"
 srcDir        = "src"
 
-bin           = @["picostdlib/private/piconim"]
+bin           = @["picostdlib/build_utils/piconim"]
 installExt    = @["nim", "txt", "cmake"]
-installDirs   = @["picostdlib/private/template"]
+installDirs   = @["picostdlib/build_utils/template"]
 
 # Dependencies
 

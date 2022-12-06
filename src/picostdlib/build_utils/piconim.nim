@@ -279,20 +279,43 @@ proc createProject(projectPath: string; sdk = "", override = false) =
   var sourcePath = joinPath(getAppDir(), "template")
   # if it doesn't exist we're probably in the source tree
   if not dirExists(sourcePath):
-    sourcePath = joinPath(getAppDir(), "../../src/picostdlib/private/template")
+    sourcePath = joinPath(getAppDir(), "../../src/picostdlib/build_utils/template")
   let name = projectPath.splitPath.tail
-  discard existsOrCreateDir(projectPath)
-  copyDir(sourcePath, projectPath)
-  # rename nim file
-  moveFile(projectPath / "src/blink.nim", projectPath / fmt"src/{name}.nim")
-  moveFile(projectPath / "template.nimble", projectPath /
-      fmt"{name}.nimble")
 
-  # change all instances of template `blink` to the project name
-  let cmakelists = (projectPath / "/csource/CMakeLists.txt")
-  cmakelists.writeFile cmakelists.readFile.replace("blink", name)
+  echo "Select type binary or hybrid to be able to build the program"
 
-  doSetup(projectPath, name, sdk=sdk)
+  var nimbleProc = startProcess(
+    "nimble",
+    args=["init", name],
+    options={poEchoCmd, poUsePath, poParentStreams}
+  )
+  var nimbleExit = nimbleProc.waitForExit()
+  if nimbleExit != 0:
+    echo fmt"nimble exited with error code: {nimbleExit}"
+    echo "Will not copy over template"
+  else:
+    discard existsOrCreateDir(projectPath)
+    copyDir(sourcePath, projectPath)
+    let nimbleFile = projectPath / fmt"{name}.nimble"
+    # rename nim file
+    moveFile(projectPath / "src/blink.nim", projectPath / fmt"src/{name}.nim")
+    # moveFile(projectPath / "template.nimble", nimbleFile)
+
+    # change all instances of template `blink` to the project name
+    let cmakelists = (projectPath / "/csource/CMakeLists.txt")
+    cmakelists.writeFile cmakelists.readFile.replace("blink", name)
+    nimbleFile.writeFile(nimbleFile.readFile() & "requires \"picostdlib >= 0.3.2\"\n\ninclude picostdlib/build_utils/tasks\n")
+
+  # doSetup(projectPath, name, sdk=sdk)
+  nimbleProc = startProcess(
+    "nimble",
+    args=["configure"],
+    workingDir=projectPath,
+    options={poEchoCmd, poUsePath, poParentStreams}
+  )
+  nimbleExit = nimbleProc.waitForExit()
+  if nimbleExit != 0:
+    picoError fmt"nimble exited with error code: {nimbleExit}"
 
 proc validateInitInputs(name: string, sdk: string = "", overwrite: bool) =
   ## ensures that provided setup cli parameters will work
