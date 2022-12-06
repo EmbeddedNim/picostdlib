@@ -90,16 +90,6 @@ set(NimSources
 template picoError(msg: string) =
   raise newException(PicoSetupError, msg)
 
-
-
-proc validateSdkPath(sdk: string) =
-  # check if the sdk option path exists and has the appropriate cmake file (very basic check...)
-  if not sdk.dirExists():
-    picoError fmt"could not find an existing directory with the provided --sdk argument : {sdk}"
-
-  if not fileExists(sdk / "pico_sdk_init.cmake"):
-    picoError fmt"directory provided with --sdk argument does not appear to be a valid pico-sdk library: {sdk}"
-
 proc getSelectedBins(): seq[string] =
   for program in bin:
     if program in commandLineParams:
@@ -175,19 +165,6 @@ proc genCMakeInclude(projectName: string, cfiles: openarray[string]) =
 
   writeFile(importPath, fmt(cMakeIncludeTemplate))
 
-task distclean, "Distclean task":
-  let selectedBins = getSelectedBins()
-
-  rmDir(nimcache)
-
-  for program in bin:
-    if program notin selectedBins:
-      continue
-
-    if dirExists("build" / program):
-      echo "Removing ", "build" / program
-      rmDir("build" / program)
-
 task clean, "Clean task":
   let selectedBins = getSelectedBins()
 
@@ -203,39 +180,45 @@ task clean, "Clean task":
       echo command
       exec(command)
 
-task configure, "Setup task":
-  let sdk = ""
+task distclean, "Distclean task":
+  let selectedBins = getSelectedBins()
+
+  rmDir(nimcache)
+
+  for program in bin:
+    if program notin selectedBins:
+      continue
+
+    if dirExists("build" / program):
+      echo "Removing ", "build" / program
+      rmDir("build" / program)
+
+
+
+before build:
   if not dirExists("csource"):
     picoError "Could not find csource directory!"
-  if sdk != "":
-    validateSdkPath sdk
+
+  rmFile(importPath)
 
   let selectedBins = getSelectedBins()
 
   for program in bin:
     if program notin selectedBins:
       continue
+
     var cmakeArgs: seq[string]
-    if sdk != "":
-      cmakeArgs.add fmt"-DPICO_SDK_PATH={sdk}"
-    else:
-      cmakeArgs.add "-DPICO_SDK_FETCH_FROM_GIT=on"
+    cmakeArgs.add "-DPICO_SDK_FETCH_FROM_GIT=on"
     cmakeArgs.add "-DOUTPUT_NAME=" & program
     cmakeArgs.add "-S"
     cmakeArgs.add "csource"
     cmakeArgs.add "-B"
     cmakeArgs.add "build" / program
 
-    # genCMakeInclude(program, [])
-    rmFile(importPath)
-
     let command = "cmake " & quoteShellCommand(cmakeArgs)
     echo command
     exec(command)
 
-
-before build:
-  for program in bin:
     rmFile(nimcache / program & ".json")
 
 after build:
@@ -261,7 +244,7 @@ after build:
       exec("copy /b csource/CMakeLists.txt +,,")
 
     # run cmake build
-    let command = "cmake --build " & "build" / program & " -j4"
+    let command = "cmake --build " & "build" / program & " -- -j4"
     echo command
     exec(command)
 

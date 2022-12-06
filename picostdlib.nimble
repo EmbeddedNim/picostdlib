@@ -13,5 +13,5 @@ installDirs   = @["picostdlib/build_utils/template"]
 # Dependencies
 
 requires "nim >= 1.6.0"
-requires "https://github.com/casey-SK/commandant >= 0.15.1"
-requires "https://github.com/beef331/micros"
+requires "https://github.com/casey-SK/commandant >= 0.15.1"  # for piconim
+requires "https://github.com/beef331/micros"  # for the after build hook
