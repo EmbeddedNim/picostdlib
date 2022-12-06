@@ -50,17 +50,22 @@ You can also provide the following options to the subcommand:
     with the `<project-name>` already created. Be careful with this. 
     ex. `piconim myProject --overwrite` will replace a folder named `myProject`
 
+5. Change directory to the new project and run `nimble configure`. This will initialize
+the Pico SDK using CMake. By default it downloads the SDK from GitHub, but you can also set
+the environment variable `PICO_SDK_PATH` before running `nimble configure`. This way you
+can have the SDK in one place for all your projects.
+
 
 ## Building
 
 Now you can work on your project. When you are ready to build the `.uf2` file 
 (which will be copied to the Raspberry Pi Pico), you can use the `build` command of Nimble:
 
-`nimble build [main-program]`
+`nimble build [program]`
 
-Where `<main-program>` is the main module in your `src` folder, and specified in `bin`
-in the project's Nimble file. (ex. `myproject`).
-The generated `.uf2` file is placed in `build/<main-program>/`
+Where `[program]` is zero or more binaries in your `src` folder, specified in `bin`
+in the project's Nimble file. (ex. `myproject`). If none are specified, it will build all of them.
+The generated `.uf2` file is placed in `build/<program name>/`
 
 Modify `csource/CMakeLists.txt` to suit your project's needs.
 
@@ -70,22 +75,28 @@ Examples:
 # Initialize a new project
 piconim init <project-name>
 
-# Run these commands from the project root.
-# If you don't specify a binary name, it will use all
-# binaries specified in your Nimble file.
+# Run the following commands from the project root.
+# If you don't specify a program name, it will use all
+# binaries specified in your Nimble file. You can specify multiple.
 
-# Run CMake, download Pico SDK from Github (if needed),
-# builds C/C++ files with Nim, runs CMake build/make
-nimble build [optional binary name]
+# Run CMake configure, download Pico SDK from Github (if needed)
+nimble configure [program]
 
-# Run the CMake clean target, cleans nimcache
-nimble clean [optional binary name]
+# Builds C/C++ files with Nim, runs CMake build/make
+nimble build [program]
 
-# Clean build directories, cleans nimcache
-nimble distclean [optional binary name]
+# Run the CMake clean target, and cleans nimcache
+nimble clean [program]
 
-# Builds and attempts to upload using picotool (installed separately)
-nimble upload [optional binary name]
+# Clean build directories, and cleans nimcache
+nimble distclean [program]
+
+# Runs clean and then builds.
+nimble buildclean [program]
+
+# Upload using picotool (installed separately)
+# Pass --build to run build task first. Add --clean to clean before building.
+nimble upload [program] [--build] [--clean]
 
 # Monitors the tty port using minicom (/dev/ttyACM0)
 nimble monitor

@@ -166,13 +166,12 @@ proc genCMakeInclude(projectName: string, cfiles: openarray[string]) =
   writeFile(importPath, fmt(cMakeIncludeTemplate))
 
 task clean, "Clean task":
-  let selectedBins = getSelectedBins()
-
   rmDir(nimcache)
-
+  let selectedBins = getSelectedBins()
   for program in bin:
     if program notin selectedBins:
       continue
+    let name = program.splitPath.tail
 
     if dirExists("build" / program):
       echo "Cleaning ", "build" / program
@@ -181,10 +180,8 @@ task clean, "Clean task":
       exec(command)
 
 task distclean, "Distclean task":
-  let selectedBins = getSelectedBins()
-
   rmDir(nimcache)
-
+  let selectedBins = getSelectedBins()
   for program in bin:
     if program notin selectedBins:
       continue
@@ -194,22 +191,24 @@ task distclean, "Distclean task":
       rmDir("build" / program)
 
 
-
-before build:
+task configure, "Setup task":
   if not dirExists("csource"):
     picoError "Could not find csource directory!"
 
+  # I want to put this in the beforeBuild hook,
+  # but there you can't see what binaries are
+  # about to be built using commandLineParams.
   rmFile(importPath)
 
   let selectedBins = getSelectedBins()
-
   for program in bin:
     if program notin selectedBins:
       continue
+    let name = program.splitPath.tail
 
     var cmakeArgs: seq[string]
     cmakeArgs.add "-DPICO_SDK_FETCH_FROM_GIT=on"
-    cmakeArgs.add "-DOUTPUT_NAME=" & program
+    cmakeArgs.add "-DOUTPUT_NAME=" & name
     cmakeArgs.add "-S"
     cmakeArgs.add "csource"
     cmakeArgs.add "-B"
@@ -219,16 +218,26 @@ before build:
     echo command
     exec(command)
 
-    rmFile(nimcache / program & ".json")
+before build:
+  # delete the nimcache json files
+  # afterBuild hook will only build those that have a json file
+  for program in bin:
+    let name = program.splitPath.tail
+    rmFile(nimcache / name & ".json")
+
 
 after build:
   for program in bin:
-    if not fileExists(nimcache / program & ".json"):
+    let name = program.splitPath.tail
+    if not fileExists(nimcache / name & ".json"):
       continue
+
+    if not dirExists("build" / program):
+      picoError "Build directory " & "build" / program & " does not exist. Try run nimble configure."
 
     var cfiles: seq[string]
 
-    for cfile in parseJson(readFile(nimcache / program & ".json"))["compile"]:
+    for cfile in parseJson(readFile(nimcache / name & ".json"))["compile"]:
       cfiles.add cfile[0].getStr()
 
     # rename the .c file
@@ -244,17 +253,28 @@ after build:
       exec("copy /b csource/CMakeLists.txt +,,")
 
     # run cmake build
-    let command = "cmake --build " & "build" / program & " -- -j4"
+    var command = "cmake --build " & "build" / program & " -- -j4"
     echo command
     exec(command)
+
+task buildclean, "Clean and build task":
+  let selectedBins = getSelectedBins()
+  exec("nimble clean " & quoteShellCommand(selectedBins))
+  exec("nimble build " & quoteShellCommand(selectedBins))
 
 task upload, "Upload task":
   let selectedBins = getSelectedBins()
   if selectedBins.len > 0:
     let program = selectedBins[0]
-    exec(fmt"nimble build {program}")
-    echo "Uploading program using picotool..."
-    exec(fmt"picotool load build/{program}/{program}.uf2 -v -x -f")
+    let name = program.splitPath.tail
+    if "--build" in commandLineParams and "--clean" in commandLineParams:
+      exec(fmt"nimble buildclean {program}")
+    elif "--build" in commandLineParams:
+      exec(fmt"nimble build {program}")
+    exec(fmt"picotool info build/{program}/{name}.uf2 -a")
+    echo "\nUploading..."
+    exec(fmt"picotool load build/{program}/{name}.uf2 -v -x -f")
+
 
 task monitor, "Monitor task":
   exec("minicom -D /dev/ttyACM0")
