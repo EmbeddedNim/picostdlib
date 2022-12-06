@@ -1,8 +1,6 @@
-
-
-import pkg/[micros]
 import std/[strformat, strutils, strscans, sequtils, sets, genasts, json]
 import std/os except commandLineParams
+import pkg/micros
 
 type
   PicoSetupError = object of CatchableError
@@ -120,6 +118,7 @@ macro parseLinkableLib(s: string) =
       genAst():
         raise newException(ValueError, "Not found field")
   result = NimNode caseStmt
+
 
 proc getLinkedLib(fileName: string): set[LinkableLib] =
   ## Iterates over lines searching for includes adding to result
