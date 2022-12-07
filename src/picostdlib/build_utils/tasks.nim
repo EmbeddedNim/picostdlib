@@ -247,12 +247,6 @@ after build:
 
     genCMakeInclude(program)
 
-    # update file timestamps
-    #when not defined(windows):
-    #  exec("touch csource/CMakeLists.txt")
-    #else:
-    #  exec("copy /b csource/CMakeLists.txt +,,")
-
     # run cmake build
     var command = "cmake --build " & "build" / program & " -- -j4"
     echo command
