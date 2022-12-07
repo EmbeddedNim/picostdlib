@@ -27,8 +27,21 @@ set(CMAKE_CXX_STANDARD 17)
 # initialize the Raspberry Pi Pico SDK
 pico_sdk_init()
 
+set(NIMCACHE_DIR "${CMAKE_SOURCE_DIR}/../build/nimcache")
+set(NIMCACHE_JSON_FILE "${NIMCACHE_DIR}/${OUTPUT_NAME}.json")
+
 if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/imports.cmake)
   include(imports.cmake) # Include our generated file
+
+  # Read the nimcache JSON file to get the source files
+  set(NimSources "")
+  file(READ "${NIMCACHE_JSON_FILE}" NIMCACHE_JSON_DATA)
+  string(JSON cfilelength LENGTH "${NIMCACHE_JSON_DATA}" compile)
+  math(EXPR cfilelength "${cfilelength} - 1")
+  foreach(IDX RANGE ${cfilelength})
+      string(JSON CUR_FILE GET "${NIMCACHE_JSON_DATA}" compile ${IDX} 0)
+      list(APPEND NimSources ${CUR_FILE})
+  endforeach()
 
   # Suppress gcc warnings for nim-generated files
   set_source_files_properties(${NimSources} PROPERTIES COMPILE_OPTIONS "-w")
@@ -36,13 +49,12 @@ if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/imports.cmake)
   add_executable(${OUTPUT_NAME} ${NimSources})
 
   # Add directory containing this CMakeLists file to include search path.
-  # This is required so that the nimbase.h file is found. Other headers
+  # This is required so that the lwipopts.h file is found. Other headers
   # required for a project can also be placed here.
   target_include_directories(${OUTPUT_NAME} PUBLIC ${CMAKE_CURRENT_LIST_DIR})
 
+  include_nim(${OUTPUT_NAME}) # include Nim lib directory (for nimbase.h)
   link_imported_libs(${OUTPUT_NAME}) # call our generated function to import all libs we're using
-
-  include_nim(${OUTPUT_NAME}) # link to Nim includes
 
   # Add additional libraries, such as the wifi package. It's not automatically loaded
   # target_link_libraries(${OUTPUT_NAME} pico_cyw43_arch_lwip_threadsafe_background)

@@ -69,19 +69,13 @@ const importPath = "csource" / "imports.cmake"
 const cMakeIncludeTemplate = """
 # This is a generated file do not modify it, 'picostdlib' makes it every build.
 
-set(NIM_BACKEND_EXTENSION {extension})
-
-function(link_imported_libs name)
-  target_link_libraries(${{name}} {strLibs})
-endFunction()
-
 function(include_nim name)
   target_include_directories(${{name}} PUBLIC "{nimLibPath}")
 endFunction()
 
-set(NimSources
-  {sources}
-)
+function(link_imported_libs name)
+  target_link_libraries(${{name}} {strLibs})
+endFunction()
 """
 
 
@@ -147,7 +141,7 @@ proc getPicoLibs(extension: string): string =
 proc getNimLibPath: string =
   result = getCurrentCompilerExe().parentDir.parentDir / "lib"
 
-proc genCMakeInclude(projectName: string, cfiles: openarray[string]) =
+proc genCMakeInclude(projectName: string) =
   ## Create a CMake include file in the csources containing:
   ##  - all pico-sdk libs to link
   ##  - path to current Nim compiler "lib" path, to be added to the
@@ -159,8 +153,6 @@ proc genCMakeInclude(projectName: string, cfiles: openarray[string]) =
 
   # include Nim lib path for nimbase.h
   let nimLibPath = getNimLibPath()
-
-  var sources = cfiles.join("\n  ")
 
   writeFile(importPath, fmt(cMakeIncludeTemplate))
 
@@ -234,22 +226,13 @@ after build:
     if not dirExists("build" / program):
       picoError "Build directory " & "build" / program & " does not exist. Try run nimble configure."
 
-    var cfiles: seq[string]
-
-    for cfile in parseJson(readFile(nimcache / name & ".json"))["compile"]:
-      cfiles.add cfile[0].getStr()
-
-    # rename the .c file
-    #let nimprogram = program.changeFileExt"nim"
-    #echo "Moving ", nimcache / fmt"@m{nimprogram}.{nimExtension}", " to ", nimcache / program.changeFileExt(nimExtension)
-    #mvFile(nimcache / fmt"@m{nimprogram}.{nimExtension}", nimcache / program.changeFileExt(nimExtension))
-    genCMakeInclude(program, cfiles)
+    genCMakeInclude(program)
 
     # update file timestamps
-    when not defined(windows):
-      exec("touch csource/CMakeLists.txt")
-    else:
-      exec("copy /b csource/CMakeLists.txt +,,")
+    #when not defined(windows):
+    #  exec("touch csource/CMakeLists.txt")
+    #else:
+    #  exec("copy /b csource/CMakeLists.txt +,,")
 
     # run cmake build
     var command = "cmake --build " & "build" / program & " -- -j4"
