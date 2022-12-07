@@ -28,7 +28,7 @@ set(CMAKE_CXX_STANDARD 17)
 pico_sdk_init()
 
 set(NIMCACHE_DIR "${CMAKE_SOURCE_DIR}/../build/nimcache")
-set(NIMCACHE_JSON_FILE "${NIMCACHE_DIR}/${OUTPUT_NAME}.json")
+set(NIMCACHE_JSON_FILE "${NIMCACHE_DIR}/${OUTPUT_NAME}.cached.json")
 
 set_directory_properties(PROPERTIES CMAKE_CONFIGURE_DEPENDS ${NIMCACHE_JSON_FILE})
 

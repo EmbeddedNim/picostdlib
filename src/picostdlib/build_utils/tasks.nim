@@ -146,7 +146,7 @@ proc genCMakeInclude(projectName: string) =
   ##  - all pico-sdk libs to link
   ##  - path to current Nim compiler "lib" path, to be added to the
   ##    C compiler include path
-  rmFile(importPath)
+  # rmFile(importPath)
 
   # pico-sdk libs
   let strLibs = getPicoLibs(extension)
@@ -154,7 +154,15 @@ proc genCMakeInclude(projectName: string) =
   # include Nim lib path for nimbase.h
   let nimLibPath = getNimLibPath()
 
-  writeFile(importPath, fmt(cMakeIncludeTemplate))
+  # only update file if contents change
+  # to prevent CMake from reconfiguring
+  if fileExists(importPath):
+    let oldTemplate = readFile(importPath)
+    let newTemplate = fmt(cMakeIncludeTemplate)
+    if oldTemplate != newTemplate:
+      writeFile(importPath, fmt(cMakeIncludeTemplate))
+  else:
+    writeFile(importPath, fmt(cMakeIncludeTemplate))
 
 task clean, "Clean task":
   rmDir(nimcache)
@@ -214,14 +222,28 @@ before build:
   # afterBuild hook will only build those that have a json file
   for program in bin:
     let name = program.splitPath.tail
-    rmFile(nimcache / name & ".json")
+    let jsonFile = nimcache / name & ".json"
+    if fileExists(jsonFile):
+      rmFile(jsonFile)
 
 
 after build:
   for program in bin:
     let name = program.splitPath.tail
-    if not fileExists(nimcache / name & ".json"):
+    let jsonFile = nimcache / name & ".json"
+    let jsonFileCached = jsonFile.changeFileExt(".cached.json")
+    if not fileExists(jsonFile):
       continue
+
+    # only copy the json file to cache if contents change
+    # to prevent CMake from reconfiguring
+    if fileExists(jsonFileCached):
+      let oldJsonFile = readFile(jsonFileCached)
+      let newJsonFile = readFile(jsonFile)
+      if oldJsonFile != newJsonFile:
+        cpFile(jsonFile, jsonFileCached)
+    else:
+      cpFile(jsonFile, jsonFileCached)
 
     if not dirExists("build" / program):
       picoError "Build directory " & "build" / program & " does not exist. Try run nimble configure."
