@@ -69,10 +69,6 @@ const importPath = "csource" / "imports.cmake"
 const cMakeIncludeTemplate = """
 # This is a generated file do not modify it, 'picostdlib' makes it every build.
 
-function(include_nim name)
-  target_include_directories(${{name}} PUBLIC "{nimLibPath}")
-endFunction()
-
 function(link_imported_libs name)
   target_link_libraries(${{name}} {strLibs})
 endFunction()
@@ -138,9 +134,6 @@ proc getPicoLibs(extension: string): string =
     result.add $lib
     result.add " "
 
-proc getNimLibPath: string =
-  result = getCurrentCompilerExe().parentDir.parentDir / "lib"
-
 proc genCMakeInclude(projectName: string) =
   ## Create a CMake include file in the csources containing:
   ##  - all pico-sdk libs to link
@@ -151,16 +144,13 @@ proc genCMakeInclude(projectName: string) =
   # pico-sdk libs
   let strLibs = getPicoLibs(extension)
 
-  # include Nim lib path for nimbase.h
-  let nimLibPath = getNimLibPath()
-
   # only update file if contents change
   # to prevent CMake from reconfiguring
   if fileExists(importPath):
     let oldTemplate = readFile(importPath)
     let newTemplate = fmt(cMakeIncludeTemplate)
     if oldTemplate != newTemplate:
-      writeFile(importPath, fmt(cMakeIncludeTemplate))
+      writeFile(importPath, newTemplate)
   else:
     writeFile(importPath, fmt(cMakeIncludeTemplate))
 
