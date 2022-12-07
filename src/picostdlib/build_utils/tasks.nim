@@ -187,13 +187,19 @@ task configure, "Setup task":
   # I want to put this in the beforeBuild hook,
   # but there you can't see what binaries are
   # about to be built using commandLineParams.
-  rmFile(importPath)
 
   let selectedBins = getSelectedBins()
   for program in bin:
     if program notin selectedBins:
       continue
     let name = program.splitPath.tail
+
+    let jsonFileCached = nimcache / name & ".cached.json"
+
+    mkDir(nimcache)
+    writeFile(jsonFileCached, "")
+
+    genCMakeInclude(program)
 
     var cmakeArgs: seq[string]
     cmakeArgs.add "-DPICO_SDK_FETCH_FROM_GIT=on"
