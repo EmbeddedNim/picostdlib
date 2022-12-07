@@ -49,39 +49,45 @@ if(EXISTS ${NIMCACHE_JSON_FILE})
   endif()
 endif()
 
-if(NimSources)
-  # Suppress gcc warnings for nim-generated files
-  set_source_files_properties(${NimSources} PROPERTIES COMPILE_OPTIONS "-w")
+# Get the Nim include path to get nimbase.h
+execute_process(
+  COMMAND nim "--verbosity:0" "--eval:import std/os; echo getCurrentCompilerExe().parentDir.parentDir / \"lib\""
+  OUTPUT_VARIABLE NIM_INCLUDE_PATH
+  OUTPUT_STRIP_TRAILING_WHITESPACE
+)
 
-  add_executable(${OUTPUT_NAME} ${NimSources})
+if(NOT NimSources)
+  # Nim project hasn't been built yet, so we need some source file... nimbase will do!
+  # It won't actually get compiled, it's just during initial configure step
+  set(NimSources ${NIM_INCLUDE_PATH}/nimbase.h)
+endif()
 
-  # Add directory containing this CMakeLists file to include search path.
-  # This is required so that the lwipopts.h file is found. Other headers
-  # required for a project can also be placed here.
-  target_include_directories(${OUTPUT_NAME} PUBLIC ${CMAKE_CURRENT_LIST_DIR})
+# Suppress gcc warnings for nim-generated files
+set_source_files_properties(${NimSources} PROPERTIES COMPILE_OPTIONS "-w")
 
-  # Get the Nim include path to get nimbase.h
-  execute_process(
-    COMMAND nim "--verbosity:0" "--eval:import std/os; echo getCurrentCompilerExe().parentDir.parentDir / \"lib\""
-    OUTPUT_VARIABLE NIM_INCLUDE_PATH
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-  )
-  target_include_directories(${OUTPUT_NAME} PUBLIC "${NIM_INCLUDE_PATH}")
+add_executable(${OUTPUT_NAME} ${NimSources})
 
+# Add directory containing this CMakeLists file to include search path.
+# This is required so that the lwipopts.h file is found. Other headers
+# required for a project can also be placed here.
+target_include_directories(${OUTPUT_NAME} PUBLIC ${CMAKE_CURRENT_LIST_DIR} ${NIM_INCLUDE_PATH})
+
+if(EXISTS imports.cmake)
   include(imports.cmake) # Include our generated file
   link_imported_libs(${OUTPUT_NAME}) # call our generated function to import all libs we're using
-
-  # Add additional libraries, such as the wifi package. It's not automatically loaded
-  # target_link_libraries(${OUTPUT_NAME} pico_cyw43_arch_lwip_threadsafe_background)
-
-  # enable usb output, disable uart output
-  add_compile_definitions(PICO_STDIO_USB_CONNECT_WAIT_TIMEOUT_MS=2000)
-  pico_enable_stdio_usb(${OUTPUT_NAME} 1)
-  pico_enable_stdio_uart(${OUTPUT_NAME} 0)
-
-  # create map/bin/hex/uf2 file etc.
-  pico_add_extra_outputs(${OUTPUT_NAME})
-
-  # add url via pico_set_program_url
-  #pico_set_program_url(${OUTPUT_NAME} "")
 endif()
+
+# Add additional libraries, such as the wifi package. It's not automatically loaded
+# target_link_libraries(${OUTPUT_NAME} pico_cyw43_arch_lwip_threadsafe_background)
+
+# enable usb output, disable uart output
+add_compile_definitions(PICO_STDIO_USB_CONNECT_WAIT_TIMEOUT_MS=2000)
+pico_enable_stdio_usb(${OUTPUT_NAME} 1)
+pico_enable_stdio_uart(${OUTPUT_NAME} 0)
+
+# create map/bin/hex/uf2 file etc.
+pico_add_extra_outputs(${OUTPUT_NAME})
+
+# add url via pico_set_program_url
+#pico_set_program_url(${OUTPUT_NAME} "")
+
