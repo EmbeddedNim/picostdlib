@@ -72,7 +72,7 @@ add_executable(${OUTPUT_NAME} ${NimSources})
 # required for a project can also be placed here.
 target_include_directories(${OUTPUT_NAME} PUBLIC ${CMAKE_CURRENT_LIST_DIR} ${NIM_INCLUDE_PATH})
 
-if(EXISTS imports.cmake)
+if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/imports.cmake)
   include(imports.cmake) # Include our generated file
   link_imported_libs(${OUTPUT_NAME}) # call our generated function to import all libs we're using
 endif()
