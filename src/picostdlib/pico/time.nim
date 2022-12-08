@@ -1,4 +1,5 @@
 import ./types
+export types
 
 {.push header: "pico/time.h".}
 

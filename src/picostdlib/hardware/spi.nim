@@ -17,11 +17,12 @@ type
     ## Enumeration of SPI bit-order values.
     LsbFirst, MsbFirst
 
-var
-  spi0* {.importc: "spi0".}: SpiInst
-  spi1* {.importc: "spi1".}: SpiInst
+let
+  spi0* {.importc: "spi0".}: ptr SpiInst
+  spi1* {.importc: "spi1".}: ptr SpiInst
+  spiDefault* = spi0
 
-proc spiInit*(spi: var SpiInst; baudrate: cuint): cuint {.importc: "spi_init".}
+proc spiInit*(spi: ptr SpiInst; baudrate: cuint): cuint {.importc: "spi_init".}
   ## ```
   ##   ! \brief Initialise SPI instances
   ##     \ingroup hardware_spi
@@ -37,7 +38,7 @@ proc spiInit*(spi: var SpiInst; baudrate: cuint): cuint {.importc: "spi_init".}
   ## ```
 
 
-proc spiDeinit*(spi: var SpiInst) {.importc: "spi_deinit".}
+proc spiDeinit*(spi: ptr SpiInst) {.importc: "spi_deinit".}
   ## ```
   ##   ! \brief Deinitialise SPI instances
   ##     \ingroup hardware_spi
@@ -47,7 +48,7 @@ proc spiDeinit*(spi: var SpiInst) {.importc: "spi_deinit".}
   ##    \param spi SPI instance specifier, either \ref spi0 or \ref spi1
   ## ```
 
-proc spiSetBaudrate*(spi: var SpiInst; baudrate: cuint): cuint {.importc: "spi_set_baudrate".}
+proc spiSetBaudrate*(spi: ptr SpiInst; baudrate: cuint): cuint {.importc: "spi_set_baudrate".}
   ## ```
   ##   ! \brief Set SPI baudrate
   ##     \ingroup hardware_spi
@@ -60,7 +61,7 @@ proc spiSetBaudrate*(spi: var SpiInst; baudrate: cuint): cuint {.importc: "spi_s
   ##    \return The actual baudrate set
   ## ```
 
-proc spiGetBaudrate*(spi: var SpiInst): cuint {.importc: "spi_get_baudrate".}
+proc spiGetBaudrate*(spi: ptr SpiInst): cuint {.importc: "spi_get_baudrate".}
   ## ```
   ##   ! \brief Get SPI baudrate
   ##     \ingroup hardware_spi
@@ -71,7 +72,7 @@ proc spiGetBaudrate*(spi: var SpiInst): cuint {.importc: "spi_get_baudrate".}
   ##    \return The actual baudrate set
   ## ```
 
-proc spiGetIndex*(spi: var SpiInst): cuint {.importc: "spi_get_index".}
+proc spiGetIndex*(spi: ptr SpiInst): cuint {.importc: "spi_get_index".}
   ## ```
   ##   ! \brief Convert SPI instance to hardware instance number
   ##     \ingroup hardware_spi
@@ -81,7 +82,7 @@ proc spiGetIndex*(spi: var SpiInst): cuint {.importc: "spi_get_index".}
   ## ```
 
 
-proc spiSetFormat*(spi: var SpiInst; dataBits: cuint(4) .. cuint(16); cpol: SpiClockPolarity; cpha: SpiClockPhase; order: SpiOrder) {.importc: "spi_set_format".}
+proc spiSetFormat*(spi: ptr SpiInst; dataBits: cuint(4) .. cuint(16); cpol: SpiClockPolarity; cpha: SpiClockPhase; order: SpiOrder) {.importc: "spi_set_format".}
   ## ```
   ##   ! \brief Configure SPI
   ##     \ingroup hardware_spi
@@ -95,7 +96,7 @@ proc spiSetFormat*(spi: var SpiInst; dataBits: cuint(4) .. cuint(16); cpol: SpiC
   ##    \param order Must be SPI_MSB_FIRST, no other values supported on the PL022
   ## ```
 
-proc spiSetSlave*(spi: var SpiInst; slave: bool) {.importc: "spi_set_slave".}
+proc spiSetSlave*(spi: ptr SpiInst; slave: bool) {.importc: "spi_set_slave".}
   ## ```
   ##   ! \brief Set SPI master/slave
   ##     \ingroup hardware_spi
@@ -107,7 +108,7 @@ proc spiSetSlave*(spi: var SpiInst; slave: bool) {.importc: "spi_set_slave".}
   ##    \param slave true to set SPI device as a slave device, false for master.
   ## ```
 
-proc spiIsWritable*(spi: var SpiInst): bool {.importc: "spi_is_writable".}
+proc spiIsWritable*(spi: ptr SpiInst): bool {.importc: "spi_is_writable".}
   ## ```
   ##   ----------------------------------------------------------------------------
   ##      Generic input/output
@@ -118,7 +119,7 @@ proc spiIsWritable*(spi: var SpiInst): bool {.importc: "spi_is_writable".}
   ##    \return false if no space is available to write. True if a write is possible
   ## ```
 
-proc spiIsReadable*(spi: var SpiInst): bool {.importc: "spi_is_readable".}
+proc spiIsReadable*(spi: ptr SpiInst): bool {.importc: "spi_is_readable".}
   ## ```
   ##   ! \brief Check whether a read can be done on SPI device
   ##     \ingroup hardware_spi
@@ -127,7 +128,7 @@ proc spiIsReadable*(spi: var SpiInst): bool {.importc: "spi_is_readable".}
   ##    \return true if a read is possible i.e. data is present
   ## ```
 
-proc spiIsBusy*(spi: var SpiInst): bool {.importc: "spi_is_busy".}
+proc spiIsBusy*(spi: ptr SpiInst): bool {.importc: "spi_is_busy".}
   ## ```
   ##   ! \brief Check whether SPI is busy
   ##     \ingroup hardware_spi
@@ -136,7 +137,7 @@ proc spiIsBusy*(spi: var SpiInst): bool {.importc: "spi_is_busy".}
   ##    \return true if SPI is busy
   ## ```
 
-proc spiWriteReadBlocking*(spi: var SpiInst; src, dst: pointer; len: csize_t): cint {.importc: "spi_write_read_blocking".}
+proc spiWriteReadBlocking*(spi: ptr SpiInst; src, dst: ptr uint8; len: csize_t): cint {.importc: "spi_write_read_blocking".}
   ## ```
   ##   ! \brief Write/Read to/from an SPI device
   ##     \ingroup hardware_spi
@@ -151,7 +152,7 @@ proc spiWriteReadBlocking*(spi: var SpiInst; src, dst: pointer; len: csize_t): c
   ##    \return Number of bytes written/read
   ## ```
 
-proc spiWriteBlocking*(spi: var SpiInst; src: pointer; len: csize_t): cint {.importc: "spi_write_blocking".}
+proc spiWriteBlocking*(spi: ptr SpiInst; src: ptr uint8; len: csize_t): cint {.importc: "spi_write_blocking".}
   ## ```
   ##   ! \brief Write to an SPI device, blocking
   ##     \ingroup hardware_spi
@@ -165,7 +166,7 @@ proc spiWriteBlocking*(spi: var SpiInst; src: pointer; len: csize_t): cint {.imp
   ##    \return Number of bytes written/read
   ## ```
 
-proc spiReadBlocking*(spi: var SpiInst; repeatedTxData: uint8; dst: pointer; len: csize_t): cint {.importc: "spi_read_blocking".}
+proc spiReadBlocking*(spi: ptr SpiInst; repeatedTxData: uint8; dst: ptr uint8; len: csize_t): cint {.importc: "spi_read_blocking".}
   ## ```
   ##   ! \brief Read from an SPI device
   ##     \ingroup hardware_spi
@@ -183,7 +184,7 @@ proc spiReadBlocking*(spi: var SpiInst; repeatedTxData: uint8; dst: pointer; len
   ##    \return Number of bytes written/read
   ## ```
 
-proc spiWrite16Read16Blocking*(spi: var SpiInst; src: ptr uint16; dst: ptr uint16; len: csize_t): cint {.importc: "spi_write16_read16_blocking".}
+proc spiWrite16Read16Blocking*(spi: ptr SpiInst; src: ptr uint16; dst: ptr uint16; len: csize_t): cint {.importc: "spi_write16_read16_blocking".}
   ## ```
   ##   ! \brief Write/Read half words to/from an SPI device
   ##     \ingroup hardware_spi
@@ -200,7 +201,7 @@ proc spiWrite16Read16Blocking*(spi: var SpiInst; src: ptr uint16; dst: ptr uint1
   ##    \return Number of halfwords written/read
   ## ```
 
-proc spiWrite16Blocking*(spi: var SpiInst; src: ptr uint16; len: csize_t): cint {.importc: "spi_write16_blocking".}
+proc spiWrite16Blocking*(spi: ptr SpiInst; src: ptr uint16; len: csize_t): cint {.importc: "spi_write16_blocking".}
   ## ```
   ##   ! \brief Write to an SPI device
   ##     \ingroup hardware_spi
@@ -216,7 +217,7 @@ proc spiWrite16Blocking*(spi: var SpiInst; src: ptr uint16; len: csize_t): cint 
   ##    \return Number of halfwords written/read
   ## ```
 
-proc spiRead16Blocking*(spi: var SpiInst; repeatedTxData: uint16; dst: ptr uint16; len: csize_t): cint {.importc: "spi_read16_blocking".}
+proc spiRead16Blocking*(spi: ptr SpiInst; repeatedTxData: uint16; dst: ptr uint16; len: csize_t): cint {.importc: "spi_read16_blocking".}
   ## ```
   ##   ! \brief Read from an SPI device
   ##     \ingroup hardware_spi
@@ -236,7 +237,7 @@ proc spiRead16Blocking*(spi: var SpiInst; repeatedTxData: uint16; dst: ptr uint1
   ##    \return Number of halfwords written/read
   ## ```
 
-proc spiGetDreq*(spi: var SpiInst; isTx: bool): cuint {.importc: "spi_get_dreq".}
+proc spiGetDreq*(spi: ptr SpiInst; isTx: bool): cuint {.importc: "spi_get_dreq".}
   ## ```
   ##   ! \brief Return the DREQ to use for pacing transfers to/from a particular SPI instance
   ##     \ingroup hardware_spi
