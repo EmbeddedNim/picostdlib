@@ -1,4 +1,5 @@
 import ../pico/types
+export types
 
 {.push header: "hardware/rtc.h".}
 

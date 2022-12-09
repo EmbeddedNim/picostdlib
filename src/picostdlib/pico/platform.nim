@@ -6,7 +6,7 @@ proc breakpoint*() {.importc: "__breakpoint".}
   ##     \ingroup pico_platform
   ## ```
 
-proc compiler_memory_barrier*() {.importc: "__compiler_memory_barrier".}
+proc compilerMemoryBarrier*() {.importc: "__compiler_memory_barrier".}
   ## ```
   ##   ! \brief Ensure that the compiler does not move memory access across this method call
   ##     \ingroup pico_platform
@@ -21,14 +21,14 @@ proc compiler_memory_barrier*() {.importc: "__compiler_memory_barrier".}
   ##    might - even above the memory store!)
   ## ```
 
-proc panic_unsupported*() {.importc.}
+proc panicUnsupported*() {.importc: "panic_unsupported".}
   ## ```
   ##   ! \brief Panics with the message "Unsupported"
   ##     \ingroup pico_platform
   ##     \see panic
   ## ```
 
-proc panic*(fmt: cstring) {.importc, varargs.}
+proc panic*(fmt: cstring) {.importc: "panic", varargs.}
   ## ```
   ##   ! \brief Displays a panic message and halts execution
   ##     \ingroup pico_platform
@@ -40,21 +40,21 @@ proc panic*(fmt: cstring) {.importc, varargs.}
   ##    @param ...  printf-like arguments
   ## ```
 
-proc rp2040_chip_version*(): uint8 {.importc.}
+proc rp2040ChipVersion*(): uint8 {.importc: "rp2040_chip_version".}
   ## ```
   ##   ! \brief Returns the RP2040 chip revision number
   ##     \ingroup pico_platform
   ##    @return the RP2040 chip revision number (1 for B0/B1, 2 for B2)
   ## ```
 
-proc rp2040_rom_version*(): uint8 {.importc.}
+proc rp2040RomVersion*(): uint8 {.importc: "rp2040_rom_version".}
   ## ```
   ##   ! \brief Returns the RP2040 rom version number
   ##     \ingroup pico_platform
   ##    @return the RP2040 rom version number (1 for RP2040-B0, 2 for RP2040-B1, 3 for RP2040-B2)
   ## ```
 
-proc tight_loop_contents*() {.importc.}
+proc tightLoopContents*() {.importc: "tight_loop_contents".}
   ## ```
   ##   ! \brief No-op function for the body of tight loops
   ##     \ingroup pico_platform
@@ -64,7 +64,7 @@ proc tight_loop_contents*() {.importc.}
   ##    debugging might be added
   ## ```
 
-proc mul_instruction*(a: int32; b: int32): int32 {.importc: "__mul_instruction".}
+proc mulInstruction*(a: int32; b: int32): int32 {.importc: "__mul_instruction".}
   ## ```
   ##   ! \brief Multiply two integers using an assembly MUL instruction
   ##     \ingroup pico_platform
@@ -77,7 +77,7 @@ proc mul_instruction*(a: int32; b: int32): int32 {.importc: "__mul_instruction".
   ##    \return a b
   ## ```
 
-proc get_current_exception*(): uint {.importc: "__get_current_exception".}
+proc getCurrentException*(): cuint {.importc: "__get_current_exception".}
   ## ```
   ##   ! \brief Get the current exception level on this core
   ##     \ingroup pico_platform
@@ -85,7 +85,7 @@ proc get_current_exception*(): uint {.importc: "__get_current_exception".}
   ##    \return the exception number if the CPU is handling an exception, or 0 otherwise
   ## ```
 
-proc busy_wait_at_least_cycles*(minimum_cycles: uint32) {.importc.}
+proc busyWaitAtLeastCycles*(minimumCycles: uint32) {.importc: "busy_wait_at_least_cycles".}
   ## ```
   ##   ! \brief Helper method to busy-wait for at least the given number of cycles
   ##     \ingroup pico_platform
@@ -102,7 +102,7 @@ proc busy_wait_at_least_cycles*(minimum_cycles: uint32) {.importc.}
   ##    \param minimum_cycles the minimum number of system clock cycles to delay for
   ## ```
 
-proc get_core_num*(): uint {.importc.}
+proc getCoreNum*(): cuint {.importc: "get_core_num".}
   ## ```
   ##   ! \brief Get the current core number
   ##     \ingroup pico_platform

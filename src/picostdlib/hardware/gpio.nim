@@ -9,8 +9,8 @@ type
     ## each peripheral input (e.g. UART0 RX) should only be selected on one 
     ## GPIO at a time. If the same peripheral input is connected to multiple 
     ## GPIOs, the peripheral sees the logical OR of these GPIO inputs.
-    XIP, SPI, UART, I2C, PWM, SIO, PIO0, PIO1, GPCK, USB,
-    NULL = 0x1F
+    Xip, Spi, Uart, I2c, Pwm, Sio, Pio0, Pio1, Gpck, Usb,
+    Null = 0x1F
 
   Gpio* = distinct range[0.cuint .. 35.cuint]
     ## Gpio pins available to the RP2040. Not all pins may be available on some 
