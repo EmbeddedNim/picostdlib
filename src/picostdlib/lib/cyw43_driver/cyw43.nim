@@ -110,7 +110,7 @@ type
       dhcpServer* {.importc: "dhcp_server".}: DhcpServerT
     mac* {.importc: "mac".}: array[6, uint8]
   
-  Cyw43WifiScanResultCb* = proc (a1: pointer; a2: ptr Cyw43EvScanResultT): cint {.noconv.}
+  Cyw43WifiScanResultCb* = proc (env: pointer; res: ptr Cyw43EvScanResultT): cint {.noconv.}
 
 var cyw43State* {.importc: "cyw43_state".}: Cyw43T
 
