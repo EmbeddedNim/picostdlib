@@ -1,6 +1,7 @@
-import ../lib/cyw43_driver/cyw43
-import ../lib/cyw43_driver/cyw43_country
 
+import ../lib/cyw43_driver/[
+  cyw43, cyw43_country
+]
 export cyw43, cyw43_country
 
 {.push header: "pico/cyw43_arch.h".}
@@ -167,5 +168,62 @@ proc cyw43ArchPoll*() {.importc: "cyw43_arch_poll".}
   ##    \em polling style \c pico_cyw43_arch (e.g. \c pico_cyw43_arch_lwip_poll ). It
   ##    may be called in other styles, but it is unnecessary to do so.
   ## ```
+
+
+
+proc cyw43ArchLwipBegin*() {.inline, importc: "cyw43_arch_lwip_begin".}
+  ##  \brief Acquire any locks required to call into lwIP
+  ##  \ingroup pico_cyw43_arch
+  ## 
+  ##  The lwIP API is not thread safe. You should surround calls into the lwIP API
+  ##  with calls to this method and \ref cyw43_arch_lwip_end. Note these calls are not
+  ##  necessary (but harmless) when you are calling back into the lwIP API from an lwIP callback.
+  ##  If you are using single-core polling only (pico_cyw43_arch_poll) then these calls are no-ops
+  ##  anyway it is good practice to call them anyway where they are necessary.
+  ## 
+  ##  \sa cyw43_arch_lwip_end
+  ##  \sa cyw43_arch_lwip_protect
+
+proc cyw43ArchLwipEnd*() {.inline, importc: "cyw43_arch_lwip_end".}
+  ##  \brief Release any locks required for calling into lwIP
+  ##  \ingroup pico_cyw43_arch
+  ## 
+  ##  The lwIP API is not thread safe. You should surround calls into the lwIP API
+  ##  with calls to \ref cyw43_arch_lwip_begin and this method. Note these calls are not
+  ##  necessary (but harmless) when you are calling back into the lwIP API from an lwIP callback.
+  ##  If you are using single-core polling only (pico_cyw43_arch_poll) then these calls are no-ops
+  ##  anyway it is good practice to call them anyway where they are necessary.
+  ## 
+  ##  \sa cyw43_arch_lwip_begin
+  ##  \sa cyw43_arch_lwip_protect
+
+proc cyw43ArchLwipProtect*(cb: proc (param: pointer): cint {.noconv.}, param: pointer) {.inline, importc: "cyw43_arch_lwip_protect".}
+  ##  \brief sad Release any locks required for calling into lwIP
+  ##  \ingroup pico_cyw43_arch
+  ## 
+  ##  The lwIP API is not thread safe. You can use this method to wrap a function
+  ##  with any locking required to call into the lwIP API. If you are using
+  ##  single-core polling only (pico_cyw43_arch_poll) then there are no
+  ##  locks to required, but it is still good practice to use this function.
+  ## 
+  ##  \param func the function ta call with any required locks held
+  ##  \param param parameter to pass to \c func
+  ##  \return the return value from \c func
+  ##  \sa cyw43_arch_lwip_begin
+  ##  \sa cyw43_arch_lwip_end
+
+proc cyw43ArchLwipCheck*() {.inline, importc: "cyw43_arch_lwip_check".}
+  ##  \brief Checks the caller has any locks required for calling into lwIP
+  ##  \ingroup pico_cyw43_arch
+  ## 
+  ##  The lwIP API is not thread safe. You should surround calls into the lwIP API
+  ##  with calls to \ref cyw43_arch_lwip_begin and this method. Note these calls are not
+  ##  necessary (but harmless) when you are calling back into the lwIP API from an lwIP callback.
+  ## 
+  ##  This method will assert in debug mode, if the above conditions are not met (i.e. it is not safe to
+  ##  call into the lwIP API)
+  ## 
+  ##  \sa cyw43_arch_lwip_begin
+  ##  \sa cyw43_arch_lwip_protect
 
 {.pop.}
