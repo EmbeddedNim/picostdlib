@@ -1,17 +1,22 @@
+import ../lib/cyw43_driver/cyw43
+import ../lib/cyw43_driver/cyw43_country
+
+export cyw43, cyw43_country
+
 {.push header: "pico/cyw43_arch.h".}
 
 type
-  Cyw43Country* = distinct uint32
+  Cyw43ArchAuth* = distinct uint32
 
-  Cyw43Auth* = enum
-    Open = 0  # No authorisation required (open)
-    WpaTkipPsk = 0x00200002  # WPA authorisation
-    Wpa2AesPsk = 0x00400004  # WPA2 authorisation (preferred)
-    Wpa2MixedPsk = 0x00400006  # WPA2/WPA mixed authorisation
+const
+  Cyw43ArchAuthOpen* = 0.Cyw43ArchAuth  # No authorisation required (open)
+  Cyw43ArchAuthWpaTkipPsk* = 0x00200002.Cyw43ArchAuth  # WPA authorisation
+  Cyw43ArchAuthWpa2AesPsk* = 0x00400004.Cyw43ArchAuth  # WPA2 authorisation (preferred)
+  Cyw43ArchAuthWpa2MixedPsk* = 0x00400006.Cyw43ArchAuth  # WPA2/WPA mixed authorisation
 
 let CYW43_WL_GPIO_LED_PIN* {.importc: "CYW43_WL_GPIO_LED_PIN".}: cuint
 
-proc cyw43_arch_init*(): cint {.importc: "cyw43_arch_init".}
+proc cyw43ArchInit*(): cint {.importc: "cyw43_arch_init".}
   ## ```
   ##   !
   ##    \brief Initialize the CYW43 architecture
@@ -27,7 +32,7 @@ proc cyw43_arch_init*(): cint {.importc: "cyw43_arch_init".}
   ##    \return 0 if the initialization is successful, an error code otherwise \see pico_error_codes
   ## ```
 
-proc cyw43_arch_init_with_country*(country: Cyw43Country): cint {.importc: "cyw43_arch_init_with_country".}
+proc cyw43ArchInitWithCountry*(country: Cyw43Country): cint {.importc: "cyw43_arch_init_with_country".}
   ## ```
   ##   !
   ##    \brief Initialize the CYW43 architecture for use in a specific country
@@ -41,7 +46,7 @@ proc cyw43_arch_init_with_country*(country: Cyw43Country): cint {.importc: "cyw4
   ##    \return 0 if the initialization is successful, an error code otherwise \see pico_error_codes
   ## ```
 
-proc cyw43_arch_enable_sta_mode*() {.importc: "cyw43_arch_enable_sta_mode".}
+proc cyw43ArchEnableStaMode*() {.importc: "cyw43_arch_enable_sta_mode".}
   ## ```
   ##   !
   ##    \brief Enables Wi-Fi STA (Station) mode.
@@ -50,7 +55,7 @@ proc cyw43_arch_enable_sta_mode*() {.importc: "cyw43_arch_enable_sta_mode".}
   ##    This enables the Wi-Fi in \emStation mode such that connections can be made to other Wi-Fi Access Points
   ## ```
 
-proc cyw43_arch_enable_ap_mode*(ssid: cstring; password: cstring; auth: uint32) {.importc: "cyw43_arch_enable_ap_mode".}
+proc cyw43ArchEnableApMode*(ssid: cstring; password: cstring; auth: Cyw43ArchAuth) {.importc: "cyw43_arch_enable_ap_mode".}
   ## ```
   ##   !
   ##    \brief Enables Wi-Fi AP (Access point) mode.
@@ -63,7 +68,7 @@ proc cyw43_arch_enable_ap_mode*(ssid: cstring; password: cstring; auth: uint32) 
   ##                \ref CYW43_AUTH_WPA2_AES_PSK, or \ref CYW43_AUTH_WPA2_MIXED_PSK (see \ref CYW43_AUTH_)
   ## ```
 
-proc cyw43_arch_deinit*() {.importc: "cyw43_arch_deinit".}
+proc cyw43ArchDeinit*() {.importc: "cyw43_arch_deinit".}
   ## ```
   ##   !
   ##    \brief De-initialize the CYW43 architecture
@@ -74,7 +79,7 @@ proc cyw43_arch_deinit*() {.importc: "cyw43_arch_deinit".}
   ##    task, depending on the environment) as \ref cyw43_arch_init.
   ## ```
 
-proc cyw43_arch_wifi_connect_blocking*(ssid: cstring; pw: cstring; auth: uint32): cint {.importc: "cyw43_arch_wifi_connect_blocking".}
+proc cyw43ArchWifiConnectBlocking*(ssid: cstring; pw: cstring; auth: Cyw43ArchAuth): cint {.importc: "cyw43_arch_wifi_connect_blocking".}
   ## ```
   ##   !
   ##    \brief Attempt to connect to a wireless access point, blocking until the network is joined or a failure is detected.
@@ -88,7 +93,7 @@ proc cyw43_arch_wifi_connect_blocking*(ssid: cstring; pw: cstring; auth: uint32)
   ##    \return 0 if the initialization is successful, an error code otherwise \see pico_error_codes
   ## ```
 
-proc cyw43_arch_wifi_connect_timeout_ms*(ssid: cstring; pw: cstring; auth: uint32; timeout: uint32): cint {.importc: "cyw43_arch_wifi_connect_timeout_ms".}
+proc cyw43ArchWifiConnectTimeoutMs*(ssid: cstring; pw: cstring; auth: Cyw43ArchAuth; timeout: uint32): cint {.importc: "cyw43_arch_wifi_connect_timeout_ms".}
   ## ```
   ##   !
   ##    \brief Attempt to connect to a wireless access point, blocking until the network is joined, a failure is detected or a timeout occurs
@@ -102,7 +107,7 @@ proc cyw43_arch_wifi_connect_timeout_ms*(ssid: cstring; pw: cstring; auth: uint3
   ##    \return 0 if the initialization is successful, an error code otherwise \see pico_error_codes
   ## ```
 
-proc cyw43_arch_wifi_connect_async*(ssid: cstring; pw: cstring; auth: uint32): cint {.importc: "cyw43_arch_wifi_connect_async".}
+proc cyw43ArchWifiConnectAsync*(ssid: cstring; pw: cstring; auth: Cyw43ArchAuth): cint {.importc: "cyw43_arch_wifi_connect_async".}
   ## ```
   ##   !
   ##    \brief Start attempting to connect to a wireless access point
@@ -119,7 +124,7 @@ proc cyw43_arch_wifi_connect_async*(ssid: cstring; pw: cstring; auth: uint32): c
   ##    \return 0 if the scan was started successfully, an error code otherwise \see pico_error_codes
   ## ```
 
-proc cyw43_arch_get_country_code*(): uint32 {.importc: "cyw43_arch_get_country_code".}
+proc cyw43ArchGetCountryCode*(): uint32 {.importc: "cyw43_arch_get_country_code".}
   ## ```
   ##   !
   ##    \brief Return the country code used to initialize cyw43_arch
@@ -128,7 +133,7 @@ proc cyw43_arch_get_country_code*(): uint32 {.importc: "cyw43_arch_get_country_c
   ##    \return the country code (see \ref CYW43_COUNTRY_)
   ## ```
 
-proc cyw43_arch_gpio_put*(wl_gpio: cuint; value: bool) {.importc: "cyw43_arch_gpio_put".}
+proc cyw43ArchGpioPut*(wl_gpio: cuint; value: bool) {.importc: "cyw43_arch_gpio_put".}
   ## ```
   ##   !
   ##    \brief Set a GPIO pin on the wireless chip to a given value
@@ -140,7 +145,7 @@ proc cyw43_arch_gpio_put*(wl_gpio: cuint; value: bool) {.importc: "cyw43_arch_gp
   ##    \param value true to set the GPIO, false to clear it.
   ## ```
 
-proc cyw43_arch_gpio_get*(wl_gpio: cuint): bool {.importc: "cyw43_arch_gpio_get".}
+proc cyw43ArchGpioGet*(wl_gpio: cuint): bool {.importc: "cyw43_arch_gpio_get".}
   ## ```
   ##   !
   ##    \brief Read the value of a GPIO pin on the wireless chip
@@ -152,7 +157,7 @@ proc cyw43_arch_gpio_get*(wl_gpio: cuint): bool {.importc: "cyw43_arch_gpio_get"
   ##    \return true if the GPIO is high, false otherwise
   ## ```
 
-proc cyw43_arch_poll*() {.importc: "cyw43_arch_poll".}
+proc cyw43ArchPoll*() {.importc: "cyw43_arch_poll".}
   ## ```
   ##   !
   ##    \brief Perform any processing required by the \c cyw43_driver or the TCP/IP stack
