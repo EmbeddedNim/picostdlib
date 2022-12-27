@@ -7,8 +7,7 @@ license       = "MIT"
 srcDir        = "src"
 
 bin           = @["picostdlib/build_utils/piconim"]
-installExt    = @["nim", "txt", "cmake"]
-installDirs   = @["picostdlib/build_utils/template"]
+installExt    = @["nim"]
 
 # Dependencies
 

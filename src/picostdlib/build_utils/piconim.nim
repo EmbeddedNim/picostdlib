@@ -1,5 +1,5 @@
 import pkg/[commandant]
-import std/[strformat, strutils, os, osproc, terminal, sequtils]
+import std/[strformat, strutils, os, osproc, terminal, sequtils, tables]
 
 
 type PicoSetupError = object of CatchableError
@@ -30,6 +30,12 @@ folder. You can also provide the following options to the subcommand:
                          replace a folder named myProject.
 """
 
+const embeddedFiles = (proc (): Table[string, string] =
+  const root = "src/picostdlib/build_utils/template"
+  for item in os.walkDirRec(root, relative=true, checkDir=true):
+    result[item] = staticRead("template" / item)
+)()
+
 proc validateSdkPath(sdk: string) =
   # check if the sdk option path exists and has the appropriate cmake file (very basic check...)
   if not sdk.dirExists():
@@ -40,11 +46,6 @@ proc validateSdkPath(sdk: string) =
 
 
 proc createProject(projectPath: string; sdk = "", override = false) =
-  # copy the template over to the current directory
-  var sourcePath = joinPath(getAppDir(), "template")
-  # if it doesn't exist we're probably in the source tree
-  if not dirExists(sourcePath):
-    sourcePath = joinPath(getAppDir(), "../../src/picostdlib/build_utils/template")
   let name = projectPath.splitPath.tail
 
   echo "Select type binary or hybrid to be able to build the program"
@@ -60,7 +61,13 @@ proc createProject(projectPath: string; sdk = "", override = false) =
     echo "Will not copy over template"
   else:
     discard existsOrCreateDir(projectPath)
-    copyDir(sourcePath, projectPath)
+
+    for f in embeddedFiles.keys:
+      echo "writing to ", projectPath / f
+      let filepath = projectPath / f
+      createDir(filepath.parentDir)
+      writeFile(filepath, embeddedFiles[f])
+
     let nimbleFile = projectPath / fmt"{name}.nimble"
     # rename nim file
     moveFile(projectPath / "src/blink.nim", projectPath / fmt"src/{name}.nim")
