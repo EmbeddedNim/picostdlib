@@ -4,6 +4,9 @@ import ../lib/cyw43_driver/[
 ]
 export cyw43, cyw43_country
 
+import error
+export error
+
 {.push header: "pico/cyw43_arch.h".}
 
 type
@@ -17,7 +20,7 @@ const
 
 let CYW43_WL_GPIO_LED_PIN* {.importc: "CYW43_WL_GPIO_LED_PIN".}: cuint
 
-proc cyw43ArchInit*(): cint {.importc: "cyw43_arch_init".}
+proc cyw43ArchInit*(): PicoErrorCodes {.importc: "cyw43_arch_init".}
   ## ```
   ##   !
   ##    \brief Initialize the CYW43 architecture
@@ -33,7 +36,7 @@ proc cyw43ArchInit*(): cint {.importc: "cyw43_arch_init".}
   ##    \return 0 if the initialization is successful, an error code otherwise \see pico_error_codes
   ## ```
 
-proc cyw43ArchInitWithCountry*(country: Cyw43Country): cint {.importc: "cyw43_arch_init_with_country".}
+proc cyw43ArchInitWithCountry*(country: Cyw43Country): PicoErrorCodes {.importc: "cyw43_arch_init_with_country".}
   ## ```
   ##   !
   ##    \brief Initialize the CYW43 architecture for use in a specific country
@@ -80,7 +83,7 @@ proc cyw43ArchDeinit*() {.importc: "cyw43_arch_deinit".}
   ##    task, depending on the environment) as \ref cyw43_arch_init.
   ## ```
 
-proc cyw43ArchWifiConnectBlocking*(ssid: cstring; pw: cstring; auth: Cyw43ArchAuth): cint {.importc: "cyw43_arch_wifi_connect_blocking".}
+proc cyw43ArchWifiConnectBlocking*(ssid: cstring; pw: cstring; auth: Cyw43ArchAuth): PicoErrorCodes {.importc: "cyw43_arch_wifi_connect_blocking".}
   ## ```
   ##   !
   ##    \brief Attempt to connect to a wireless access point, blocking until the network is joined or a failure is detected.
@@ -94,7 +97,7 @@ proc cyw43ArchWifiConnectBlocking*(ssid: cstring; pw: cstring; auth: Cyw43ArchAu
   ##    \return 0 if the initialization is successful, an error code otherwise \see pico_error_codes
   ## ```
 
-proc cyw43ArchWifiConnectTimeoutMs*(ssid: cstring; pw: cstring; auth: Cyw43ArchAuth; timeout: uint32): cint {.importc: "cyw43_arch_wifi_connect_timeout_ms".}
+proc cyw43ArchWifiConnectTimeoutMs*(ssid: cstring; pw: cstring; auth: Cyw43ArchAuth; timeout: uint32): PicoErrorCodes {.importc: "cyw43_arch_wifi_connect_timeout_ms".}
   ## ```
   ##   !
   ##    \brief Attempt to connect to a wireless access point, blocking until the network is joined, a failure is detected or a timeout occurs
@@ -108,7 +111,7 @@ proc cyw43ArchWifiConnectTimeoutMs*(ssid: cstring; pw: cstring; auth: Cyw43ArchA
   ##    \return 0 if the initialization is successful, an error code otherwise \see pico_error_codes
   ## ```
 
-proc cyw43ArchWifiConnectAsync*(ssid: cstring; pw: cstring; auth: Cyw43ArchAuth): cint {.importc: "cyw43_arch_wifi_connect_async".}
+proc cyw43ArchWifiConnectAsync*(ssid: cstring; pw: cstring; auth: Cyw43ArchAuth): PicoErrorCodes {.importc: "cyw43_arch_wifi_connect_async".}
   ## ```
   ##   !
   ##    \brief Start attempting to connect to a wireless access point

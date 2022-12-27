@@ -1,7 +1,8 @@
-{.push header: "pico/error.h".}
+
+## importc: "enum pico_error_codes", header: "pico/error.h"
 
 type
-  PicoErrorCodes* {.pure, importc: "enum pico_error_codes".} = enum
+  PicoErrorCodes* {.pure, size: sizeof(cint).} = enum
     ## Common return codes from pico_sdk methods that return a status
     ErrorIo = -6
     ErrorInvalidArg = -5
@@ -10,5 +11,3 @@ type
     ErrorGeneric = -2
     ErrorTimeout = -1
     ErrorNone = 0
-
-{.pop.}

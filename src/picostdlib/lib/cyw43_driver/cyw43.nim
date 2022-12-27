@@ -31,7 +31,6 @@
 ##  options please email contact@georgerobotics.com.au.
 ##
 
-
 when defined(cyw43Lwip):
   import ../lwip/[netif, dhcp]
 
