@@ -86,7 +86,7 @@ nimble configure [program]
 nimble build [program]
 
 # Run the CMake clean target, and cleans nimcache
-nimble clean [program]
+nimble fastclean [program]
 
 # Clean build directories, and cleans nimcache
 nimble distclean [program]

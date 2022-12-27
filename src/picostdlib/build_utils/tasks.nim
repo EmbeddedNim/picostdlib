@@ -154,7 +154,7 @@ proc genCMakeInclude(projectName: string) =
   else:
     writeFile(importPath, fmt(cMakeIncludeTemplate))
 
-task clean, "Clean task":
+task fastclean, "Clean task":
   rmDir(nimcache)
   let selectedBins = getSelectedBins()
   for program in bin:
