@@ -194,7 +194,7 @@ type
   ##
   ##  @param netif The netif to initialize
   ##
-  NetifInitFn* = proc (netif: ptr Netif): ErrT
+  NetifInitFn* = proc (netif: ptr Netif): ErrT {.noconv.}
 
   ## * Function prototype for netif->output functions. Called by lwIP when a packet
   ##  shall be sent. For ethernet netif, set this to 'etharp_output' and set
@@ -204,7 +204,7 @@ type
   ##  @param p The packet to send (p->payload points to IP header)
   ##  @param ipaddr The IP address to which the packet shall be sent
   ##
-  NetifOutputFn* = proc (netif: ptr Netif; p: ptr Pbuf; ipaddr: ptr Ip4AddrT): ErrT
+  NetifOutputFn* = proc (netif: ptr Netif; p: ptr Pbuf; ipaddr: ptr Ip4AddrT): ErrT {.noconv.}
 
   ## * Function prototype for netif->input functions. This function is saved as 'input'
   ##  callback function in the netif struct. Call it when a packet has been received.
@@ -216,7 +216,7 @@ type
   ##                    to free the pbuf
   ##
 
-  NetifInputFn* = proc (p: ptr Pbuf; inp: ptr Netif): ErrT
+  NetifInputFn* = proc (p: ptr Pbuf; inp: ptr Netif): ErrT {.noconv.}
     
   ## * Function prototype for netif->output_ip6 functions. Called by lwIP when a packet
   ##  shall be sent. For ethernet netif, set this to 'ethip6_output' and set
@@ -226,7 +226,7 @@ type
   ##  @param p The packet to send (p->payload points to IP header)
   ##  @param ipaddr The IPv6 address to which the packet shall be sent
   ##
-  NetifOutputIp6Fn* = proc (netif: ptr Netif; p: ptr Pbuf; ipaddr: ptr Ip6AddrT): ErrT
+  NetifOutputIp6Fn* = proc (netif: ptr Netif; p: ptr Pbuf; ipaddr: ptr Ip6AddrT): ErrT {.noconv.}
 
   ## * Function prototype for netif->linkoutput functions. Only used for ethernet
   ##  netifs. This function is called by ARP when a packet shall be sent.
@@ -234,32 +234,38 @@ type
   ##  @param netif The netif which shall send a packet
   ##  @param p The packet to send (raw ethernet packet)
   ##
-  NetifLinkoutputFn* = proc (netif: ptr Netif; p: ptr Pbuf): ErrT
+  NetifLinkoutputFn* = proc (netif: ptr Netif; p: ptr Pbuf): ErrT {.noconv.}
 
   Netif* {.importc: "struct netif", header: "lwip/netif.h", bycopy.} = object
-    when not defined(lwip_Single_Netif):
-      ## * pointer to next in linked list
+    ##  Generic data structure used for all lwIP network interfaces.
+    ##  The following fields should be filled in by the initialization
+    ##  function for the device driver: hwaddr_len, hwaddr[], mtu, flags
+
+    when not defined(lwipSingleNetif):
       next* {.importc: "next".}: ptr Netif
+        ## * pointer to next in linked list
     when defined(lwipIpv4):
       ## * IP address configuration in network byte order
       ipAddr* {.importc: "ip_addr".}: IpAddrT
       netmask* {.importc: "netmask".}: IpAddrT
       gw* {.importc: "gw".}: IpAddrT
     when defined(lwipIpv6):
-      ## * Array of IPv6 addresses for this netif.
       ip6Addr* {.importc: "ip6_addr".}: array[lwip_Ipv6Num_Addresses, IpAddrT]
-      ## * The state of each IPv6 address (Tentative, Preferred, etc).
-      ##  @see ip6_addr.h
+        ## * Array of IPv6 addresses for this netif.
       ip6AddrState* {.importc: "ip6_addr_state".}: array[lwip_Ipv6Num_Addresses, uint8]
-      when defined(lwip_Ipv6Address_Lifetimes):
+        ## * The state of each IPv6 address (Tentative, Preferred, etc).
+        ##  @see ip6_addr.h
+      when defined(lwipIpv6AddressLifetimes):
         ## * Remaining valid and preferred lifetime of each IPv6 address, in seconds.
         ##  For valid lifetimes, the special value of IP6_ADDR_LIFE_STATIC (0)
         ##  indicates the address is static and has no lifetimes.
         ip6AddrValidLife* {.importc: "ip6_addr_valid_life".}: array[lwip_Ipv6Num_Addresses, uint32]
         ip6AddrPrefLife* {.importc: "ip6_addr_pref_life".}: array[lwip_Ipv6Num_Addresses, uint32]
+
     input* {.importc: "input".}: NetifInputFn
       ## * This function is called by the network device driver
       ##   to pass a packet up the TCP/IP stack.
+
     when defined(lwipIpv4):
       output* {.importc: "output".}: NetifOutputFn
         ## * This function is called by the IP module when it wants
@@ -356,26 +362,16 @@ type
         reschedulePoll* {.importc: "reschedule_poll".}: uint8
 
 
+  NetifStatusCallbackFn* = proc (netif: ptr Netif) {.noconv.}
+    ## * Function prototype for netif status- or link-callback functions.
 
-
-
-
-
-## * Function prototype for netif status- or link-callback functions.
-
-type
-  NetifStatusCallbackFn* = proc (netif: ptr Netif)
-
-when defined(lwipIpv4) and defined(lwipIgmp):
+  ##when defined(lwipIpv4) and defined(lwipIgmp):
   ## * Function prototype for netif igmp_mac_filter functions
-  type
-    NetifIgmpMacFilterFn* = proc (netif: ptr Netif; group: ptr Ip4AddrT;
-                               action: NetifMacFilterAction): ErrT
-when defined(lwipIpv6) and defined(lwipIpv6Mld):
+  NetifIgmpMacFilterFn* = proc (netif: ptr Netif; group: ptr Ip4AddrT; action: NetifMacFilterAction): ErrT {.noconv.}
+
+  ##when defined(lwipIpv6) and defined(lwipIpv6Mld):
   ## * Function prototype for netif mld_mac_filter functions
-  type
-    NetifMldMacFilterFn* = proc (netif: ptr Netif; group: ptr Ip6AddrT;
-                              action: NetifMacFilterAction): ErrT
+  NetifMldMacFilterFn* = proc (netif: ptr Netif; group: ptr Ip6AddrT; action: NetifMacFilterAction): ErrT {.noconv.}
 
 
 when defined(lwip_Checksum_Ctrl_Per_Netif):

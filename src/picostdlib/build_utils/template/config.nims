@@ -19,7 +19,7 @@ switch("define", "useMalloc")
 switch("d", "nimEmulateOverflowChecks")
 
 ## For using TCP over Wifi
-# switch("d", "cyw43Lwip")
+switch("d", "cyw43Lwip")
 switch("d", "lwipIpv4")
 switch("d", "lwipTcp")
 switch("d", "lwipCallbackApi")
