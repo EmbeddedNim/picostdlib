@@ -72,9 +72,10 @@ when defined(lwipAltcp):
 
     AltcpAllocatorT* {.importc: "altcp_allocator_t", header: "lwip/altcp.h", bycopy.} = object
       ##   Struct containing an allocator and its state.
-      alloc* {.importc: "alloc".}: AltcpNewFn ## * Allocator function
-      ## * Argument to allocator function
+      alloc* {.importc: "alloc".}: AltcpNewFn
+        ## * Allocator function
       arg* {.importc: "arg".}: pointer
+        ## * Argument to allocator function
 
   proc altcpNew*(allocator: ptr AltcpAllocatorT): ptr AltcpPcb {.importc: "altcp_new",header: "lwip/altcp.h".}
   proc altcpNewIp6*(allocator: ptr AltcpAllocatorT): ptr AltcpPcb {.importc: "altcp_new_ip6", header: "lwip/altcp.h".}

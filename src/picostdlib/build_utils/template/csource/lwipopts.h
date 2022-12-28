@@ -27,7 +27,7 @@
 #define LWIP_ETHERNET               1
 #define LWIP_ICMP                   1
 #define LWIP_RAW                    1
-#define TCP_WND                     (8 * TCP_MSS)
+#define TCP_WND                     (16 * TCP_MSS)
 #define TCP_MSS                     1460
 #define TCP_SND_BUF                 (8 * TCP_MSS)
 #define TCP_SND_QUEUELEN            ((4 * (TCP_SND_BUF) + (TCP_MSS - 1)) / (TCP_MSS))
@@ -101,8 +101,16 @@
 //#define LWIP_IPV6 1
 
 #define LWIP_ALTCP 1
-//#define LWIP_ALTCP_TLS 1
-//#define LWIP_ALTCP_TLS_MBEDTLS 1
-//#define LWIP_HAVE_MBEDTLS 1
+// #define LWIP_ALTCP_TLS 1
+// #define LWIP_ALTCP_TLS_MBEDTLS 1
+
+// #define LWIP_DEBUG                  1
+// #define LWIP_STATS                  1
+// #define LWIP_STATS_DISPLAY          1
+// #define HTTPC_DEBUG 1
+
+
+// #define LWIP_DEBUG 1
+// #define ALTCP_MBEDTLS_DEBUG  LWIP_DBG_ON
 
 #endif

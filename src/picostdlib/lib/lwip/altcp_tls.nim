@@ -51,8 +51,9 @@ when defined(lwipAltcp):
     # import ./apps/altcpTlsMbedtlsOpts
 
     ##  allow session structure to be fully defined when using mbedtls port
-    # when defined(lwipAltcpTlsMbedtls):
-    #   import mbedtls/ssl
+    when defined(lwipAltcpTlsMbedtls):
+      import ../mbedtls/ssl
+      export ssl
 
     ## * @ingroup altcp_tls
     ##  ALTCP_TLS configuration handle, content depends on port (e.g. mbedtls)
@@ -79,15 +80,13 @@ when defined(lwipAltcp):
     ## * @ingroup altcp_tls
     ##  Create an ALTCP_TLS client configuration handle
     ##
-    proc altcpTlsCreateConfigClient*(cert: ptr uint8; certLen: csize_t): ptr AltcpTlsConfig {.
-        importc: "altcp_tls_create_config_client", header: "lwip/altcp_tls.h".}
+    proc altcpTlsCreateConfigClient*(cert: ptr uint8; certLen: csize_t): ptr AltcpTlsConfig {.importc: "altcp_tls_create_config_client", header: "lwip/altcp_tls.h".}
     ## * @ingroup altcp_tls
     ##  Create an ALTCP_TLS client configuration handle with two-way server/client authentication
     ##
     proc altcpTlsCreateConfigClient2wayauth*(ca: ptr uint8; caLen: csize_t;
         privkey: ptr uint8; privkeyLen: csize_t; privkeyPass: ptr uint8;
-        privkeyPassLen: csize_t; cert: ptr uint8; certLen: csize_t): ptr AltcpTlsConfig {.
-        importc: "altcp_tls_create_config_client_2wayauth", header: "lwip/altcp_tls.h".}
+        privkeyPassLen: csize_t; cert: ptr uint8; certLen: csize_t): ptr AltcpTlsConfig {.importc: "altcp_tls_create_config_client_2wayauth", header: "lwip/altcp_tls.h".}
     ## * @ingroup altcp_tls
     ##  Configure ALPN TLS extension
     ##  Example:<br>
