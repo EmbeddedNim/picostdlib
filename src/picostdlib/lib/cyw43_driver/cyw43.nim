@@ -464,7 +464,7 @@ proc cyw43CbTcpipSetLinkDown*(self: ptr Cyw43T; itf: cint) {.importc: "cyw43_cb_
 
 proc cyw43TcpipLinkStatus*(self: ptr Cyw43T; itf: cint): cint {.importc: "cyw43_tcpip_link_status".}
 
-when true: # cyw43Gpio
+when defined(cyw43Gpio):
   ## !
   ##  \brief Set the value of the cyw43 gpio
   ##

@@ -790,3 +790,5 @@ let IP_ANY_TYPE* {.importc: "IP_ANY_TYPE", header: "lwip/ip_addr.h".}: ptr IpAdd
 ## Nim helpers
 
 proc `$`*(ip: ptr IpAddrT): string = $(ipaddrNtoa(ip))
+
+proc `$`*(ip: var IpAddrT): string = $(ipaddrNtoa(addr(ip)))

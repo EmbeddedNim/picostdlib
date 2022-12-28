@@ -294,7 +294,7 @@ proc cyw43LlWifiApInit*(self: ptr Cyw43LlT; ssidLen: csize_t; ssid: ptr uint8;
 proc cyw43LlWifiApSetUp*(self: ptr Cyw43LlT; up: bool): cint {.importc: "cyw43_ll_wifi_ap_set_up".}
 proc cyw43LlWifiApGetStas*(self: ptr Cyw43LlT; numStas: ptr cint; macs: ptr uint8): cint {.importc: "cyw43_ll_wifi_ap_get_stas".}
 
-when true: # cyw43Gpio
+when defined(cyw43Gpio):
   proc cyw43LlGpioSet*(self: ptr Cyw43LlT; gpioN: cint; gpioEn: bool): cint {.importc: "cyw43_ll_gpio_set".}
   proc cyw43LlGpioGet*(selfIn: ptr Cyw43LlT; gpioN: cint; gpioEn: ptr bool): cint {.importc: "cyw43_ll_gpio_get".}
 

@@ -141,7 +141,7 @@ type
     NETIF_DEL_MAC_FILTER = 0,   ## * Add a filter entry
     NETIF_ADD_MAC_FILTER = 1
 
-when defined(lwip_Dhcp) or defined(lwip_Autoip) or defined(lwip_Igmp) or defined(lwip_Ipv6Mld) or defined(lwip_Ipv6Dhcp6) or
+when defined(lwip_Dhcp) or defined(lwip_Autoip) or defined(lwipIgmp) or defined(lwipIpv6Mld) or defined(lwip_Ipv6Dhcp6) or
     ((lwip_Num_Netif_Client_Data) > 0):
   when lwip_Num_Netif_Client_Data > 0:
     proc netifAllocClientDataId*(): uint8 {.importc: "netif_alloc_client_data_id",
@@ -301,7 +301,7 @@ type
     when defined(netif_get_client_data):
       clientData* {.importc: "client_data".}: array[
           lwip_Netif_Client_Data_Index_Max + lwip_Num_Netif_Client_Data, pointer]
-    when defined(lwip_Netif_Hostname):
+    when defined(lwipNetifHostname):
       ##  the hostname for this netif, NULL is a valid value
       hostname* {.importc: "hostname".}: cstring
     when defined(lwip_Checksum_Ctrl_Per_Netif):
@@ -324,34 +324,33 @@ type
       ## * number of this interface. Used for @ref if_api and @ref netifapi_netif,
       ##  as well as for IPv6 zones
     when defined(lwip_Ipv6Autoconfig):
-      ## * is this netif enabled for IPv6 autoconfiguration
-      ip6AutoconfigEnabled* {.importc: "ip6_autoconfig_enabled",
-                                header: "lwip/netif.h".}: uint8
+      ip6AutoconfigEnabled* {.importc: "ip6_autoconfig_enabled".}: uint8
+        ## * is this netif enabled for IPv6 autoconfiguration
     when defined(lwip_Ipv6Send_Router_Solicit):
-      ## * Number of Router Solicitation messages that remain to be sent.
       rsCount* {.importc: "rs_count".}: uint8
+        ## * Number of Router Solicitation messages that remain to be sent.
     when defined(mib2Stats):
-      ## * link type (from "snmp_ifType" enum from snmp_mib2.h)
       linkType* {.importc: "link_type".}: uint8
-      ## * (estimate) link speed
+        ## * link type (from "snmp_ifType" enum from snmp_mib2.h)
       linkSpeed* {.importc: "link_speed".}: uint32
-      ## * timestamp at last change made (up/down)
+        ## * (estimate) link speed
       ts* {.importc: "ts".}: uint32
-      ## * counters
+        ## * timestamp at last change made (up/down)
       mib2Counters* {.importc: "mib2_counters".}: StatsMib2NetifCtrs
-    when defined(lwipIpv4) and defined(lwip_Igmp):
-      ## * This function could be called to add or delete an entry in the multicast
-      ##       filter table of the ethernet MAC.
+        ## * counters
+    when defined(lwipIpv4) and defined(lwipIgmp):
       igmpMacFilter* {.importc: "igmp_mac_filter".}: NetifIgmpMacFilterFn
-    when defined(lwipIpv6) and defined(lwip_Ipv6Mld):
-      ## * This function could be called to add or delete an entry in the IPv6 multicast
-      ##       filter table of the ethernet MAC.
+        ## * This function could be called to add or delete an entry in the multicast
+        ##       filter table of the ethernet MAC.
+    when defined(lwipIpv6) and defined(lwipIpv6Mld):
       mldMacFilter* {.importc: "mld_mac_filter".}: NetifMldMacFilterFn
-    when defined(lwip_Acd):
+        ## * This function could be called to add or delete an entry in the IPv6 multicast
+        ##       filter table of the ethernet MAC.
+    when defined(lwipAcd):
       acdList* {.importc: "acd_list".}: ptr Acd
-    when defined(lwip_Netif_Use_Hints):
+    when defined(lwipNetifUseHints):
       hints* {.importc: "hints".}: ptr NetifHint
-    when defined(enable_Loopback):
+    when defined(enableLoopback):
       ##  List of packets to be queued for ourselves.
       loopFirst* {.importc: "loop_first".}: ptr Pbuf
       loopLast* {.importc: "loop_last".}: ptr Pbuf
@@ -401,20 +400,13 @@ else:
 let netifDefault* {.importc: "netif_default", header: "lwip/netif.h".}: ptr Netif
 
 proc netifInit*() {.importc: "netif_init", header: "lwip/netif.h".}
-proc netifAddNoaddr*(netif: ptr Netif; state: pointer; init: NetifInitFn;
-                    input: NetifInputFn): ptr Netif {.importc: "netif_add_noaddr",
-    header: "lwip/netif.h".}
+proc netifAddNoaddr*(netif: ptr Netif; state: pointer; init: NetifInitFn; input: NetifInputFn): ptr Netif {.importc: "netif_add_noaddr", header: "lwip/netif.h".}
 when defined(lwipIpv4):
-  proc netifAdd*(netif: ptr Netif; ipaddr: ptr Ip4AddrT; netmask: ptr Ip4AddrT;
-                gw: ptr Ip4AddrT; state: pointer; init: NetifInitFn;
-                input: NetifInputFn): ptr Netif {.importc: "netif_add",
+  proc netifAdd*(netif: ptr Netif; ipaddr: ptr Ip4AddrT; netmask: ptr Ip4AddrT; gw: ptr Ip4AddrT; state: pointer; init: NetifInitFn; input: NetifInputFn): ptr Netif {.importc: "netif_add",
       header: "lwip/netif.h".}
-  proc netifSetAddr*(netif: ptr Netif; ipaddr: ptr Ip4AddrT; netmask: ptr Ip4AddrT;
-                    gw: ptr Ip4AddrT) {.importc: "netif_set_addr", header: "lwip/netif.h".}
+  proc netifSetAddr*(netif: ptr Netif; ipaddr: ptr Ip4AddrT; netmask: ptr Ip4AddrT; gw: ptr Ip4AddrT) {.importc: "netif_set_addr", header: "lwip/netif.h".}
 else:
-  proc netifAdd*(netif: ptr Netif; state: pointer; init: NetifInitFn;
-                input: NetifInputFn): ptr Netif {.importc: "netif_add",
-      header: "lwip/netif.h".}
+  proc netifAdd*(netif: ptr Netif; state: pointer; init: NetifInitFn; input: NetifInputFn): ptr Netif {.importc: "netif_add", header: "lwip/netif.h".}
 proc netifRemove*(netif: ptr Netif) {.importc: "netif_remove", header: "lwip/netif.h".}
 ##  Returns a network interface given its name. The name is of the form
 ##    "et0", where the first two letters are the "name" field in the
@@ -422,15 +414,12 @@ proc netifRemove*(netif: ptr Netif) {.importc: "netif_remove", header: "lwip/net
 ##    structure.
 
 proc netifFind*(name: cstring): ptr Netif {.importc: "netif_find", header: "lwip/netif.h".}
-proc netifSetDefault*(netif: ptr Netif) {.importc: "netif_set_default",
-                                      header: "lwip/netif.h".}
+proc netifSetDefault*(netif: ptr Netif) {.importc: "netif_set_default", header: "lwip/netif.h".}
+
 when defined(lwipIpv4):
-  proc netifSetIpaddr*(netif: ptr Netif; ipaddr: ptr Ip4AddrT) {.
-      importc: "netif_set_ipaddr", header: "lwip/netif.h".}
-  proc netifSetNetmask*(netif: ptr Netif; netmask: ptr Ip4AddrT) {.
-      importc: "netif_set_netmask", header: "lwip/netif.h".}
-  proc netifSetGw*(netif: ptr Netif; gw: ptr Ip4AddrT) {.importc: "netif_set_gw",
-      header: "lwip/netif.h".}
+  proc netifSetIpaddr*(netif: ptr Netif; ipaddr: ptr Ip4AddrT) {.importc: "netif_set_ipaddr", header: "lwip/netif.h".}
+  proc netifSetNetmask*(netif: ptr Netif; netmask: ptr Ip4AddrT) {.importc: "netif_set_netmask", header: "lwip/netif.h".}
+  proc netifSetGw*(netif: ptr Netif; gw: ptr Ip4AddrT) {.importc: "netif_set_gw", header: "lwip/netif.h".}
   ## * @ingroup netif_ip4
   template netifIp4Addr*(netif: untyped): untyped =
     (cast[ptr Ip4AddrT](ip2Ip4(addr(((netif).ipAddr)))))
@@ -472,41 +461,31 @@ template netifIsFlagSet*(netif, flag: untyped): untyped =
 
 proc netifSetUp*(netif: ptr Netif) {.importc: "netif_set_up", header: "lwip/netif.h".}
 proc netifSetDown*(netif: ptr Netif) {.importc: "netif_set_down", header: "lwip/netif.h".}
+
 ## * @ingroup netif
-##  Ask if an interface is up
-##
 
 template netifIsUp*(netif: untyped): untyped =
+  ##  Ask if an interface is up
   (if ((netif).flags and netif_Flag_Up): cast[uint8](1) else: cast[uint8](0))
 
 when defined(lwipNetifStatusCallback):
-  proc netifSetStatusCallback*(netif: ptr Netif;
-                              statusCallback: NetifStatusCallbackFn) {.
-      importc: "netif_set_status_callback", header: "lwip/netif.h".}
+  proc netifSetStatusCallback*(netif: ptr Netif; statusCallback: NetifStatusCallbackFn) {.importc: "netif_set_status_callback", header: "lwip/netif.h".}
 when defined(lwipNetifRemoveCallback):
-  proc netifSetRemoveCallback*(netif: ptr Netif;
-                              removeCallback: NetifStatusCallbackFn) {.
-      importc: "netif_set_remove_callback", header: "lwip/netif.h".}
-proc netifSetLinkUp*(netif: ptr Netif) {.importc: "netif_set_link_up",
-                                     header: "lwip/netif.h".}
-proc netifSetLinkDown*(netif: ptr Netif) {.importc: "netif_set_link_down",
-                                       header: "lwip/netif.h".}
-## * Ask if a link is up
+  proc netifSetRemoveCallback*(netif: ptr Netif; removeCallback: NetifStatusCallbackFn) {.importc: "netif_set_remove_callback", header: "lwip/netif.h".}
+proc netifSetLinkUp*(netif: ptr Netif) {.importc: "netif_set_link_up", header: "lwip/netif.h".}
+proc netifSetLinkDown*(netif: ptr Netif) {.importc: "netif_set_link_down", header: "lwip/netif.h".}
 
 template netifIsLinkUp*(netif: untyped): untyped =
+  ## * Ask if a link is up
   (if ((netif).flags and netif_Flag_Link_Up): cast[uint8](1) else: cast[uint8](0))
 
 when defined(lwipNetifLinkCallback):
-  proc netifSetLinkCallback*(netif: ptr Netif; linkCallback: NetifStatusCallbackFn) {.
-      importc: "netif_set_link_callback", header: "lwip/netif.h".}
+  proc netifSetLinkCallback*(netif: ptr Netif; linkCallback: NetifStatusCallbackFn) {.importc: "netif_set_link_callback", header: "lwip/netif.h".}
 when defined(lwipNetifHostname):
   ## * @ingroup netif
-  template netifSetHostname*(netif, name: untyped): void =
-    while true:
-      if (netif) != nil:
-        (netif).hostname = name
-      if not 0:
-        break
+  template netifSetHostname*(netif: ptr Netif, name: cstring) =
+    if not netif.isNil:
+      (netif).hostname = name
 
   ## * @ingroup netif
   template netifGetHostname*(netif: untyped): untyped =
@@ -548,13 +527,11 @@ when defined(lwipIpv6) and defined(lwipIpv6Mld):
         break
 
 when defined(enableLoopback):
-  proc netifLoopOutput*(netif: ptr Netif; p: ptr Pbuf): ErrT {.
-      importc: "netif_loop_output", header: "lwip/netif.h".}
+  proc netifLoopOutput*(netif: ptr Netif; p: ptr Pbuf): ErrT {.importc: "netif_loop_output", header: "lwip/netif.h".}
   proc netifPoll*(netif: ptr Netif) {.importc: "netif_poll", header: "lwip/netif.h".}
   when not lwip_Netif_Loopback_Multithreading:
     proc netifPollAll*() {.importc: "netif_poll_all", header: "lwip/netif.h".}
-proc netifInput*(p: ptr Pbuf; inp: ptr Netif): ErrT {.importc: "netif_input",
-    header: "lwip/netif.h".}
+proc netifInput*(p: ptr Pbuf; inp: ptr Netif): ErrT {.importc: "netif_input", header: "lwip/netif.h".}
 when defined(lwipIpv6):
   ## * @ingroup netif_ip6
   template netifIpAddr6*(netif, i: untyped): untyped =
@@ -564,22 +541,15 @@ when defined(lwipIpv6):
   template netifIp6Addr*(netif, i: untyped): untyped =
     (cast[ptr Ip6AddrT](ip2Ip6(addr(((netif).ip6Addr[i])))))
 
-  proc netifIp6AddrSet*(netif: ptr Netif; addrIdx: int8; addr6: ptr Ip6AddrT) {.
-      importc: "netif_ip6_addr_set", header: "lwip/netif.h".}
-  proc netifIp6AddrSetParts*(netif: ptr Netif; addrIdx: int8; i0: uint32; i1: uint32; i2: uint32;
-                            i3: uint32) {.importc: "netif_ip6_addr_set_parts",
-                                      header: "lwip/netif.h".}
+  proc netifIp6AddrSet*(netif: ptr Netif; addrIdx: int8; addr6: ptr Ip6AddrT) {.importc: "netif_ip6_addr_set", header: "lwip/netif.h".}
+  proc netifIp6AddrSetParts*(netif: ptr Netif; addrIdx: int8; i0: uint32; i1: uint32; i2: uint32; i3: uint32) {.importc: "netif_ip6_addr_set_parts", header: "lwip/netif.h".}
   template netifIp6AddrState*(netif, i: untyped): untyped =
     ((netif).ip6AddrState[i])
 
-  proc netifIp6AddrSetState*(netif: ptr Netif; addrIdx: int8; state: uint8) {.
-      importc: "netif_ip6_addr_set_state", header: "lwip/netif.h".}
-  proc netifGetIp6AddrMatch*(netif: ptr Netif; ip6addr: ptr Ip6AddrT): int8 {.
-      importc: "netif_get_ip6_addr_match", header: "lwip/netif.h".}
-  proc netifCreateIp6LinklocalAddress*(netif: ptr Netif; fromMac48bit: uint8) {.
-      importc: "netif_create_ip6_linklocal_address", header: "lwip/netif.h".}
-  proc netifAddIp6Address*(netif: ptr Netif; ip6addr: ptr Ip6AddrT; chosenIdx: ptr int8): ErrT {.
-      importc: "netif_add_ip6_address", header: "lwip/netif.h".}
+  proc netifIp6AddrSetState*(netif: ptr Netif; addrIdx: int8; state: uint8) {.importc: "netif_ip6_addr_set_state", header: "lwip/netif.h".}
+  proc netifGetIp6AddrMatch*(netif: ptr Netif; ip6addr: ptr Ip6AddrT): int8 {.importc: "netif_get_ip6_addr_match", header: "lwip/netif.h".}
+  proc netifCreateIp6LinklocalAddress*(netif: ptr Netif; fromMac48bit: uint8) {.importc: "netif_create_ip6_linklocal_address", header: "lwip/netif.h".}
+  proc netifAddIp6Address*(netif: ptr Netif; ip6addr: ptr Ip6AddrT; chosenIdx: ptr int8): ErrT {.importc: "netif_add_ip6_address", header: "lwip/netif.h".}
   template netifSetIp6AutoconfigEnabled*(netif, action: untyped): void =
     while true:
       if netif:
@@ -635,14 +605,11 @@ else:
 
   template netif_Reset_Hints*(netif: untyped): untyped = discard
 
-proc netifNameToIndex*(name: cstring): uint8 {.importc: "netif_name_to_index",
-    header: "lwip/netif.h".}
-proc netifIndexToName*(idx: uint8; name: cstring): cstring {.
-    importc: "netif_index_to_name", header: "lwip/netif.h".}
-proc netifGetByIndex*(idx: uint8): ptr Netif {.importc: "netif_get_by_index",
-                                        header: "lwip/netif.h".}
-##  Interface indexes always start at 1 per RFC 3493, section 4, num starts at 0 (internal index is 0..254)
+proc netifNameToIndex*(name: cstring): uint8 {.importc: "netif_name_to_index", header: "lwip/netif.h".}
+proc netifIndexToName*(idx: uint8; name: cstring): cstring {.importc: "netif_index_to_name", header: "lwip/netif.h".}
+proc netifGetByIndex*(idx: uint8): ptr Netif {.importc: "netif_get_by_index", header: "lwip/netif.h".}
 
+##  Interface indexes always start at 1 per RFC 3493, section 4, num starts at 0 (internal index is 0..254)
 template netifGetIndex*(netif: untyped): untyped =
   ((uint8)((netif).num + 1))
 
@@ -725,28 +692,23 @@ const
 ##
 
 type
-  link_changed_s_netif_671* {.importc: "netif_ext_callback_args_t::no_name",
-                             header: "lwip/netif.h", bycopy.} = object
+  link_changed_s_netif_671* {.importc: "netif_ext_callback_args_t::no_name", header: "lwip/netif.h", bycopy.} = object
     state* {.importc: "state".}: uint8 ## * 1: up; 0: down
 
-  status_changed_s_netif_671* {.importc: "netif_ext_callback_args_t::no_name",
-                               header: "lwip/netif.h", bycopy.} = object
+  status_changed_s_netif_671* {.importc: "netif_ext_callback_args_t::no_name", header: "lwip/netif.h", bycopy.} = object
     state* {.importc: "state".}: uint8 ## * 1: up; 0: down
 
-  ipv4_changed_s_netif_671* {.importc: "netif_ext_callback_args_t::no_name",
-                             header: "lwip/netif.h", bycopy.} = object
+  ipv4_changed_s_netif_671* {.importc: "netif_ext_callback_args_t::no_name", header: "lwip/netif.h", bycopy.} = object
     oldAddress* {.importc: "old_address".}: ptr IpAddrT ## * Old IPv4 address
     oldNetmask* {.importc: "old_netmask".}: ptr IpAddrT
     oldGw* {.importc: "old_gw".}: ptr IpAddrT
 
-  ipv6_set_s_netif_671* {.importc: "netif_ext_callback_args_t::no_name",
-                         header: "lwip/netif.h", bycopy.} = object
+  ipv6_set_s_netif_671* {.importc: "netif_ext_callback_args_t::no_name", header: "lwip/netif.h", bycopy.} = object
     addrIndex* {.importc: "addr_index".}: int8 ## * Index of changed IPv6 address
     ## * Old IPv6 address
     oldAddress* {.importc: "old_address".}: ptr IpAddrT
 
-  ipv6_addr_state_changed_s_netif_671* {.importc: "netif_ext_callback_args_t::no_name",
-                                        header: "lwip/netif.h", bycopy.} = object
+  ipv6_addr_state_changed_s_netif_671* {.importc: "netif_ext_callback_args_t::no_name", header: "lwip/netif.h", bycopy.} = object
     addrIndex* {.importc: "addr_index".}: int8 ## * Index of affected IPv6 address
     ## * Old IPv6 address state
     oldState* {.importc: "old_state".}: uint8 ## * Affected IPv6 address

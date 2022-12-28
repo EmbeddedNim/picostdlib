@@ -55,7 +55,7 @@ when defined(lwipAltcp):
     AltcpErrFn* = proc (arg: pointer; err: ErrT) {.noconv.}
     AltcpNewFn* = proc (arg: pointer; ipType: uint8): ptr AltcpPcb {.noconv.}
 
-    AltcpPcb* {.importc: "altcp_pcb", header: "lwip/altcp.h", bycopy.} = object
+    AltcpPcb* {.importc: "struct altcp_pcb", header: "lwip/altcp.h", bycopy.} = object
       fns* {.importc: "fns".}: ptr AltcpFunctions
       innerConn* {.importc: "inner_conn".}: ptr AltcpPcb
       arg* {.importc: "arg".}: pointer
@@ -87,11 +87,9 @@ when defined(lwipAltcp):
   proc altcpErr*(conn: ptr AltcpPcb; err: AltcpErrFn) {.importc: "altcp_err",header: "lwip/altcp.h".}
   proc altcpRecved*(conn: ptr AltcpPcb; len: uint16) {.importc: "altcp_recved",header: "lwip/altcp.h".}
   proc altcpBind*(conn: ptr AltcpPcb; ipaddr: ptr IpAddrT; port: uint16): ErrT {.importc: "altcp_bind", header: "lwip/altcp.h".}
-  proc altcpConnect*(conn: ptr AltcpPcb; ipaddr: ptr IpAddrT; port: uint16; connected: AltcpConnectedFn): ErrT {.importc: "altcp_connect",
-      header: "lwip/altcp.h".}
+  proc altcpConnect*(conn: ptr AltcpPcb; ipaddr: ptr IpAddrT; port: uint16; connected: AltcpConnectedFn): ErrT {.importc: "altcp_connect", header: "lwip/altcp.h".}
   ##  return conn for source code compatibility to tcp callback API only
-  proc altcpListenWithBacklogAndErr*(conn: ptr AltcpPcb; backlog: uint8; err: ptr ErrT): ptr AltcpPcb {.
-      importc: "altcp_listen_with_backlog_and_err", header: "lwip/altcp.h".}
+  proc altcpListenWithBacklogAndErr*(conn: ptr AltcpPcb; backlog: uint8; err: ptr ErrT): ptr AltcpPcb {.importc: "altcp_listen_with_backlog_and_err", header: "lwip/altcp.h".}
   template altcpListenWithBacklog*(conn, backlog: untyped): untyped =
     altcpListenWithBacklogAndErr(conn, backlog, nil)
 
@@ -100,42 +98,26 @@ when defined(lwipAltcp):
     altcpListenWithBacklogAndErr(conn, tcp_Default_Listen_Backlog, nil)
 
   proc altcpAbort*(conn: ptr AltcpPcb) {.importc: "altcp_abort", header: "lwip/altcp.h".}
-  proc altcpClose*(conn: ptr AltcpPcb): ErrT {.importc: "altcp_close",
-      header: "lwip/altcp.h".}
-  proc altcpShutdown*(conn: ptr AltcpPcb; shutRx: cint; shutTx: cint): ErrT {.
-      importc: "altcp_shutdown", header: "lwip/altcp.h".}
-  proc altcpWrite*(conn: ptr AltcpPcb; dataptr: pointer; len: uint16; apiflags: uint8): ErrT {.
-      importc: "altcp_write", header: "lwip/altcp.h".}
-  proc altcpOutput*(conn: ptr AltcpPcb): ErrT {.importc: "altcp_output",
-      header: "lwip/altcp.h".}
+  proc altcpClose*(conn: ptr AltcpPcb): ErrT {.importc: "altcp_close", header: "lwip/altcp.h".}
+  proc altcpShutdown*(conn: ptr AltcpPcb; shutRx: cint; shutTx: cint): ErrT {.importc: "altcp_shutdown", header: "lwip/altcp.h".}
+  proc altcpWrite*(conn: ptr AltcpPcb; dataptr: pointer; len: uint16; apiflags: uint8): ErrT {.importc: "altcp_write", header: "lwip/altcp.h".}
+  proc altcpOutput*(conn: ptr AltcpPcb): ErrT {.importc: "altcp_output", header: "lwip/altcp.h".}
   proc altcpMss*(conn: ptr AltcpPcb): uint16 {.importc: "altcp_mss", header: "lwip/altcp.h".}
-  proc altcpSndbuf*(conn: ptr AltcpPcb): uint16 {.importc: "altcp_sndbuf",
-      header: "lwip/altcp.h".}
-  proc altcpSndqueuelen*(conn: ptr AltcpPcb): uint16 {.importc: "altcp_sndqueuelen",
-      header: "lwip/altcp.h".}
-  proc altcpNagleDisable*(conn: ptr AltcpPcb) {.importc: "altcp_nagle_disable",
-      header: "lwip/altcp.h".}
-  proc altcpNagleEnable*(conn: ptr AltcpPcb) {.importc: "altcp_nagle_enable",
-      header: "lwip/altcp.h".}
-  proc altcpNagleDisabled*(conn: ptr AltcpPcb): cint {.
-      importc: "altcp_nagle_disabled", header: "lwip/altcp.h".}
-  proc altcpSetprio*(conn: ptr AltcpPcb; prio: uint8) {.importc: "altcp_setprio",
-      header: "lwip/altcp.h".}
-  proc altcpGetTcpAddrinfo*(conn: ptr AltcpPcb; local: cint; `addr`: ptr IpAddrT;
-                           port: ptr uint16): ErrT {.
-      importc: "altcp_get_tcp_addrinfo", header: "lwip/altcp.h".}
-  proc altcpGetIp*(conn: ptr AltcpPcb; local: cint): ptr IpAddrT {.
-      importc: "altcp_get_ip", header: "lwip/altcp.h".}
-  proc altcpGetPort*(conn: ptr AltcpPcb; local: cint): uint16 {.
-      importc: "altcp_get_port", header: "lwip/altcp.h".}
+  proc altcpSndbuf*(conn: ptr AltcpPcb): uint16 {.importc: "altcp_sndbuf", header: "lwip/altcp.h".}
+  proc altcpSndqueuelen*(conn: ptr AltcpPcb): uint16 {.importc: "altcp_sndqueuelen", header: "lwip/altcp.h".}
+  proc altcpNagleDisable*(conn: ptr AltcpPcb) {.importc: "altcp_nagle_disable", header: "lwip/altcp.h".}
+  proc altcpNagleEnable*(conn: ptr AltcpPcb) {.importc: "altcp_nagle_enable", header: "lwip/altcp.h".}
+  proc altcpNagleDisabled*(conn: ptr AltcpPcb): cint {.importc: "altcp_nagle_disabled", header: "lwip/altcp.h".}
+  proc altcpSetprio*(conn: ptr AltcpPcb; prio: uint8) {.importc: "altcp_setprio", header: "lwip/altcp.h".}
+  proc altcpGetTcpAddrinfo*(conn: ptr AltcpPcb; local: cint; `addr`: ptr IpAddrT; port: ptr uint16): ErrT {.importc: "altcp_get_tcp_addrinfo", header: "lwip/altcp.h".}
+  proc altcpGetIp*(conn: ptr AltcpPcb; local: cint): ptr IpAddrT {.importc: "altcp_get_ip", header: "lwip/altcp.h".}
+  proc altcpGetPort*(conn: ptr AltcpPcb; local: cint): uint16 {.importc: "altcp_get_port", header: "lwip/altcp.h".}
   when defined(lwipTcpKeepalive):
-    proc altcpKeepaliveDisable*(conn: ptr AltcpPcb) {.
-        importc: "altcp_keepalive_disable", header: "lwip/altcp.h".}
-    proc altcpKeepaliveEnable*(conn: ptr AltcpPcb; idle: uint32; intvl: uint32; count: uint32) {.
-        importc: "altcp_keepalive_enable", header: "lwip/altcp.h".}
+    proc altcpKeepaliveDisable*(conn: ptr AltcpPcb) {.importc: "altcp_keepalive_disable", header: "lwip/altcp.h".}
+    proc altcpKeepaliveEnable*(conn: ptr AltcpPcb; idle: uint32; intvl: uint32; count: uint32) {.importc: "altcp_keepalive_enable", header: "lwip/altcp.h".}
   when defined(LWIP_DEBUG):
-    proc altcpDbgGetTcpState*(conn: ptr AltcpPcb): TcpState {.
-        importc: "altcp_dbg_get_tcp_state", header: "lwip/altcp.h".}
+    proc altcpDbgGetTcpState*(conn: ptr AltcpPcb): TcpState {.importc: "altcp_dbg_get_tcp_state", header: "lwip/altcp.h".}
+
 else:
   ##  ALTCP disabled, define everything to link against tcp callback API (e.g. to get a small non-ssl httpd)
   import ./tcp

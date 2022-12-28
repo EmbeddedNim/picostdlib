@@ -36,7 +36,7 @@
 
 import ./opt, ./err
 
-# export opt, err
+export opt, err
 
 ## * LWIP_SUPPORT_CUSTOM_PBUF==1: Custom pbufs behave much like their pbuf type
 ##  but they are allocated by external code (initialised by calling
@@ -220,27 +220,34 @@ const
 type
   Pbuf* {.importc: "struct pbuf", header: "lwip/pbuf.h", bycopy.} = object
     next* {.importc: "next".}: ptr Pbuf ## * next pbuf in singly linked pbuf chain
-    ## * pointer to the actual data in the buffer
-    payload* {.importc: "payload".}: pointer ## *
-                                         ##  total length of this buffer and all next buffers in chain
-                                         ##  belonging to the same packet.
-                                         ##
-                                         ##  For non-queue packet chains this is the invariant:
-                                         ##  p->tot_len == p->len + (p->next? p->next->tot_len: 0)
-                                         ##
-    totLen* {.importc: "tot_len".}: uint16 ## * length of this buffer
-    len* {.importc: "len".}: uint16 ## * a bit field indicating pbuf type and allocation sources
-                              ##       (see PBUF_TYPE_FLAG_*, PBUF_ALLOC_FLAG_* and PBUF_TYPE_ALLOC_SRC_MASK)
-                              ##
-    typeInternal* {.importc: "type_internal".}: uint8 ## * misc flags
-    flags* {.importc: "flags".}: uint8 ## *
-                                 ##  the reference count always equals the number of pointers
-                                 ##  that refer to this pbuf. This can be pointers from an application,
-                                 ##  the stack itself, or pbuf->next pointers from a chain.
-                                 ##
-    `ref`* {.importc: "ref".}: LwipPbufRefT ## * For incoming packets, this contains the input netif's index
-    ifIdx* {.importc: "if_idx".}: uint8 ## * In case the user needs to store data custom data on a pbuf
-                                  ## LWIP_PBUF_CUSTOM_DATA
+    payload* {.importc: "payload".}: pointer
+      ## * pointer to the actual data in the buffer
+    totLen* {.importc: "tot_len".}: uint16
+      ##  total length of this buffer and all next buffers in chain
+      ##  belonging to the same packet.
+      ##
+      ##  For non-queue packet chains this is the invariant:
+      ##  p->tot_len == p->len + (p->next? p->next->tot_len: 0)
+      ##
+    len* {.importc: "len".}: uint16
+      ## * length of this buffer
+    typeInternal* {.importc: "type_internal".}: uint8
+      ## * a bit field indicating pbuf type and allocation sources
+      ##       (see PBUF_TYPE_FLAG_*, PBUF_ALLOC_FLAG_* and PBUF_TYPE_ALLOC_SRC_MASK)
+      ##
+    flags* {.importc: "flags".}: uint8
+      ## * misc flags
+    `ref`* {.importc: "ref".}: LwipPbufRefT
+      ## *
+      ##  the reference count always equals the number of pointers
+      ##  that refer to this pbuf. This can be pointers from an application,
+      ##  the stack itself, or pbuf->next pointers from a chain.
+      ##
+    ifIdx* {.importc: "if_idx".}: uint8
+      ## * For incoming packets, this contains the input netif's index
+
+      ## LWIP_PBUF_CUSTOM_DATA
+      ## * In case the user needs to store data custom data on a pbuf
 
 
 ## * Helper struct for const-correctness only.
@@ -249,9 +256,10 @@ type
 ##
 type
   PbufRomStruct* {.importc: "struct pbuf_rom", header: "lwip/pbuf.h", bycopy.} = object
-    next* {.importc: "next".}: ptr Pbuf ## * next pbuf in singly linked pbuf chain
-    ## * pointer to the actual data in the buffer
+    next* {.importc: "next".}: ptr Pbuf
+      ## * next pbuf in singly linked pbuf chain
     payload* {.importc: "payload".}: pointer
+      ## * pointer to the actual data in the buffer
 
 
 when defined(lwipSupportCustomPbuf):
@@ -290,12 +298,9 @@ else:
 ##  Initializes the pbuf module. This call is empty for now, but may not be in future.
 
 proc pbufAlloc*(l: PbufLayer; length: uint16; `type`: PbufType): ptr Pbuf {.importc: "pbuf_alloc", header: "lwip/pbuf.h".}
-proc pbufAllocReference*(payload: pointer; length: uint16; `type`: PbufType): ptr Pbuf {.
-    importc: "pbuf_alloc_reference", header: "lwip/pbuf.h".}
+proc pbufAllocReference*(payload: pointer; length: uint16; `type`: PbufType): ptr Pbuf {.importc: "pbuf_alloc_reference", header: "lwip/pbuf.h".}
 when defined(lwipSupportCustomPbuf):
-  proc pbufAllocedCustom*(l: PbufLayer; length: uint16; `type`: PbufType;
-                         p: ptr PbufCustom; payloadMem: pointer; payloadMemLen: uint16): ptr Pbuf {.
-      importc: "pbuf_alloced_custom", header: "lwip/pbuf.h".}
+  proc pbufAllocedCustom*(l: PbufLayer; length: uint16; `type`: PbufType; p: ptr PbufCustom; payloadMem: pointer; payloadMemLen: uint16): ptr Pbuf {.importc: "pbuf_alloced_custom", header: "lwip/pbuf.h".}
 proc pbufRealloc*(p: ptr Pbuf; size: uint16) {.importc: "pbuf_realloc", header: "lwip/pbuf.h".}
 template pbufGetAllocsrc*(p: untyped): untyped =
   ((p).typeInternal and pbuf_Type_Alloc_Src_Mask)
@@ -306,18 +311,12 @@ template pbufMatchAllocsrc*(p, `type`: untyped): untyped =
 template pbufMatchType*(p, `type`: untyped): untyped =
   pbufMatchAllocsrc(p, `type`)
 
-proc pbufHeader*(p: ptr Pbuf; headerSize: int16): uint8 {.importc: "pbuf_header",
-    header: "lwip/pbuf.h".}
-proc pbufHeaderForce*(p: ptr Pbuf; headerSize: int16): uint8 {.
-    importc: "pbuf_header_force", header: "lwip/pbuf.h".}
-proc pbufAddHeader*(p: ptr Pbuf; headerSizeIncrement: csize_t): uint8 {.
-    importc: "pbuf_add_header", header: "lwip/pbuf.h".}
-proc pbufAddHeaderForce*(p: ptr Pbuf; headerSizeIncrement: csize_t): uint8 {.
-    importc: "pbuf_add_header_force", header: "lwip/pbuf.h".}
-proc pbufRemoveHeader*(p: ptr Pbuf; headerSize: csize_t): uint8 {.
-    importc: "pbuf_remove_header", header: "lwip/pbuf.h".}
-proc pbufFreeHeader*(q: ptr Pbuf; size: uint16): ptr Pbuf {.importc: "pbuf_free_header",
-    header: "lwip/pbuf.h".}
+proc pbufHeader*(p: ptr Pbuf; headerSize: int16): uint8 {.importc: "pbuf_header", header: "lwip/pbuf.h".}
+proc pbufHeaderForce*(p: ptr Pbuf; headerSize: int16): uint8 {.importc: "pbuf_header_force", header: "lwip/pbuf.h".}
+proc pbufAddHeader*(p: ptr Pbuf; headerSizeIncrement: csize_t): uint8 {.importc: "pbuf_add_header", header: "lwip/pbuf.h".}
+proc pbufAddHeaderForce*(p: ptr Pbuf; headerSizeIncrement: csize_t): uint8 {.importc: "pbuf_add_header_force", header: "lwip/pbuf.h".}
+proc pbufRemoveHeader*(p: ptr Pbuf; headerSize: csize_t): uint8 {.importc: "pbuf_remove_header", header: "lwip/pbuf.h".}
+proc pbufFreeHeader*(q: ptr Pbuf; size: uint16): ptr Pbuf {.importc: "pbuf_free_header", header: "lwip/pbuf.h".}
 proc pbufRef*(p: ptr Pbuf) {.importc: "pbuf_ref", header: "lwip/pbuf.h".}
 proc pbufFree*(p: ptr Pbuf): uint8 {.importc: "pbuf_free", header: "lwip/pbuf.h".}
 proc pbufClen*(p: ptr Pbuf): uint16 {.importc: "pbuf_clen", header: "lwip/pbuf.h".}
@@ -325,39 +324,22 @@ proc pbufCat*(head: ptr Pbuf; tail: ptr Pbuf) {.importc: "pbuf_cat", header: "lw
 proc pbufChain*(head: ptr Pbuf; tail: ptr Pbuf) {.importc: "pbuf_chain", header: "lwip/pbuf.h".}
 proc pbufDechain*(p: ptr Pbuf): ptr Pbuf {.importc: "pbuf_dechain", header: "lwip/pbuf.h".}
 proc pbufCopy*(pTo: ptr Pbuf; pFrom: ptr Pbuf): ErrT {.importc: "pbuf_copy", header: "lwip/pbuf.h".}
-proc pbufCopyPartialPbuf*(pTo: ptr Pbuf; pFrom: ptr Pbuf; copyLen: uint16; offset: uint16): ErrT {.
-    importc: "pbuf_copy_partial_pbuf", header: "lwip/pbuf.h".}
-proc pbufCopyPartial*(p: ptr Pbuf; dataptr: pointer; len: uint16; offset: uint16): uint16 {.
-    importc: "pbuf_copy_partial", header: "lwip/pbuf.h".}
-proc pbufGetContiguous*(p: ptr Pbuf; buffer: pointer; bufsize: csize_t; len: uint16;
-                       offset: uint16): pointer {.importc: "pbuf_get_contiguous",
-    header: "lwip/pbuf.h".}
-proc pbufTake*(buf: ptr Pbuf; dataptr: pointer; len: uint16): ErrT {.importc: "pbuf_take",
-    header: "lwip/pbuf.h".}
-proc pbufTakeAt*(buf: ptr Pbuf; dataptr: pointer; len: uint16; offset: uint16): ErrT {.
-    importc: "pbuf_take_at", header: "lwip/pbuf.h".}
-proc pbufSkip*(`in`: ptr Pbuf; inOffset: uint16; outOffset: ptr uint16): ptr Pbuf {.
-    importc: "pbuf_skip", header: "lwip/pbuf.h".}
-proc pbufCoalesce*(p: ptr Pbuf; layer: PbufLayer): ptr Pbuf {.importc: "pbuf_coalesce",
-    header: "lwip/pbuf.h".}
-proc pbufClone*(l: PbufLayer; `type`: PbufType; p: ptr Pbuf): ptr Pbuf {.
-    importc: "pbuf_clone", header: "lwip/pbuf.h".}
+proc pbufCopyPartialPbuf*(pTo: ptr Pbuf; pFrom: ptr Pbuf; copyLen: uint16; offset: uint16): ErrT {.importc: "pbuf_copy_partial_pbuf", header: "lwip/pbuf.h".}
+proc pbufCopyPartial*(p: ptr Pbuf; dataptr: pointer; len: uint16; offset: uint16): uint16 {.importc: "pbuf_copy_partial", header: "lwip/pbuf.h".}
+proc pbufGetContiguous*(p: ptr Pbuf; buffer: pointer; bufsize: csize_t; len: uint16; offset: uint16): pointer {.importc: "pbuf_get_contiguous", header: "lwip/pbuf.h".}
+proc pbufTake*(buf: ptr Pbuf; dataptr: pointer; len: uint16): ErrT {.importc: "pbuf_take", header: "lwip/pbuf.h".}
+proc pbufTakeAt*(buf: ptr Pbuf; dataptr: pointer; len: uint16; offset: uint16): ErrT {.importc: "pbuf_take_at", header: "lwip/pbuf.h".}
+proc pbufSkip*(`in`: ptr Pbuf; inOffset: uint16; outOffset: ptr uint16): ptr Pbuf {.importc: "pbuf_skip", header: "lwip/pbuf.h".}
+proc pbufCoalesce*(p: ptr Pbuf; layer: PbufLayer): ptr Pbuf {.importc: "pbuf_coalesce", header: "lwip/pbuf.h".}
+proc pbufClone*(l: PbufLayer; `type`: PbufType; p: ptr Pbuf): ptr Pbuf {.importc: "pbuf_clone", header: "lwip/pbuf.h".}
 when defined(lwipChecksumOnCopy):
   proc pbufFillChksum*(p: ptr Pbuf; startOffset: uint16; dataptr: pointer; len: uint16;
-                      chksum: ptr uint16): ErrT {.importc: "pbuf_fill_chksum",
-      header: "lwip/pbuf.h".}
+                      chksum: ptr uint16): ErrT {.importc: "pbuf_fill_chksum", header: "lwip/pbuf.h".}
 when defined(lwipTcp) and defined(tcpQueueOoseq) and defined(lwipWndScale):
-  proc pbufSplit64k*(p: ptr Pbuf; rest: ptr ptr Pbuf) {.importc: "pbuf_split_64k",
-      header: "lwip/pbuf.h".}
-proc pbufGetAt*(p: ptr Pbuf; offset: uint16): uint8 {.importc: "pbuf_get_at",
-    header: "lwip/pbuf.h".}
-proc pbufTryGetAt*(p: ptr Pbuf; offset: uint16): cint {.importc: "pbuf_try_get_at",
-    header: "lwip/pbuf.h".}
-proc pbufPutAt*(p: ptr Pbuf; offset: uint16; data: uint8) {.importc: "pbuf_put_at",
-    header: "lwip/pbuf.h".}
-proc pbufMemcmp*(p: ptr Pbuf; offset: uint16; s2: pointer; n: uint16): uint16 {.
-    importc: "pbuf_memcmp", header: "lwip/pbuf.h".}
-proc pbufMemfind*(p: ptr Pbuf; mem: pointer; memLen: uint16; startOffset: uint16): uint16 {.
-    importc: "pbuf_memfind", header: "lwip/pbuf.h".}
-proc pbufStrstr*(p: ptr Pbuf; substr: cstring): uint16 {.importc: "pbuf_strstr",
-    header: "lwip/pbuf.h".}
+  proc pbufSplit64k*(p: ptr Pbuf; rest: ptr ptr Pbuf) {.importc: "pbuf_split_64k", header: "lwip/pbuf.h".}
+proc pbufGetAt*(p: ptr Pbuf; offset: uint16): uint8 {.importc: "pbuf_get_at", header: "lwip/pbuf.h".}
+proc pbufTryGetAt*(p: ptr Pbuf; offset: uint16): cint {.importc: "pbuf_try_get_at", header: "lwip/pbuf.h".}
+proc pbufPutAt*(p: ptr Pbuf; offset: uint16; data: uint8) {.importc: "pbuf_put_at", header: "lwip/pbuf.h".}
+proc pbufMemcmp*(p: ptr Pbuf; offset: uint16; s2: pointer; n: uint16): uint16 {.importc: "pbuf_memcmp", header: "lwip/pbuf.h".}
+proc pbufMemfind*(p: ptr Pbuf; mem: pointer; memLen: uint16; startOffset: uint16): uint16 {.importc: "pbuf_memfind", header: "lwip/pbuf.h".}
+proc pbufStrstr*(p: ptr Pbuf; substr: cstring): uint16 {.importc: "pbuf_strstr", header: "lwip/pbuf.h".}
