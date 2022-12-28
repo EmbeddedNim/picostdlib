@@ -33,6 +33,7 @@
 
 when defined(cyw43Lwip):
   import ../lwip/[netif, dhcp]
+  export netif, dhcp
 
 when defined(cyw43Netutils):
   import ../netutils/dhcpserver
@@ -104,7 +105,8 @@ type
     when defined(cyw43Lwip):
       ##  lwIP data
       netif* {.importc: "netif".}: array[2, Netif]
-      dhcpClient* {.importc: "dhcp_client".}: Dhcp
+      when defined(lwipDhcp):
+        dhcpClient* {.importc: "dhcp_client".}: Dhcp
     when defined(cyw43Netutils):
       dhcpServer* {.importc: "dhcp_server".}: DhcpServerT
     mac* {.importc: "mac".}: array[6, uint8]
