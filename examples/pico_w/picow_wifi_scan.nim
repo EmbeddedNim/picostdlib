@@ -22,7 +22,7 @@ proc scanResult(env: pointer; res: ptr Cyw43EvScanResultT): cint {.noconv.} =
     )
   return 0
 
-if cyw43ArchInit() != 0:
+if cyw43ArchInit() != ErrorNone:
   echo "Wifi init failed!"
 else:
   echo "Wifi init successful!"
