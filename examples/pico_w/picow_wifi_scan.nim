@@ -1,14 +1,11 @@
 
-import std/[strutils]
+import std/strutils
 
 import picostdlib/[
   pico/stdio,
   pico/platform,
   pico/cyw43_arch
 ]
-
-discard stdioUsbInit()
-blockUntilUsbConnected()
 
 proc scanResult(env: pointer; res: ptr Cyw43EvScanResultT): cint {.noconv.} =
   if not res.isNil:
@@ -22,10 +19,14 @@ proc scanResult(env: pointer; res: ptr Cyw43EvScanResultT): cint {.noconv.} =
     )
   return 0
 
-if cyw43ArchInit() != ErrorNone:
-  echo "Wifi init failed!"
-else:
+proc wifiScanExample*() =
+
+  if cyw43ArchInit() != ErrorNone:
+    echo "Wifi init failed!"
+    return
+
   echo "Wifi init successful!"
+
   cyw43ArchGpioPut(CYW43_WL_GPIO_LED_PIN, true)
 
   cyw43ArchEnableStaMode()
@@ -44,4 +45,10 @@ else:
 
   cyw43ArchDeinit()
 
-while true: tightLoopContents()
+when isMainModule:
+  discard stdioUsbInit()
+  blockUntilUsbConnected()
+
+  wifiScanExample()
+
+  while true: tightLoopContents()
