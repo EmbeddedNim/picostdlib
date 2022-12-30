@@ -438,12 +438,9 @@ when defined(lwipIpv4) and defined(lwipIpv6):
       if not 0:
         break
 
-  proc ipaddrNtoa*(`addr`: ptr IpAddrT): cstring {.importc: "ipaddr_ntoa",
-      header: "lwip/ip_addr.h".}
-  proc ipaddrNtoaR*(`addr`: ptr IpAddrT; buf: cstring; buflen: cint): cstring {.
-      importc: "ipaddr_ntoa_r", header: "lwip/ip_addr.h".}
-  proc ipaddrAton*(cp: cstring; `addr`: ptr IpAddrT): cint {.importc: "ipaddr_aton",
-      header: "lwip/ip_addr.h".}
+  proc ipaddrNtoa*(`addr`: ptr IpAddrT): cstring {.importc: "ipaddr_ntoa", header: "lwip/ip_addr.h".}
+  proc ipaddrNtoaR*(`addr`: ptr IpAddrT; buf: cstring; buflen: cint): cstring {.importc: "ipaddr_ntoa_r", header: "lwip/ip_addr.h".}
+  proc ipaddrAton*(cp: cstring; `addr`: ptr IpAddrT): cint {.importc: "ipaddr_aton", header: "lwip/ip_addr.h".}
   ## * @ingroup ipaddr
   const
     IPADDR_STRLEN_MAX* = Ip6addr_Strlen_Max

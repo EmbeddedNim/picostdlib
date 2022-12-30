@@ -238,7 +238,7 @@ when defined(lwipIpv4):
   ##  Get one byte from the 4-byte address, but argument is 'ip4_addr_t',
   ##  not a pointer
   template ip4AddrGetByteVal*(ipaddr, idx: untyped): untyped =
-    ((u8T)(((ipaddr).`addr` shr (idx * 8)) and 0xff))
+    ((uint8)(((ipaddr).`addr` shr (idx * 8)) and 0xff))
 
   template ip4Addr1Val*(ipaddr: untyped): untyped =
     ip4AddrGetByteVal(ipaddr, 0)
@@ -255,28 +255,28 @@ when defined(lwipIpv4):
   ##  These are cast to u16_t, with the intent that they are often arguments
   ##  to printf using the U16_F format from cc.h.
   template ip4Addr116*(ipaddr: untyped): untyped =
-    (cast[U16T](ip4Addr1(ipaddr)))
+    (cast[uint16](ip4Addr1(ipaddr)))
 
   template ip4Addr216*(ipaddr: untyped): untyped =
-    (cast[U16T](ip4Addr2(ipaddr)))
+    (cast[uint16](ip4Addr2(ipaddr)))
 
   template ip4Addr316*(ipaddr: untyped): untyped =
-    (cast[U16T](ip4Addr3(ipaddr)))
+    (cast[uint16](ip4Addr3(ipaddr)))
 
   template ip4Addr416*(ipaddr: untyped): untyped =
-    (cast[U16T](ip4Addr4(ipaddr)))
+    (cast[uint16](ip4Addr4(ipaddr)))
 
   template ip4Addr116Val*(ipaddr: untyped): untyped =
-    (cast[U16T](ip4Addr1Val(ipaddr)))
+    (cast[uint16](ip4Addr1Val(ipaddr)))
 
   template ip4Addr216Val*(ipaddr: untyped): untyped =
-    (cast[U16T](ip4Addr2Val(ipaddr)))
+    (cast[uint16](ip4Addr2Val(ipaddr)))
 
   template ip4Addr316Val*(ipaddr: untyped): untyped =
-    (cast[U16T](ip4Addr3Val(ipaddr)))
+    (cast[uint16](ip4Addr3Val(ipaddr)))
 
   template ip4Addr416Val*(ipaddr: untyped): untyped =
-    (cast[U16T](ip4Addr4Val(ipaddr)))
+    (cast[uint16](ip4Addr4Val(ipaddr)))
 
   const
     IP4ADDR_STRLEN_MAX* = 16

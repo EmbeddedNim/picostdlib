@@ -215,6 +215,8 @@ const
 const
   PBUF_FLAG_TCP_FIN* = 0x20
 
+const PBUF_NOT_FOUND* = 0xFFFF.uint16
+
 ## * Main packet buffer struct
 
 type
@@ -343,3 +345,17 @@ proc pbufPutAt*(p: ptr Pbuf; offset: uint16; data: uint8) {.importc: "pbuf_put_a
 proc pbufMemcmp*(p: ptr Pbuf; offset: uint16; s2: pointer; n: uint16): uint16 {.importc: "pbuf_memcmp", header: "lwip/pbuf.h".}
 proc pbufMemfind*(p: ptr Pbuf; mem: pointer; memLen: uint16; startOffset: uint16): uint16 {.importc: "pbuf_memfind", header: "lwip/pbuf.h".}
 proc pbufStrstr*(p: ptr Pbuf; substr: cstring): uint16 {.importc: "pbuf_strstr", header: "lwip/pbuf.h".}
+
+
+##  Nim helpers
+
+proc pbufMemcmp*(p: ptr Pbuf; offset: int|uint16; s2: string): uint16 {.inline.} =
+  assert(s2.len > 0)
+  var cs2 = s2.cstring
+  return p.pbufMemcmp(offset.uint16, cast[pointer](cs2[0].addr), cs2.len.uint16)
+
+proc pbufMemfind*(p: ptr Pbuf; mem: string; startOffset: int|uint16): uint16 {.inline.} =
+  assert(mem.len > 0)
+  var cmem = mem.cstring
+  return p.pbufMemfind(cast[pointer](cmem[0].addr), cmem.len.uint16, startOffset.uint16)
+
