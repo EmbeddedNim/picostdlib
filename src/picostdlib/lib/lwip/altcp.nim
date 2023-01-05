@@ -80,7 +80,7 @@ when defined(lwipAltcp):
   proc altcpNew*(allocator: ptr AltcpAllocatorT): ptr AltcpPcb {.importc: "altcp_new",header: "lwip/altcp.h".}
   proc altcpNewIp6*(allocator: ptr AltcpAllocatorT): ptr AltcpPcb {.importc: "altcp_new_ip6", header: "lwip/altcp.h".}
   proc altcpNewIpType*(allocator: ptr AltcpAllocatorT; ipType: uint8): ptr AltcpPcb {.importc: "altcp_new_ip_type", header: "lwip/altcp.h".}
-  proc altcpArg*(conn: ptr AltcpPcb; arg: pointer) {.importc: "altcp_arg",header: "lwip/altcp.h".}
+  proc altcpArg*(conn: ptr AltcpPcb; arg: pointer) {.importc: "altcp_arg", header: "lwip/altcp.h".}
   proc altcpAccept*(conn: ptr AltcpPcb; accept: AltcpAcceptFn) {.importc: "altcp_accept", header: "lwip/altcp.h".}
   proc altcpRecv*(conn: ptr AltcpPcb; recv: AltcpRecvFn) {.importc: "altcp_recv",header: "lwip/altcp.h".}
   proc altcpSent*(conn: ptr AltcpPcb; sent: AltcpSentFn) {.importc: "altcp_sent",header: "lwip/altcp.h".}

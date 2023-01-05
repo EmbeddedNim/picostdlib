@@ -78,7 +78,19 @@ else:
 
 type
   IpPcb* {.importc: "ip_pcb", header: "lwip/ip.h", bycopy.} = object
-    ## IP_PCB;
+    # ip addresses in network byte order
+    localIp* {.importc: "local_ip".}: ptr IpAddrT
+    remoteIp* {.importc: "remote_ip".}: ptr IpAddrT
+    # Bound netif index
+    netifIdx* {.importc: "netif_idx".}: uint8
+    # Socket options
+    soOptions* {.importc: "so_options".}: uint8
+    # Type Of Service
+    tos* {.importc: "tos".}: uint8
+    # Time To Live
+    ttl* {.importc: "ttl".}: uint8
+    when LWIP_NETIF_USE_HINTS:
+      netifHints* {.importc: "netif_hints".}: NetifHint
 
 
 ##

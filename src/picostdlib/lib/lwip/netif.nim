@@ -169,20 +169,20 @@ else:
     NetifAddrIdxT* = uint8
   const
     NETIF_ADDR_IDX_MAX* = 0x7F
-when defined(lwip_Netif_Hwaddrhint) or defined(lwip_Vlan_Pcp):
+when defined(lwipNetifHwaddrhint) or defined(lwipVlanPcp):
   const
-    LWIP_NETIF_USE_HINTS* = 1
+    LWIP_NETIF_USE_HINTS* = true
   type
-    NetifHint* {.importc: "netif_hint", header: "lwip/netif.h", bycopy.} = object
-      when defined(lwip_Netif_Hwaddrhint):
+    NetifHint* {.importc: "struct netif_hint", header: "lwip/netif.h", bycopy.} = object
+      when defined(lwipNetifHwaddrhint):
         addrHint* {.importc: "addr_hint".}: uint8
-      when defined(lwip_Vlan_Pcp):
+      when defined(lwipVlanPcp):
         ## * VLAN hader is set if this is >= 0 (but must be <= 0xFFFF)
-        tci* {.importc: "tci".}: S32T
+        tci* {.importc: "tci".}: int32
 
 else:
   const
-    LWIP_NETIF_USE_HINTS* = 0
+    LWIP_NETIF_USE_HINTS* = false
 ## * Generic data structure used for all lwIP network interfaces.
 ##   The following fields should be filled in by the initialization
 ##   function for the device driver: hwaddr_len, hwaddr[], mtu, flags

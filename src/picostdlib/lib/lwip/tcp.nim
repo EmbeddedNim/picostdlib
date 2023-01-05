@@ -185,7 +185,7 @@ when defined(lwipTcp):
     ]#
 
     ##when defined(lwipTcpSackOut):
-    TcpSackRange* {.importc: "tcp_sack_range", header: "lwip/tcp.h", bycopy.} = object
+    TcpSackRange* {.importc: "struct tcp_sack_range", header: "lwip/tcp.h", bycopy.} = object
       ## * SACK ranges to include in ACK packets.
       ##  SACK entry is invalid if left==right.
       left* {.importc: "left".}: uint32
@@ -197,12 +197,37 @@ when defined(lwipTcp):
     ##  members common to struct tcp_pcb and struct tcp_listen_pcb
     ##
 
-    TcpPcbListen* {.importc: "tcp_pcb_listen", header: "lwip/tcp.h", bycopy.} = object
+    TcpPcbListen* {.importc: "struct tcp_pcb_listen", header: "lwip/tcp.h", bycopy.} = object
       ## * the TCP protocol control block for listening pcbs
-      when defined(lwipCallbackApi):  ## * Common members of all PCB types
-                            ## IP_PCB;
-                            ## * Protocol specific PCB members
-                            ## TCP_PCB_COMMON(struct tcp_pcb_listen);
+
+      # IP_PCB
+      # ip addresses in network byte order
+      localIp* {.importc: "local_ip".}: ptr IpAddrT
+      remoteIp* {.importc: "remote_ip".}: ptr IpAddrT
+      # Bound netif index
+      netifIdx* {.importc: "netif_idx".}: uint8
+      # Socket options
+      soOptions* {.importc: "so_options".}: uint8
+      # Type Of Service
+      tos* {.importc: "tos".}: uint8
+      # Time To Live
+      ttl* {.importc: "ttl".}: uint8
+      when LWIP_NETIF_USE_HINTS:
+        netifHints* {.importc: "netif_hints".}: NetifHint
+
+      # TCP_PCB_COMMON
+      next* {.importc: "next".}: ptr TcpPcbListen
+        ##  for the linked list
+      callbackArg* {.importc: "callback_arg".}: pointer
+      when defined(LWIP_TCP_PCB_NUM_EXT_ARGS):
+        extArgs* {.importc: "ext_args".}: TcpPcbExtArgs[LWIP_TCP_PCB_NUM_EXT_ARGS]
+      state* {.importc: "state".}: TcpState
+        ## TCP state
+      prio* {.importc: "prio".}: uint8
+      # ports are in host byte order
+      localPort* {.importc: "local_port".}: uint16
+
+      when defined(lwipCallbackApi):
         ##  Function to call when a listener has been connected.
         accept* {.importc: "accept".}: TcpAcceptFn
       when defined(tcpListenBacklog):
@@ -227,7 +252,7 @@ when defined(lwipTcp):
       ##  @return ERR_OK if OK, any error if connection should be dropped
       ##
   
-    TcpExtArgCallbacks* {.importc: "tcp_ext_arg_callbacks", header: "lwip/tcp.h", bycopy.} = object
+    TcpExtArgCallbacks* {.importc: "struct tcp_ext_arg_callbacks", header: "lwip/tcp.h", bycopy.} = object
       ## * A table of callback functions that is invoked for ext arguments
       destroy* {.importc: "destroy".}: TcpExtargCallbackPcbDestroyedFn ## * @ref
                                                                    ## tcp_extarg_callback_pcb_destroyed_fn
@@ -238,26 +263,49 @@ when defined(lwipTcp):
       ##when defined(lwipTcpPcbNumExtArgs):
       ##  This is the structure for ext args in tcp pcbs (used as array)
 
-    TcpPcbExtArgs* {.importc: "tcp_pcb_ext_args", header: "lwip/tcp.h", bycopy.} = object
+    TcpPcbExtArgs* {.importc: "struct tcp_pcb_ext_args", header: "lwip/tcp.h", bycopy.} = object
       callbacks* {.importc: "callbacks".}: ptr TcpExtArgCallbacks
       data* {.importc: "data".}: pointer
-
-    ##  This is a helper define to prevent zero size arrays if disabled
-    ##const
-    ##  TCP_PCB_EXTARGS* = true   ## struct tcp_pcb_ext_args ext_args[LWIP_TCP_PCB_NUM_EXT_ARGS];
-
 
     TcpflagsT* = uint16
 
     TcpPcb* {.importc: "struct tcp_pcb", header: "lwip/tcp.h", bycopy.} = object
-      remotePort* {.importc: "remote_port".}: uint16 ## * common PCB members
-                                               ## IP_PCB;
-                                               ## * protocol specific PCB members
-                                               ## TCP_PCB_COMMON(struct tcp_pcb);
-                                               ##  ports are in host byte order
-      flags* {.importc: "flags".}: TcpflagsT ##  the rest of the fields are in host byte order
-                                         ##      as we have to do some math with them
-                                         ##  Timers
+
+      # IP_PCB
+      # ip addresses in network byte order
+      localIp* {.importc: "local_ip".}: ptr IpAddrT
+      remoteIp* {.importc: "remote_ip".}: ptr IpAddrT
+      # Bound netif index
+      netifIdx* {.importc: "netif_idx".}: uint8
+      # Socket options
+      soOptions* {.importc: "so_options".}: uint8
+      # Type Of Service
+      tos* {.importc: "tos".}: uint8
+      # Time To Live
+      ttl* {.importc: "ttl".}: uint8
+      when LWIP_NETIF_USE_HINTS:
+        netifHints* {.importc: "netif_hints".}: NetifHint
+
+      # TCP_PCB_COMMON
+      next* {.importc: "next".}: ptr TcpPcb
+        ##  for the linked list
+      callbackArg* {.importc: "callback_arg".}: pointer
+      when defined(LWIP_TCP_PCB_NUM_EXT_ARGS):
+        extArgs* {.importc: "ext_args".}: TcpPcbExtArgs[LWIP_TCP_PCB_NUM_EXT_ARGS]
+      state* {.importc: "state".}: TcpState
+        ## TCP state
+      prio* {.importc: "prio".}: uint8
+      # ports are in host byte order
+      localPort* {.importc: "local_port".}: uint16
+
+      # ports are in host byte order
+      remotePort* {.importc: "remote_port".}: uint16
+
+      flags* {.importc: "flags".}: TcpflagsT
+
+      ##  the rest of the fields are in host byte order
+      ##      as we have to do some math with them
+      ##  Timers
       polltmr* {.importc: "polltmr".}: uint8
       pollinterval* {.importc: "pollinterval".}: uint8
       lastTimer* {.importc: "last_timer".}: uint8

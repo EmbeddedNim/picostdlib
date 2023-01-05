@@ -11,6 +11,7 @@ export error
 
 type
   Cyw43ArchAuth* = distinct uint32
+  Cyw43Gpio* = distinct cuint
 
 const
   Cyw43ArchAuthOpen* = 0.Cyw43ArchAuth  # No authorisation required (open)
@@ -18,7 +19,7 @@ const
   Cyw43ArchAuthWpa2AesPsk* = 0x00400004.Cyw43ArchAuth  # WPA2 authorisation (preferred)
   Cyw43ArchAuthWpa2MixedPsk* = 0x00400006.Cyw43ArchAuth  # WPA2/WPA mixed authorisation
 
-let CYW43_WL_GPIO_LED_PIN* {.importc: "CYW43_WL_GPIO_LED_PIN".}: cuint
+const CYW43_WL_GPIO_LED_PIN* = 0.Cyw43Gpio
 
 proc cyw43ArchInit*(): PicoErrorCodes {.importc: "cyw43_arch_init".}
   ## ```
@@ -137,7 +138,7 @@ proc cyw43ArchGetCountryCode*(): uint32 {.importc: "cyw43_arch_get_country_code"
   ##    \return the country code (see \ref CYW43_COUNTRY_)
   ## ```
 
-proc cyw43ArchGpioPut*(wl_gpio: cuint; value: bool) {.importc: "cyw43_arch_gpio_put".}
+proc cyw43ArchGpioPut*(wl_gpio: Cyw43Gpio; value: bool) {.importc: "cyw43_arch_gpio_put".}
   ## ```
   ##   !
   ##    \brief Set a GPIO pin on the wireless chip to a given value
@@ -149,7 +150,7 @@ proc cyw43ArchGpioPut*(wl_gpio: cuint; value: bool) {.importc: "cyw43_arch_gpio_
   ##    \param value true to set the GPIO, false to clear it.
   ## ```
 
-proc cyw43ArchGpioGet*(wl_gpio: cuint): bool {.importc: "cyw43_arch_gpio_get".}
+proc cyw43ArchGpioGet*(wl_gpio: Cyw43Gpio): bool {.importc: "cyw43_arch_gpio_get".}
   ## ```
   ##   !
   ##    \brief Read the value of a GPIO pin on the wireless chip
