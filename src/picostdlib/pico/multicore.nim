@@ -1,4 +1,4 @@
-{.push header: "pico/multicore.h".} 
+{.push header: "pico/multicore.h".}
 
 type
   MulticoreThreadFunc* = proc() {.noconv.}
