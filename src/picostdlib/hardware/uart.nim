@@ -1,20 +1,26 @@
 
-{.push header: "hardware/uart.h".}
+## uart_inst struct does not exist
+## cpp backend needs this to be defined
+{.emit: "struct uart_inst {};".}
+
 
 type
-  UartInst* {.importc: "struct uart_inst_t".} = object
-    ## Currently always a pointer to hw but it might not be in the future
-  
-  UartParity* {.pure, importc: "enum uart_parity_t".} = enum
+  UartParity* {.pure, size: sizeof(cuint).} = enum
     ## UART Parity enumeration
     None, Even, Odd
 
-var
-  uart0* {.importc: "uart0".}: UartInst
-  uart1* {.importc: "uart1".}: UartInst
-  uartDefault* {.importc: "uart_default".}: UartInst
+{.push header: "hardware/uart.h".}
 
-let PicoDefaultUartBaudrate* {.importc: "PICO_DEFAULT_UART_BAUD_RATE".}: cuint
+type
+  UartInst* {.importc: "uart_inst_t", bycopy.} = object
+    ## Currently always a pointer to hw but it might not be in the future
+
+let
+  uart0* {.importc: "uart0".}: ptr UartInst
+  uart1* {.importc: "uart1".}: ptr UartInst
+  uartDefault* {.importc: "uart_default".}: ptr UartInst
+
+  PicoDefaultUartBaudrate* {.importc: "PICO_DEFAULT_UART_BAUD_RATE".}: cuint
 
 proc uartGetIndex*(uart: ptr UartInst): cuint {.importc: "uart_get_index".}
   ## ```

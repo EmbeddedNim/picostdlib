@@ -1,9 +1,7 @@
 import irq
 
-{.push header: "hardware/gpio.h".}
-
 type
-  GpioFunction* {.pure, importc: "enum gpio_function".} = enum
+  GpioFunction* {.pure, size: sizeof(cuint).} = enum
     ## GPIO function definitions for use with function select. 
     ## Each GPIO can have one function selected at a time. Likewise, 
     ## each peripheral input (e.g. UART0 RX) should only be selected on one 
@@ -19,28 +17,31 @@ type
   Value* = distinct bool
     ## Gpio function value. See datasheet.
   
-  GpioOverride* {.pure, importc: "enum gpio_override".} = enum
+  GpioOverride* {.pure, size: sizeof(cuint).} = enum
     Normal  # peripheral signal selected via \ref gpio_set_function
     Invert  # invert peripheral signal selected via \ref gpio_set_function
     Low     # drive low/disable output
     High     # drive high/enable output
 
-  GpioSlewRate* {.pure, importc: "enum gpio_slew_rate".} = enum
+  GpioSlewRate* {.pure, size: sizeof(cuint).} = enum
     Slow  # Slew rate limiting enabled
     Fast   # Slew rate limiting disabled
   
-  GpioDriveStrength* {.pure, importc: "enum gpio_drive_strength".} = enum
+  GpioDriveStrength* {.pure, size: sizeof(cuint).} = enum
     mA_2  # 2 mA nominal drive strength
     mA_4  # 4 mA nominal drive strength
     mA_8  # 2 mA nominal drive strength
     mA_12  # 12 mA nominal drive strength
   
-  GpioIrqLevel* {.pure, importc: "enum gpio_irq_level".} = enum
+  GpioIrqLevel* {.pure, size: sizeof(cuint).} = enum
     Low = 0x1'u
     High = 0x2'u
     EdgeFall = 0x4'u
     EdgeRise = 0x8'u
-  
+
+{.push header: "hardware/gpio.h".}
+
+type
   GpioIrqCallback* {.importc: "gpio_irq_callback_t".} = proc (gpio: Gpio; eventMask: uint32) {.noconv.}
 
 proc `==`*(a, b: Value): bool {.borrow.}

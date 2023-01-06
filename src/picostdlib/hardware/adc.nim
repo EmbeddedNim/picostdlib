@@ -1,8 +1,6 @@
 import gpio
 
-{.push header: "hardware/adc.h".}
-
-type AdcInput* {.pure.} = enum
+type AdcInput* {.pure, size: sizeof(cuint).} = enum
   ## Aliases for selectInput() procedure 
   ## ADC input. 0...3 are GPIOs 26...29 respectively. Input 4 is the onboard temperature sensor.
   Adc26 = 0, Adc27 = 1, Adc28 = 2, Adc29 = 3, AdcTemp = 4
@@ -10,6 +8,7 @@ type AdcInput* {.pure.} = enum
 const ThreePointThreeConv* = 3.3f / (1 shl 12)
   ## Useful for reading inputs from a 3.3v source
 
+{.push header: "hardware/adc.h".}
 
 proc adcInit*{.importc:"adc_init".}
   ## Initialise the ADC HW

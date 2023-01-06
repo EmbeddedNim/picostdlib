@@ -1,7 +1,7 @@
-{.push header: "hardware/exception.h".}
+
 
 type
-  ExceptionNumber* {.pure, importc: "enum exception_number".} = enum
+  ExceptionNumber* {.pure, size: sizeof(cint).} = enum
     Nmi        = -14    # Non Maskable Interrupt
     Hardfault  = -13    # HardFault Interrupt
     SVCall     =  -5    # SV Call Interrupt
@@ -24,7 +24,10 @@ type
     ##    \ingroup hardware_exception
     ## ```
 
-  ExceptionHandler* {.importc: "exception_handler_t".} = proc () {.noconv.}
+{.push header: "hardware/exception.h".}
+
+type
+  ExceptionHandler* {.importc: "exception_handler_t".} = proc () {.cdecl.}
     ## ```
     ##   ! \brief Exception handler function type
     ##     \ingroup hardware_exception

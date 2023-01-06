@@ -3,7 +3,7 @@ import gpio
 {.push header: "hardware/pwm.h".}
 
 type
-  ClockDivideMode* {.pure, importc: "enum pwm_clkdiv_mode".} = enum
+  ClockDivideMode* {.pure, size: sizeof(cuint).} = enum
     ## PWM Divider mode settings. 
     ## 
     ## **Modes:**
@@ -18,17 +18,20 @@ type
     ## 
     FreeRunning, High, Rising, Falling
 
+  PwmChannel* {.pure, size: sizeof(cuint).} = enum
+    ## Alias for channel parameter in the setChanLevel() procedure
+    A, B
+
+  PwmSliceNum* = distinct cuint
+
+{.push header: "hardware/pwm.h".}
+
+type
   PwmConfig* {.pure, byref, importc: "pwm_config".} = object
     ## Configuration object for PWM  tasks
     csr* {.importc.}: uint32
     `div`* {.importc.}: uint32
     top* {.importc.}: uint32
-
-  PwmChannel* {.pure, importc: "enum pwm_chan".} = enum
-    ## Alias for channel parameter in the setChanLevel() procedure
-    A, B
-
-  PwmSliceNum* = distinct cuint
 
 
 proc pwmGpioToSliceNum*(gpio: Gpio): PwmSliceNum {.importc: "pwm_gpio_to_slice_num".}

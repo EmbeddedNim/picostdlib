@@ -1,11 +1,14 @@
-{.push header: "hardware/dma.h".}
+
 
 type
-  DmaChannelTransferSize* {.importc: "enum dma_channel_transfer_size".} = enum
+  DmaChannelTransferSize* {.pure, size: sizeof(cuint).} = enum
     DmaSize8
     DmaSize16
     DmaSize32
 
+{.push header: "hardware/dma.h".}
+
+type
   DmaChannelConfig* {.bycopy, importc: "dma_channel_config".} = object
     ctrl* {.importc.}: uint32
 

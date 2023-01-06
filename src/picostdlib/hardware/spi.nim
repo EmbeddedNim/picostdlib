@@ -1,4 +1,3 @@
-{.push header: "hardware/spi.h".}
 
 ## spi_inst struct does not exist
 ## cpp backend needs this to be defined
@@ -6,25 +5,28 @@
 
 
 type
-  SpiInst* {.importc: "spi_inst_t", bycopy.} = object
-    ## Opaque type representing an SPI instance.
-
-  SpiClockPhase* {.pure, importc: "enum spi_cpha_t".} = enum
+  SpiClockPhase* {.pure, size: sizeof(cuint).} = enum
     ## Enumeration of SPI CPHA (clock phase) values.
     Phase0, Phase1
 
-  SpiClockPolarity* {.pure, importc: "enum spi_cpol_t".} = enum
+  SpiClockPolarity* {.pure, size: sizeof(cuint).} = enum
     ## Enumeration of SPI CPOL (clock polarity) values.
     Pol0, Pol1
 
-  SpiOrder* {.pure, importc: "enum spi_order_t".} = enum
+  SpiOrder* {.pure, size: sizeof(cuint).} = enum
     ## Enumeration of SPI bit-order values.
     LsbFirst, MsbFirst
+
+{.push header: "hardware/spi.h".}
+
+type
+  SpiInst* {.importc: "spi_inst_t", bycopy.} = object
+    ## Opaque type representing an SPI instance.
 
 let
   spi0* {.importc: "spi0".}: ptr SpiInst
   spi1* {.importc: "spi1".}: ptr SpiInst
-  spiDefault* = spi0
+  spiDefault* {.importc: "spi_default".}: ptr SpiInst
 
 proc spiInit*(spi: ptr SpiInst; baudrate: cuint): cuint {.importc: "spi_init".}
   ## ```

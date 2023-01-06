@@ -1,10 +1,8 @@
 import regs/clocks
 import gpio
 
-{.push header: "hardware/structs/clocks.h".}
-
 type
-  ClockIndex* {.pure, importc: "enum clock_index".} = enum
+  ClockIndex* {.pure, size: sizeof(cuint).} = enum
     ## Enumeration identifying a hardware clock
     GpOut0  # GPIO Muxing 0
     GpOut1  # GPIO Muxing 1
@@ -17,7 +15,6 @@ type
     Adc     # ADC clock
     Rtc     # Real Time Clock
 
-{.pop.}
 
 type
   ResusCallback* {.importc: "resus_callback_t".} = proc () {.noconv.}

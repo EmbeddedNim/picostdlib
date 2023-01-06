@@ -186,7 +186,7 @@ proc stdioUsbConnected*(): bool {.importc: "stdio_usb_connected".}
 {.pop.}
 
 
-## NIM HELPERS
+## Nim helpers
 
 import system/ansi_c
 

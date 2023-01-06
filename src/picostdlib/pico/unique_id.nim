@@ -47,10 +47,9 @@ proc picoGetUniqueBoardIdString*(idOut: ptr cchar; len: cuint) {.importc: "pico_
 
 {.pop.}
 
-## NIM HELPERS ##
+## Nim helpers
 
 proc picoGetUniqueBoardIdString*(): string =
   ## Returns the entire board id as a Nim string
-  result = newString(16)
+  result.setLen(16)
   picoGetUniqueBoardIdString(result[0].addr, (result.len + 1).cuint)
-  

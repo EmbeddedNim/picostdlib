@@ -10,10 +10,14 @@ type
 
   I2cAddress* = distinct range[0'u8 .. 127'u8]
 
+var
+  i2c0Inst* {.importc: "i2c0_inst".}: I2cInst
+  i2c1Inst* {.importc: "i2c1_inst".}: I2cInst
+
 let
   i2c0* {.importc: "i2c0".}: ptr I2cInst
   i2c1* {.importc: "i2c1".}: ptr I2cInst
-  i2cDefault* = i2c0
+  i2cDefault* {.importc: "i2c_default".}: ptr I2cInst
 
 proc i2cInit*(i2c: ptr I2cInst, baudrate: cuint): cuint {.importc: "i2c_init".}
   ## ```
@@ -228,9 +232,11 @@ proc i2cGetDreq*(i2c: ptr I2cInst; isTx: bool): cuint {.importc: "i2c_get_dreq".
 {.pop.}
 
 
+## Nim helpers
+
 import gpio
 
-template i2cSetupNim*(blokk: I2cInst, pSda, pScl: Gpio, freq: uint, pull = true) =
+template i2cSetupNim*(blokk: ptr I2cInst, pSda, pScl: Gpio, freq: uint, pull = true) =
   #sugar setup for i2c:
   #blokk= block i2c0 / i2c1 (see pinout)
   #pSda/pScl = the pins you want use (ex: 2.Gpio, 3.Gpio) I do not recommend the use of 0.Gpio, 1.Gpio
