@@ -1,4 +1,8 @@
 
+
+# import ../lib/cyw43_driver
+# export cyw43_driver
+
 import ../lib/cyw43_driver/[
   cyw43, cyw43_country
 ]
