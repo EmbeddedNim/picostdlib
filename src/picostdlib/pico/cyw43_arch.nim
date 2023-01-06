@@ -7,19 +7,15 @@ export cyw43, cyw43_country
 import error
 export error
 
-{.push header: "pico/cyw43_arch.h".}
-
 type
-  Cyw43ArchAuth* = distinct uint32
-  Cyw43Gpio* = distinct cuint
+  Cyw43ArchPin* = distinct cuint
 
-const
-  Cyw43ArchAuthOpen* = 0.Cyw43ArchAuth  # No authorisation required (open)
-  Cyw43ArchAuthWpaTkipPsk* = 0x00200002.Cyw43ArchAuth  # WPA authorisation
-  Cyw43ArchAuthWpa2AesPsk* = 0x00400004.Cyw43ArchAuth  # WPA2 authorisation (preferred)
-  Cyw43ArchAuthWpa2MixedPsk* = 0x00400006.Cyw43ArchAuth  # WPA2/WPA mixed authorisation
+  Cyw43ArchAuth* = Cyw43AuthType
 
-const CYW43_WL_GPIO_LED_PIN* = 0.Cyw43Gpio
+
+const CYW43_WL_GPIO_LED_PIN* = 0.Cyw43ArchPin
+
+{.push header: "pico/cyw43_arch.h".}
 
 proc cyw43ArchInit*(): PicoErrorCodes {.importc: "cyw43_arch_init".}
   ## ```
@@ -138,7 +134,7 @@ proc cyw43ArchGetCountryCode*(): uint32 {.importc: "cyw43_arch_get_country_code"
   ##    \return the country code (see \ref CYW43_COUNTRY_)
   ## ```
 
-proc cyw43ArchGpioPut*(wl_gpio: Cyw43Gpio; value: bool) {.importc: "cyw43_arch_gpio_put".}
+proc cyw43ArchGpioPut*(wlGpio: Cyw43ArchPin; value: bool) {.importc: "cyw43_arch_gpio_put".}
   ## ```
   ##   !
   ##    \brief Set a GPIO pin on the wireless chip to a given value
@@ -150,7 +146,7 @@ proc cyw43ArchGpioPut*(wl_gpio: Cyw43Gpio; value: bool) {.importc: "cyw43_arch_g
   ##    \param value true to set the GPIO, false to clear it.
   ## ```
 
-proc cyw43ArchGpioGet*(wl_gpio: Cyw43Gpio): bool {.importc: "cyw43_arch_gpio_get".}
+proc cyw43ArchGpioGet*(wlGpio: Cyw43ArchPin): bool {.importc: "cyw43_arch_gpio_get".}
   ## ```
   ##   !
   ##    \brief Read the value of a GPIO pin on the wireless chip
@@ -201,7 +197,7 @@ proc cyw43ArchLwipEnd*() {.inline, importc: "cyw43_arch_lwip_end".}
   ##  \sa cyw43_arch_lwip_begin
   ##  \sa cyw43_arch_lwip_protect
 
-proc cyw43ArchLwipProtect*(cb: proc (param: pointer): cint {.noconv.}, param: pointer) {.inline, importc: "cyw43_arch_lwip_protect".}
+proc cyw43ArchLwipProtect*(cb: proc (param: pointer): cint {.cdecl.}, param: pointer) {.inline, importc: "cyw43_arch_lwip_protect".}
   ##  \brief sad Release any locks required for calling into lwIP
   ##  \ingroup pico_cyw43_arch
   ## 

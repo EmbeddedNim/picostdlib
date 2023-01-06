@@ -17,7 +17,7 @@ type
 
 
 type
-  ResusCallback* {.importc: "resus_callback_t".} = proc () {.noconv.}
+  ResusCallback* {.importc: "resus_callback_t".} = proc () {.cdecl.}
 
 const
   KHz* = 1000

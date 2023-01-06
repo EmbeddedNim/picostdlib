@@ -2,9 +2,9 @@
 
 type
   StdioDriver* {.bycopy, importc: "struct stdio_driver".} = object
-    out_chars*: proc (buf: cstring; len: cint) {.noconv.}
-    out_flush*: proc () {.noconv.}
-    in_chars*: proc (buf: cstring; len: cint): cint {.noconv.}
+    out_chars*: proc (buf: cstring; len: cint) {.cdecl.}
+    out_flush*: proc () {.cdecl.}
+    in_chars*: proc (buf: cstring; len: cint): cint {.cdecl.}
     next*: ptr StdioDriver
 
 proc stdioInitAll*() {.importc: "stdio_init_all".}

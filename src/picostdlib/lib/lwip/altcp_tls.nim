@@ -123,7 +123,7 @@ when defined(lwipAltcp):
     ##  @ref altcp_allocator_t / @ref altcp_new.<br>
     ##  'arg' must contain a struct altcp_tls_config *.
     ##
-    proc altcpTlsAlloc*(arg: pointer; ipType: uint8): ptr AltcpPcb {.importc: "altcp_tls_alloc", header: "lwip/altcp_tls.h", noconv.}
+    proc altcpTlsAlloc*(arg: pointer; ipType: uint8): ptr AltcpPcb {.importc: "altcp_tls_alloc", header: "lwip/altcp_tls.h", cdecl.}
     ## * @ingroup altcp_tls
     ##  Return pointer to internal TLS context so application can tweak it.
     ##  Real type depends on port (e.g. mbedtls)

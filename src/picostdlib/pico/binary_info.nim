@@ -3,7 +3,7 @@
 ## TODO: Bind the binary info macros ##
 
 type
-  biProgramName* {.importc: "bi_program_name".} = proc(name: cstring) {.noconv.}
+  biProgramName* {.importc: "bi_program_name".} = proc(name: cstring) {.cdecl.}
 
 let
   BinaryInfoMarkerStart* {.importc: "BINARY_INFO_MARKER_START".}: uint32

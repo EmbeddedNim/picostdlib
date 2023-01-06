@@ -19,7 +19,7 @@ type
     ##    \ingroup alarm
     ## ```
 
-  AlarmCallback* {.importc: "alarm_callback_t".} = proc(id: AlarmId, userData: pointer) {.noconv.}
+  AlarmCallback* {.importc: "alarm_callback_t".} = proc(id: AlarmId, userData: pointer) {.cdecl.}
     ## ```
     ##   ! \brief User alarm callback
     ##    \ingroup alarm
@@ -40,7 +40,7 @@ type
     callback*: RepeatingTimerCallback
     user_data*: pointer
 
-  RepeatingTimerCallback* {.importc: "repeating_timer_callback_t".} = proc (rt: ptr RepeatingTimer): bool {.noconv.}
+  RepeatingTimerCallback* {.importc: "repeating_timer_callback_t".} = proc (rt: ptr RepeatingTimer): bool {.cdecl.}
     ## ```
     ##   ! \brief Callback for a repeating timer
     ##    \ingroup repeating_timer

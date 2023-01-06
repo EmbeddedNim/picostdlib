@@ -3,7 +3,7 @@ import ../pico/types
 {.push header: "hardware/timer.h".}
 
 type
-  HardwareAlarmCallback* {.importc: "hardware_alarm_callback_t".} = proc (alarmNum: cuint) {.noconv.}
+  HardwareAlarmCallback* {.importc: "hardware_alarm_callback_t".} = proc (alarmNum: cuint) {.cdecl.}
 
 
 proc timeUs32*(): uint32 {.importc: "time_us_32".}

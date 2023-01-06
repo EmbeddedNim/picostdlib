@@ -41,8 +41,6 @@ when defined(cyw43Netutils):
 import cyw43_ll
 export cyw43_ll
 
-{.push header: "cyw43.h".}
-
 ## * \addtogroup cyw43_driver
 ##
 ## !\{
@@ -56,12 +54,14 @@ export cyw43_ll
 ##
 ## !\{
 
-const
-  CYW43_TRACE_ASYNC_EV* = (0x0001)
-  CYW43_TRACE_ETH_TX* = (0x0002)
-  CYW43_TRACE_ETH_RX* = (0x0004)
-  CYW43_TRACE_ETH_FULL* = (0x0008)
-  CYW43_TRACE_MAC* = (0x0010)
+type
+  Cyw43TraceFlag* {.pure.} = enum
+    ## Trace flags
+    TraceAsyncEv = (0x0001)
+    TraceEthTx = (0x0002)
+    TraceEthRx = (0x0004)
+    TraceEthFull = (0x0008)
+    TraceMac = (0x0010)
 
 ## !\}
 ## !
@@ -73,45 +73,55 @@ const
 ##
 ## !\{
 
-const
-  CYW43_LINK_DOWN* = (0)        ## /< link is down
-  CYW43_LINK_JOIN* = (1)        ## /< Connected to wifi
-  CYW43_LINK_NOIP* = (2)        ## /< Connected to wifi, but no IP address
-  CYW43_LINK_UP* = (3)          ## /< Connect to wifi with an IP address
-  CYW43_LINK_FAIL* = (-1)       ## /< Connection failed
-  CYW43_LINK_NONET* = (-2)      ## /< No matching SSID found (could be out of range, or down)
-  CYW43_LINK_BADAUTH* = (-3)    ## /< Authenticatation failure
-                          ## !\}
+type
+  Cyw43LinkStatus* {.pure, size: sizeof(cint).} = enum
+    LinkBadauth = -3    ## Authenticatation failure
+    LinkNonet = -2      ## No matching SSID found (could be out of range, or down)
+    LinkFail = -1       ## Connection failed
+    LinkDown = 0        ## link is down
+    LinkJoin = 1        ## Connected to wifi
+    LinkNoip = 2        ## Connected to wifi, but no IP address
+    LinkUp = 3          ## Connect to wifi with an IP address
+
+{.push header: "cyw43.h".}
 
 type
   Cyw43T* {.importc: "cyw43_t", bycopy.} = object
     cyw43Ll* {.importc: "cyw43_ll".}: Cyw43LlT
     itfState* {.importc: "itf_state".}: uint8
-    traceFlags* {.importc: "trace_flags".}: uint32 ##  State for async events
+    traceFlags* {.importc: "trace_flags".}: uint32
+
+    #  State for async events
     wifiScanState* {.importc: "wifi_scan_state".}: uint32
     wifiJoinState* {.importc: "wifi_join_state".}: uint32
     wifiScanEnv* {.importc: "wifi_scan_env".}: pointer
     wifiScanCb* {.importc: "wifi_scan_cb".}: Cyw43WifiScanResultCb
-    initted* {.importc: "initted".}: bool ##  Pending things to do
+    initted* {.importc: "initted".}: bool
+
+    #  Pending things to do
     pendDisassoc* {.importc: "pend_disassoc".}: bool
     pendRejoin* {.importc: "pend_rejoin".}: bool
-    pendRejoinWpa* {.importc: "pend_rejoin_wpa".}: bool ##  AP settings
+    pendRejoinWpa* {.importc: "pend_rejoin_wpa".}: bool
+
+    #  AP settings
+    apAuth* {.importc: "ap_auth".}: uint32
     apChannel* {.importc: "ap_channel".}: uint8
-    apAuth* {.importc: "ap_auth".}: uint8
     apSsidLen* {.importc: "ap_ssid_len".}: uint8
     apKeyLen* {.importc: "ap_key_len".}: uint8
     apSsid* {.importc: "ap_ssid".}: array[32, uint8]
     apKey* {.importc: "ap_key".}: array[64, uint8]
     when defined(cyw43Lwip):
-      ##  lwIP data
+      #  lwIP data
       netif* {.importc: "netif".}: array[2, Netif]
       when defined(lwipDhcp):
         dhcpClient* {.importc: "dhcp_client".}: Dhcp
     when defined(cyw43Netutils):
       dhcpServer* {.importc: "dhcp_server".}: DhcpServerT
+
+    # mac from otp (or from cyw43_hal_generate_laa_mac if not set)
     mac* {.importc: "mac".}: array[6, uint8]
   
-  Cyw43WifiScanResultCb* = proc (env: pointer; res: ptr Cyw43EvScanResultT): cint {.noconv.}
+  Cyw43WifiScanResultCb* = proc (env: pointer; res: ptr Cyw43EvScanResultT): cint {.cdecl.}
 
 var cyw43State* {.importc: "cyw43_state".}: Cyw43T
 

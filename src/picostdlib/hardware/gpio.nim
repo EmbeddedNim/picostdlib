@@ -42,7 +42,7 @@ type
 {.push header: "hardware/gpio.h".}
 
 type
-  GpioIrqCallback* {.importc: "gpio_irq_callback_t".} = proc (gpio: Gpio; eventMask: uint32) {.noconv.}
+  GpioIrqCallback* {.importc: "gpio_irq_callback_t".} = proc (gpio: Gpio; eventMask: uint32) {.cdecl.}
 
 proc `==`*(a, b: Value): bool {.borrow.}
 proc `==`*(a, b: Gpio): bool {.borrow.}

@@ -88,7 +88,7 @@ when defined(lwipDns):
   ##  @param callback_arg a user-specified callback argument passed to dns_gethostbyname
   ##
   type
-    DnsFoundCallback* = proc (name: cstring; ipaddr: ptr IpAddrT; callbackArg: pointer) {.noconv.}
+    DnsFoundCallback* = proc (name: cstring; ipaddr: ptr IpAddrT; callbackArg: pointer) {.cdecl.}
   proc dnsInit*() {.importc: "dns_init", header: "lwip/dns.h".}
   proc dnsTmr*() {.importc: "dns_tmr", header: "lwip/dns.h".}
   proc dnsSetserver*(numdns: uint8; dnsserver: ptr IpAddrT) {.importc: "dns_setserver", header: "lwip/dns.h".}

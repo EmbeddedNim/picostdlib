@@ -58,7 +58,7 @@ const
 ##  called at a defined interval
 
 type
-  LwipCyclicTimerHandler* = proc () {.noconv.}
+  LwipCyclicTimerHandler* = proc () {.cdecl.}
 
 ## * This struct contains information about a stack-internal timer function
 ##  that has to be called at a defined interval

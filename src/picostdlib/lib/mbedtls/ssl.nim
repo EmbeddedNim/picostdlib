@@ -7,7 +7,7 @@ import ../../pico/platform
 var pollByte: uint8
 
 # Function to feed mbedtls entropy.
-proc mbedtlsHardwarePoll*(data: pointer; output: ptr UncheckedArray[uint8]; len: csize_t; olen: ptr csize_t): cint {.exportc: "mbedtls_hardware_poll", noconv.} =
+proc mbedtlsHardwarePoll*(data: pointer; output: ptr UncheckedArray[uint8]; len: csize_t; olen: ptr csize_t): cint {.exportc: "mbedtls_hardware_poll", cdecl.} =
   ## Code borrowed from pico_lwip_random_byte(), which is static, so we cannot call it directly
 
   for p in 0..<len:

@@ -84,7 +84,7 @@ when defined(lwipTcp) and defined(lwipCallbackApi):
     ##  @param err an error returned by internal lwip functions, can help to specify
     ##             the source of the error but must not necessarily be != ERR_OK
     ##
-    HttpcResultFn* = proc (arg: pointer; httpcResult: HttpcResultT; rxContentLen: uint32; srvRes: uint32; err: ErrT) {.noconv.}
+    HttpcResultFn* = proc (arg: pointer; httpcResult: HttpcResultT; rxContentLen: uint32; srvRes: uint32; err: ErrT) {.cdecl.}
 
     ## *
     ##  @ingroup httpc
@@ -97,7 +97,7 @@ when defined(lwipTcp) and defined(lwipCallbackApi):
     ##  @param content_len content length as received in the headers (-1 if not received)
     ##  @return if != ERR_OK is returned, the connection is aborted
     ##
-    HttpcHeadersDoneFn* = proc (connection: ptr HttpcStateT; arg: pointer; hdr: ptr Pbuf; hdrLen: uint16; contentLen: uint32): ErrT {.noconv.}
+    HttpcHeadersDoneFn* = proc (connection: ptr HttpcStateT; arg: pointer; hdr: ptr Pbuf; hdrLen: uint16; contentLen: uint32): ErrT {.cdecl.}
 
     HttpcConnectionT* {.importc: "httpc_connection_t", header: "lwip/apps/http_client.h", bycopy.} = object
       proxyAddr* {.importc: "proxy_addr".}: IpAddrT

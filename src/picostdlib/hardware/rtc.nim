@@ -4,7 +4,7 @@ export types
 {.push header: "hardware/rtc.h".}
 
 type
-  RtcCallback* {.importc: "rtc_callback_t".} = proc () {.noconv.}
+  RtcCallback* {.importc: "rtc_callback_t".} = proc () {.cdecl.}
 
 proc rtcInit*() {.importc: "rtc_init".}
   ## ```

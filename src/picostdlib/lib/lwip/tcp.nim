@@ -80,7 +80,7 @@ when defined(lwipTcp):
     TCP_SNDQUEUELEN_OVERFLOW* = (0xffff - 3)
 
   type
-    TcpAcceptFn* = proc (arg: pointer; newpcb: ptr TcpPcb; err: ErrT): ErrT {.noconv.}
+    TcpAcceptFn* = proc (arg: pointer; newpcb: ptr TcpPcb; err: ErrT): ErrT {.cdecl.}
       ##  Function prototype for tcp accept callback functions. Called when a new
       ##  connection can be accepted on a listening pcb.
       ## 
@@ -91,7 +91,7 @@ when defined(lwipTcp):
       ##             callback function!
       ## 
 
-    TcpRecvFn* = proc (arg: pointer; tpcb: ptr TcpPcb; p: ptr Pbuf; err: ErrT): ErrT {.noconv.}
+    TcpRecvFn* = proc (arg: pointer; tpcb: ptr TcpPcb; p: ptr Pbuf; err: ErrT): ErrT {.cdecl.}
       ## * Function prototype for tcp receive callback functions. Called when data has
       ##  been received.
       ##
@@ -103,7 +103,7 @@ when defined(lwipTcp):
       ##             callback function!
       ##
 
-    TcpSentFn* = proc (arg: pointer; tpcb: ptr TcpPcb; len: uint16): ErrT {.noconv.}
+    TcpSentFn* = proc (arg: pointer; tpcb: ptr TcpPcb; len: uint16): ErrT {.cdecl.}
       ## * Function prototype for tcp sent callback functions. Called when sent data has
       ##  been acknowledged by the remote side. Use it to free corresponding resources.
       ##  This also means that the pcb has now space available to send new data.
@@ -116,7 +116,7 @@ when defined(lwipTcp):
       ##             callback function!
       ##
 
-    TcpPollFn* = proc (arg: pointer; tpcb: ptr TcpPcb): ErrT {.noconv.}
+    TcpPollFn* = proc (arg: pointer; tpcb: ptr TcpPcb): ErrT {.cdecl.}
       ## * Function prototype for tcp poll callback functions. Called periodically as
       ##  specified by @see tcp_poll.
       ##
@@ -127,7 +127,7 @@ when defined(lwipTcp):
       ##             callback function!
       ##
 
-    TcpErrFn* = proc (arg: pointer; err: ErrT) {.noconv.}
+    TcpErrFn* = proc (arg: pointer; err: ErrT) {.cdecl.}
       ## * Function prototype for tcp error callback functions. Called when the pcb
       ##  receives a RST or is unexpectedly closed for any other reason.
       ##
@@ -139,7 +139,7 @@ when defined(lwipTcp):
       ##             ERR_RST: the connection was reset by the remote host
       ##
 
-    TcpConnectedFn* = proc (arg: pointer; tpcb: ptr TcpPcb; err: ErrT): ErrT {.noconv.}
+    TcpConnectedFn* = proc (arg: pointer; tpcb: ptr TcpPcb; err: ErrT): ErrT {.cdecl.}
       ## * Function prototype for tcp connected callback functions. Called when a pcb
       ##  is connected to the remote side after initiating a connection attempt by
       ##  calling tcp_connect().
@@ -235,7 +235,7 @@ when defined(lwipTcp):
         acceptsPending* {.importc: "accepts_pending".}: uint8
 
 
-    TcpExtargCallbackPcbDestroyedFn* = proc (id: uint8; data: pointer) {.noconv.}
+    TcpExtargCallbackPcbDestroyedFn* = proc (id: uint8; data: pointer) {.cdecl.}
       ## * Function prototype for deallocation of arguments. Called *just before* the
       ##  pcb is freed, so don't expect to be able to do anything with this pcb!
       ##
@@ -243,7 +243,7 @@ when defined(lwipTcp):
       ##  @param data pointer to the data (set via @ref tcp_ext_arg_set before)
       ##
 
-    TcpExtargCallbackPassiveOpenFn* = proc (id: uint8; lpcb: ptr TcpPcbListen; cpcb: ptr TcpPcb): ErrT {.noconv.}
+    TcpExtargCallbackPassiveOpenFn* = proc (id: uint8; lpcb: ptr TcpPcbListen; cpcb: ptr TcpPcb): ErrT {.cdecl.}
       ## * Function prototype to transition arguments from a listening pcb to an accepted pcb
       ##
       ##  @param id ext arg id (allocated via @ref tcp_ext_arg_alloc_id)

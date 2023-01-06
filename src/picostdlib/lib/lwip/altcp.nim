@@ -47,13 +47,13 @@ when defined(lwipAltcp):
   discard "forward decl of altcp_pcb"
   discard "forward decl of altcp_functions"
   type
-    AltcpAcceptFn* = proc (arg: pointer; newConn: ptr AltcpPcb; err: ErrT): ErrT {.noconv.}
-    AltcpConnectedFn* = proc (arg: pointer; conn: ptr AltcpPcb; err: ErrT): ErrT {.noconv.}
-    AltcpRecvFn* = proc (arg: pointer; conn: ptr AltcpPcb; p: ptr Pbuf; err: ErrT): ErrT {.noconv.}
-    AltcpSentFn* = proc (arg: pointer; conn: ptr AltcpPcb; len: uint16): ErrT {.noconv.}
-    AltcpPollFn* = proc (arg: pointer; conn: ptr AltcpPcb): ErrT {.noconv.}
-    AltcpErrFn* = proc (arg: pointer; err: ErrT) {.noconv.}
-    AltcpNewFn* = proc (arg: pointer; ipType: uint8): ptr AltcpPcb {.noconv.}
+    AltcpAcceptFn* = proc (arg: pointer; newConn: ptr AltcpPcb; err: ErrT): ErrT {.cdecl.}
+    AltcpConnectedFn* = proc (arg: pointer; conn: ptr AltcpPcb; err: ErrT): ErrT {.cdecl.}
+    AltcpRecvFn* = proc (arg: pointer; conn: ptr AltcpPcb; p: ptr Pbuf; err: ErrT): ErrT {.cdecl.}
+    AltcpSentFn* = proc (arg: pointer; conn: ptr AltcpPcb; len: uint16): ErrT {.cdecl.}
+    AltcpPollFn* = proc (arg: pointer; conn: ptr AltcpPcb): ErrT {.cdecl.}
+    AltcpErrFn* = proc (arg: pointer; err: ErrT) {.cdecl.}
+    AltcpNewFn* = proc (arg: pointer; ipType: uint8): ptr AltcpPcb {.cdecl.}
 
     AltcpPcb* {.importc: "struct altcp_pcb", header: "lwip/altcp.h", bycopy.} = object
       fns* {.importc: "fns".}: ptr AltcpFunctions

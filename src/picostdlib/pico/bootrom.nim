@@ -1,24 +1,24 @@
 {.push header: "pico/bootrom.h".}
 
 type
-  rom_popcount32_fn* {.importc.} = proc (a1: uint32): uint32 {.noconv.}
-  rom_reverse32_fn* {.importc.} = proc (a1: uint32): uint32 {.noconv.}
-  rom_clz32_fn* {.importc.} = proc (a1: uint32): uint32 {.noconv.}
-  rom_ctz32_fn* {.importc.} = proc (a1: uint32): uint32 {.noconv.}
-  rom_memset_fn* {.importc.} = proc (a1: ptr uint8; a2: uint8; a3: uint32): ptr uint8 {.noconv.}
-  rom_memset4_fn* {.importc.} = proc (a1: ptr uint32; a2: uint8; a3: uint32): ptr uint32 {.noconv.}
-  rom_memcpy_fn* {.importc.} = proc (a1: ptr uint8; a2: ptr uint8; a3: uint32): ptr uint32 {.noconv.}
-  rom_memcpy44_fn* {.importc.} = proc (a1: ptr uint32; a2: ptr uint32; a3: uint32): ptr uint32 {.noconv.}
-  rom_reset_usb_boot_fn* {.importc.} = proc (a1: uint32; a2: uint32) {.noconv.}
+  rom_popcount32_fn* {.importc.} = proc (a1: uint32): uint32 {.cdecl.}
+  rom_reverse32_fn* {.importc.} = proc (a1: uint32): uint32 {.cdecl.}
+  rom_clz32_fn* {.importc.} = proc (a1: uint32): uint32 {.cdecl.}
+  rom_ctz32_fn* {.importc.} = proc (a1: uint32): uint32 {.cdecl.}
+  rom_memset_fn* {.importc.} = proc (a1: ptr uint8; a2: uint8; a3: uint32): ptr uint8 {.cdecl.}
+  rom_memset4_fn* {.importc.} = proc (a1: ptr uint32; a2: uint8; a3: uint32): ptr uint32 {.cdecl.}
+  rom_memcpy_fn* {.importc.} = proc (a1: ptr uint8; a2: ptr uint8; a3: uint32): ptr uint32 {.cdecl.}
+  rom_memcpy44_fn* {.importc.} = proc (a1: ptr uint32; a2: ptr uint32; a3: uint32): ptr uint32 {.cdecl.}
+  rom_reset_usb_boot_fn* {.importc.} = proc (a1: uint32; a2: uint32) {.cdecl.}
   reset_usb_boot_fn* {.importc.} = rom_reset_usb_boot_fn
     ## kept for backwards compatibility
-  rom_connect_internal_flash_fn* {.importc.} = proc () {.noconv.}
-  rom_flash_exit_xip_fn* {.importc.} = proc () {.noconv.}
-  rom_flash_range_erase_fn* {.importc.} = proc (a1: uint32; a2: cuint; a3: uint32; a4: uint8) {.noconv.}
-  rom_flash_range_program_fn* {.importc.} = proc (a1: uint32; a2: ptr uint8; a3: uint) {.noconv.}
-  rom_flash_flush_cache_fn* {.importc.} = proc () {.noconv.}
-  rom_flash_enter_cmd_xip_fn* {.importc.} = proc () {.noconv.}
-  rom_table_lookup_fn* {.importc.} = proc (table: ptr uint16; code: uint32): pointer {.noconv.}
+  rom_connect_internal_flash_fn* {.importc.} = proc () {.cdecl.}
+  rom_flash_exit_xip_fn* {.importc.} = proc () {.cdecl.}
+  rom_flash_range_erase_fn* {.importc.} = proc (a1: uint32; a2: cuint; a3: uint32; a4: uint8) {.cdecl.}
+  rom_flash_range_program_fn* {.importc.} = proc (a1: uint32; a2: ptr uint8; a3: uint) {.cdecl.}
+  rom_flash_flush_cache_fn* {.importc.} = proc () {.cdecl.}
+  rom_flash_enter_cmd_xip_fn* {.importc.} = proc () {.cdecl.}
+  rom_table_lookup_fn* {.importc.} = proc (table: ptr uint16; code: uint32): pointer {.cdecl.}
 
 let
   RomFuncPopCount32* {.importc: "ROM_FUNC_POPCOUNT32".}: uint32

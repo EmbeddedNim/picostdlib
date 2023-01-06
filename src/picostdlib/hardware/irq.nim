@@ -8,7 +8,7 @@ const
 {.push header: "hardware/irq.h".}
 
 type
-  IrqHandler* {.importc: "irq_handler_t".} = proc () {.noconv.}
+  IrqHandler* {.importc: "irq_handler_t".} = proc () {.cdecl.}
 
 proc irqSetPriority*(num: InterruptNumber; hardwarePriority: uint8) {.importc: "irq_set_priority".}
   ## ```

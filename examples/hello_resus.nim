@@ -2,7 +2,7 @@ import picostdlib
 import picostdlib/[pll, clock, gpio]
 var seenResus = false
 # Uses the LedPin to indicate life since I cannot see the response on the usb connection.
-proc resusCallback {.noConv.} =
+proc resusCallback {.cdecl.} =
   PllSys.init(1, 1500 * Mhz, 6, 2)
   discard clockConfigure(ClockIndex.sys, CtrlSrcValueClksrcClkSysAux, CtrlAuxsrcValueClksrcPllSys,
       125u32 * Mhz, 125u32 * Mhz)

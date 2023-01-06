@@ -7,7 +7,7 @@ import picostdlib/[
   pico/cyw43_arch
 ]
 
-proc scanResult(env: pointer; res: ptr Cyw43EvScanResultT): cint {.noconv.} =
+proc scanResult(env: pointer; res: ptr Cyw43EvScanResultT): cint {.cdecl.} =
   if not res.isNil:
     let ssid = cast[cstring](res.ssid[0].addr)
     echo(

@@ -1,7 +1,7 @@
 {.push header: "pico/multicore.h".}
 
 type
-  MulticoreThreadFunc* = proc() {.noconv.}
+  MulticoreThreadFunc* = proc() {.cdecl.}
 
 proc multicoreResetCore1*() {.importc: "multicore_reset_core1".}
   ## ```

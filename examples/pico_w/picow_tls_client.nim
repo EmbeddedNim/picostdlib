@@ -29,7 +29,7 @@ type
 
 var tlsConfig: ptr AltcpTlsConfig = nil
 
-proc tlsClientClose(arg: pointer): ErrT {.noconv.} =
+proc tlsClientClose(arg: pointer): ErrT {.cdecl.} =
   let state = cast[ptr TlsClient](arg)
   result = ERR_OK.ErrT
 
@@ -47,7 +47,7 @@ proc tlsClientClose(arg: pointer): ErrT {.noconv.} =
 
     state.pcb = nil
 
-proc tlsClientConnected(arg: pointer; pcb: ptr AltcpPcb; err: ErrT): ErrT {.noconv.} =
+proc tlsClientConnected(arg: pointer; pcb: ptr AltcpPcb; err: ErrT): ErrT {.cdecl.} =
   let state = cast[ptr TlsClient](arg)
   if err != ERR_OK.ErrT:
     echo "connect failed ", $err.ErrEnumT
@@ -61,16 +61,16 @@ proc tlsClientConnected(arg: pointer; pcb: ptr AltcpPcb; err: ErrT): ErrT {.noco
 
   return ERR_OK.ErrT
 
-proc tlsClientPoll(arg: pointer; pcb: ptr AltcpPcb): ErrT {.noconv.} =
+proc tlsClientPoll(arg: pointer; pcb: ptr AltcpPcb): ErrT {.cdecl.} =
   echo "timed out"
   return tlsClientClose(arg)
 
-proc tlsClientErr(arg: pointer; err: ErrT) {.noconv.} =
+proc tlsClientErr(arg: pointer; err: ErrT) {.cdecl.} =
   let state = cast[ptr TlsClient](arg)
   echo "tlsClientErr ", $err.ErrEnumT
   state.pcb = nil
 
-proc tlsClientRecv(arg: pointer; pcb: ptr AltcpPcb; p: ptr Pbuf; err: ErrT): ErrT {.noconv.} =
+proc tlsClientRecv(arg: pointer; pcb: ptr AltcpPcb; p: ptr Pbuf; err: ErrT): ErrT {.cdecl.} =
   let state = cast[ptr TlsClient](arg)
   if p.isNil:
     echo "connection closed"
@@ -86,7 +86,7 @@ proc tlsClientRecv(arg: pointer; pcb: ptr AltcpPcb; p: ptr Pbuf; err: ErrT): Err
 
   return ERR_OK.ErrT
 
-proc tlsClientConnectToServerIp(ipaddr: ptr IpAddrT; state: ptr TlsClient) {.noconv.} =
+proc tlsClientConnectToServerIp(ipaddr: ptr IpAddrT; state: ptr TlsClient) {.cdecl.} =
   let port: uint16 = 443
 
   echo "connecting to server IP ", $ipaddr, " port ", port
@@ -96,7 +96,7 @@ proc tlsClientConnectToServerIp(ipaddr: ptr IpAddrT; state: ptr TlsClient) {.noc
     echo "error initiating connect, err=", $err.ErrEnumT
     discard tlsClientClose(state)
 
-proc tlsClientDnsFound(hostname: cstring; ipaddr: ptr IpAddrT; arg: pointer) {.noconv.} =
+proc tlsClientDnsFound(hostname: cstring; ipaddr: ptr IpAddrT; arg: pointer) {.cdecl.} =
   if not ipaddr.isNil:
     echo "DNS resolving complete"
     tlsClientConnectToServerIp(ipaddr, cast[ptr TlsClient](arg))
@@ -153,7 +153,7 @@ proc tlsClientExample*() =
   static:
     assert(WIFI_SSID != "", "Need to define WIFI_SSID with a value")
 
-  let err = cyw43ArchWifiConnectTimeoutMs(WIFI_SSID, WIFI_PASSWORD, Cyw43ArchAuthWpa2AesPsk, 30000)
+  let err = cyw43ArchWifiConnectTimeoutMs(WIFI_SSID, WIFI_PASSWORD, AuthWpa2AesPsk, 30000)
   if err != ErrorNone:
     echo "Failed to connect! Error: ", $err
   else:

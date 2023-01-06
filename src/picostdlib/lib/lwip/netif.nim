@@ -194,7 +194,7 @@ type
   ##
   ##  @param netif The netif to initialize
   ##
-  NetifInitFn* = proc (netif: ptr Netif): ErrT {.noconv.}
+  NetifInitFn* = proc (netif: ptr Netif): ErrT {.cdecl.}
 
   ## * Function prototype for netif->output functions. Called by lwIP when a packet
   ##  shall be sent. For ethernet netif, set this to 'etharp_output' and set
@@ -204,7 +204,7 @@ type
   ##  @param p The packet to send (p->payload points to IP header)
   ##  @param ipaddr The IP address to which the packet shall be sent
   ##
-  NetifOutputFn* = proc (netif: ptr Netif; p: ptr Pbuf; ipaddr: ptr Ip4AddrT): ErrT {.noconv.}
+  NetifOutputFn* = proc (netif: ptr Netif; p: ptr Pbuf; ipaddr: ptr Ip4AddrT): ErrT {.cdecl.}
 
   ## * Function prototype for netif->input functions. This function is saved as 'input'
   ##  callback function in the netif struct. Call it when a packet has been received.
@@ -216,7 +216,7 @@ type
   ##                    to free the pbuf
   ##
 
-  NetifInputFn* = proc (p: ptr Pbuf; inp: ptr Netif): ErrT {.noconv.}
+  NetifInputFn* = proc (p: ptr Pbuf; inp: ptr Netif): ErrT {.cdecl.}
     
   ## * Function prototype for netif->output_ip6 functions. Called by lwIP when a packet
   ##  shall be sent. For ethernet netif, set this to 'ethip6_output' and set
@@ -226,7 +226,7 @@ type
   ##  @param p The packet to send (p->payload points to IP header)
   ##  @param ipaddr The IPv6 address to which the packet shall be sent
   ##
-  NetifOutputIp6Fn* = proc (netif: ptr Netif; p: ptr Pbuf; ipaddr: ptr Ip6AddrT): ErrT {.noconv.}
+  NetifOutputIp6Fn* = proc (netif: ptr Netif; p: ptr Pbuf; ipaddr: ptr Ip6AddrT): ErrT {.cdecl.}
 
   ## * Function prototype for netif->linkoutput functions. Only used for ethernet
   ##  netifs. This function is called by ARP when a packet shall be sent.
@@ -234,7 +234,7 @@ type
   ##  @param netif The netif which shall send a packet
   ##  @param p The packet to send (raw ethernet packet)
   ##
-  NetifLinkoutputFn* = proc (netif: ptr Netif; p: ptr Pbuf): ErrT {.noconv.}
+  NetifLinkoutputFn* = proc (netif: ptr Netif; p: ptr Pbuf): ErrT {.cdecl.}
 
   Netif* {.importc: "struct netif", header: "lwip/netif.h", bycopy.} = object
     ##  Generic data structure used for all lwIP network interfaces.
@@ -361,16 +361,16 @@ type
         reschedulePoll* {.importc: "reschedule_poll".}: uint8
 
 
-  NetifStatusCallbackFn* = proc (netif: ptr Netif) {.noconv.}
+  NetifStatusCallbackFn* = proc (netif: ptr Netif) {.cdecl.}
     ## * Function prototype for netif status- or link-callback functions.
 
   ##when defined(lwipIpv4) and defined(lwipIgmp):
   ## * Function prototype for netif igmp_mac_filter functions
-  NetifIgmpMacFilterFn* = proc (netif: ptr Netif; group: ptr Ip4AddrT; action: NetifMacFilterAction): ErrT {.noconv.}
+  NetifIgmpMacFilterFn* = proc (netif: ptr Netif; group: ptr Ip4AddrT; action: NetifMacFilterAction): ErrT {.cdecl.}
 
   ##when defined(lwipIpv6) and defined(lwipIpv6Mld):
   ## * Function prototype for netif mld_mac_filter functions
-  NetifMldMacFilterFn* = proc (netif: ptr Netif; group: ptr Ip6AddrT; action: NetifMacFilterAction): ErrT {.noconv.}
+  NetifMldMacFilterFn* = proc (netif: ptr Netif; group: ptr Ip6AddrT; action: NetifMacFilterAction): ErrT {.cdecl.}
 
 
 when defined(lwip_Checksum_Ctrl_Per_Netif):
