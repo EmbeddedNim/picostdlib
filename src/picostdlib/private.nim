@@ -13,7 +13,6 @@ const CLANG_INCLUDE_PATH* = static:
   if sysPaths.len > 0:
     sysPaths[0]
   else:
-    echo "clang include path not found"
     ""
 
 when CLANG_INCLUDE_PATH == "":
