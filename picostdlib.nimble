@@ -25,7 +25,7 @@ before test:
   exec("cmake -DPICO_SDK_FETCH_FROM_GIT=on -DOUTPUT_NAME=ttest -S tests -B build/tests")
 
 task test, "Runs the test suite":
-  exec "nimble c tests/ttest --verbose"
+  exec "nimble c tests/ttest"
   exec "cp build/nimcache/ttest.json build/nimcache/ttest.cached.json"
 
 after test:

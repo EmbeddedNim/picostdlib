@@ -54,23 +54,14 @@ if(EXISTS ${NIMCACHE_JSON_FILE})
         list(APPEND NimSources ${CUR_FILE})
     endforeach()
   endif()
-else()
-  # Nim project hasn't been built yet, so we need some source file... nimbase will do!
-  # It won't actually get compiled, it's just during initial configure step
-  set(NimSources ${NIM_INCLUDE_PATH}/nimbase.h)
+  # Suppress gcc warnings for nim-generated files
+  set_source_files_properties(${NimSources} PROPERTIES COMPILE_OPTIONS "-w")
 endif()
 
-# Suppress gcc warnings for nim-generated files
-set_source_files_properties(${NimSources} PROPERTIES COMPILE_OPTIONS "-w")
 
 add_executable(${OUTPUT_NAME} ${NimSources})
 
-set_target_properties(${OUTPUT_NAME} PROPERTIES LINKER_LANGUAGE CXX)
-
-if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/imports.cmake)
-  include(imports.cmake) # Include our generated file
-  link_imported_libs(${OUTPUT_NAME}) # call our generated function to import all libs we're using
-endif()
+# set_target_properties(${OUTPUT_NAME} PROPERTIES LINKER_LANGUAGE CXX)
 
 # Add directory containing this CMakeLists file to include search path.
 # This is required so that the lwipopts.h file is found. Other headers
@@ -79,6 +70,14 @@ target_include_directories(${OUTPUT_NAME} PUBLIC
   ${CMAKE_CURRENT_LIST_DIR}
   ${NIM_INCLUDE_PATH}
 )
+
+if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/imports.cmake)
+  include(imports.cmake) # Include our generated file
+  link_imported_libs(${OUTPUT_NAME}) # call our generated function to import all libs we're using
+else()
+  # fallback to something
+  target_link_libraries(${OUTPUT_NAME} pico_stdlib)
+endif()
 
 # Additional libraries
 target_link_libraries(${OUTPUT_NAME}
