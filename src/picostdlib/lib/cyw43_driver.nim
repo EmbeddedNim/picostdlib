@@ -223,7 +223,10 @@ proc cyw43WifiApSetPassword*(self: ptr Cyw43T; len: csize_t; buf: ptr uint8) {.i
   self.ap_key_len = min(len, self.ap_key.len.csize_t).uint8
   copyMem(self.ap_key[0].addr, buf, self.ap_key_len)
 
-proc cyw43WifiApSetAuth*(self: ptr Cyw43T; auth: uint32) {.inline.} =
+# TODO: When pico-sdk updates, remove the uint8 here
+# Current stable pico-sdk uses a version of cyw43_driver that has it set to uint8
+# For now, make it compile with both
+proc cyw43WifiApSetAuth*(self: ptr Cyw43T; auth: uint32|uint8) {.inline.} =
   self.ap_auth = auth
 
 proc cyw43IsInitialized*(self: ptr Cyw43T): bool {.inline.} = self.initted
