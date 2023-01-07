@@ -2,3 +2,4 @@ nimcache/
 nimblecache/
 htmldocs/
 picostdlib/build_utils/piconim
+build/

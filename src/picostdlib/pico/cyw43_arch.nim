@@ -1,12 +1,9 @@
 
+import ../lib/cyw43_driver
+export cyw43_driver
 
-# import ../lib/cyw43_driver
-# export cyw43_driver
-
-import ../lib/cyw43_driver/[
-  cyw43, cyw43_country
-]
-export cyw43, cyw43_country
+#import ../lib/cyw43_driver/[cyw43, cyw43_country]
+#export cyw43, cyw43_country
 
 import error
 export error

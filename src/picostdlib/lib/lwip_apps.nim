@@ -3,13 +3,13 @@ import ../private
 import futhark
 
 import ./lwip
-export lwip except Pbufraw
+export lwip
 
 
 importc:
-  sysPath CLANG_INCLUDE_PATH
-  path PICO_SDK_PATH / "src/rp2_common/pico_lwip/include"
-  path PICO_SDK_PATH / "lib/lwip/src/include"
+  sysPath clangIncludePath
+  path picoSdkPath / "src/rp2_common/pico_lwip/include"
+  path picoSdkPath / "lib/lwip/src/include"
   path getProjectPath()
 
   renameCallback futharkRenameCallback
@@ -27,4 +27,3 @@ importc:
   "lwip/apps/sntp.h"
   "lwip/apps/tftp_client.h"
   "lwip/apps/tftp_server.h"
-

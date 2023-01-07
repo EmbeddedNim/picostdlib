@@ -21,17 +21,24 @@ set(PICO_CXX_ENABLE_EXCEPTIONS 1)
 # note: this must happen before project()
 include(pico_sdk_import.cmake)
 
-project(${OUTPUT_NAME})
-
 # Set standards
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
 
+project(${OUTPUT_NAME})
+
 # initialize the Raspberry Pi Pico SDK
 pico_sdk_init()
 
-set(NIMCACHE_DIR "${CMAKE_SOURCE_DIR}/../build/nimcache")
+set(NIMCACHE_DIR "${CMAKE_CURRENT_BINARY_DIR}/../nimcache")
 set(NIMCACHE_JSON_FILE "${NIMCACHE_DIR}/${OUTPUT_NAME}.cached.json")
+
+# Get the Nim include path to get nimbase.h
+execute_process(
+  COMMAND nim "--verbosity:0" "--eval:import std/os; echo getCurrentCompilerExe().parentDir.parentDir / \"lib\""
+  OUTPUT_VARIABLE NIM_INCLUDE_PATH
+  OUTPUT_STRIP_TRAILING_WHITESPACE
+)
 
 set_directory_properties(PROPERTIES CMAKE_CONFIGURE_DEPENDS ${NIMCACHE_JSON_FILE})
 
@@ -47,16 +54,7 @@ if(EXISTS ${NIMCACHE_JSON_FILE})
         list(APPEND NimSources ${CUR_FILE})
     endforeach()
   endif()
-endif()
-
-# Get the Nim include path to get nimbase.h
-execute_process(
-  COMMAND nim "--verbosity:0" "--eval:import std/os; echo getCurrentCompilerExe().parentDir.parentDir / \"lib\""
-  OUTPUT_VARIABLE NIM_INCLUDE_PATH
-  OUTPUT_STRIP_TRAILING_WHITESPACE
-)
-
-if(NOT NimSources)
+else()
   # Nim project hasn't been built yet, so we need some source file... nimbase will do!
   # It won't actually get compiled, it's just during initial configure step
   set(NimSources ${NIM_INCLUDE_PATH}/nimbase.h)
@@ -67,21 +65,32 @@ set_source_files_properties(${NimSources} PROPERTIES COMPILE_OPTIONS "-w")
 
 add_executable(${OUTPUT_NAME} ${NimSources})
 
-# Add directory containing this CMakeLists file to include search path.
-# This is required so that the lwipopts.h file is found. Other headers
-# required for a project can also be placed here.
-target_include_directories(${OUTPUT_NAME} PUBLIC ${CMAKE_CURRENT_LIST_DIR} ${NIM_INCLUDE_PATH})
+set_target_properties(${OUTPUT_NAME} PROPERTIES LINKER_LANGUAGE CXX)
 
 if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/imports.cmake)
   include(imports.cmake) # Include our generated file
   link_imported_libs(${OUTPUT_NAME}) # call our generated function to import all libs we're using
 endif()
 
-# Add additional libraries, such as the wifi package. It's not automatically loaded
-# target_link_libraries(${OUTPUT_NAME} pico_cyw43_arch_lwip_threadsafe_background)
+# Add directory containing this CMakeLists file to include search path.
+# This is required so that the lwipopts.h file is found. Other headers
+# required for a project can also be placed here.
+target_include_directories(${OUTPUT_NAME} PUBLIC
+  ${CMAKE_CURRENT_LIST_DIR}
+  ${NIM_INCLUDE_PATH}
+)
+
+# Additional libraries
+target_link_libraries(${OUTPUT_NAME}
+  # pico_cyw43_arch_lwip_threadsafe_background
+)
+
+target_compile_definitions(${OUTPUT_NAME} PRIVATE
+  # CYW43_HOST_NAME="PicoW"
+  PICO_STDIO_USB_CONNECT_WAIT_TIMEOUT_MS=2000
+)
 
 # enable usb output, disable uart output
-add_compile_definitions(PICO_STDIO_USB_CONNECT_WAIT_TIMEOUT_MS=2000)
 pico_enable_stdio_usb(${OUTPUT_NAME} 1)
 pico_enable_stdio_uart(${OUTPUT_NAME} 0)
 

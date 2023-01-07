@@ -1,6 +1,35 @@
+##
+##  Copyright (C) 2019-2022 George Robotics Pty Ltd
+##
+##  Redistribution and use in source and binary forms, with or without
+##  modification, are permitted provided that the following conditions are met:
+##
+##  1. Redistributions of source code must retain the above copyright notice,
+##     this list of conditions and the following disclaimer.
+##  2. Redistributions in binary form must reproduce the above copyright notice,
+##     this list of conditions and the following disclaimer in the documentation
+##     and/or other materials provided with the distribution.
+##  3. Any redistribution, use, or modification in source or binary form is done
+##     solely for personal benefit and not for any commercial purpose or for
+##     monetary gain.
+##
+##  THIS SOFTWARE IS PROVIDED BY THE LICENSOR AND COPYRIGHT OWNER "AS IS" AND ANY
+##  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+##  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+##  DISCLAIMED. IN NO EVENT SHALL THE LICENSOR OR COPYRIGHT OWNER BE LIABLE FOR
+##  ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+##  DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+##  SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+##  CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+##  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+##  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+##
+##  This software is also available for use with certain devices under different
+##  terms, as set out in the top level LICENSE file.  For commercial licensing
+##  options please email contact@georgerobotics.com.au.
+##
 
 import std/os, std/macros
-
 import ../private
 
 import futhark
@@ -12,138 +41,7 @@ import ./cyw43_driver/cyw43_country
 export cyw43_country
 
 type
-  Cyw43TraceFlag* {.pure.} = enum
-    ## Trace flags
-    TraceAsyncEv = (0x0001)
-    TraceEthTx = (0x0002)
-    TraceEthRx = (0x0004)
-    TraceEthFull = (0x0008)
-    TraceMac = (0x0010)
-
-  Cyw43LinkStatus* {.pure, size: sizeof(cint).} = enum
-    LinkBadauth = -3    ## Authenticatation failure
-    LinkNonet = -2      ## No matching SSID found (could be out of range, or down)
-    LinkFail = -1       ## Connection failed
-    LinkDown = 0        ## link is down
-    LinkJoin = 1        ## Connected to wifi
-    LinkNoip = 2        ## Connected to wifi, but no IP address
-    LinkUp = 3          ## Connect to wifi with an IP address
-
-type
-  Cyw43Ioctl* {.pure.} = enum
-    ##  IOCTL commands
-    GetSsid = (0x32)
-    GetChannel = (0x3a)
-    SetDisassoc = (0x69)
-    GetAntdiv = (0x7e)
-    SetAntdiv = (0x81)
-    SetMonitor = (0xd9)
-    GetVar = (0x20c)
-    SetVar = (0x20f)
-
-  Cyw43EventType* {.pure.} = enum
-    ##  Async events, event_type field
-    TypeSetSsid = (0)
-    TypeJoin = (1)
-    TypeAuth = (3)
-    TypeDeauth = (5)
-    TypeDeauthInd = (6)
-    TypeAssoc = (7)
-    TypeDisassoc = (11)
-    TypeDisassocInd = (12)
-    TypeLink = (16)
-    TypePrune = (23)
-    TypePskSup = (46)
-    TypeEscanResult = (69)
-    TypeCsaCompleteInd = (80)
-    TypeAssocReqIe = (87)
-    TypeAssonRespIe = (88)
-
-  Cyw43EventStatus* {.pure.} = enum
-    ##  Event status values
-    StatusSuccess = (0)
-    StatusFail = (1)
-    StatusTimeout = (2)
-    StatusNoNetworks = (3)
-    StatusAbort = (4)
-    StatusNoAck = (5)
-    StatusUnsolicited = (6)
-    StatusAttempt = (7)
-    StatusPartial = (8)
-    StatusNewscan = (9)
-    StatusNewassoc = (10)
-
-  Cyw43AuthReason* {.pure.} = enum
-    ##  Values for AP auth setting
-    AuthReasonInitialAssoc = (0) ##  initial assoc
-    AuthReasonLowRssi = (1)  ##  roamed due to low RSSI
-    AuthReasonDeauth = (2)    ##  roamed due to DEAUTH indication
-    AuthReasonDisassoc = (3)  ##  roamed due to DISASSOC indication
-    AuthReasonBcnsLost = (4) ##  roamed due to lost beacons
-    AuthReasonFastRoamFailed = (5) ##  roamed due to fast roam failure
-    AuthReasonDirectedRoam = (6) ##  roamed due to request by AP
-    AuthReasonTspecRejected = (7) ##  roamed due to TSPEC rejection
-    AuthReasonBetterAp = (8) ##  roamed due to finding better AP
-
-  Cyw43PruneReason* {.pure.} = enum
-    ##  prune reason codes
-    PruneReasonEncrMismatch = (1) ##  encryption mismatch
-    PruneReasonBcastBssid = (2) ##  AP uses a broadcast BSSID
-    PruneReasonMacDeny = (3) ##  STA's MAC addr is in AP's MAC deny list
-    PruneReasonMacNa = (4) ##  STA's MAC addr is not in AP's MAC allow list
-    PruneReasonRegPassv = (5) ##  AP not allowed due to regulatory restriction
-    PruneReasonSpctMgmt = (6) ##  AP does not support STA locale spectrum mgmt
-    PruneReasonRadar = (7) ##  AP is on a radar channel of STA locale
-    PruneReasonRsnMismatch = (8) ##  STA does not support AP's RSN
-    PruneReasonNoCommonRates = (9) ##  No rates in common with AP
-    PruneReasonBasicRates = (10) ##  STA does not support all basic rates of BSS
-    PruneReasonCcxfastPrevap = (11) ##  CCX FAST ROAM: prune previous AP
-    PruneReasonCipherNa = (12) ##  BSS's cipher not supported
-    PruneReasonKnownSta = (13) ##  AP is already known to us as a STA
-    PruneReasonCcxfastDroam = (14) ##  CCX FAST ROAM: prune unqualified AP
-    PruneReasonWdsPeer = (15) ##  AP is already known to us as a WDS peer
-    PruneReasonQbssLoad = (16) ##  QBSS LOAD - AAC is too low
-    PruneReasonHomeAp = (17) ##  prune home AP
-    PruneReasonApBlocked = (18) ##  prune blocked AP
-    PruneReasonNoDiagSupport = (19) ##  prune due to diagnostic mode not supported
-
-  Cyw43ReasonSup* {.pure.} = enum
-    ##  WPA failure reason codes carried in the WLC_E_PSK_SUP event
-    ReasonSupOther = (0) ##  Other reason
-    ReasonSupDecryptKeyData = (1) ##  Decryption of key data failed
-    ReasonSupBadUcastWep128 = (2) ##  Illegal use of ucast WEP128
-    ReasonSupBadUcastWep40 = (3) ##  Illegal use of ucast WEP40
-    ReasonSupUnsupKeyLen = (4) ##  Unsupported key length
-    ReasonSupPwKeyCipher = (5) ##  Unicast cipher mismatch in pairwise key
-    ReasonSupMsg3TooManyIe = (6) ##  WPA IE contains > 1 RSN IE in key msg 3
-    ReasonSupMsg3IeMismatch = (7) ##  WPA IE mismatch in key message 3
-    ReasonSupNoInstallFlag = (8) ##  INSTALL flag unset in 4-way msg
-    ReasonSupMsg3NoGtk = (9) ##  encapsulated GTK missing from msg 3
-    ReasonSupGrpKeyCipher = (10) ##  Multicast cipher mismatch in group key
-    ReasonSupGrpMsg1NoGtk = (11) ##  encapsulated GTK missing from group msg 1
-    ReasonSupGtkDecryptFail = (12) ##  GTK decrypt failure
-    ReasonSupSendFail = (13) ##  message send failure
-    ReasonSupDeauth = (14) ##  received FC_DEAUTH
-    ReasonSupWpaPskTmo = (15) ##  WPA PSK 4-way handshake timeout
-
-  Cyw43Auth* {.pure.} = enum
-    ##  Values used for STA and AP auth settings
-    WpaAuthPsk = (0x0004)
-    Wpa2AuthPsk = (0x0080)
-
-  Cyw43AuthType* {.pure, size: sizeof(uint32).} = enum
-    ## Authorization types
-    ## Used when setting up an access point, or connecting to an access point
-    AuthOpen = (0)                   ## No authorisation required (open)
-    AuthWpaTkipPsk = (0x00200002)    ## WPA authorisation
-    AuthWpa2AesPsk = (0x00400004)    ## WPA2 authorisation (preferred)
-    AuthWpa2MixedPsk = (0x00400006)  ## WPA2/WPA mixed authorisation
-
-  Cyw43Itf* {.pure.} = enum
-    ## Network interface types
-    ItfSta = 0          ## Client interface STA mode
-    ItfAp = 1           ## Access point (AP) interface mode
-
+  # Declared before futhark importc to be able to use it as its own type
   Cyw43PowersaveMode* = distinct uint32
     ## Power save mode paramter passed to cyw43_ll_wifi_pm
 
@@ -152,43 +50,159 @@ const
   Cyw43Pm1PowersaveMode* = (1).Cyw43PowersaveMode ##  Powersave mode on specified interface without regard for throughput reduction
   Cyw43Pm2PowersaveMode* = (2).Cyw43PowersaveMode ##  Powersave mode on specified interface with High throughput
 
-const
-  ##  Values used for STA and AP auth settings
-  Cyw43SupDisconnected* = (0) ##  Disconnected
-  Cyw43SupConnecting* = (1)   ##  Connecting
-  Cyw43SupIdRequired* = (2)   ##  ID Required
-  Cyw43SupAuthenticating* = (3) ##  Authenticating
-  Cyw43SupAuthenticated* = (4) ##  Authenticated
-  Cyw43SupKeyxchange* = (5)   ##  Key Exchange
-  Cyw43SupKeyed* = (6)        ##  Key Exchanged
-  Cyw43SupTimeout* = (7)      ##  Timeout
-  Cyw43SupLastBasicState* = (8) ##  Last Basic State
-  Cyw43SupKeyxchangeWaitM1* = Cyw43SupAuthenticated
-  Cyw43SupKeyxchangePrepM2* = Cyw43SupKeyxchange
-  Cyw43SupKeyxchangeWaitM3* = Cyw43SupLastBasicState
-  Cyw43SupKeyxchangePrepM4* = (9) ##  Preparing to send handshake msg M4
-  Cyw43SupKeyxchangeWaitG1* = (10) ##  Waiting to receive handshake msg G1
-  Cyw43SupKeyxchangePrepG2* = (11) ##  Preparing to send handshake msg G2
-
 
 importc:
-  sysPath CLANG_INCLUDE_PATH
-  sysPath CMAKE_BINARY_DIR / "generated/pico_base"
-  sysPath PICO_SDK_PATH / "src/common/pico_base/include"
-  sysPath PICO_SDK_PATH / "src/rp2040/hardware_regs/include"
-  sysPath PICO_SDK_PATH / "src/rp2_common/pico_platform/include"
-  sysPath PICO_SDK_PATH / "src/rp2_common/pico_lwip/include"
-  sysPath PICO_SDK_PATH / "src/rp2_common/pico_cyw43_arch/include"
-  sysPath PICO_SDK_PATH / "lib/lwip/src/include"
-  path PICO_SDK_PATH / "lib/cyw43-driver/src"
+  sysPath clangIncludePath
+  sysPath cmakeBinaryDir / "generated/pico_base"
+  sysPath picoSdkPath / "src/common/pico_base/include"
+  sysPath picoSdkPath / "src/rp2040/hardware_regs/include"
+  sysPath picoSdkPath / "src/rp2_common/pico_platform/include"
+  sysPath picoSdkPath / "src/rp2_common/pico_lwip/include"
+  sysPath picoSdkPath / "src/rp2_common/pico_cyw43_arch/include"
+  sysPath picoSdkPath / "lib/lwip/src/include"
+  path picoSdkPath / "lib/cyw43-driver/src"
   path getProjectPath()
 
-  define PICO_CYW43_ARCH_THREADSAFE_BACKGROUND
   # TODO: Make this configurable
+  define PICO_CYW43_ARCH_THREADSAFE_BACKGROUND
 
   renameCallback futharkRenameCallback
 
   "cyw43.h"
+
+
+type
+  Cyw43TraceFlag* {.pure.} = enum
+    ## Trace flags
+    TraceAsyncEv = Cyw43TraceAsyncEv
+    TraceEthTx = Cyw43TraceEthTx
+    TraceEthRx = Cyw43TraceEthRx
+    TraceEthFull = Cyw43TraceEthFull
+    TraceMac = Cyw43TraceMac
+
+  Cyw43LinkStatus* {.pure.} = enum
+    LinkBadauth = Cyw43LinkBadauth  ## Authenticatation failure
+    LinkNonet = Cyw43LinkNonet      ## No matching SSID found (could be out of range, or down)
+    LinkFail = Cyw43LinkFail        ## Connection failed
+    LinkDown = Cyw43LinkDown        ## link is down
+    LinkJoin = Cyw43LinkJoin        ## Connected to wifi
+    LinkNoip = Cyw43LinkNoip        ## Connected to wifi, but no IP address
+    LinkUp = Cyw43LinkUp            ## Connect to wifi with an IP address
+
+  Cyw43Ioctl* {.pure.} = enum
+    ##  IOCTL commands
+    GetSsid = Cyw43IoctlGetSsid
+    GetChannel = Cyw43IoctlGetChannel
+    SetDisassoc = Cyw43IoctlSetDisassoc
+    GetAntdiv = Cyw43IoctlGetAntdiv
+    SetAntdiv = Cyw43IoctlSetAntdiv
+    SetMonitor = Cyw43IoctlSetMonitor
+    GetVar = Cyw43IoctlGetVar
+    SetVar = Cyw43IoctlSetVar
+
+  Cyw43EventType* {.pure.} = enum
+    ##  Async events, event_type field
+    EvSetSsid = Cyw43evsetssid
+    EvJoin = Cyw43evjoin
+    EvAuth = Cyw43evauth
+    EvDeauth = Cyw43EvDeauth
+    EvDeauthInd = Cyw43EvDeauthInd
+    EvAssoc = Cyw43EvAssoc
+    EvDisassoc = Cyw43EvDisassoc
+    EvDisassocInd = Cyw43EvDisassocInd
+    EvLink = Cyw43EvLink
+    EvPrune = Cyw43EvPrune
+    EvPskSup = Cyw43EvPskSup
+    EvEscanResult = Cyw43EvEscanResult
+    EvCsaCompleteInd = Cyw43EvCsaCompleteInd
+    EvAssocReqIe = Cyw43EvAssocReqIe
+    EvAssocRespIe = Cyw43EvAssocRespIe
+
+  Cyw43EventStatus* {.pure.} = enum
+    ##  Event status values
+    StatusSuccess = Cyw43StatusSuccess
+    StatusFail = Cyw43StatusFail
+    StatusTimeout = Cyw43StatusTimeout
+    StatusNoNetworks = Cyw43StatusNoNetworks
+    StatusAbort = Cyw43StatusAbort
+    StatusNoAck = Cyw43StatusNoAck
+    StatusUnsolicited = Cyw43StatusUnsolicited
+    StatusAttempt = Cyw43StatusAttempt
+    StatusPartial = Cyw43StatusPartial
+    StatusNewscan = Cyw43StatusNewscan
+    StatusNewassoc = Cyw43StatusNewassoc
+
+  Cyw43AuthReason* {.pure.} = enum
+    ##  Values for AP auth setting
+    AuthReasonInitialAssoc = Cyw43ReasonInitialAssoc ##  initial assoc
+    AuthReasonLowRssi = Cyw43ReasonLowRssi  ##  roamed due to low RSSI
+    AuthReasonDeauth = Cyw43ReasonDeauth    ##  roamed due to DEAUTH indication
+    AuthReasonDisassoc = Cyw43ReasonDisassoc  ##  roamed due to DISASSOC indication
+    AuthReasonBcnsLost = Cyw43ReasonBcnsLost ##  roamed due to lost beacons
+    AuthReasonFastRoamFailed = Cyw43ReasonFastRoamFailed ##  roamed due to fast roam failure
+    AuthReasonDirectedRoam = Cyw43ReasonDirectedRoam ##  roamed due to request by AP
+    AuthReasonTspecRejected = Cyw43ReasonTspecRejected ##  roamed due to TSPEC rejection
+    AuthReasonBetterAp = Cyw43ReasonBetterAp ##  roamed due to finding better AP
+
+  Cyw43PruneReason* {.pure.} = enum
+    ##  prune reason codes
+    PruneReasonEncrMismatch = Cyw43ReasonPruneEncrMismatch ##  encryption mismatch
+    PruneReasonBcastBssid = Cyw43ReasonPruneBcastBssid ##  AP uses a broadcast BSSID
+    PruneReasonMacDeny = Cyw43ReasonPruneMacDeny ##  STA's MAC addr is in AP's MAC deny list
+    PruneReasonMacNa = Cyw43ReasonPruneMacNa ##  STA's MAC addr is not in AP's MAC allow list
+    PruneReasonRegPassv = Cyw43ReasonPruneRegPassv ##  AP not allowed due to regulatory restriction
+    PruneReasonSpctMgmt = Cyw43ReasonPruneSpctMgmt ##  AP does not support STA locale spectrum mgmt
+    PruneReasonRadar = Cyw43ReasonPruneRadar ##  AP is on a radar channel of STA locale
+    PruneReasonRsnMismatch = Cyw43ReasonRsnMismatch ##  STA does not support AP's RSN
+    PruneReasonNoCommonRates = Cyw43ReasonPruneNoCommonRates ##  No rates in common with AP
+    PruneReasonBasicRates = Cyw43ReasonPruneBasicRates ##  STA does not support all basic rates of BSS
+    PruneReasonCcxfastPrevap = Cyw43ReasonPruneCcxfastPrevap ##  CCX FAST ROAM: prune previous AP
+    PruneReasonCipherNa = Cyw43ReasonPruneCipherNa ##  BSS's cipher not supported
+    PruneReasonKnownSta = Cyw43ReasonPruneKnownSta ##  AP is already known to us as a STA
+    PruneReasonCcxfastDroam = Cyw43ReasonPruneCcxfastDroam ##  CCX FAST ROAM: prune unqualified AP
+    PruneReasonWdsPeer = Cyw43ReasonPruneWdsPeer ##  AP is already known to us as a WDS peer
+    PruneReasonQbssLoad = Cyw43ReasonPruneQbssLoad ##  QBSS LOAD - AAC is too low
+    PruneReasonHomeAp = Cyw43ReasonPruneHomeAp ##  prune home AP
+    PruneReasonApBlocked = Cyw43ReasonPruneApBlocked ##  prune blocked AP
+    PruneReasonNoDiagSupport = Cyw43ReasonPruneNoDiagSupport ##  prune due to diagnostic mode not supported
+
+  Cyw43ReasonSup* {.pure.} = enum
+    ##  WPA failure reason codes carried in the WLC_E_PSK_SUP event
+    ReasonSupOther = Cyw43ReasonSupOther ##  Other reason
+    ReasonSupDecryptKeyData = Cyw43ReasonSupDecryptKeyData ##  Decryption of key data failed
+    ReasonSupBadUcastWep128 = Cyw43ReasonSupBadUcastWep128 ##  Illegal use of ucast WEP128
+    ReasonSupBadUcastWep40 = Cyw43ReasonSupBadUcastWep40 ##  Illegal use of ucast WEP40
+    ReasonSupUnsupKeyLen = Cyw43ReasonSupUnsupKeyLen ##  Unsupported key length
+    ReasonSupPwKeyCipher = Cyw43ReasonSupPwKeyCipher ##  Unicast cipher mismatch in pairwise key
+    ReasonSupMsg3TooManyIe = Cyw43ReasonSupMsg3TooManyIe ##  WPA IE contains > 1 RSN IE in key msg 3
+    ReasonSupMsg3IeMismatch = Cyw43ReasonSupMsg3IeMismatch ##  WPA IE mismatch in key message 3
+    ReasonSupNoInstallFlag = Cyw43ReasonSupNoInstallFlag ##  INSTALL flag unset in 4-way msg
+    ReasonSupMsg3NoGtk = Cyw43ReasonSupMsg3NoGtk ##  encapsulated GTK missing from msg 3
+    ReasonSupGrpKeyCipher = Cyw43ReasonSupGrpKeyCipher ##  Multicast cipher mismatch in group key
+    ReasonSupGrpMsg1NoGtk = Cyw43ReasonSupGrpMsg1NoGtk ##  encapsulated GTK missing from group msg 1
+    ReasonSupGtkDecryptFail = Cyw43ReasonSupGtkDecryptFail ##  GTK decrypt failure
+    ReasonSupSendFail = Cyw43ReasonSupSendFail ##  message send failure
+    ReasonSupDeauth = Cyw43ReasonSupDeauth ##  received FC_DEAUTH
+    ReasonSupWpaPskTmo = Cyw43ReasonSupWpaPskTmo ##  WPA PSK 4-way handshake timeout
+
+  Cyw43Auth* {.pure.} = enum
+    ##  Values used for STA and AP auth settings
+    WpaAuthPsk = Cyw43WpaAuthPsk
+    Wpa2AuthPsk = Cyw43Wpa2AuthPsk
+
+  Cyw43AuthType* {.pure, size: sizeof(uint32).} = enum
+    ## Authorization types
+    ## Used when setting up an access point, or connecting to an access point
+    AuthOpen = Cyw43AuthOpen                  ## No authorisation required (open)
+    AuthWpaTkipPsk = Cyw43AuthWpaTkipPsk      ## WPA authorisation
+    AuthWpa2AesPsk = Cyw43AuthWpa2AesPsk      ## WPA2 authorisation (preferred)
+    AuthWpa2MixedPsk = Cyw43AuthWpa2MixedPsk  ## WPA2/WPA mixed authorisation
+
+  Cyw43Itf* {.pure, size: sizeof(cuint).} = enum
+    ## Network interface types
+    ItfSta = Cyw43itfsta         ## Client interface STA mode
+    ItfAp = Cyw43itfap           ## Access point (AP) interface mode
+  
 
 template cyw43WifiPm*(self: ptr Cyw43T; pm: Cyw43PowersaveMode): cint = cyw43WifiPm(self, pm.uint32)
 
