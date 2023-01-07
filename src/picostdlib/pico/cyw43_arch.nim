@@ -19,7 +19,7 @@ type
 
 const CYW43_WL_GPIO_LED_PIN* = 0.Cyw43ArchPin
 
-{.push header: "pico/cyw43_arch.h".}
+# {.push header: "pico/cyw43_arch.h".}
 
 proc cyw43ArchInit*(): PicoErrorCodes {.importc: "cyw43_arch_init".}
   ## ```
@@ -230,4 +230,4 @@ proc cyw43ArchLwipCheck*() {.inline, importc: "cyw43_arch_lwip_check".}
   ##  \sa cyw43_arch_lwip_begin
   ##  \sa cyw43_arch_lwip_protect
 
-{.pop.}
+# {.pop.}

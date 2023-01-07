@@ -66,20 +66,6 @@ importc:
   "lwip/timeouts.h"
   "lwip/udp.h"
 
-  "lwip/apps/altcp_proxyconnect.h"
-  "lwip/apps/http_client.h"
-  "lwip/apps/httpd.h"
-  "lwip/apps/lwiperf.h"
-  "lwip/apps/mdns.h"
-  "lwip/apps/mqtt.h"
-  "lwip/apps/netbiosns.h"
-  "lwip/apps/smtp.h"
-  "lwip/apps/snmp.h"
-  "lwip/apps/snmpv3.h"
-  "lwip/apps/sntp.h"
-  "lwip/apps/tftp_client.h"
-  "lwip/apps/tftp_server.h"
-
 ##  Nim helpers
 
 const PBUF_NOT_FOUND* = uint16.high
