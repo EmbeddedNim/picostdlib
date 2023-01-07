@@ -3,7 +3,6 @@ import ../private
 
 import futhark
 
-
 importc:
   sysPath CLANG_INCLUDE_PATH
   path PICO_SDK_PATH / "src/rp2_common/pico_lwip/include"
