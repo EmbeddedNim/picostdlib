@@ -19,7 +19,11 @@ switch("define", "nimPage256")
 # see for similar issue: https://github.com/nim-lang/Nim/issues/17040
 switch("d", "nimEmulateOverflowChecks")
 
-## For using TCP over Wifi
+# switch("d", "PICO_SDK_PATH:/path/to/pico-sdk")
+# switch("d", "CMAKE_BINARY_DIR:../build/mybinaryname")
+# switch("d", "CMAKE_SOURCE_DIR:../csource")
+
+## For using TCP over Wifi without futhark
 # switch("d", "cyw43Gpio")
 # switch("d", "cyw43Lwip")
 # switch("d", "lwipIpv4")

@@ -60,6 +60,7 @@ import picostdlib/pico/version
 import picostdlib/lib/lwip
 import picostdlib/lib/lwip_apps
 import picostdlib/lib/cyw43_driver
+# import picostdlib/lib/freertos
 
 # examples
 import ../examples/pico_w/picow_tls_client

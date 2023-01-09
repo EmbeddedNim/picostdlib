@@ -3,6 +3,7 @@ import std/os, std/strutils
 
 const picoSdkPath* {.strdefine.} = os.getEnv("PICO_SDK_PATH")
 const cmakeBinaryDir* {.strdefine.} = os.getEnv("CMAKE_BINARY_DIR")
+const cmakeSourceDir* {.strdefine.} = os.getEnv("CMAKE_SOURCE_DIR")
 
 const clangIncludePath* = static:
   const inclDir = staticExec("clang -print-resource-dir") & "/include"

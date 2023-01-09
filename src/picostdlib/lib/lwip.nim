@@ -33,6 +33,7 @@ import futhark
 
 importc:
   sysPath clangIncludePath
+  sysPath picoSdkPath / "lib/lwip/contrib/ports/freertos/include"
   path picoSdkPath / "src/rp2_common/pico_lwip/include"
   path picoSdkPath / "lib/lwip/src/include"
   path getProjectPath()
@@ -108,7 +109,9 @@ proc pbufMemfind*(p: ptr Pbuf; mem: string; startOffset: int|uint16): uint16 {.i
   return p.pbufMemfind(cast[pointer](cmem[0].addr), cmem.len.uint16, startOffset.uint16)
 
 
-when declared(ip4addrntoa):
+when declared(ip4addrntoa) and declared(ip6addrntoa):
+  discard
+elif declared(ip4addrntoa):
   proc `$`*(ip: ptr IpAddrT): string = $(ip4addrntoa(ip))
 
   proc `$`*(ip: var IpAddrT): string = $(ip4addrntoa(addr(ip)))

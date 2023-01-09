@@ -1,7 +1,7 @@
 import irq
 
 type
-  GpioFunction* {.pure, size: sizeof(cuint).} = enum
+  GpioFunction* {.pure, size: sizeof(cuint), importc: "enum gpio_function".} = enum
     ## GPIO function definitions for use with function select. 
     ## Each GPIO can have one function selected at a time. Likewise, 
     ## each peripheral input (e.g. UART0 RX) should only be selected on one 

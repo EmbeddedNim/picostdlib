@@ -140,3 +140,14 @@ proc hardwareAlarmCancel*(alarmNum: cuint) {.importc: "hardware_alarm_cancel".}
   ## ```
 
 {.pop.}
+
+# For Posix support
+
+when defined(freertos):
+  import std/posix
+
+  proc clock_gettime(clkId: ClockId; tp: var Timespec): cint {.exportc: "clock_gettime".} =
+    let m = timeUs64()
+    tp.tv_sec = Time(m div 1000000)
+    tp.tv_nsec = clong((m mod 1000000) * 1000)
+    return 0
