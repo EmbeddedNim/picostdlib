@@ -1,8 +1,8 @@
 
 import std/uri
-# import picostdlib/lib/lwip/[altcp_tls, dns]
 import picostdlib/lib/lwip
-import picostdlib/lib/mbedtls/ssl
+# import picostdlib/lib/lwip/[altcp_tls, dns]
+# import picostdlib/lib/mbedtls/ssl
 
 import picostdlib/[
   pico/stdio,
@@ -123,7 +123,7 @@ proc tlsClientOpen(hostname: cstring; arg: pointer): bool =
   state.pcb.altcpErr(tlsClientErr)
 
   ## Set SNI
-  discard mbedtlsSslSetHostname(cast[ptr MbedSslContext](altcpTlsContext(state.pcb)), hostname)
+  discard mbedtlsSslSetHostname(cast[ptr MbedtlsSslContext](altcpTlsContext(state.pcb)), hostname)
 
   echo "resolving ", hostname
 

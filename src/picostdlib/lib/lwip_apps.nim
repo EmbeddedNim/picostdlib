@@ -7,10 +7,12 @@ export lwip
 
 
 importc:
-  sysPath clangIncludePath
+  sysPath futhark.getClangIncludePath()
   path picoSdkPath / "src/rp2_common/pico_lwip/include"
   path picoSdkPath / "lib/lwip/src/include"
   path getProjectPath()
+
+  compilerArg "-fshort-enums"
 
   renameCallback futharkRenameCallback
 

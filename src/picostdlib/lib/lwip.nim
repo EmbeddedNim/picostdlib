@@ -31,12 +31,17 @@ import ../private
 
 import futhark
 
+from ./mbedtls/ssl import mbedtlsHardwarePoll
+
 importc:
-  sysPath clangIncludePath
+  sysPath futhark.getClangIncludePath()
   sysPath picoSdkPath / "lib/lwip/contrib/ports/freertos/include"
+  path picoSdkPath / "lib/mbedtls/include"
   path picoSdkPath / "src/rp2_common/pico_lwip/include"
   path picoSdkPath / "lib/lwip/src/include"
   path getProjectPath()
+
+  compilerArg "-fshort-enums"
 
   renameCallback futharkRenameCallback
 
@@ -121,5 +126,18 @@ elif declared(ip6addrntoa):
 
   proc `$`*(ip: var IpAddrT): string = $(ip6addrntoa(addr(ip)))
 
+when declared(ip4addrAton):
+  template ipaddrAton*(cp, `addr`: untyped): untyped =
+    ip4addrAton(cp, `addr`)
+else:
+  template ipaddrAton*(cp, `addr`: untyped): untyped =
+    ip6addrAton(cp, `addr`)
+
 let
   TCP_SND_BUF* {.importc: "TCP_SND_BUF", header: "lwipopts.h".}: cint
+
+template altcpListenWithBacklog*(conn, backlog: untyped): untyped = altcpListenWithBacklogAndErr(conn, backlog, nil)
+template altcpListen*(conn: untyped): untyped = altcpListenWithBacklogAndErr(conn, TcpDefaultListenBacklog, nil)
+
+template altcpTcpNew*(): untyped = altcpTcpNewIpType(IpAddrTypeV4.uint8)
+template altcpTcpNewIp6*(): untyped = altcpTcpNewIpType(IpAddrTypeV6.uint8)

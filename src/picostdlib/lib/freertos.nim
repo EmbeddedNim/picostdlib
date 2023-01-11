@@ -33,7 +33,7 @@ import futhark
 import ../hardware/timer # for clock_gettime
 
 importc:
-  sysPath clangIncludePath
+  sysPath futhark.getClangIncludePath()
   sysPath cmakeBinaryDir / "generated/pico_base"
   sysPath picoSdkPath / "src/common/pico_base/include"
   sysPath picoSdkPath / "src/rp2_common/pico_platform/include"
@@ -42,6 +42,8 @@ importc:
   sysPath cmakeBinaryDir / "_deps/freertos_kernel-src/include"
   path cmakeSourceDir
   path getProjectPath()
+
+  compilerArg "-fshort-enums"
 
   renameCallback futharkRenameCallback
 
