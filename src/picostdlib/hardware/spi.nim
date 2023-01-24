@@ -253,3 +253,10 @@ proc spiGetDreq*(spi: ptr SpiInst; isTx: bool): cuint {.importc: "spi_get_dreq".
   ## ```
 
 {.pop.}
+
+
+## Nim helpers
+
+proc spiWriteBlocking*(spi: ptr SpiInst; src: varargs[uint8]): cint =
+  assert(src.len > 0)
+  return spi.spiWriteBlocking(src[0].unsafeAddr, src.len.csize_t)
