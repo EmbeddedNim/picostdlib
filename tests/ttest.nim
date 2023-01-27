@@ -32,7 +32,6 @@ import picostdlib/hardware/vreg
 import picostdlib/hardware/watchdog
 import picostdlib/hardware/xosc
 
-
 import picostdlib/pico/util/datetime
 
 import picostdlib/pico/binary_info
@@ -48,6 +47,7 @@ import picostdlib/pico/lock_core
 import picostdlib/pico/multicore
 import picostdlib/pico/mutex
 import picostdlib/pico/platform
+import picostdlib/pico/rand
 import picostdlib/pico/sem
 import picostdlib/pico/stdio
 import picostdlib/pico/sync

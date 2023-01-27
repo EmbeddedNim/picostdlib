@@ -31,11 +31,15 @@ import ../private
 
 import futhark
 
-from ./mbedtls/ssl import mbedtlsHardwarePoll
-
 importc:
   sysPath futhark.getClangIncludePath()
+  sysPath picoSdkPath / "src/rp2040/hardware_regs/include"
   sysPath picoSdkPath / "lib/lwip/contrib/ports/freertos/include"
+  sysPath picoSdkPath / "src/common/pico_base/include"
+  sysPath picoSdkPath / "src/rp2_common/pico_platform/include"
+  sysPath picoSdkPath / "src/rp2_common/pico_rand/include"
+  sysPath picoSdkPath / "src/rp2_common/pico_cyw43_driver/include"
+  sysPath cmakeBinaryDir / "generated/pico_base"
   path picoSdkPath / "lib/mbedtls/include"
   path picoSdkPath / "src/rp2_common/pico_lwip/include"
   path picoSdkPath / "lib/lwip/src/include"

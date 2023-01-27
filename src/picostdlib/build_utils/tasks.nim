@@ -41,6 +41,8 @@ type
     stdio = "pico_stdlib"
     util = "pico_stdlib"
 
+    rand = "pico_rand"
+
     sync = "pico_sync"
 
     time = "pico_time"
