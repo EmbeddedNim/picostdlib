@@ -19,7 +19,7 @@ included with this example for this purpose.
 Follow these instructions to build the example:
 
   1. Run `piconim init tinyusb` to create a new pico project.
-  
+
   2. Copy the files `tinyusb.nim`, `usb_descriptors.c` and `tusb_config.h`
      provided in this example to the `src` directory of the project (overwrite
      the existing nim file created by piconim).
@@ -27,4 +27,4 @@ Follow these instructions to build the example:
   4. Replace the CMakeLists.txt file in the `csource` directory of the project
      with the CMakeLists.txt file included with this example.
 
-  5. run `piconim build tinyusb.nim`.
+  5. run `piconim build tinyusb`.
