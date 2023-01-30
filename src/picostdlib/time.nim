@@ -139,6 +139,23 @@ proc cancel*(alarm: AlarmId): bool {.importC: "cancel_alarm".}
   ## =============  ======
   ## 
   ## **Returns:**    true if the alarm was cancelled, false if it didn't exist 
+
+proc absoluteTimeDiff*(time1, time2: AbsoluteTime): uint64 {.importc: "absolute_time_diff_us".}
+ ## Return a representation of the current time.
+ ##
+ ## Return the difference in microseconds between two timestamps.
+ ## **Parameters:**
+ ##
+ ## ========= =======
+ ## **time1** the first timestamp
+ ## **time2** the second timestamp
+ ## =========  ====== 
+ ##
+ ## **Returns:** 
+ ##
+ ## ===========  ====== 
+ ## **uint64**   uint64 the number of microseconds between the two timestamps.
+ ## ===========  ======
 {.pop.}
 
 
