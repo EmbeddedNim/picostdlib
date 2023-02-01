@@ -56,6 +56,8 @@ import picostdlib/pico/types
 import picostdlib/pico/unique_id
 import picostdlib/pico/version
 
+import picostdlib/memoryinfo
+
 # futhark stuff
 import picostdlib/lib/lwip
 import picostdlib/lib/lwip_apps
