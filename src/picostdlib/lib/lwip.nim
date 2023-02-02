@@ -43,6 +43,7 @@ importc:
   path picoSdkPath / "lib/mbedtls/include"
   path picoSdkPath / "src/rp2_common/pico_lwip/include"
   path picoSdkPath / "lib/lwip/src/include"
+  path cmakeSourceDir
   path getProjectPath()
 
   compilerArg "-fshort-enums"

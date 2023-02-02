@@ -69,6 +69,7 @@ importc:
   sysPath picoSdkPath / "src/rp2_common/pico_cyw43_arch/include"
   sysPath picoSdkPath / "lib/lwip/src/include"
   path picoSdkPath / "lib/cyw43-driver/src"
+  path cmakeSourceDir
   path getProjectPath()
 
   compilerArg "-fshort-enums"
