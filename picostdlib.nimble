@@ -15,7 +15,7 @@ requires "nim >= 1.6.0"
 requires "https://github.com/casey-SK/commandant >= 0.15.1"  # for piconim
 requires "https://github.com/beef331/micros#e0b8e38c374c6d44ca9041d9a4cfdf323be967c1"  # for the after build hook
 
-requires "futhark >= 0.7.3" # for bindings to lwip and cyw43_driver
+requires "futhark >= 0.7.4" # for bindings to lwip and cyw43_driver
 
 before test:
   # truncate the json cache file
