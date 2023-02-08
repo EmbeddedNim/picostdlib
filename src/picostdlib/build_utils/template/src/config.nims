@@ -6,6 +6,7 @@ switch("define", "release")
 switch("opt", "size")
 switch("mm", "orc") # use "arc", "orc" or "none"
 switch("deepcopy", "on")
+switch("threads", "off")
 
 switch("compileOnly", "on")
 switch("nimcache", "build/nimcache")
@@ -41,3 +42,4 @@ switch("d", "CMAKE_SOURCE_DIR:../csource")
 
 switch("d", "WIFI_SSID:myssid")
 switch("d", "WIFI_PASSWORD:mypassword")
+
