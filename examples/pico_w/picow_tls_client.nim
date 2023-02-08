@@ -142,7 +142,7 @@ proc tlsClientOpen(hostname: cstring; arg: pointer): bool =
   return err == ERR_OK.ErrT or err == ERR_INPROGRESS.ErrT
 
 proc tlsClientExample*() =
-  if cyw43ArchInit() != ErrorNone:
+  if cyw43ArchInit() != PicoErrorNone:
     echo "Wifi init failed!"
     return
 
@@ -156,7 +156,7 @@ proc tlsClientExample*() =
     assert(WIFI_SSID != "", "Need to define WIFI_SSID with a value")
 
   let err = cyw43ArchWifiConnectTimeoutMs(WIFI_SSID, WIFI_PASSWORD, AuthWpa2AesPsk, 30000)
-  if err != ErrorNone:
+  if err != PicoErrorNone:
     echo "Failed to connect! Error: ", $err
   else:
     echo "Connected"

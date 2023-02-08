@@ -52,7 +52,7 @@ let
   atTheEndOfTime* {.importc: "at_the_end_of_time".}: AbsoluteTime
     ## The timestamp representing the end of time; this is actually not the maximum possible
     ## timestamp, but is set to 0x7fffffff_ffffffff microseconds to avoid sign overflows with time
-    ## arithmetic. This is still over 7 million years, so should be sufficient.
+    ## arithmetic. This is almost 300,000 years, so should be sufficient.
 
   nilTime* {.importc: "nil_time".}: AbsoluteTime
     ## The timestamp representing a null timestamp
@@ -129,6 +129,14 @@ proc absoluteTimeDiffUs*(`from`: AbsoluteTime; to: AbsoluteTime): int64 {.import
   ##    \return the number of microseconds between the two timestamps (positive if to is after from except
   ##    in case of overflow)
   ## ```
+
+proc absoluteTimeMin*(a, b: AbsoluteTime): AbsoluteTime {.importc: "absolute_time_min".}
+  ## \brief Return the earlier of two timestamps
+  ## \ingroup timestamp
+  ##
+  ## \param a the first timestamp
+  ## \param b the second timestamp
+  ## \return the earlier of the two timestamps
 
 proc isAtTheEndOfTime*(t: AbsoluteTime): bool {.importc: "is_at_the_end_of_time".}
   ## ```
@@ -239,7 +247,7 @@ proc alarmPoolGetDefault*(): ptr AlarmPool {.importc: "alarm_pool_get_default".}
 
 proc alarmPoolCreate*(hardwareAlarmNum: cuint; maxTimers: cuint): ptr AlarmPool {.importc: "alarm_pool_create".}
   ## ```
-  ##   \brief Create an alarm pool
+  ##    \brief Create an alarm pool
   ##   
   ##    The alarm pool will call callbacks from an alarm IRQ Handler on the core of this function is called from.
   ##   
@@ -256,6 +264,23 @@ proc alarmPoolCreate*(hardwareAlarmNum: cuint; maxTimers: cuint): ptr AlarmPool 
   ##    \sa alarm_pool_get_default()
   ##    \sa hardware_claiming
   ## ```
+
+proc alarmPoolCreateWithUnusedHardwareAlarm*(maxTimers: cuint): ptr AlarmPool {.importc: "alarm_pool_create_with_unused_hardware_alarm".}
+  ## \brief Create an alarm pool, claiming an used hardware alarm to back it.
+  ##
+  ## The alarm pool will call callbacks from an alarm IRQ Handler on the core of this function is called from.
+  ##
+  ## In many situations there is never any need for anything other than the default alarm pool, however you
+  ## might want to create another if you want alarm callbacks on core 1 or require alarm pools of
+  ## different priority (IRQ priority based preemption of callbacks)
+  ##
+  ## \note This method will hard assert if the there is no free hardware to claim.
+  ##
+  ## \ingroup alarm
+  ## \param max_timers the maximum number of timers
+  ##        \note For implementation reasons this is limited to PICO_PHEAP_MAX_ENTRIES which defaults to 255
+  ## \sa alarm_pool_get_default()
+  ## \sa hardware_claiming
 
 proc alarmPoolHardwareAlarmNum*(pool: ptr AlarmPool): cuint {.importc: "alarm_pool_hardware_alarm_num".}
   ## ```
@@ -298,6 +323,24 @@ proc alarmPoolAddAlarmAt*(pool: ptr AlarmPool; time: AbsoluteTime; callback: Ala
   ##              or if the callback <i>was</i> called during this method but the callback cancelled itself by returning 0
   ##    @return -1 if there were no alarm slots available
   ## ```
+
+proc alarmPoolAddAlarmAtForceInContext*(pool: ptr AlarmPool; time: AbsoluteTime; callback: AlarmCallback; userData: pointer): AlarmId {.importc: "alarm_pool_add_alarm_at_force_in_context".}
+  ## \brief Add an alarm callback to be called at or after a specific time
+  ## \ingroup alarm
+  ##
+  ## The callback is called as soon as possible after the time specified from an IRQ handler
+  ## on the core the alarm pool was created on. Unlike \ref alarm_pool_add_alarm_at, this method
+  ## guarantees to call the callback from that core even if the time is during this method call or in the past.
+  ##
+  ## \note It is safe to call this method from an IRQ handler (including alarm callbacks), and from either core.
+  ##
+  ## @param pool the alarm pool to use for scheduling the callback (this determines which hardware alarm is used, and which core calls the callback)
+  ## @param time the timestamp when (after which) the callback should fire
+  ## @param callback the callback function
+  ## @param user_data user data to pass to the callback function
+  ## @return >0 the alarm id for an active (at the time of return) alarm
+  ## @return -1 if there were no alarm slots available
+
 
 proc alarmPoolAddAlarmInUs*(pool: ptr AlarmPool; us: uint64; callback: AlarmCallback; userData: pointer; fireIfPast: bool): AlarmId {.importc: "alarm_pool_add_alarm_in_us".}
   ## ```

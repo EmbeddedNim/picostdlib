@@ -80,6 +80,10 @@ proc i2cHwIndex*(i2c: ptr I2cInst): cuint {.importc: "i2c_hw_index".}
   ##    \return Number of I2C, 0 or 1.
   ## ```
 
+proc i2cGetHw*(i2c: ptr I2cInst): ptr I2cHw {.importc: "i2c_get_hw".}
+
+proc i2cGetInstance*(instance: cuint): ptr I2cInst {.importc: "i2c_get_instance".}
+
 proc i2cWriteBlockingUntil*(i2c: ptr I2cInst; address: I2cAddress; src: ptr uint8; len: csize_t; noStop: bool; until: AbsoluteTime): cint {.importc: "i2c_write_blocking_until".}
   ## ```
   ##   ! \brief Attempt to write specified number of bytes to address, blocking until the specified absolute time is reached.
@@ -219,6 +223,24 @@ proc i2cReadRawBlocking*(i2c: ptr I2cInst; dst: ptr uint8; len: csize_t) {.impor
   ##    Reads directly from the I2C RX FIFO which is mainly useful for
   ##    slave-mode operation.
   ## ```
+
+proc i2cReadByteRaw*(i2c: ptr I2cInst): uint8 {.importc: "i2c_read_byte_raw".}
+  ## \brief Pop a byte from I2C Rx FIFO.
+  ## \ingroup hardware_i2c
+  ##
+  ## This function is non-blocking and assumes the Rx FIFO isn't empty.
+  ##
+  ## \param i2c I2C instance.
+  ## \return uint8_t Byte value.
+
+proc i2cWriteByteRaw*(i2c: ptr I2cInst; value: uint8) {.importc: "i2c_write_byte_raw".}
+  ## \brief Push a byte into I2C Tx FIFO.
+  ## \ingroup hardware_i2c
+  ##
+  ## This function is non-blocking and assumes the Tx FIFO isn't full.
+  ##
+  ## \param i2c I2C instance.
+  ## \param value Byte value.
 
 proc i2cGetDreq*(i2c: ptr I2cInst; isTx: bool): cuint {.importc: "i2c_get_dreq".}
   ## ```

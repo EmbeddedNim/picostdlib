@@ -149,9 +149,7 @@ proc uartIsReadable*(uart: ptr UartInst): bool {.importc: "uart_is_readable".}
   ##     \ingroup hardware_uart
   ##   
   ##    \param uart UART instance. \ref uart0 or \ref uart1
-  ##    \return 0 if no data available, otherwise the number of bytes, at least, that can be read
-  ##   
-  ##    \note HW limitations mean this function will return either 0 or 1.
+  ##    \return true if the RX FIFO is not empty, otherwise false.
   ## ```
 
 proc uartWriteBlocking*(uart: ptr UartInst; src: ptr uint8; len: cuint) {.importc: "uart_write_blocking".}
@@ -171,7 +169,7 @@ proc uartReadBlocking*(uart: ptr UartInst; dst: ptr uint8; len: cuint) {.importc
   ##   ! \brief  Read from the UART
   ##     \ingroup hardware_uart
   ##   
-  ##    This function will block until all the data has been received from the UART
+  ##    This function blocks until len characters have been read from the UART
   ##   
   ##    \param uart UART instance. \ref uart0 or \ref uart1
   ##    \param dst Buffer to accept received bytes
@@ -215,10 +213,10 @@ proc uartPuts*(uart: ptr UartInst; s: cstring) {.importc: "uart_puts".}
 
 proc uartGetc*(uart: ptr UartInst): cchar {.importc: "uart_getc".}
   ## ```
-  ##   ! \brief  Read a single character to UART
+  ##   ! \brief  Read a single character from the UART
   ##     \ingroup hardware_uart
   ##   
-  ##    This function will block until the character has been read
+  ##    This function will block until a character has been read
   ##   
   ##    \param uart UART instance. \ref uart0 or \ref uart1
   ##    \return The character read.

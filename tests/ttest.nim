@@ -34,15 +34,18 @@ import picostdlib/hardware/xosc
 
 import picostdlib/pico/util/datetime
 
+import picostdlib/pico/async_context
 import picostdlib/pico/binary_info
 import picostdlib/pico/bit_ops
 import picostdlib/pico/bootrom
 import picostdlib/pico/critical_section
 import picostdlib/pico/cyw43_arch
+import picostdlib/pico/cyw43_driver
 import picostdlib/pico/divider
 import picostdlib/pico/double
 import picostdlib/pico/error
 import picostdlib/pico/"float"
+import picostdlib/pico/i2c_slave
 import picostdlib/pico/lock_core
 import picostdlib/pico/multicore
 import picostdlib/pico/mutex

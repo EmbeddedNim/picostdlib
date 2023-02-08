@@ -152,7 +152,7 @@ proc irqHasSharedHandler*(num: InterruptNumber): bool {.importc: "irq_has_shared
   ##     \ingroup hardware_irq
   ##   
   ##    \param num Interrupt number \ref interrupt_nums
-  ##    \param return true if the specified IRQ has a shared handler
+  ##    \return true if the specified IRQ has a shared handler
   ##   
   ## ```
 

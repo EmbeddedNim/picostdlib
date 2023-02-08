@@ -31,22 +31,22 @@ type
   #   min*, sec*: 0u8..59u8
 
 proc toUsSinceBoot*(t: AbsoluteTime): uint64 {.importc: "to_us_since_boot".}
-  ## ```
-  ##   ! fn to_us_since_boot
-  ##    \brief convert an absolute_time_t into a number of microseconds since boot.
-  ##    \param t the absolute time to convert
-  ##    \return a number of microseconds since boot, equivalent to t
-  ##    \ingroup timestamp
-  ## ```
+  ## \brief convert an absolute_time_t into a number of microseconds since boot.
+  ## \param t the absolute time to convert
+  ## \return a number of microseconds since boot, equivalent to t
+  ## \ingroup timestamp
 
 proc updateUsSinceBoot*(t: ptr AbsoluteTime; usSinceBoot: uint64) {.importc: "update_us_since_boot".}
-  ## ```
-  ##   ! fn update_us_since_boot
-  ##    \brief update an absolute_time_t value to represent a given number of microseconds since boot
-  ##    \param t the absolute time value to update
-  ##    \param us_since_boot the number of microseconds since boot to represent. Note this should be representable
-  ##                         as a signed 64 bit integer
-  ##    \ingroup timestamp
-  ## ```
+  ## \brief update an absolute_time_t value to represent a given number of microseconds since boot
+  ## \param t the absolute time value to update
+  ## \param us_since_boot the number of microseconds since boot to represent. Note this should be representable
+  ##                      as a signed 64 bit integer
+  ## \ingroup timestamp
+
+proc fromUsSinceBoot*(usSinceBoot: uint64): AbsoluteTime {.importc: "from_us_since_boot".}
+  ## \brief convert a number of microseconds since boot to an absolute_time_t
+  ## \param us_since_boot number of microseconds since boot
+  ## \return an absolute time equivalent to us_since_boot
+  ## \ingroup timestamp
 
 {.pop.}

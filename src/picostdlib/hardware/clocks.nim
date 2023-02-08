@@ -94,7 +94,16 @@ proc clocksEnableResus*(resusCallback: ResusCallback) {.importc: "clocks_enable_
   ## **resusCallback**    a function pointer provided by the user to call if a resus event happens.
   ## ==================  ======
 
-proc clockGpioInit*(gpio: Gpio, src: ClocksClkGpoutCtrlAuxSrc, `div`: cuint) {.importc: "clock_gpio_init".}
+proc clockGpioInitIntFrac*(gpio: Gpio; src: ClocksClkGpoutCtrlAuxSrc; divInt: uint32; divFrac: uint8) {.importc: "clock_gpio_init_int_frac".}
+  ## \brief Output an optionally divided clock to the specified gpio pin.
+  ## \ingroup hardware_clocks
+  ##
+  ## \param gpio The GPIO pin to output the clock to. Valid GPIOs are: 21, 23, 24, 25. These GPIOs are connected to the GPOUT0-3 clock generators.
+  ## \param src  The source clock. See the register field CLOCKS_CLK_GPOUT0_CTRL_AUXSRC for a full list. The list is the same for each GPOUT clock generator.
+  ## \param div_int  The integer part of the value to divide the source clock by. This is useful to not overwhelm the GPIO pin with a fast clock. this is in range of 1..2^24-1.
+  ## \param div_frac The fractional part of the value to divide the source clock by. This is in range of 0..255 (/256).
+
+proc clockGpioInit*(gpio: Gpio; src: ClocksClkGpoutCtrlAuxSrc; `div`: cfloat) {.importc: "clock_gpio_init".}
   ## Output an optionally divided clock to the specified gpio pin.
   ## 
   ## **Parameters:**

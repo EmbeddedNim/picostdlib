@@ -81,6 +81,15 @@ proc hardwareAlarmClaim*(alarmNum: cuint) {.importc: "hardware_alarm_claim".}
   ##    \sa hardware_claiming
   ## ```
 
+proc hardwareAlarmClaimUnused*(required: bool): cint {.importc: "hardware_alarm_claim_unused".}
+  ## ! \brief cooperatively claim the use of this hardware alarm_num
+  ##   \ingroup hardware_timer
+  ## 
+  ##  This method attempts to claim an unused hardware alarm
+  ## 
+  ##  \return alarm_num the hardware alarm claimed or -1 if requires was false, and none are available
+  ##  \sa hardware_claiming
+
 proc hardwareAlarmUnclaim*(alarmNum: cuint) {.importc: "hardware_alarm_unclaim".}
   ## ```
   ##   ! \brief cooperatively release the claim on use of this hardware alarm_num
@@ -136,8 +145,20 @@ proc hardwareAlarmCancel*(alarmNum: cuint) {.importc: "hardware_alarm_cancel".}
   ##   ! \brief Cancel an existing target (if any) for a given hardware_alarm
   ##     \ingroup hardware_timer
   ##   
-  ##    @param alarm_num
+  ##    @param alarm_num the hardware alarm number
   ## ```
+
+proc hardwareAlarmForceIrq*(alarmNum: cuint) {.importc: "hardware_alarm_force_irq".}
+  ## \brief Force and IRQ for a specific hardware alarm
+  ## \ingroup hardware_timer
+  ##
+  ## This method will forcibly make sure the current alarm callback (if present) for the hardware
+  ## alarm is called from an IRQ context after this call. If an actual callback is due at the same
+  ## time then the callback may only be called once.
+  ##
+  ## Calling this method does not otherwise interfere with regular callback operations.
+  ##
+  ## @param alarm_num the hardware alarm number
 
 {.pop.}
 

@@ -1,8 +1,10 @@
 
 let tStackLimit* {.importc: "__StackLimit".}: cchar
+let tStackBottom* {.importc: "__StackBottom".}: cchar
 let tBssEnd* {.importc: "__bss_end__".}: cchar
 
 template StackLimit*: untyped = cast[int](tStackLimit.unsafeAddr)
+template StackBottom*: untyped = cast[int](tStackBottom.unsafeAddr)
 template BssEnd*: untyped = cast[int](tBssEnd.unsafeAddr)
 
 type

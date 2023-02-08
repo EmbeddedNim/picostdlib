@@ -70,6 +70,19 @@ proc mutexTryEnter*(mtx: ptr Mutex; ownerOut: ptr uint32): bool {.importc: "mute
   ##    \return true if mutex now owned, false otherwise
   ## ```
 
+proc mutexTryEnterBlockUntil*(mtx: ptr Mutex; until: AbsoluteTime): bool {.importc: "mutex_try_enter_block_until".}
+  ##  \brief Attempt to take ownership of a mutex until the specified time
+  ##  \ingroup mutex
+  ##
+  ## If the mutex wasn't owned, this method will immediately claim the mutex for the caller and return true.
+  ## If the mutex is owned by the caller, this method will immediately return false,
+  ## If the mutex is owned by someone else, this method will try to claim it until the specified time, returning
+  ## true if it succeeds, or false on timeout
+  ##
+  ## \param mtx Pointer to mutex structure
+  ## \param until The time after which to return if the caller cannot be granted ownership of the mutex
+  ## \return true if mutex now owned, false otherwise
+
 proc recursiveMutexTryEnter*(mtx: ptr Mutex; ownerOut: ptr uint32): bool {.importc: "recursive_mutex_try_enter".}
   ## ```
   ##   ! \brief Attempt to take ownership of a recursive mutex

@@ -364,7 +364,7 @@ proc gpioAcknowledgeIrq*(gpio: Gpio; eventMask: uint32) {.importc: "gpio_acknowl
   ##    \param gpio GPIO number
   ##    \param events Bitmask of events to clear. See \ref gpio_set_irq_enabled for details.
   ##   
-  ##    \note For callbacks set with \ref gpio_set_irq_enabled_with_callback, or \ref gpio_set_irq_callback,this function is called automatically.
+  ##    \note For callbacks set with \ref gpio_set_irq_enabled_with_callback, or \ref gpio_set_irq_callback, this function is called automatically.
   ##    \param event_mask Bitmask of events to clear. See \ref gpio_irq_level for details.
   ## ```
 

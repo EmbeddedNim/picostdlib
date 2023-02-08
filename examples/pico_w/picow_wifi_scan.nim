@@ -21,7 +21,7 @@ proc scanResult(env: pointer; res: ptr Cyw43EvScanResultT): cint {.cdecl.} =
 
 proc wifiScanExample*() =
 
-  if cyw43ArchInit() != ErrorNone:
+  if cyw43ArchInit() != PicoErrorNone:
     echo "Wifi init failed!"
     return
 

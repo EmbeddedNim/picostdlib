@@ -1,13 +1,16 @@
 
-## importc: "enum pico_error_codes", header: "pico/error.h"
-
 type
-  PicoErrorCodes* {.pure, size: sizeof(cint).} = enum
+  PicoErrorCodes* {.pure, size: sizeof(int8), importc: "enum pico_error_codes", header: "pico/error.h".} = enum
     ## Common return codes from pico_sdk methods that return a status
-    ErrorIo = -6
-    ErrorInvalidArg = -5
-    ErrorNotPermitted = -4
-    ErrorNoData = -3
-    ErrorGeneric = -2
-    ErrorTimeout = -1
-    ErrorNone = 0
+    PicoErrorConnectFailed = -8
+    PicoErrorBadauth = -7
+    PicoErrorIo = -6
+    PicoErrorInvalidArg = -5
+    PicoErrorNotPermitted = -4
+    PicoErrorNoData = -3
+    PicoErrorGeneric = -2
+    PicoErrorTimeout = -1
+    PicoErrorNone = 0
+
+const
+  PicoErrorOk* = PicoErrorNone

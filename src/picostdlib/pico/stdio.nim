@@ -85,6 +85,13 @@ proc putsRaw*(s: cstring): cint {.importc: "puts_raw".}
   ##    \ingroup pico_stdio
   ## ```
 
+proc stdioSetCharsAvailableCallback*(fn: proc (param: pointer) {.cdecl.}; param: pointer) {.importc: "stdio_set_chars_available_callback".}
+  ##  \brief get notified when there are input characters available
+  ##  \ingroup pico_stdio
+  ##
+  ## \param fn Callback function to be called when characters are available. Pass NULL to cancel any existing callback
+  ## \param param Pointer to pass to the callback
+
 {.pop.}
 
 
