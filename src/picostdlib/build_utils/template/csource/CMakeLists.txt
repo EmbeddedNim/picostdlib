@@ -91,7 +91,8 @@ endif()
 
 # Additional libraries
 target_link_libraries(${OUTPUT_NAME}
-  # pico_cyw43_arch_lwip_threadsafe_background
+  # For wifi and tls/https
+  # pico_cyw43_arch_lwip_threadsafe_background pico_lwip_mbedtls pico_mbedtls
 )
 # havent gotten sockets to work with freertos yet...
 # pico_cyw43_arch_lwip_sys_freertos FreeRTOS-Kernel-Heap3

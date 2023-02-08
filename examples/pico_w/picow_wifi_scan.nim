@@ -4,6 +4,7 @@ import std/strutils
 import picostdlib/[
   pico/stdio,
   pico/platform,
+  pico/time,
   pico/cyw43_arch
 ]
 
@@ -35,7 +36,9 @@ proc wifiScanExample*() =
   let err = cyw43WifiScan(cyw43State.addr, scanOptions.addr, nil, scanResult)
   if err == 0:
     echo "Performing wifi scan"
-    while cyw43WifiScanActive(cyw43State.addr): tightLoopContents()
+    while cyw43WifiScanActive(cyw43State.addr):
+      tightLoopContents()
+      sleepMs(10)
   else:
     echo "Failed to start wifi scan: ", err
 
