@@ -23,8 +23,8 @@ switch("d", "nimEmulateOverflowChecks")
 switch("maxLoopIterationsVM", "1000000000")
 
 # switch("d", "PICO_SDK_PATH:/path/to/pico-sdk")
-# switch("d", "CMAKE_BINARY_DIR:../build/mybinaryname")
-# switch("d", "CMAKE_SOURCE_DIR:../csource")
+switch("d", "CMAKE_BINARY_DIR:../build/mybinaryname")
+switch("d", "CMAKE_SOURCE_DIR:../csource")
 
 ## For using TCP over Wifi without futhark
 # switch("d", "cyw43Gpio")
