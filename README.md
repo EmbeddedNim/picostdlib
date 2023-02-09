@@ -31,17 +31,17 @@ currently implemented:
 
 **The following steps will install piconim and create a new project**
 
-1. First, you will need to have the Nim compiler installed. If you don't already 
+1. First, you will need to have the Nim compiler installed. If you don't already
 have it, consider using [choosenim](https://github.com/dom96/choosenim)
 
-2. Since this is just a wrapper for the original 
-[pico-sdk](https://github.com/raspberrypi/pico-sdk), you will need to install the C 
-library [dependencies](https://github.com/raspberrypi/pico-sdk#quick-start-your-own-project) 
+2. Since this is just a wrapper for the original
+[pico-sdk](https://github.com/raspberrypi/pico-sdk), you will need to install the C
+library [dependencies](https://github.com/raspberrypi/pico-sdk#quick-start-your-own-project)
 (Step 1 in the quick start section)
 
 3. From the terminal, run `nimble install https://github.com/EmbeddedNim/picostdlib`.
 
-4. Run `piconim init <project-name>` to create a new project directory from a 
+4. Run `piconim init <project-name>` to create a new project directory from a
 template. This will create a new folder, so make sure you are in the parent folder.
 When it asks for what project type, choose `>binary<` or `>hybrid<`. If you choose
 `>library<` there will be nothing to build.
@@ -58,7 +58,7 @@ can have the SDK in one place for all your projects.
 
 ## Building
 
-Now you can work on your project. When you are ready to build the `.uf2` file 
+Now you can work on your project. When you are ready to build the `.uf2` file
 (which will be copied to the Raspberry Pi Pico), you can use the `build` command of Nimble:
 
 `nimble build [program]`
