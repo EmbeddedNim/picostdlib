@@ -65,6 +65,11 @@ import picostdlib/memoryinfo
 import picostdlib/lib/lwip
 import picostdlib/lib/lwip_apps
 import picostdlib/lib/cyw43_driver
+import picostdlib/lib/btstack
+import picostdlib/lib/btstack_ble
+import picostdlib/lib/btstack_classic
+import picostdlib/lib/btstack_mesh
+import picostdlib/lib/btstack_le_audio
 # import picostdlib/lib/freertos
 
 # examples
