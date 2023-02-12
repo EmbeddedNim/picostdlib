@@ -145,11 +145,12 @@ proc genCMakeInclude(projectName: string) =
 
   # include Nim lib path for nimbase.h
   
-  when defined(windows):
-    let nimLibPath = getNimLibPath().replace("\\", "\\\\")
-  else:
-    let nimLibPath = getNimLibPath()
-  
+  let nimLibPath =
+    when defined(windows):
+      getNimLibPath().replace("\\", "\\\\")
+    else:
+      getNimLibPath()
+
   writeFile(importPath, fmt(cMakeIncludeTemplate))
 
 proc builder(program: string, output = "") =
