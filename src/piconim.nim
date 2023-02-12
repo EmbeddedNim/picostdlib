@@ -144,7 +144,12 @@ proc genCMakeInclude(projectName: string) =
   let strLibs = getPicoLibs()
 
   # include Nim lib path for nimbase.h
-  let nimLibPath = getNimLibPath()
+  
+  let nimLibPath =
+    when defined(windows):
+      getNimLibPath().replace("\\", "\\\\")
+    else:
+      getNimLibPath()
 
   writeFile(importPath, fmt(cMakeIncludeTemplate))
 
@@ -169,7 +174,9 @@ proc builder(program: string, output = "") =
   when not defined(windows):
     discard execCmd("touch csource/CMakeLists.txt")
   else:
-    discard execCmd("copy /b csource/CMakeLists.txt +,,")
+    discard execCmd("cmd /c \"type csource\\CMakeLists.txt > csource\\CMakeLists.txt_\"")
+    discard execCmd("cmd /c \"del csource\\CMakeLists.txt\"")
+    discard execCmd("cmd /c \"move csource\\CMakeLists.txt_ csource\\CMakeLists.txt\"")
   # run make
   discard execCmd("make -C csource/build")
 
