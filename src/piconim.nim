@@ -99,17 +99,29 @@ proc getLinkedLib(fileName: string): set[LinkableLib] =
     else:
       break
 
+proc containsNimbaseh(dir: string): bool =
+  ## Check if dir contains a file named nimbase.h
+  for (kind, path) in dir.walkDir:
+    if kind in {pcFile, pcLinkToFile} and path.extractFilename == "nimbase.h":
+      return true
+
 proc getNimLibPath: string =
+  ## Find the Nim "lib" path, which contains the nimbase.h file, using the
+  ## "nim dump" command.
   let (nimOutput, nimExitCode) = execCmdEx(
-    "nim --verbosity:0 --eval:\"import std/os; echo getCurrentCompilerExe()\"",
-    options={poUsePath}
+    "nim dump", options={poUsePath, poStdErrToStdOut}
   )
 
   if nimExitCode != 0:
     echo nimOutput
     picoError fmt"Error while trying to locate nim executable (exit code {nimExitCode})"
 
-  result = nimOutput.parentDir.parentDir / "lib"
+  for ln in nimOutput.splitLines:
+    if "lib" in ln and dirExists(ln) and ln.containsNimbaseh:
+      return ln
+
+  # If not found for some reason
+  picoError "Could not find the Nim lib path"
 
 const cMakeIncludeTemplate = """
 # This is a generated file do not modify it, 'piconim' makes it every run.
