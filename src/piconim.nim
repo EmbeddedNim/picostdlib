@@ -100,11 +100,14 @@ proc getLinkedLib(fileName: string): set[LinkableLib] =
       break
 
 proc containsNimbaseh(dir: string): bool =
+  ## Check if dir contains a file named nimbase.h
   for (kind, path) in dir.walkDir:
     if kind in {pcFile, pcLinkToFile} and path.extractFilename == "nimbase.h":
       return true
 
 proc getNimLibPath: string =
+  ## Find the Nim "lib" path, which contains the nimbase.h file, using the
+  ## "nim dump" command.
   let (nimOutput, nimExitCode) = execCmdEx(
     "nim dump", options={poUsePath, poStdErrToStdOut}
   )
