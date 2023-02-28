@@ -1,5 +1,3 @@
-
-
 type
   ExceptionNumber* {.pure, size: sizeof(cint).} = enum
     Nmi        = -14    # Non Maskable Interrupt

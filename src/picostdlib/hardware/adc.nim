@@ -1,4 +1,4 @@
-import gpio
+import ./gpio
 
 type AdcInput* {.pure, size: sizeof(cuint).} = enum
   ## Aliases for selectInput() procedure 
@@ -10,7 +10,7 @@ const ThreePointThreeConv* = 3.3f / (1 shl 12)
 
 {.push header: "hardware/adc.h".}
 
-proc adcInit*{.importc:"adc_init".}
+proc adcInit* {.importc:"adc_init".}
   ## Initialise the ADC HW
 
 proc adcGpioInit*(gpio: Gpio) {.importc: "adc_gpio_init".}
@@ -61,7 +61,6 @@ proc adcSetTempSensorEnabled*(enable: bool) {.importc: "adc_set_temp_sensor_enab
   ## ===========  ====== 
   ## **enable**    Set true to power on the onboard temperature sensor, false to power off.
   ## ===========  ====== 
-
 
 proc adcRead*: uint16 {.importc:"adc_read".}
  ## Perform a single conversion

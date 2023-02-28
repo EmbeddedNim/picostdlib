@@ -1,4 +1,3 @@
-
 {.push header: "hardware/sync.h".}
 
 type

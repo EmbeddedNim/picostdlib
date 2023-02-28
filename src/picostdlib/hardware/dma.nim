@@ -1,5 +1,3 @@
-
-
 type
   DmaChannelTransferSize* {.pure, size: sizeof(cuint).} = enum
     DmaSize8

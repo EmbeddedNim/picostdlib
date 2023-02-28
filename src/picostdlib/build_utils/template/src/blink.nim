@@ -1,12 +1,10 @@
-import picostdlib/[pico/stdio, hardware/gpio, pico/time]
+import picostdlib/[hardware/gpio, pico/time]
 
-discard stdioUsbInit()
-
-DefaultLedPin.gpioInit()
-DefaultLedPin.gpioSetDir(Out)
+gpioInit(DefaultLedPin)
+gpioSetDir(DefaultLedPin, Out)
 
 while true:
-  DefaultLedPin.gpioPut(High)
+  gpioPut(DefaultLedPin, High)
   sleepMs(250)
-  DefaultLedPin.gpioPut(Low)
+  gpioPut(DefaultLedPin, Low)
   sleepMs(250)

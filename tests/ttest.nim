@@ -73,6 +73,20 @@ import picostdlib/lib/btstack_le_audio
 # import picostdlib/lib/freertos
 
 # examples
+import ../examples/blink
+import ../examples/adc/hello_adc
+import ../examples/adc/onboard_temperature
+import ../examples/clocks/hello_48mhz
+import ../examples/clocks/hello_gpout
+import ../examples/clocks/hello_resus
+import ../examples/gpio/hello_gpio_irq
+import ../examples/pwm/hello_pwm
+import ../examples/pwm/pwm_led_fade
+import ../examples/hello_serial
+import ../examples/hello_stdio
+import ../examples/hello_timestart
+import ../examples/hello_watchdog
+
 import ../examples/pico_w/picow_tls_client
 import ../examples/pico_w/picow_wifi_scan
 

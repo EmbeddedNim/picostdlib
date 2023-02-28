@@ -1,4 +1,4 @@
-import irq
+import ./irq
 
 type
   GpioFunction* {.pure, size: sizeof(uint8), importc: "enum gpio_function".} = enum
@@ -42,7 +42,7 @@ type
 {.push header: "hardware/gpio.h".}
 
 type
-  GpioIrqCallback* {.importc: "gpio_irq_callback_t".} = proc (gpio: Gpio; eventMask: uint32) {.cdecl.}
+  GpioIrqCallback* {.importc: "gpio_irq_callback_t".} = proc (gpio: Gpio; eventMask: set[GpioIrqLevel]) {.cdecl.}
 
 proc `==`*(a, b: Value): bool {.borrow.}
 proc `==`*(a, b: Gpio): bool {.borrow.}
@@ -248,7 +248,7 @@ proc gpioGetDriveStrength*(gpio: Gpio): GpioDriveStrength {.importc: "gpio_get_d
   ##    \return Current drive strength of that GPIO
   ## ```
 
-proc gpioSetIrqEnabled*(gpio: Gpio; eventMask: uint32; enabled: bool) {.importc: "gpio_set_irq_enabled".}
+proc gpioSetIrqEnabled*(gpio: Gpio; eventMask: set[GpioIrqLevel]; enabled: bool) {.importc: "gpio_set_irq_enabled".}
   ## ```
   ##   ! \brief Enable or disable specific interrupt events for specified GPIO
   ##     \ingroup hardware_gpio
@@ -293,7 +293,7 @@ proc gpioSetIrqCallback*(callback: GpioIrqCallback) {.importc: "gpio_set_irq_cal
   ##    \param callback default user function to call on GPIO irq. Note only one of these can be set per processor.
   ## ```
 
-proc gpioSetIrqEnabledWithCallback*(gpio: Gpio; eventMask: uint32; enabled: bool; callback: GpioIrqCallback) {.importc: "gpio_set_irq_enabled_with_callback".}
+proc gpioSetIrqEnabledWithCallback*(gpio: Gpio; eventMask: set[GpioIrqLevel]; enabled: bool; callback: GpioIrqCallback) {.importc: "gpio_set_irq_enabled_with_callback".}
   ## ```
   ##   ! \brief Convenience function which performs multiple GPIO IRQ related initializations
   ##     \ingroup hardware_gpio
@@ -327,7 +327,7 @@ proc gpioSetIrqEnabledWithCallback*(gpio: Gpio; eventMask: uint32; enabled: bool
   ##    \param callback user function to call on GPIO irq. if NULL, the callback is removed
   ## ```
 
-proc gpioSetDormantIrqEnabled*(gpio: Gpio; eventMask: uint32; enabled: bool) {.importc: "gpio_set_dormant_irq_enabled".}
+proc gpioSetDormantIrqEnabled*(gpio: Gpio; eventMask: set[GpioIrqLevel]; enabled: bool) {.importc: "gpio_set_dormant_irq_enabled".}
   ## ```
   ##   ! \brief Enable dormant wake up interrupt for specified GPIO and events
   ##     \ingroup hardware_gpio
@@ -340,7 +340,7 @@ proc gpioSetDormantIrqEnabled*(gpio: Gpio; eventMask: uint32; enabled: bool) {.i
   ##    \param enabled Enable/disable flag
   ## ```
 
-proc gpioGetIrqEventMask*(gpio: Gpio): uint32 {.importc: "gpio_get_irq_event_mask".}
+proc gpioGetIrqEventMask*(gpio: Gpio): set[GpioIrqLevel] {.importc: "gpio_get_irq_event_mask".}
   ## ```
   ##   ! \brief Return the current interrupt status (pending events) for the given GPIO
   ##     \ingroup hardware_gpio
@@ -350,7 +350,7 @@ proc gpioGetIrqEventMask*(gpio: Gpio): uint32 {.importc: "gpio_get_irq_event_mas
   ##    \sa gpio_acknowledge_irq
   ## ```
 
-proc gpioAcknowledgeIrq*(gpio: Gpio; eventMask: uint32) {.importc: "gpio_acknowledge_irq".}
+proc gpioAcknowledgeIrq*(gpio: Gpio; eventMask: set[GpioIrqLevel]) {.importc: "gpio_acknowledge_irq".}
   ## ```
   ##   ! \brief Acknowledge a GPIO interrupt for the specified events on the calling core
   ##     \ingroup hardware_gpio

@@ -1,5 +1,5 @@
-import structs/interp
-import base
+import ./structs/interp
+import ./base
 
 {.push header: "hardware/interp.h".}
 

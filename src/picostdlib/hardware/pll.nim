@@ -1,4 +1,4 @@
-import base
+import ./base
 
 type
   Pll* {.bycopy, importc: "pll_hw_t", header: "hardware/structs/pll.h".} = object

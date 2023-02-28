@@ -1,5 +1,6 @@
-import regs/clocks
-import gpio
+import ./regs/clocks
+import ./gpio
+export clocks
 
 type
   ClockIndex* {.pure, size: sizeof(cuint).} = enum

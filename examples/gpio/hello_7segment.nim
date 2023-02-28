@@ -1,5 +1,4 @@
-import picostdlib
-import picostdlib/[sevensegdisplay, time, gpio]
+import picostdlib/[pico/stdio, sevensegdisplay, pico/time, hardware/gpio]
 
 #This module counts seconds displaying the current on a seven segment display
 
@@ -14,10 +13,12 @@ proc setupPins =
   SevenSegPins[f] = SevenSegPins[g]
   SevenSegPins[g] = gPin
 
-setupPins()
-
-initPins()
 stdioInitAll()
+
+setupPins()
+initPins()
+
 while true:
-  let toDraw = getTime().time.div(1000000).mod(16).CharacterName
-  toDraw.draw
+  for toDraw in CharacterName:
+    toDraw.draw()
+    sleepMs(1000)

@@ -1,9 +1,8 @@
-import gpio
-
-{.push header: "hardware/pwm.h".}
+import ./gpio
+export gpio
 
 type
-  ClockDivideMode* {.pure, size: sizeof(cuint).} = enum
+  ClockDivideMode* {.pure.} = enum
     ## PWM Divider mode settings. 
     ## 
     ## **Modes:**
@@ -18,7 +17,7 @@ type
     ## 
     FreeRunning, High, Rising, Falling
 
-  PwmChannel* {.pure, size: sizeof(cuint).} = enum
+  PwmChannel* {.pure.} = enum
     ## Alias for channel parameter in the setChanLevel() procedure
     A, B
 

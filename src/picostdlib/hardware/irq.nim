@@ -1,4 +1,5 @@
-import regs/intctrl
+import ./regs/intctrl
+export intctrl
 
 const
   PICO_DEFAULT_IRQ_PRIORITY* = 0x80
