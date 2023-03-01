@@ -1,1 +1,0 @@
-../src/picostdlib/build_utils/template/csource/mbedtls_config.h

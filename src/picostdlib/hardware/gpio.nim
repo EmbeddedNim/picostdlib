@@ -1,7 +1,9 @@
 import ./irq
 
+{.push header: "hardware/gpio.h".}
+
 type
-  GpioFunction* {.pure, size: sizeof(uint8), importc: "enum gpio_function".} = enum
+  GpioFunction* {.pure, importc: "enum gpio_function".} = enum
     ## GPIO function definitions for use with function select. 
     ## Each GPIO can have one function selected at a time. Likewise, 
     ## each peripheral input (e.g. UART0 RX) should only be selected on one 
@@ -17,31 +19,45 @@ type
   Value* = distinct bool
     ## Gpio function value. See datasheet.
   
-  GpioOverride* {.pure, size: sizeof(cuint).} = enum
+  GpioIrqLevel* {.pure, importc: "enum gpio_irq_level".} = enum
+    ## GPIO Interrupt level definitions (GPIO events)
+    ##
+    ## An interrupt can be generated for every GPIO pin in 4 scenarios:
+    ##
+    ## * Level High: the GPIO pin is a logical 1
+    ## * Level Low: the GPIO pin is a logical 0
+    ## * Edge High: the GPIO has transitioned from a logical 0 to a logical 1
+    ## * Edge Low: the GPIO has transitioned from a logical 1 to a logical 0
+    ##
+    ## The level interrupts are not latched. This means that if the pin is a logical 1 and the level high interrupt is active, it will
+    ## become inactive as soon as the pin changes to a logical 0. The edge interrupts are stored in the INTR register and can be
+    ## cleared by writing to the INTR register.
+    LevelLow
+    LevelHigh
+    EdgeFall
+    EdgeRise
+
+  GpioOverride* {.pure, importc: "gpio_override".} = enum
     Normal  # peripheral signal selected via \ref gpio_set_function
     Invert  # invert peripheral signal selected via \ref gpio_set_function
     Low     # drive low/disable output
-    High     # drive high/enable output
+    High    # drive high/enable output
 
-  GpioSlewRate* {.pure, size: sizeof(cuint).} = enum
+  GpioSlewRate* {.pure, importc: "enum gpio_slew_rate".} = enum
+    ## Slew rate limiting levels for GPIO outputs
+    ##
+    ## Slew rate limiting increases the minimum rise/fall time when a GPIO output
+    ## is lightly loaded, which can help to reduce electromagnetic emissions.
+    ## \sa gpio_set_slew_rate
     Slow  # Slew rate limiting enabled
     Fast   # Slew rate limiting disabled
   
-  GpioDriveStrength* {.pure, size: sizeof(cuint).} = enum
+  GpioDriveStrength* {.pure, importc: "enum gpio_drive_strength".} = enum
     mA_2  # 2 mA nominal drive strength
     mA_4  # 4 mA nominal drive strength
     mA_8  # 2 mA nominal drive strength
     mA_12  # 12 mA nominal drive strength
-  
-  GpioIrqLevel* {.pure, size: sizeof(cuint).} = enum
-    Low = 0x1'u
-    High = 0x2'u
-    EdgeFall = 0x4'u
-    EdgeRise = 0x8'u
 
-{.push header: "hardware/gpio.h".}
-
-type
   GpioIrqCallback* {.importc: "gpio_irq_callback_t".} = proc (gpio: Gpio; eventMask: set[GpioIrqLevel]) {.cdecl.}
 
 proc `==`*(a, b: Value): bool {.borrow.}
@@ -58,7 +74,8 @@ const
     ## Alias that is useful for setDir() procedure
   Out* = true
     ## Alias that is useful for setDir() procedure
-  DefaultLedPin* = 25.Gpio
+
+let DefaultLedPin* {.importc: "PICO_DEFAULT_LED_PIN".}: Gpio
     ## constant variable for the on-board LED
 
 proc gpioSetFunction*(gpio: Gpio, fn: GpioFunction) {.importc: "gpio_set_function".}

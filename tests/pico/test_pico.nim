@@ -39,8 +39,6 @@ import picostdlib/pico/binary_info
 import picostdlib/pico/bit_ops
 import picostdlib/pico/bootrom
 import picostdlib/pico/critical_section
-import picostdlib/pico/cyw43_arch
-import picostdlib/pico/cyw43_driver
 import picostdlib/pico/divider
 import picostdlib/pico/double
 import picostdlib/pico/error
@@ -61,17 +59,6 @@ import picostdlib/pico/version
 
 import picostdlib/memoryinfo
 
-# futhark stuff
-import picostdlib/lib/lwip
-import picostdlib/lib/lwip_apps
-import picostdlib/lib/cyw43_driver
-import picostdlib/lib/btstack
-import picostdlib/lib/btstack_ble
-import picostdlib/lib/btstack_classic
-import picostdlib/lib/btstack_mesh
-import picostdlib/lib/btstack_le_audio
-# import picostdlib/lib/freertos
-
 # examples
 import ../examples/blink
 import ../examples/adc/hello_adc
@@ -80,6 +67,7 @@ import ../examples/clocks/hello_48mhz
 import ../examples/clocks/hello_gpout
 import ../examples/clocks/hello_resus
 import ../examples/gpio/hello_gpio_irq
+import ../examples/i2c/bus_scan
 import ../examples/pwm/hello_pwm
 import ../examples/pwm/pwm_led_fade
 import ../examples/hello_serial
@@ -87,8 +75,6 @@ import ../examples/hello_stdio
 import ../examples/hello_timestart
 import ../examples/hello_watchdog
 
-import ../examples/pico_w/picow_tls_client
-import ../examples/pico_w/picow_wifi_scan
 
 # include blink from template
 include ../src/picostdlib/build_utils/"template"/src/blink
