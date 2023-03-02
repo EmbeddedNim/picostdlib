@@ -33,6 +33,8 @@ import picostdlib/hardware/watchdog
 import picostdlib/hardware/xosc
 
 import picostdlib/pico/util/datetime
+import picostdlib/pico/util/pheap
+import picostdlib/pico/util/queue
 
 import picostdlib/pico/async_context
 import picostdlib/pico/binary_info

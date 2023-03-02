@@ -1,4 +1,5 @@
 import ../hardware/sync
+export sync
 
 {.push header: "pico/lock_core.h".}
 
