@@ -66,7 +66,7 @@ type
 
 let nimbleBackend = if backend.len > 0: backend else: "c"
 let extension = $parseEnum[BackendExtension](nimbleBackend)
-const nimcache = "build" / "nimcache"
+proc nimcache(program: string): string = "build" / program / "nimcache"
 const importPath = "csource" / "imports.cmake"
 const cMakeIncludeTemplate = """
 # This is a generated file do not modify it, 'picostdlib' makes it every build.
@@ -126,9 +126,9 @@ proc getLinkedLib(fileName: string): set[LinkableLib] =
     else:
       break
 
-proc getPicoLibs(extension: string): string =
+proc getPicoLibs(program: string, extension: string): string =
   var libs: set[LinkableLib]
-  for kind, path in walkDir(nimcache):
+  for kind, path in walkDir(nimcache(program)):
     if kind == pcFile and path.endsWith(fmt".{extension}"):
       libs.incl getLinkedLib(path)
 
@@ -144,7 +144,7 @@ proc genCMakeInclude(projectName: string) =
   # rmFile(importPath)
 
   # pico-sdk libs
-  let strLibs = getPicoLibs(extension)
+  let strLibs = getPicoLibs(projectName, extension)
 
   # only update file if contents change
   # to prevent CMake from reconfiguring
@@ -157,12 +157,12 @@ proc genCMakeInclude(projectName: string) =
     writeFile(importPath, fmt(cMakeIncludeTemplate))
 
 task fastclean, "Clean task":
-  rmDir(nimcache)
   let selectedBins = getSelectedBins()
   for program in bin:
     if program notin selectedBins:
       continue
-    let name = program.splitPath.tail
+
+    rmDir(nimcache(program))
 
     if dirExists("build" / program):
       echo "Cleaning ", "build" / program
@@ -171,7 +171,6 @@ task fastclean, "Clean task":
       exec(command)
 
 task distclean, "Distclean task":
-  rmDir(nimcache)
   let selectedBins = getSelectedBins()
   for program in bin:
     if program notin selectedBins:
@@ -195,18 +194,17 @@ task configure, "Setup task":
   for program in bin:
     if program notin selectedBins:
       continue
-    let name = program.splitPath.tail
 
-    let jsonFileCached = nimcache / name & ".cached.json"
+    let jsonFileCached = nimcache(program) / program & ".cached.json"
 
     # truncate the json cache file
     # for CMake to detect changes later
-    mkDir(nimcache)
+    mkDir(nimcache(program))
     writeFile(jsonFileCached, "")
 
     var cmakeArgs: seq[string]
     cmakeArgs.add "-DPICO_SDK_FETCH_FROM_GIT=on"
-    cmakeArgs.add "-DOUTPUT_NAME=" & name
+    cmakeArgs.add "-DOUTPUT_NAME=" & program
     cmakeArgs.add "-S"
     cmakeArgs.add "csource"
     cmakeArgs.add "-B"
@@ -220,16 +218,14 @@ before build:
   # delete the nimcache json files
   # afterBuild hook will only build those that have a json file
   for program in bin:
-    let name = program.splitPath.tail
-    let jsonFile = nimcache / name & ".json"
+    let jsonFile = nimcache(program) / program & ".json"
     if fileExists(jsonFile):
       rmFile(jsonFile)
 
 
 after build:
   for program in bin:
-    let name = program.splitPath.tail
-    let jsonFile = nimcache / name & ".json"
+    let jsonFile = nimcache(program) / program & ".json"
     let jsonFileCached = jsonFile.changeFileExt(".cached.json")
     if not fileExists(jsonFile):
       continue

@@ -68,15 +68,15 @@ proc createProject(projectPath: string; sdk = "", override = false) =
       createDir(filepath.parentDir)
       writeFile(filepath, embeddedFiles[f])
 
-    let nimbleFile = projectPath / fmt"{name}.nimble"
     # rename nim file
     moveFile(projectPath / "src/blink.nim", projectPath / fmt"src/{name}.nim")
-    # moveFile(projectPath / "template.nimble", nimbleFile)
 
     # change all instances of template `blink` to the project name
-    let cmakelists = (projectPath / "/csource/CMakeLists.txt")
-    cmakelists.writeFile cmakelists.readFile.replace("blink", name)
+    let nimbleFile = projectPath / name & ".nimble"
+    # moveFile(projectPath / "template.nimble", nimbleFile)
     nimbleFile.writeFile(nimbleFile.readFile() & "requires \"picostdlib >= 0.3.2\"\n\ninclude picostdlib/build_utils/tasks\n")
+    let cmakelists = projectPath / "csource" / "CMakeLists.txt"
+    cmakelists.writeFile cmakelists.readFile.replace("blink", name)
 
   # doSetup(projectPath, name, sdk=sdk)
   #[

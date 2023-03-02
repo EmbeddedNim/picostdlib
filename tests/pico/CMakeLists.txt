@@ -40,7 +40,7 @@ pico_sdk_init()
 # set(FREERTOS_KERNEL_PATH ${freertos_kernel_SOURCE_DIR})
 # include(${FREERTOS_KERNEL_PATH}/portable/ThirdParty/GCC/RP2040/FreeRTOS_Kernel_import.cmake)
 
-set(NIMCACHE_DIR "${CMAKE_CURRENT_BINARY_DIR}/../nimcache")
+set(NIMCACHE_DIR "${CMAKE_CURRENT_BINARY_DIR}/nimcache")
 set(NIMCACHE_JSON_FILE "${NIMCACHE_DIR}/${OUTPUT_NAME}.cached.json")
 
 # Get the Nim include path to get nimbase.h
