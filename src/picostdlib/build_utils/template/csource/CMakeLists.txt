@@ -45,7 +45,7 @@ set(NIMCACHE_JSON_FILE "${NIMCACHE_DIR}/${OUTPUT_NAME}.cached.json")
 
 # Get the Nim include path to get nimbase.h
 execute_process(
-  COMMAND nim "--verbosity:0" "--eval:import std/os; echo getCurrentCompilerExe().parentDir.parentDir / \"lib\""
+  COMMAND sh "-c" "nim dump --dump.format:json --hints:off - | jq -r .lib_paths[-1]"
   OUTPUT_VARIABLE NIM_INCLUDE_PATH
   OUTPUT_STRIP_TRAILING_WHITESPACE
 )
