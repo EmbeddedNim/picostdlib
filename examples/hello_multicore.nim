@@ -1,5 +1,4 @@
-import picostdlib/[gpio, multicore]
-import picostdlib
+import picostdlib/[pico/stdio, pico/multicore, pico/time, pico/platform]
 
 stdioInitAll()
 
@@ -9,8 +8,9 @@ proc coreOneActv() {.cdecl.} = #this function works on core1 (you must use pragm
   for addx in 1..10:
     value.inc() #core1 increase "value".
     print("@On Core 1 --> " & $value & '\n')
-    sleep(600)
+    sleepMs(600)
   multicoreFifoPushBlocking(value) # push the value of "value" on the FIFO (core1-->core0).
+  while true: tightLoopContents()
   
 var counter: uint32 = 0 #counting variable.
 var step: uint32 = 0 #step variable.
@@ -24,10 +24,8 @@ while true:
   else:
     print("@On Core 0 --> " & $counter & '\n') #print  the variable "counter" increased by core0.
     counter.inc() #core0 increase "counter".
-    sleep(1200)
+    sleepMs(1200)
 
   if multicoreFifoRvalid() == true: #check the FIFO (core1-->core0) if it has valid values (uint32).
     step = multicoreFifoPopBlocking()
     print("Next Activation Core 1: " & $(step + 10) & '\n')
-
- #to ...csource/CMakeLists.txt add target_link_libraries(tests pico_stdlib hardware_adc hardware_pwm) add--> (pico_multicore)
