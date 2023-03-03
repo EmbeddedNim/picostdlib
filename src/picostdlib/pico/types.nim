@@ -10,7 +10,7 @@ else:
       time*{.importc: "_private_us_since_boot".}: uint64
 
 type
-  DateTime* {.bycopy, importc: "datetime_t".} = object
+  Datetime* {.bycopy, importc: "datetime_t".} = object
     # Structure containing date and time information
     # When setting an RTC alarm, set a field to -1 tells
     # the RTC to not match on this field
@@ -22,7 +22,7 @@ type
     min* {.importc.}: int8    # 0..59
     sec* {.importc.}: int8    # 0..59
 
-  # DateTime* = object
+  # Datetime* = object
   #   year*: 0u16..4095u16
   #   month*: 1u8..12u8
   #   day*: 1u8..31u8

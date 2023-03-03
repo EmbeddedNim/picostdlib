@@ -12,7 +12,7 @@ proc rtcInit*() {.importc: "rtc_init".}
   ##     \ingroup hardware_rtc
   ## ```
 
-proc rtcSetDateTime*(t: ptr DateTime): bool {.importc: "rtc_set_datetime".}
+proc rtcSetDatetime*(t: ptr Datetime): bool {.importc: "rtc_set_datetime".}
   ## ```
   ##   ! \brief Set the RTC to the specified time
   ##     \ingroup hardware_rtc
@@ -25,7 +25,7 @@ proc rtcSetDateTime*(t: ptr DateTime): bool {.importc: "rtc_set_datetime".}
   ##    \return true if set, false if the passed in datetime was invalid.
   ## ```
 
-proc rtcGetDateTime*(t: ptr DateTime): bool {.importc: "rtc_get_datetime".}
+proc rtcGetDatetime*(t: ptr Datetime): bool {.importc: "rtc_get_datetime".}
   ## ```
   ##   ! \brief Get the current time from the RTC
   ##     \ingroup hardware_rtc
@@ -40,7 +40,7 @@ proc rtcRunning*(): bool {.importc: "rtc_running".}
   ##     \ingroup hardware_rtc
   ## ```
 
-proc rtcSetAlarm*(t: ptr DateTime; userCallback: RtcCallback) {.importc: "rtc_set_alarm".}
+proc rtcSetAlarm*(t: ptr Datetime; userCallback: RtcCallback) {.importc: "rtc_set_alarm".}
   ## ```
   ##   ! \brief Set a time in the future for the RTC to call a user provided callback
   ##     \ingroup hardware_rtc

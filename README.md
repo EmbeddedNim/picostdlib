@@ -5,7 +5,7 @@ programs for RP2040 based devices (such as the Raspberry Pi Pico) in the
 [Nim](https://nim-lang.org/) programming language
 
 The libary provides wrappers for the original [Raspberry Pi Pico
-SDK](https://github.com/raspberrypi/pico-sdk). The following features are
+SDK](https://github.com/raspberrypi/pico-sdk). Supports SDK version 1.5.0. The following features are
 currently implemented:
 
 * Project generator using the `piconim` tool.
