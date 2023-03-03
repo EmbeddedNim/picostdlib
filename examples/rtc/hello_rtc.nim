@@ -1,7 +1,6 @@
 import picostdlib/[pico/stdio, hardware/rtc, pico/util/datetime, pico/time]
 
 stdioInitAll()
-
 echo "Hello RTC!"
 
 # Start on Friday 5th of June 2020 15:45:00

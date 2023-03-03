@@ -73,6 +73,7 @@ import ../examples/i2c/bus_scan
 import ../examples/pwm/hello_pwm
 import ../examples/pwm/pwm_led_fade
 import ../examples/rtc/hello_rtc
+import ../examples/rtc/rtc_alarm
 import ../examples/hello_serial
 import ../examples/hello_stdio
 import ../examples/hello_timestart

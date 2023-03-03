@@ -29,7 +29,7 @@ var rxdata: uint8
 for address in 0..<(1 shl 7):
   if address mod 16 == 0:
     stdout.write(address.toHex(2) & " ")
-    stdout.flushFile()
+    stdioFlush()
 
     # Perform a 1-byte dummy read from the probe address. If a slave
     # acknowledges this address, the function returns the number of bytes
@@ -44,6 +44,6 @@ for address in 0..<(1 shl 7):
 
     stdout.write(if ret < 0: '.' else: '@')
     stdout.write(if address mod 16 == 15: "\n" else: "  ")
-    stdout.flushFile()
+    stdioFlush()
 
 echo "Done"
