@@ -19,7 +19,7 @@ type
     ##    \ingroup alarm
     ## ```
 
-  AlarmCallback* {.importc: "alarm_callback_t".} = proc(id: AlarmId, userData: pointer) {.cdecl.}
+  AlarmCallback* {.importc: "alarm_callback_t".} = proc(id: AlarmId, userData: pointer): int64 {.cdecl.}
     ## ```
     ##   ! \brief User alarm callback
     ##    \ingroup alarm
@@ -56,6 +56,9 @@ let
 
   nilTime* {.importc: "nil_time".}: AbsoluteTime
     ## The timestamp representing a null timestamp
+
+proc `==`*(a, b: AlarmId): bool {.borrow.}
+proc `$`*(a: AlarmId): string {.borrow.}
 
 
 ## MODULE TIMESTAMP
