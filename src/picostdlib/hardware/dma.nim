@@ -1,12 +1,11 @@
+{.push header: "hardware/dma.h".}
+
 type
-  DmaChannelTransferSize* {.pure, size: sizeof(cuint).} = enum
+  DmaChannelTransferSize* {.pure, importc: "enum dma_channel_transfer_size".} = enum
     DmaSize8
     DmaSize16
     DmaSize32
 
-{.push header: "hardware/dma.h".}
-
-type
   DmaChannelConfig* {.bycopy, importc: "dma_channel_config".} = object
     ctrl* {.importc.}: uint32
 
@@ -283,7 +282,7 @@ proc channelConfigGetCtrlValue*(config: ptr DmaChannelConfig): uint32 {.importc:
   ## 
   ## **returns** Register content
 
-proc dma_channel_set_config*(channel: cuint; config: ptr DmaChannelConfig; trigger: bool) {.importc: "dma_channel_set_config".}
+proc dmaChannelSetConfig*(channel: cuint; config: ptr DmaChannelConfig; trigger: bool) {.importc: "dma_channel_set_config".}
   ## Set a channel configuration
   ## 
   ## **Parameters:**
@@ -326,7 +325,7 @@ proc dmaChannelSetTransCount*(channel: cuint; transCount: uint32; trigger: bool)
   ## **transCount**    The number of transfers (not NOT bytes, see channelConfigSetTransferDataSize)
   ## **trigger**       True to start the transfer immediately
   ## ===============  ====== 
-proc dma_channel_configure*(channel: cuint; config: ptr DmaChannelConfig; writeAddr: pointer; readAddr: pointer; transferCount: cuint; trigger: bool) {.importc: "dma_channel_configure".}
+proc dmaChannelConfigure*(channel: cuint; config: ptr DmaChannelConfig; writeAddr: pointer; readAddr: pointer; transferCount: cuint; trigger: bool) {.importc: "dma_channel_configure".}
   ## Configure all DMA parameters and optionally start transfer
   ## 
   ## **Parameters:**
@@ -600,8 +599,37 @@ proc dmaSnifferSetByteSwapEnabled*(swap: bool) {.importc: "dma_sniffer_set_byte_
   ## **swap**    Set true to enable byte swapping
   ## =========  ====== 
 
+proc dmaSnifferSetOutputInvertEnabled*(invert: bool) {.importc: "dma_sniffer_set_output_invert_enabled".}
+  ## Enable the Sniffer output invert function
+  ##
+  ## If enabled, the sniff data result appears bit-inverted when read.
+  ## This does not affect the way the checksum is calculated.
+  ##
+  ## \param invert Set true to enable output bit inversion
+
+proc dmaSnifferSetOutputReverseEnabled*(reverse: bool) {.importc: "dma_sniffer_set_output_reverse_enabled".}
+  ## Enable the Sniffer output bit reversal function
+  ##
+  ## If enabled, the sniff data result appears bit-reversed when read.
+  ## This does not affect the way the checksum is calculated.
+  ##
+  ## \param reverse Set true to enable output bit reversal
+
 proc dmaSnifferDisable*() {.importc: "dma_sniffer_disable".}
   ## Disable the DMA sniffer
+
+proc dmaSnifferSetDataAccumulator*(seedValue: uint32) {.importc: "dma_sniffer_set_data_accumulator".}
+  ## Set the sniffer's data accumulator with initial value
+  ##
+  ## Generally, CRC algorithms are used with the data accumulator initially
+  ## seeded with 0xFFFF or 0xFFFFFFFF (for crc16 and crc32 algorithms)
+  ##
+  ## \param seed_value value to set data accumulator
+
+proc dmaSnifferGetDataAccumulator*(): uint32 {.importc: "dma_sniffer_get_data_accumulator".}
+  ## Get the sniffer's data accumulator value
+  ##
+  ## Read value calculated by the hardware from sniffing the DMA stream
 
 proc dmaTimerClaim*(timer: cuint) {.importc: "dma_timer_claim".}
   ## Mark a dma timer as used

@@ -16,8 +16,6 @@ type
     Adc     # ADC clock
     Rtc     # Real Time Clock
 
-
-type
   ResusCallback* {.importc: "resus_callback_t".} = proc () {.cdecl.}
 
 const

@@ -68,6 +68,7 @@ import ../examples/adc/onboard_temperature
 import ../examples/clocks/hello_48mhz
 import ../examples/clocks/hello_gpout
 import ../examples/clocks/hello_resus
+import ../examples/dma/hello_dma
 import ../examples/gpio/hello_gpio_irq
 import ../examples/i2c/bus_scan
 import ../examples/pwm/hello_pwm
