@@ -22,14 +22,13 @@ dmaChannelConfigure(
   c.addr,            # The configuration we just created
   dst[0].addr,       # The initial write address
   src[0].unsafeAddr, # The initial read address
-  src.len.cuint,           # Number of transfers; in this case each is 1 byte.
+  src.len.cuint,     # Number of transfers; in this case each is 1 byte.
   true               # Start immediately.
 )
 
 # We could choose to go and do something else whilst the DMA is doing its
 # thing. In this case the processor has nothing else to do, so we just
 # wait for the DMA to finish.
-
 dmaChannelWaitForFinishBlocking(chan.cuint)
 
 # The DMA has now copied our text from the transmit buffer (src) to the
