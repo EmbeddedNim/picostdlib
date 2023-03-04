@@ -2,15 +2,13 @@
 ## cpp backend needs this to be defined
 {.emit: "struct uart_inst {};".}
 
-
-type
-  UartParity* {.pure, size: sizeof(cuint).} = enum
-    ## UART Parity enumeration
-    None, Even, Odd
-
 {.push header: "hardware/uart.h".}
 
 type
+  UartParity* {.pure, importc: "uart_parity_t".} = enum
+    ## UART Parity enumeration
+    None, Even, Odd
+
   UartInst* {.importc: "uart_inst_t", bycopy.} = object
     ## Currently always a pointer to hw but it might not be in the future
 
