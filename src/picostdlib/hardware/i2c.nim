@@ -1,21 +1,18 @@
-import ./structs/i2c, ./gpio
-import ../pico/types
-export gpio, types
+import ./structs/i2c, ./gpio, ../pico/types
+export i2c, gpio, types
 
 {.push header: "hardware/i2c.h".}
 
 type
   I2cInst* {.importc: "struct i2c_inst".} = object
-    hw* {.importc.}: ptr I2cHw
+    hw* {.importc: "hw".}: ptr I2cHw
     restartOnNext* {.importc: "restart_on_next".}: bool
 
   I2cAddress* = distinct range[0'u8 .. 127'u8]
 
-var
+let
   i2c0Inst* {.importc: "i2c0_inst".}: I2cInst
   i2c1Inst* {.importc: "i2c1_inst".}: I2cInst
-
-let
   i2c0* {.importc: "i2c0".}: ptr I2cInst
   i2c1* {.importc: "i2c1".}: ptr I2cInst
   i2cDefault* {.importc: "i2c_default".}: ptr I2cInst

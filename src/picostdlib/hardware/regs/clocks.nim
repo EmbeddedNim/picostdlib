@@ -1,7 +1,7 @@
 type
   ClocksFc0Src* {.pure.} = enum
-    # Clock sent to frequency counter, set to 0 when not required
-    # Writing to this register initiates the frequency count
+    ## Clock sent to frequency counter, set to 0 when not required.
+    ## Writing to this register initiates the frequency count
     Null
     PllSysClksrcPrimary
     PllUsbClksrcPrimary
@@ -18,7 +18,7 @@ type
     ClkRtc
 
   ClocksClkGpoutCtrlAuxSrc* {.pure.} = enum
-    # Selects the auxiliary clock source, will glitch when switching
+    ## Selects the auxiliary clock source, will glitch when switching
     ClksrcPllSys
     ClksrcGpin0
     ClksrcGpin1
@@ -32,7 +32,7 @@ type
     ClkRef
 
   ClocksClkSysCtrlAuxSrc* {.pure.} = enum
-    # Selects the auxiliary clock source, will glitch when switching
+    ## Selects the auxiliary clock source, will glitch when switching
     ClksrcPllSys
     ClksrcPllUsb
     RoscClksrc
