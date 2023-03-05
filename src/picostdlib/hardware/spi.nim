@@ -2,23 +2,21 @@
 ## cpp backend needs this to be defined
 {.emit: "struct spi_inst {};".}
 
-
-type
-  SpiClockPhase* {.pure, size: sizeof(cuint).} = enum
-    ## Enumeration of SPI CPHA (clock phase) values.
-    Phase0, Phase1
-
-  SpiClockPolarity* {.pure, size: sizeof(cuint).} = enum
-    ## Enumeration of SPI CPOL (clock polarity) values.
-    Pol0, Pol1
-
-  SpiOrder* {.pure, size: sizeof(cuint).} = enum
-    ## Enumeration of SPI bit-order values.
-    LsbFirst, MsbFirst
-
 {.push header: "hardware/spi.h".}
 
 type
+  SpiClockPhase* {.pure, importc: "spi_cpha_t".} = enum
+    ## Enumeration of SPI CPHA (clock phase) values.
+    Phase0, Phase1
+
+  SpiClockPolarity* {.pure, importc: "spi_cpol_t".} = enum
+    ## Enumeration of SPI CPOL (clock polarity) values.
+    Pol0, Pol1
+
+  SpiOrder* {.pure, importc: "spi_order_t".} = enum
+    ## Enumeration of SPI bit-order values.
+    LsbFirst, MsbFirst
+
   SpiInst* {.importc: "spi_inst_t", bycopy.} = object
     ## Opaque type representing an SPI instance.
 
@@ -75,7 +73,6 @@ proc spiGetIndex*(spi: ptr SpiInst): cuint {.importc: "spi_get_index".}
   ##   
   ##    \param spi SPI instance
   ##    \return Number of SPI, 0 or 1.
-
 
 proc spiSetFormat*(spi: ptr SpiInst; dataBits: cuint(4) .. cuint(16); cpol: SpiClockPolarity; cpha: SpiClockPhase; order: SpiOrder) {.importc: "spi_set_format".}
   ## Configure SPI
