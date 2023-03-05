@@ -2,7 +2,17 @@ import ./gpio
 export gpio
 
 type
-  ClockDivideMode* {.pure.} = enum
+
+  PwmChannel* {.pure.} = enum
+    ## Alias for channel parameter in the setChanLevel() procedure
+    A, B
+
+  PwmSliceNum* = distinct cuint
+
+{.push header: "hardware/pwm.h".}
+
+type
+  PwmClkdivMode* {.pure, importc: "enum pwm_clkdiv_mode".} = enum
     ## PWM Divider mode settings. 
     ## 
     ## **Modes:**
@@ -15,17 +25,8 @@ type
     ## ================  ====== 
     ##
     ## 
-    FreeRunning, High, Rising, Falling
+    FreeRunning, BHigh, BRising, BFalling
 
-  PwmChannel* {.pure.} = enum
-    ## Alias for channel parameter in the setChanLevel() procedure
-    A, B
-
-  PwmSliceNum* = distinct cuint
-
-{.push header: "hardware/pwm.h".}
-
-type
   PwmConfig* {.pure, byref, importc: "pwm_config".} = object
     ## Configuration object for PWM  tasks
     csr* {.importc.}: uint32
@@ -110,7 +111,7 @@ proc pwmConfigSetClkDivInt*(pwmConfig: ptr PwmConfig, divider: cuint) {.importc:
   ## =============  ====== 
   ## 
 
-proc pwmConfigSetClkDivMode*(pwmConfig: ptr PwmConfig, mode: ClockDivideMode) {.importc: "pwm_config_set_clkdiv_mode".}
+proc pwmConfigSetClkDivMode*(pwmConfig: ptr PwmConfig, mode: PwmClkdivMode) {.importc: "pwm_config_set_clkdiv_mode".}
   ## Set PWM counting mode in a PWM configuration. 
   ## 
   ## Configure which event gates the operation of the fractional divider. The 
@@ -326,7 +327,7 @@ proc pwmSetOutputPolarity*(sliceNum: PwmSliceNum, a, b: bool) {.importc: "pwm_se
   ## **b**           true to invert output B 
   ## =============  ====== 
 
-proc pwmSetClkDivMode*(sliceNum: PwmSliceNum, mode: ClockDivideMode) {.importc: "pwm_set_clkdiv_mode".}
+proc pwmSetClkDivMode*(sliceNum: PwmSliceNum, mode: PwmClkdivMode) {.importc: "pwm_set_clkdiv_mode".}
   ## Set PWM divider mode. 
   ## 
   ## **Parameters**
