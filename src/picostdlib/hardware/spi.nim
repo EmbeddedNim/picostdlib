@@ -1,3 +1,6 @@
+import ./structs/spi
+export spi
+
 ## spi_inst struct does not exist
 ## cpp backend needs this to be defined
 {.emit: "struct spi_inst {};".}
