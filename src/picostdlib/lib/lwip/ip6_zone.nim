@@ -123,12 +123,12 @@ when defined(lwipIpv6):
       ip6AddrZoneEq(ip6addr1, ip6addr2)
 
     ## * Are the zone fields of the given IPv6 addresses equal? (0/1)
-    ##  This macro must only be used on IPv6 addresses of the same scope.
+    ## This macro must only be used on IPv6 addresses of the same scope.
     template ip6AddrZoneEq*(ip6addr1, ip6addr2: untyped): untyped =
       ((ip6addr1).zone == (ip6addr2).zone)
 
     ## * Symbolic constants for the 'type' parameters in some of the macros.
-    ##  These exist for efficiency only, allowing the macros to avoid certain tests
+    ## These exist for efficiency only, allowing the macros to avoid certain tests
     ##  when the address is known not to be of a certain type. Dead code elimination
     ##  will do the rest. IP6_MULTICAST is supported but currently not optimized.
     ##  @see ip6_addr_has_scope, ip6_addr_assign_zone, ip6_addr_lacks_zone.
@@ -141,8 +141,8 @@ when defined(lwipIpv6):
     ## * IPV6_CUSTOM_SCOPES: together, the following three macro definitions,
     ##  @ref ip6_addr_has_scope, @ref ip6_addr_assign_zone, and
     ##  @ref ip6_addr_test_zone, completely define the lwIP scoping policy.
-    ##  The definitions below implement the default policy from RFC 4007 Sec. 6.
-    ##  Should an implementation desire to implement a different policy, it can
+    ## The definitions below implement the default policy from RFC 4007 Sec. 6.
+    ## Should an implementation desire to implement a different policy, it can
     ##  define IPV6_CUSTOM_SCOPES to 1 and supply its own definitions for the three
     ##  macros instead.
     ##
@@ -151,15 +151,15 @@ when defined(lwipIpv6):
         IPV6_CUSTOM_SCOPES* = 0
     when not defined(ipv6CustomScopes):
       ## *
-      ##  Determine whether an IPv6 address has a constrained scope, and as such is
+      ## Determine whether an IPv6 address has a constrained scope, and as such is
       ##  meaningful only if accompanied by a zone index to identify the scope's zone.
-      ##  The given address type may be used to eliminate at compile time certain
+      ## The given address type may be used to eliminate at compile time certain
       ##  checks that will evaluate to false at run time anyway.
       ##
-      ##  This default implementation follows the default model of RFC 4007, where
+      ## This default implementation follows the default model of RFC 4007, where
       ##  only interface-local and link-local scopes are defined.
       ##
-      ##  Even though the unicast loopback address does have an implied link-local
+      ## Even though the unicast loopback address does have an implied link-local
       ##  scope, in this implementation it does not have an explicitly assigned zone
       ##  index. As such it should not be tested for in this macro.
       ##
@@ -174,14 +174,14 @@ when defined(lwipIpv6):
             ip6AddrIsmulticastLinklocal(ip6addr))))
 
       ## *
-      ##  Assign a zone index to an IPv6 address, based on a network interface. If the
+      ## Assign a zone index to an IPv6 address, based on a network interface. If the
       ##  given address has a scope, the assigned zone index is that scope's zone of
       ##  the given netif; otherwise, the assigned zone index is "no zone".
       ##
-      ##  This default implementation follows the default model of RFC 4007, where
+      ## This default implementation follows the default model of RFC 4007, where
       ##  only interface-local and link-local scopes are defined, and the zone index
       ##  of both of those scopes always equals the index of the network interface.
-      ##  As such, this default implementation need not distinguish between different
+      ## As such, this default implementation need not distinguish between different
       ##  constrained scopes when assigning the zone.
       ##
       ##  @param ip6addr the IPv6 address; its address part is examined, and its zone
@@ -194,17 +194,17 @@ when defined(lwipIpv6):
             netif) else: 0))
 
       ## *
-      ##  Test whether an IPv6 address is "zone-compatible" with a network interface.
-      ##  That is, test whether the network interface is part of the zone associated
+      ## Test whether an IPv6 address is "zone-compatible" with a network interface.
+      ## That is, test whether the network interface is part of the zone associated
       ##  with the address. For efficiency, this macro is only ever called if the
       ##  given address is either scoped or zoned, and thus, it need not test this.
-      ##  If an address is scoped but not zoned, or zoned and not scoped, it is
+      ## If an address is scoped but not zoned, or zoned and not scoped, it is
       ##  considered not zone-compatible with any netif.
       ##
-      ##  This default implementation follows the default model of RFC 4007, where
+      ## This default implementation follows the default model of RFC 4007, where
       ##  only interface-local and link-local scopes are defined, and the zone index
       ##  of both of those scopes always equals the index of the network interface.
-      ##  As such, there is always only one matching netif for a specific zone index,
+      ## As such, there is always only one matching netif for a specific zone index,
       ##  but all call sites of this macro currently support multiple matching netifs
       ##  as well (at no additional expense in the common case).
       ##
@@ -221,18 +221,18 @@ when defined(lwipIpv6):
       (not ip6AddrHasZone(ip6addr) and ip6AddrHasScope((ip6addr), (`type`)))
 
     ## *
-    ##  Try to select a zone for a scoped address that does not yet have a zone.
-    ##  Called from PCB bind and connect routines, for two reasons: 1) to save on
+    ## Try to select a zone for a scoped address that does not yet have a zone.
+    ## Called from PCB bind and connect routines, for two reasons: 1) to save on
     ##  this (relatively expensive) selection for every individual packet route
     ##  operation and 2) to allow the application to obtain the selected zone from
     ##  the PCB as is customary for e.g. getsockname/getpeername BSD socket calls.
     ##
-    ##  Ideally, callers would always supply a properly zoned address, in which case
+    ## Ideally, callers would always supply a properly zoned address, in which case
     ##  this function would not be needed. It exists both for compatibility with the
-    ##  BSD socket API (which accepts zoneless destination addresses) and for
+    ## BSD socket API (which accepts zoneless destination addresses) and for
     ##  backward compatibility with pre-scoping lwIP code.
     ##
-    ##  It may be impossible to select a zone, e.g. if there are no netifs.  In that
+    ## It may be impossible to select a zone, e.g. if there are no netifs.  In that
     ##  case, the address's zone field will be left as is.
     ##
     ##  @param dest the IPv6 address for which to select and set a zone.

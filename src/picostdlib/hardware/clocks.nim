@@ -94,8 +94,7 @@ proc clocksEnableResus*(resusCallback: ResusCallback) {.importc: "clocks_enable_
   ## ==================  ======
 
 proc clockGpioInitIntFrac*(gpio: Gpio; src: ClocksClkGpoutCtrlAuxSrc; divInt: uint32; divFrac: uint8) {.importc: "clock_gpio_init_int_frac".}
-  ## \brief Output an optionally divided clock to the specified gpio pin.
-  ## \ingroup hardware_clocks
+  ## Output an optionally divided clock to the specified gpio pin.
   ##
   ## \param gpio The GPIO pin to output the clock to. Valid GPIOs are: 21, 23, 24, 25. These GPIOs are connected to the GPOUT0-3 clock generators.
   ## \param src  The source clock. See the register field CLOCKS_CLK_GPOUT0_CTRL_AUXSRC for a full list. The list is the same for each GPOUT clock generator.

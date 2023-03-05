@@ -5,14 +5,6 @@ const picoSdkPath* {.strdefine.} = os.getEnv("PICO_SDK_PATH")
 const cmakeBinaryDir* {.strdefine.} = os.getEnv("CMAKE_BINARY_DIR")
 const cmakeSourceDir* {.strdefine.} = os.getEnv("CMAKE_SOURCE_DIR")
 
-const clangIncludePath* = static:
-  const inclDir = staticExec("clang -print-resource-dir") & "/include"
-  when dirExists(inclDir):
-    inclDir
-  else:
-    {.warning: "futhark: clang include path not found".}
-    ""
-
 func futharkRenameCallback*(name: string; kind: string; partof: string): string =
   result = name
   if kind in ["struct", "anon", "typedef", "enum"] and result.len > 0:

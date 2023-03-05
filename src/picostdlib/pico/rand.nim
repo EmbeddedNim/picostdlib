@@ -6,7 +6,7 @@ type
     r* {.importc: "r".}: array[2, uint64]
 
 proc getRand128*(rand128: var Rng128) {.importc: "get_rand_128".}
-  ##  \brief Get 128-bit random number
+  ## Get 128-bit random number
   ##  \ingroup pico_rand
   ##
   ## This method may be safely called from either core or from an IRQ, but be careful in the latter case as
@@ -15,7 +15,7 @@ proc getRand128*(rand128: var Rng128) {.importc: "get_rand_128".}
   ## \param rand128 Pointer to storage to accept a 128-bit random number
 
 proc getRand64*(): uint64 {.importc: "get_rand_64".}
-  ##  \brief Get 64-bit random number
+  ## Get 64-bit random number
   ##  \ingroup pico_rand
   ##
   ## This method may be safely called from either core or from an IRQ, but be careful in the latter case as
@@ -24,7 +24,7 @@ proc getRand64*(): uint64 {.importc: "get_rand_64".}
   ## \return 64-bit random number
 
 proc getRand32*(): uint32 {.importc: "get_rand_32".}
-  ##  \brief Get 32-bit random number
+  ## Get 32-bit random number
   ##  \ingroup pico_rand
   ##
   ## This method may be safely called from either core or from an IRQ, but be careful in the latter case as

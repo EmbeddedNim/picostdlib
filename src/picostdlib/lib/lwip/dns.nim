@@ -44,7 +44,7 @@ when defined(lwipDns):
   ## * DNS timer period
   const
     DNS_TMR_INTERVAL* = 1000
-  ##  DNS resolve types:
+  ## DNS resolve types:
   const
     LWIP_DNS_ADDRTYPE_IPV4* = 0
     LWIP_DNS_ADDRTYPE_IPV6* = 1
@@ -81,7 +81,7 @@ when defined(lwipDns):
   when defined(lwipIpv6):
     var dnsMqueryV6group* {.importc: "dns_mquery_v6group", header: "lwip/dns.h".}: IpAddrT
   ## * Callback which is invoked when a hostname is found.
-  ##  A function of this type must be implemented by the application using the DNS resolver.
+  ## A function of this type must be implemented by the application using the DNS resolver.
   ##  @param name pointer to the name that was looked up.
   ##  @param ipaddr pointer to an ip_addr_t containing the IP address of the hostname,
   ##         or NULL if the name could not be found (or on any other error).

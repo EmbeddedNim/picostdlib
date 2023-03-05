@@ -81,7 +81,7 @@ when defined(lwipTcp):
 
   type
     TcpAcceptFn* = proc (arg: pointer; newpcb: ptr TcpPcb; err: ErrT): ErrT {.cdecl.}
-      ##  Function prototype for tcp accept callback functions. Called when a new
+      ## Function prototype for tcp accept callback functions. Called when a new
       ##  connection can be accepted on a listening pcb.
       ## 
       ##  @param arg Additional argument to pass to the callback function (@see tcp_arg())
@@ -106,7 +106,7 @@ when defined(lwipTcp):
     TcpSentFn* = proc (arg: pointer; tpcb: ptr TcpPcb; len: uint16): ErrT {.cdecl.}
       ## * Function prototype for tcp sent callback functions. Called when sent data has
       ##  been acknowledged by the remote side. Use it to free corresponding resources.
-      ##  This also means that the pcb has now space available to send new data.
+      ## This also means that the pcb has now space available to send new data.
       ##
       ##  @param arg Additional argument to pass to the callback function (@see tcp_arg())
       ##  @param tpcb The connection pcb for which data has been acknowledged
@@ -173,7 +173,7 @@ when defined(lwipTcp):
       template tcp_Wnd_Max*(pcb: untyped): untyped = tcp_Wnd
     
 
-    ##  Increments a tcpwnd_size_t and holds at max value rather than rollover
+    ## Increments a tcpwnd_size_t and holds at max value rather than rollover
     template tcp_Wnd_Inc*(wnd, inc: untyped): void =
       while true:
         if (tcpwndSizeT)(wnd + inc) >= wnd:
@@ -187,7 +187,7 @@ when defined(lwipTcp):
     ##when defined(lwipTcpSackOut):
     TcpSackRange* {.importc: "struct tcp_sack_range", header: "lwip/tcp.h", bycopy.} = object
       ## * SACK ranges to include in ACK packets.
-      ##  SACK entry is invalid if left==right.
+      ## SACK entry is invalid if left==right.
       left* {.importc: "left".}: uint32
       ## * Left edge of the SACK: the first acknowledged sequence number.
       right* {.importc: "right".}: uint32
@@ -228,7 +228,7 @@ when defined(lwipTcp):
       localPort* {.importc: "local_port".}: uint16
 
       when defined(lwipCallbackApi):
-        ##  Function to call when a listener has been connected.
+        ## Function to call when a listener has been connected.
         accept* {.importc: "accept".}: TcpAcceptFn
       when defined(tcpListenBacklog):
         backlog* {.importc: "backlog".}: uint8
@@ -261,7 +261,7 @@ when defined(lwipTcp):
 
   
       ##when defined(lwipTcpPcbNumExtArgs):
-      ##  This is the structure for ext args in tcp pcbs (used as array)
+      ## This is the structure for ext args in tcp pcbs (used as array)
 
     TcpPcbExtArgs* {.importc: "struct tcp_pcb_ext_args", header: "lwip/tcp.h", bycopy.} = object
       callbacks* {.importc: "callbacks".}: ptr TcpExtArgCallbacks
@@ -305,7 +305,7 @@ when defined(lwipTcp):
 
       ##  the rest of the fields are in host byte order
       ##      as we have to do some math with them
-      ##  Timers
+      ## Timers
       polltmr* {.importc: "polltmr".}: uint8
       pollinterval* {.importc: "pollinterval".}: uint8
       lastTimer* {.importc: "last_timer".}: uint8
@@ -314,10 +314,10 @@ when defined(lwipTcp):
       rcvWnd* {.importc: "rcv_wnd".}: TcpwndSizeT ##  receiver window available
       rcvAnnWnd* {.importc: "rcv_ann_wnd".}: TcpwndSizeT ##  receiver window to announce
       rcvAnnRightEdge* {.importc: "rcv_ann_right_edge".}: uint32 ##  announced right edge of window
-                                                           ##  Retransmission timer.
+                                                           ## Retransmission timer.
       rtime* {.importc: "rtime".}: int16
       mss* {.importc: "mss".}: uint16 ##  maximum segment size
-                                ##  RTT (round trip time) estimation variables
+                                ## RTT (round trip time) estimation variables
       rttest* {.importc: "rttest".}: uint32 ##  RTT estimate in 500ms ticks
       rtseq* {.importc: "rtseq".}: uint32 ##  sequence number being timed
       sa* {.importc: "sa".}: int16
@@ -341,27 +341,27 @@ when defined(lwipTcp):
       sndBuf* {.importc: "snd_buf".}: TcpwndSizeT ##  Available buffer space for sending (in bytes).
       sndQueuelen* {.importc: "snd_queuelen".}: uint16 ##  Number of pbufs currently in the send buffer.
       when defined(tcpOversize):
-        ##  Extra bytes available at the end of the last pbuf in unsent.
+        ## Extra bytes available at the end of the last pbuf in unsent.
         unsentOversize* {.importc: "unsent_oversize".}: uint16
       bytesAcked* {.importc: "bytes_acked".}: TcpwndSizeT ##  These are ordered by sequence number:
       unsent* {.importc: "unsent".}: ptr TcpSeg ##  Unsent (queued) segments.
       unacked* {.importc: "unacked".}: ptr TcpSeg ##  Sent but unacknowledged segments.
       when defined(tcpQueueOoseq):
         ooseq* {.importc: "ooseq".}: ptr TcpSeg
-        ##  Received out of sequence segments.
+        ## Received out of sequence segments.
       refusedData* {.importc: "refused_data".}: ptr Pbuf ##  Data previously received but not yet taken by upper layer
       when defined(lwipCallbackApi) or defined(tcpListenBacklog):
         listener* {.importc: "listener".}: ptr TcpPcbListen
       when defined(lwipCallbackApi):
-        ##  Function to be called when more send buffer space is available.
+        ## Function to be called when more send buffer space is available.
         sent* {.importc: "sent".}: TcpSentFn
-        ##  Function to be called when (in-sequence) data has arrived.
+        ## Function to be called when (in-sequence) data has arrived.
         recv* {.importc: "recv".}: TcpRecvFn
-        ##  Function to be called when a connection has been set up.
+        ## Function to be called when a connection has been set up.
         connected* {.importc: "connected".}: TcpConnectedFn
-        ##  Function which is called periodically.
+        ## Function which is called periodically.
         poll* {.importc: "poll".}: TcpPollFn
-        ##  Function to be called whenever a fatal error occurs.
+        ## Function to be called whenever a fatal error occurs.
         errf* {.importc: "errf".}: TcpErrFn
       when defined(lwipTcpTimestamps):
         tsLastacksent* {.importc: "ts_lastacksent".}: uint32
@@ -372,13 +372,13 @@ when defined(lwipTcp):
         keepIntvl* {.importc: "keep_intvl".}: uint32
         keepCnt* {.importc: "keep_cnt".}: uint32
       persistCnt* {.importc: "persist_cnt".}: uint8
-      ##  Persist timer counter
+      ## Persist timer counter
       persistBackoff* {.importc: "persist_backoff".}: uint8
-      ##  Persist timer back-off
+      ## Persist timer back-off
       persistProbe* {.importc: "persist_probe".}: uint8
-      ##  Number of persist probes
+      ## Number of persist probes
       keepCntSent* {.importc: "keep_cnt_sent".}: uint8
-      ##  KEEPALIVE counter
+      ## KEEPALIVE counter
       when defined(lwipWndScale):
         sndScale* {.importc: "snd_scale".}: uint8
         rcvScale* {.importc: "rcv_scale".}: uint8
@@ -391,7 +391,7 @@ when defined(lwipTcp):
     proc lwipTcpEvent*(arg: pointer; pcb: ptr TcpPcb; a3: LwipEvent; p: ptr Pbuf;
                       size: uint16; err: ErrT): ErrT {.importc: "lwip_tcp_event",
         header: "lwip/tcp.h".}
-  ##  Application program's interface:
+  ## Application program's interface:
   proc tcpNew*(): ptr TcpPcb {.importc: "tcp_new", header: "lwip/tcp.h".}
   proc tcpNewIpType*(`type`: uint8): ptr TcpPcb {.importc: "tcp_new_ip_type", header: "lwip/tcp.h".}
   proc tcpArg*(pcb: ptr TcpPcb; arg: pointer) {.importc: "tcp_arg", header: "lwip/tcp.h".}

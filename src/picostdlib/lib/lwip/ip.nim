@@ -164,13 +164,13 @@ template ipCurrentDestAddr*(): untyped =
 
 when defined(lwipIpv4) and defined(lwipIpv6):
   ## * Get the IPv4 header of the current packet.
-  ##  This function must only be called from a receive callback (udp_recv,
+  ## This function must only be called from a receive callback (udp_recv,
   ##  raw_recv, tcp_accept). It will return NULL otherwise.
   template ip4CurrentHeader*(): untyped =
     ipData.currentIp4Header
 
   ## * Get the IPv6 header of the current packet.
-  ##  This function must only be called from a receive callback (udp_recv,
+  ## This function must only be called from a receive callback (udp_recv,
   ##  raw_recv, tcp_accept). It will return NULL otherwise.
   template ip6CurrentHeader*(): untyped =
     (cast[ptr Ip6Hdr]((ipData.currentIp6Header)))
@@ -207,7 +207,7 @@ when defined(lwipIpv4) and defined(lwipIpv6):
 
 elif defined(lwipIpv4):
   ## * Get the IPv4 header of the current packet.
-  ##  This function must only be called from a receive callback (udp_recv,
+  ## This function must only be called from a receive callback (udp_recv,
   ##  raw_recv, tcp_accept). It will return NULL otherwise.
   template ip4CurrentHeader*(): untyped =
     ipData.currentIp4Header
@@ -234,7 +234,7 @@ elif defined(lwipIpv4):
 
 elif defined(lwipIpv6):
   ## * Get the IPv6 header of the current packet.
-  ##  This function must only be called from a receive callback (udp_recv,
+  ## This function must only be called from a receive callback (udp_recv,
   ##  raw_recv, tcp_accept). It will return NULL otherwise.
   template ip6CurrentHeader*(): untyped =
     (cast[ptr Ip6Hdr]((ipData.currentIp6Header)))
@@ -287,7 +287,7 @@ template ipResetOption*(pcb, opt: untyped): untyped =
 when defined(lwipIpv4) and defined(lwipIpv6):
   ## *
   ##  @ingroup ip
-  ##  Output IP packet, netif is selected by source address
+  ## Output IP packet, netif is selected by source address
   ##
   template ipOutput*(p, src, dest, ttl, tos, proto: untyped): untyped =
     (if ip_Is_V6(dest): ip6Output(p, ip2Ip6(src), ip2Ip6(dest), ttl, tos, proto) else: ip4Output(
@@ -295,7 +295,7 @@ when defined(lwipIpv4) and defined(lwipIpv6):
 
   ## *
   ##  @ingroup ip
-  ##  Output IP packet to specified interface
+  ## Output IP packet to specified interface
   ##
   template ipOutputIf*(p, src, dest, ttl, tos, proto, netif: untyped): untyped =
     (if ip_Is_V6(dest): ip6OutputIf(p, ip2Ip6(src), ip2Ip6(dest), ttl, tos, proto, netif) else: ip4OutputIf(
@@ -303,7 +303,7 @@ when defined(lwipIpv4) and defined(lwipIpv6):
 
   ## *
   ##  @ingroup ip
-  ##  Output IP packet to interface specifying source address
+  ## Output IP packet to interface specifying source address
   ##
   template ipOutputIfSrc*(p, src, dest, ttl, tos, proto, netif: untyped): untyped =
     (if ip_Is_V6(dest): ip6OutputIfSrc(p, ip2Ip6(src), ip2Ip6(dest), ttl, tos, proto,
@@ -323,7 +323,7 @@ when defined(lwipIpv4) and defined(lwipIpv6):
 
   ## *
   ##  @ingroup ip
-  ##  Get netif for address combination. See \ref ip6_route and \ref ip4_route
+  ## Get netif for address combination. See \ref ip6_route and \ref ip4_route
   ##
   template ipRoute*(src, dest: untyped): untyped =
     (if ip_Is_V6(dest): ip6Route(ip2Ip6(src), ip2Ip6(dest)) else: ip4RouteSrc(
@@ -331,7 +331,7 @@ when defined(lwipIpv4) and defined(lwipIpv6):
 
   ## *
   ##  @ingroup ip
-  ##  Get netif for IP.
+  ## Get netif for IP.
   ##
   template ipNetifGetLocalIp*(netif, dest: untyped): untyped =
     (if ip_Is_V6(dest): ip6NetifGetLocalIp(netif, ip2Ip6(dest)) else: ip4NetifGetLocalIp(

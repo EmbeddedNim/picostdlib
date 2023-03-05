@@ -399,7 +399,7 @@ proc dmaChannelAbort*(channel: cuint) {.importc: "dma_channel_abort".}
   ## If that is not the case, but you do have a channel completion IRQ handler registered, you can simply
   ## disable/re-enable the IRQ around the call to this method as shown by this code fragment (using DMA IRQ0).
   ## 
-  ## ```
+  ##  ```
   ##  # disable the channel on IRQ0
   ##  dma_channel_set_irq0_enabled(channel, false);
   ##  # abort the channel
@@ -408,7 +408,7 @@ proc dmaChannelAbort*(channel: cuint) {.importc: "dma_channel_abort".}
   ##  dma_channel_acknowledge_irq0(channel);
   ##  # re-enable the channel on IRQ0
   ##  dma_channel_set_irq0_enabled(channel, true);
-  ## ```
+  ##  ```
   ## 
   ## **Parameters:**
   ## 

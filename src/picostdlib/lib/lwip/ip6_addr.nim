@@ -196,14 +196,14 @@ when defined(lwipIpv6):
         ((addr1).`addr`[1] == (addr2).`addr`[1]))
 
   ## *
-  ##  Determine if two IPv6 address are on the same network.
+  ## Determine if two IPv6 address are on the same network.
   ##  @deprecated Renamed to @ref ip6_addr_net_eq
   ##
   template ip6AddrNetcmp*(addr1, addr2: untyped): untyped =
     ip6AddrNetEq(addr1, addr2)
 
   ## *
-  ##  Determine if two IPv6 address are on the same network.
+  ## Determine if two IPv6 address are on the same network.
   ##
   ##  @param addr1 IPv6 address 1
   ##  @param addr2 IPv6 address 2
@@ -215,7 +215,7 @@ when defined(lwipIpv6):
   template ip6AddrNethostcmp*(addr1, addr2: untyped): untyped =
     ip6AddrNethostEq(addr1, addr2)
 
-  ##  Exact-host comparison *after* ip6_addr_net_eq() succeeded, for efficiency.
+  ## Exact-host comparison *after* ip6_addr_net_eq() succeeded, for efficiency.
   template ip6AddrNethostEq*(addr1, addr2: untyped): untyped =
     (((addr1).`addr`[2] == (addr2).`addr`[2]) and
         ((addr1).`addr`[3] == (addr2).`addr`[3]))
@@ -236,7 +236,7 @@ when defined(lwipIpv6):
     ip6AddrEq(addr1, addr2)
 
   ## *
-  ##  Determine if two IPv6 addresses are the same. In particular, the address
+  ## Determine if two IPv6 addresses are the same. In particular, the address
   ##  part of both must be the same, and the zone must be compatible.
   ##
   ##  @param addr1 IPv6 address 1
@@ -337,7 +337,7 @@ when defined(lwipIpv6):
   template ip6AddrIsmulticastGlobal*(ip6addr: untyped): untyped =
     (((ip6addr).`addr`[0] and pp_Htonl(0xff8f0000)) == pp_Htonl(0xff0e0000))
 
-  ##  Scoping note: while interface-local and link-local multicast addresses do
+  ## Scoping note: while interface-local and link-local multicast addresses do
   ##  have a scope (i.e., they are meaningful only in the context of a particular
   ##  interface), the following functions are not assigning or comparing zone
   ##  indices. The reason for this is backward compatibility. Any call site that
@@ -402,7 +402,7 @@ when defined(lwipIpv6):
         ((ip6addr).`addr`[2] == pp_Htonl(0x00000001)) and
         ((ip6addr).`addr`[3] == (pp_Htonl(0xff000000) or (snAddr).`addr`[3])))
 
-  ##  IPv6 address states.
+  ## IPv6 address states.
   const
     IP6_ADDR_INVALID* = 0x00
     IP6_ADDR_TENTATIVE* = 0x08

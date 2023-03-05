@@ -38,8 +38,7 @@ let
   RomFuncFlashEnterCmdXip* {.importc: "ROM_FUNC_FLASH_ENTER_CMD_XIP".}: uint32
 
 proc romTableCode*(c1: char; c2: char): uint32 {.importc: "rom_table_code".}
-  ## ```
-  ##   ! \brief Return a bootrom lookup code based on two ASCII characters
+  ## Return a bootrom lookup code based on two ASCII characters
   ##    \ingroup pico_bootrom
   ##   
   ##    These codes are uses to lookup data or function addresses in the bootrom
@@ -47,30 +46,21 @@ proc romTableCode*(c1: char; c2: char): uint32 {.importc: "rom_table_code".}
   ##    \param c1 the first character
   ##    \param c2 the second character
   ##    \return the 'code' to use in rom_func_lookup() or rom_data_lookup()
-  ## ```
 
 proc romFuncLookup*(code: uint32): pointer {.importc: "rom_func_lookup".}
-  ## ```
-  ##   !
-  ##    \brief Lookup a bootrom function by code
+  ## Lookup a bootrom function by code
   ##    \ingroup pico_bootrom
   ##    \param code the code
   ##    \return a pointer to the function, or NULL if the code does not match any bootrom function
-  ## ```
 
 proc romDataLookup*(code: uint32): pointer {.importc: "rom_data_lookup".}
-  ## ```
-  ##   !
-  ##    \brief Lookup a bootrom address by code
+  ## Lookup a bootrom address by code
   ##    \ingroup pico_bootrom
   ##    \param code the code
   ##    \return a pointer to the data, or NULL if the code does not match any bootrom function
-  ## ```
 
 proc romFuncsLookup*(table: ptr uint32; count: cuint): bool {.importc: "rom_funcs_lookup".}
-  ## ```
-  ##   !
-  ##    \brief Helper function to lookup the addresses of multiple bootrom functions
+  ## Helper function to lookup the addresses of multiple bootrom functions
   ##    \ingroup pico_bootrom
   ##   
   ##    This method looks up the 'codes' in the table, and convert each table entry to the looked up
@@ -79,26 +69,18 @@ proc romFuncsLookup*(table: ptr uint32; count: cuint): bool {.importc: "rom_func
   ##    \param table an IN/OUT array, elements are codes on input, function pointers on success.
   ##    \param count the number of elements in the table
   ##    \return true if all the codes were found, and converted to function pointers, false otherwise
-  ## ```
 
 proc romHwordAsPtr*(romAddress: uint16): pointer {.importc: "rom_hword_as_ptr".}
-  ## ```
   ##   Convert a 16 bit pointer stored at the given rom address into a 32 bit pointer
-  ## ```
 
 proc romFuncLookupInline*(code: uint32): pointer {.importc: "rom_func_lookup_inline".}
-  ## ```
-  ##   !
-  ##    \brief Lookup a bootrom function by code. This method is forceably inlined into the caller for FLASH/RAM sensitive code usage
+  ## Lookup a bootrom function by code. This method is forceably inlined into the caller for FLASH/RAM sensitive code usage
   ##    \ingroup pico_bootrom
   ##    \param code the code
   ##    \return a pointer to the function, or NULL if the code does not match any bootrom function
-  ## ```
 
 proc resetUsbBoot*(usbActivityGpioPinMask: uint32; disableInterfaceMask: uint32) {.importc: "reset_usb_boot".}
-  ## ```
-  ##   !
-  ##    \brief Reboot the device into BOOTSEL mode
+  ## Reboot the device into BOOTSEL mode
   ##    \ingroup pico_bootrom
   ##   
   ##    This function reboots the device into the BOOTSEL mode ('usb boot").
@@ -113,6 +95,5 @@ proc resetUsbBoot*(usbActivityGpioPinMask: uint32; disableInterfaceMask: uint32)
   ##     - 0 To enable both interfaces (as per a cold boot)
   ##     - 1 To disable the USB Mass Storage Interface
   ##     - 2 To disable the USB PICOBOOT Interface
-  ## ```
 
 {.pop.}

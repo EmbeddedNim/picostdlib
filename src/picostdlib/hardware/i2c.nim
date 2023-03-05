@@ -25,213 +25,167 @@ let DefaultI2cSdaPin* {.importc: "PICO_DEFAULT_I2C_SDA_PIN".}: Gpio
 let DefaultI2cSclPin* {.importc: "PICO_DEFAULT_I2C_SCL_PIN".}: Gpio
 
 proc i2cInit*(i2c: ptr I2cInst, baudrate: cuint): cuint {.importc: "i2c_init".}
-  ## ```
-  ##   ! \brief   Initialise the I2C HW block
-  ##     \ingroup hardware_i2c
-  ##   
-  ##    Put the I2C hardware into a known state, and enable it. Must be called
-  ##    before other functions. By default, the I2C is configured to operate as a
-  ##    master.
-  ##   
-  ##    The I2C bus frequency is set as close as possible to requested, and
-  ##    the actual rate set is returned
-  ##   
-  ##    \param i2c Either \ref i2c0 or \ref i2c1
-  ##    \param baudrate Baudrate in Hz (e.g. 100kHz is 100000)
-  ##    \return Actual set baudrate
-  ## ```
+  ## Initialise the I2C HW block
+  ##
+  ## Put the I2C hardware into a known state, and enable it. Must be called
+  ## before other functions. By default, the I2C is configured to operate as a
+  ## master.
+  ##
+  ## The I2C bus frequency is set as close as possible to requested, and
+  ## the actual rate set is returned
+  ##
+  ## \param i2c Either \ref i2c0 or \ref i2c1
+  ## \param baudrate Baudrate in Hz (e.g. 100kHz is 100000)
+  ## \return Actual set baudrate
 
 proc i2cDeinit*(i2c: ptr I2cInst) {.importc: "i2c_deinit".}
-  ## ```
-  ##   ! \brief   Disable the I2C HW block
-  ##     \ingroup hardware_i2c
-  ##   
-  ##    \param i2c Either \ref i2c0 or \ref i2c1
-  ##   
-  ##    Disable the I2C again if it is no longer used. Must be reinitialised before
-  ##    being used again.
-  ## ```
+  ## Disable the I2C HW block
+  ##
+  ## \param i2c Either \ref i2c0 or \ref i2c1
+  ##
+  ## Disable the I2C again if it is no longer used. Must be reinitialised before
+  ## being used again.
 
 proc i2cSetBaudrate*(i2c: ptr I2cInst, baudrate: cuint): cuint {.importc: "i2c_set_baudrate".}
-  ## ```
-  ##   ! \brief  Set I2C baudrate
-  ##     \ingroup hardware_i2c
-  ##   
-  ##    Set I2C bus frequency as close as possible to requested, and return actual
-  ##    rate set.
-  ##    Baudrate may not be as exactly requested due to clocking limitations.
-  ##   
-  ##    \param i2c Either \ref i2c0 or \ref i2c1
-  ##    \param baudrate Baudrate in Hz (e.g. 100kHz is 100000)
-  ##    \return Actual set baudrate
-  ## ```
+  ## Set I2C baudrate
+  ##
+  ## Set I2C bus frequency as close as possible to requested, and return actual
+  ## rate set.
+  ## Baudrate may not be as exactly requested due to clocking limitations.
+  ##
+  ## \param i2c Either \ref i2c0 or \ref i2c1
+  ## \param baudrate Baudrate in Hz (e.g. 100kHz is 100000)
+  ## \return Actual set baudrate
 
 proc i2cSetSlaveMode*(i2c: ptr I2cInst, slave: bool, address: I2cAddress) {.importc: "i2c_set_slave_mode".}
-  ## ```
-  ##   ! \brief  Set I2C port to slave mode
-  ##     \ingroup hardware_i2c
-  ##   
-  ##    \param i2c Either \ref i2c0 or \ref i2c1
-  ##    \param slave true to use slave mode, false to use master mode
-  ##    \param addr If \p slave is true, set the slave address to this value
-  ## ```
+  ## Set I2C port to slave mode
+  ##
+  ## \param i2c Either \ref i2c0 or \ref i2c1
+  ## \param slave true to use slave mode, false to use master mode
+  ## \param addr If \p slave is true, set the slave address to this value
 
 proc i2cHwIndex*(i2c: ptr I2cInst): cuint {.importc: "i2c_hw_index".}
-  ## ```
-  ##   ! \brief Convert I2C instance to hardware instance number
-  ##     \ingroup hardware_i2c
-  ##   
-  ##    \param i2c I2C instance
-  ##    \return Number of I2C, 0 or 1.
-  ## ```
+  ## Convert I2C instance to hardware instance number
+  ##
+  ## \param i2c I2C instance
+  ## \return Number of I2C, 0 or 1.
 
 proc i2cGetHw*(i2c: ptr I2cInst): ptr I2cHw {.importc: "i2c_get_hw".}
 
 proc i2cGetInstance*(instance: cuint): ptr I2cInst {.importc: "i2c_get_instance".}
 
 proc i2cWriteBlockingUntil*(i2c: ptr I2cInst; address: I2cAddress; src: ptr uint8; len: csize_t; noStop: bool; until: AbsoluteTime): cint {.importc: "i2c_write_blocking_until".}
-  ## ```
-  ##   ! \brief Attempt to write specified number of bytes to address, blocking until the specified absolute time is reached.
-  ##     \ingroup hardware_i2c
-  ##   
-  ##    \param i2c Either \ref i2c0 or \ref i2c1
-  ##    \param addr 7-bit address of device to write to
-  ##    \param src Pointer to data to send
-  ##    \param len Length of data in bytes to send
-  ##    \param nostop  If true, master retains control of the bus at the end of the transfer (no Stop is issued),
-  ##              and the next transfer will begin with a Restart rather than a Start.
-  ##    \param until The absolute time that the block will wait until the entire transaction is complete. Note, an individual timeout of
-  ##              this value divided by the length of data is applied for each byte transfer, so if the first or subsequent
-  ##              bytes fails to transfer within that sub timeout, the function will return with an error.
-  ##   
-  ##    \return Number of bytes written, or PICO_ERROR_GENERIC if address not acknowledged, no device present, or PICO_ERROR_TIMEOUT if a timeout occurred.
-  ## ```
+  ## Attempt to write specified number of bytes to address, blocking until the specified absolute time is reached.
+  ##
+  ## \param i2c Either \ref i2c0 or \ref i2c1
+  ## \param addr 7-bit address of device to write to
+  ## \param src Pointer to data to send
+  ## \param len Length of data in bytes to send
+  ## \param nostop  If true, master retains control of the bus at the end of the transfer (no Stop is issued),
+  ##           and the next transfer will begin with a Restart rather than a Start.
+  ## \param until The absolute time that the block will wait until the entire transaction is complete. Note, an individual timeout of
+  ##           this value divided by the length of data is applied for each byte transfer, so if the first or subsequent
+  ##           bytes fails to transfer within that sub timeout, the function will return with an error.
+  ##
+  ## \return Number of bytes written, or PICO_ERROR_GENERIC if address not acknowledged, no device present, or PICO_ERROR_TIMEOUT if a timeout occurred.
 
 proc i2cReadBlockingUntil*(i2c: ptr I2cInst; address: I2cAddress; dst: ptr uint8; len: csize_t; noStop: bool; until: AbsoluteTime): cint {.importc: "i2c_read_blocking_until".}
-  ## ```
-  ##   ! \brief  Attempt to read specified number of bytes from address, blocking until the specified absolute time is reached.
-  ##     \ingroup hardware_i2c
-  ##   
-  ##    \param i2c Either \ref i2c0 or \ref i2c1
-  ##    \param addr 7-bit address of device to read from
-  ##    \param dst Pointer to buffer to receive data
-  ##    \param len Length of data in bytes to receive
-  ##    \param nostop  If true, master retains control of the bus at the end of the transfer (no Stop is issued),
-  ##              and the next transfer will begin with a Restart rather than a Start.
-  ##    \param until The absolute time that the block will wait until the entire transaction is complete.
-  ##    \return Number of bytes read, or PICO_ERROR_GENERIC if address not acknowledged, no device present, or PICO_ERROR_TIMEOUT if a timeout occurred.
-  ## ```
+  ## Attempt to read specified number of bytes from address, blocking until the specified absolute time is reached.
+  ##
+  ## \param i2c Either \ref i2c0 or \ref i2c1
+  ## \param addr 7-bit address of device to read from
+  ## \param dst Pointer to buffer to receive data
+  ## \param len Length of data in bytes to receive
+  ## \param nostop  If true, master retains control of the bus at the end of the transfer (no Stop is issued),
+  ##           and the next transfer will begin with a Restart rather than a Start.
+  ## \param until The absolute time that the block will wait until the entire transaction is complete.
+  ## \return Number of bytes read, or PICO_ERROR_GENERIC if address not acknowledged, no device present, or PICO_ERROR_TIMEOUT if a timeout occurred.
 
 proc i2cWriteTimeoutUs*(i2c: ptr I2cInst; address: I2cAddress; src: ptr uint8; len: csize_t; noStop: bool; timeoutUs: cuint): cint {.importc: "i2c_write_timeout_us".}
-  ## ```
-  ##   ! \brief Attempt to write specified number of bytes to address, with timeout
-  ##     \ingroup hardware_i2c
-  ##   
-  ##    \param i2c Either \ref i2c0 or \ref i2c1
-  ##    \param addr 7-bit address of device to write to
-  ##    \param src Pointer to data to send
-  ##    \param len Length of data in bytes to send
-  ##    \param nostop  If true, master retains control of the bus at the end of the transfer (no Stop is issued),
-  ##              and the next transfer will begin with a Restart rather than a Start.
-  ##    \param timeout_us The time that the function will wait for the entire transaction to complete. Note, an individual timeout of
-  ##              this value divided by the length of data is applied for each byte transfer, so if the first or subsequent
-  ##              bytes fails to transfer within that sub timeout, the function will return with an error.
-  ##   
-  ##    \return Number of bytes written, or PICO_ERROR_GENERIC if address not acknowledged, no device present, or PICO_ERROR_TIMEOUT if a timeout occurred.
-  ## ```
+  ## Attempt to write specified number of bytes to address, with timeout
+  ##
+  ## \param i2c Either \ref i2c0 or \ref i2c1
+  ## \param addr 7-bit address of device to write to
+  ## \param src Pointer to data to send
+  ## \param len Length of data in bytes to send
+  ## \param nostop  If true, master retains control of the bus at the end of the transfer (no Stop is issued),
+  ##           and the next transfer will begin with a Restart rather than a Start.
+  ## \param timeout_us The time that the function will wait for the entire transaction to complete. Note, an individual timeout of
+  ##           this value divided by the length of data is applied for each byte transfer, so if the first or subsequent
+  ##           bytes fails to transfer within that sub timeout, the function will return with an error.
+  ##
+  ## \return Number of bytes written, or PICO_ERROR_GENERIC if address not acknowledged, no device present, or PICO_ERROR_TIMEOUT if a timeout occurred.
 
 proc i2cReadTimeoutUs*(i2c: ptr I2cInst; address: I2cAddress; dst: ptr uint8; len: csize_t; noStop: bool; timeoutUs: cuint): cint {.importc: "i2c_read_timeout_us".}
-  ## ```
-  ##   ! \brief  Attempt to read specified number of bytes from address, with timeout
-  ##     \ingroup hardware_i2c
-  ##   
-  ##    \param i2c Either \ref i2c0 or \ref i2c1
-  ##    \param addr 7-bit address of device to read from
-  ##    \param dst Pointer to buffer to receive data
-  ##    \param len Length of data in bytes to receive
-  ##    \param nostop  If true, master retains control of the bus at the end of the transfer (no Stop is issued),
-  ##              and the next transfer will begin with a Restart rather than a Start.
-  ##    \param timeout_us The time that the function will wait for the entire transaction to complete
-  ##    \return Number of bytes read, or PICO_ERROR_GENERIC if address not acknowledged, no device present, or PICO_ERROR_TIMEOUT if a timeout occurred.
-  ## ```
+  ## Attempt to read specified number of bytes from address, with timeout
+  ##
+  ## \param i2c Either \ref i2c0 or \ref i2c1
+  ## \param addr 7-bit address of device to read from
+  ## \param dst Pointer to buffer to receive data
+  ## \param len Length of data in bytes to receive
+  ## \param nostop  If true, master retains control of the bus at the end of the transfer (no Stop is issued),
+  ##           and the next transfer will begin with a Restart rather than a Start.
+  ## \param timeout_us The time that the function will wait for the entire transaction to complete
+  ## \return Number of bytes read, or PICO_ERROR_GENERIC if address not acknowledged, no device present, or PICO_ERROR_TIMEOUT if a timeout occurred.
 
 proc i2cWriteBlocking*(i2c: ptr I2cInst, address: I2cAddress, data: ptr uint8, len: csize_t, noStop: bool): cint {.importc: "i2c_write_blocking".}
-  ## ```
-  ##   ! \brief Attempt to write specified number of bytes to address, blocking
-  ##     \ingroup hardware_i2c
-  ##   
-  ##    \param i2c Either \ref i2c0 or \ref i2c1
-  ##    \param addr 7-bit address of device to write to
-  ##    \param src Pointer to data to send
-  ##    \param len Length of data in bytes to send
-  ##    \param nostop  If true, master retains control of the bus at the end of the transfer (no Stop is issued),
-  ##              and the next transfer will begin with a Restart rather than a Start.
-  ##    \return Number of bytes written, or PICO_ERROR_GENERIC if address not acknowledged, no device present.
-  ## ```
+  ## Attempt to write specified number of bytes to address, blocking
+  ##
+  ## \param i2c Either \ref i2c0 or \ref i2c1
+  ## \param addr 7-bit address of device to write to
+  ## \param src Pointer to data to send
+  ## \param len Length of data in bytes to send
+  ## \param nostop  If true, master retains control of the bus at the end of the transfer (no Stop is issued),
+  ##           and the next transfer will begin with a Restart rather than a Start.
+  ## \return Number of bytes written, or PICO_ERROR_GENERIC if address not acknowledged, no device present.
 
 proc i2cReadBlocking*(i2c: ptr I2cInst, address: I2cAddress, dest: ptr uint8, size: csize_t, noStop: bool): cint {.importc: "i2c_read_blocking".}
-  ## ```
-  ##   ! \brief  Attempt to read specified number of bytes from address, blocking
-  ##     \ingroup hardware_i2c
-  ##   
-  ##    \param i2c Either \ref i2c0 or \ref i2c1
-  ##    \param addr 7-bit address of device to read from
-  ##    \param dst Pointer to buffer to receive data
-  ##    \param len Length of data in bytes to receive
-  ##    \param nostop  If true, master retains control of the bus at the end of the transfer (no Stop is issued),
-  ##              and the next transfer will begin with a Restart rather than a Start.
-  ##    \return Number of bytes read, or PICO_ERROR_GENERIC if address not acknowledged or no device present.
-  ## ```
+  ## Attempt to read specified number of bytes from address, blocking
+  ##
+  ## \param i2c Either \ref i2c0 or \ref i2c1
+  ## \param addr 7-bit address of device to read from
+  ## \param dst Pointer to buffer to receive data
+  ## \param len Length of data in bytes to receive
+  ## \param nostop  If true, master retains control of the bus at the end of the transfer (no Stop is issued),
+  ##           and the next transfer will begin with a Restart rather than a Start.
+  ## \return Number of bytes read, or PICO_ERROR_GENERIC if address not acknowledged or no device present.
 
 proc i2cGetWriteAvailable*(i2c: ptr I2cInst): cuint {.importc: "i2c_get_write_available".}
-  ## ```
-  ##   ! \brief Determine non-blocking write space available
-  ##     \ingroup hardware_i2c
-  ##   
-  ##    \param i2c Either \ref i2c0 or \ref i2c1
-  ##    \return 0 if no space is available in the I2C to write more data. If return is nonzero, at
-  ##    least that many bytes can be written without blocking.
-  ## ```
+  ## Determine non-blocking write space available
+  ##
+  ## \param i2c Either \ref i2c0 or \ref i2c1
+  ## \return 0 if no space is available in the I2C to write more data. If return is nonzero, at
+  ## least that many bytes can be written without blocking.
 
 proc i2cGetReadAvailable*(i2c: ptr I2cInst): cuint {.importc: "i2c_get_read_available".}
-  ## ```
-  ##   ! \brief Determine number of bytes received
-  ##     \ingroup hardware_i2c
-  ##   
-  ##    \param i2c Either \ref i2c0 or \ref i2c1
-  ##    \return 0 if no data available, if return is nonzero at
-  ##    least that many bytes can be read without blocking.
-  ## ```
+  ## Determine number of bytes received
+  ##
+  ## \param i2c Either \ref i2c0 or \ref i2c1
+  ## \return 0 if no data available, if return is nonzero at
+  ## least that many bytes can be read without blocking.
 
 proc i2cWriteRawBlocking*(i2c: ptr I2cInst; src: ptr uint8; len: csize_t) {.importc: "i2c_write_raw_blocking".}
-  ## ```
-  ##   ! \brief Write direct to TX FIFO
-  ##     \ingroup hardware_i2c
-  ##   
-  ##    \param i2c Either \ref i2c0 or \ref i2c1
-  ##    \param src Data to send
-  ##    \param len Number of bytes to send
-  ##   
-  ##    Writes directly to the I2C TX FIFO which is mainly useful for
-  ##    slave-mode operation.
-  ## ```
+  ## Write direct to TX FIFO
+  ##
+  ## \param i2c Either \ref i2c0 or \ref i2c1
+  ## \param src Data to send
+  ## \param len Number of bytes to send
+  ##
+  ## Writes directly to the I2C TX FIFO which is mainly useful for
+  ## slave-mode operation.
 
 proc i2cReadRawBlocking*(i2c: ptr I2cInst; dst: ptr uint8; len: csize_t) {.importc: "i2c_read_raw_blocking".}
-  ## ```
-  ##   ! \brief Read direct from RX FIFO
-  ##     \ingroup hardware_i2c
-  ##   
-  ##    \param i2c Either \ref i2c0 or \ref i2c1
-  ##    \param dst Buffer to accept data
-  ##    \param len Number of bytes to read
-  ##   
-  ##    Reads directly from the I2C RX FIFO which is mainly useful for
-  ##    slave-mode operation.
-  ## ```
+  ## Read direct from RX FIFO
+  ##
+  ## \param i2c Either \ref i2c0 or \ref i2c1
+  ## \param dst Buffer to accept data
+  ## \param len Number of bytes to read
+  ##
+  ## Reads directly from the I2C RX FIFO which is mainly useful for
+  ## slave-mode operation.
 
 proc i2cReadByteRaw*(i2c: ptr I2cInst): uint8 {.importc: "i2c_read_byte_raw".}
-  ## \brief Pop a byte from I2C Rx FIFO.
-  ## \ingroup hardware_i2c
+  ## Pop a byte from I2C Rx FIFO.
   ##
   ## This function is non-blocking and assumes the Rx FIFO isn't empty.
   ##
@@ -239,8 +193,7 @@ proc i2cReadByteRaw*(i2c: ptr I2cInst): uint8 {.importc: "i2c_read_byte_raw".}
   ## \return uint8_t Byte value.
 
 proc i2cWriteByteRaw*(i2c: ptr I2cInst; value: uint8) {.importc: "i2c_write_byte_raw".}
-  ## \brief Push a byte into I2C Tx FIFO.
-  ## \ingroup hardware_i2c
+  ## Push a byte into I2C Tx FIFO.
   ##
   ## This function is non-blocking and assumes the Tx FIFO isn't full.
   ##
@@ -248,13 +201,10 @@ proc i2cWriteByteRaw*(i2c: ptr I2cInst; value: uint8) {.importc: "i2c_write_byte
   ## \param value Byte value.
 
 proc i2cGetDreq*(i2c: ptr I2cInst; isTx: bool): cuint {.importc: "i2c_get_dreq".}
-  ## ```
-  ##   ! \brief Return the DREQ to use for pacing transfers to/from a particular I2C instance
-  ##     \ingroup hardware_i2c
-  ##   
-  ##    \param i2c Either \ref i2c0 or \ref i2c1
-  ##    \param is_tx true for sending data to the I2C instance, false for receiving data from the I2C instance
-  ## ```
+  ## Return the DREQ to use for pacing transfers to/from a particular I2C instance
+  ##
+  ## \param i2c Either \ref i2c0 or \ref i2c1
+  ## \param is_tx true for sending data to the I2C instance, false for receiving data from the I2C instance
 
 {.pop.}
 

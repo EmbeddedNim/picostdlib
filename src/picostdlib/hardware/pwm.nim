@@ -46,18 +46,15 @@ proc pwmGpioToSliceNum*(gpio: Gpio): PwmSliceNum {.importc: "pwm_gpio_to_slice_n
   ## **Returns** The PWM slice number that controls the specified GPIO. 
 
 proc pwmGpioToChannel*(gpio: Gpio): cuint {.importc: "pwm_gpio_to_channel".}
-  ## ```
-  ##   \brief Determine the PWM channel that is attached to the specified GPIO.
+  ## Determine the PWM channel that is attached to the specified GPIO.
   ##     \ingroup hardware_pwm
   ##   
   ##    Each slice 0 to 7 has two channels, A and B.
   ##   
   ##    \return The PWM channel that controls the specified GPIO.
-  ## ```
 
 proc pwmConfigSetPhaseCorrect*(pwmConfig: ptr PwmConfig; phaseCorrect: bool) {.importc: "pwm_config_set_phase_correct".}
-  ## ```
-  ##   \brief Set phase correction in a PWM configuration
+  ## Set phase correction in a PWM configuration
   ##     \ingroup hardware_pwm
   ##   
   ##    \param c PWM configuration struct to modify
@@ -65,7 +62,6 @@ proc pwmConfigSetPhaseCorrect*(pwmConfig: ptr PwmConfig; phaseCorrect: bool) {.i
   ##   
   ##    Setting phase control to true means that instead of wrapping back to zero when the wrap point is reached,
   ##    the PWM starts counting back down. The output frequency is halved when phase-correct mode is enabled.
-  ## ```
 
 proc pwmConfigSetClkDiv*(pwmConfig: ptr PwmConfig; divider: cfloat(1) .. cfloat(256)) {.importc: "pwm_config_set_clkdiv".}
   ## Set clock divider in a PWM configuration. 
@@ -83,8 +79,7 @@ proc pwmConfigSetClkDiv*(pwmConfig: ptr PwmConfig; divider: cfloat(1) .. cfloat(
   ## 
 
 proc pwmConfigSetClkDivIntFrac*(pwmConfig: ptr PwmConfig; integer: uint8; fract: uint8) {.importc: "pwm_config_set_clkdiv_int_frac".}
-  ## ```
-  ##   \brief Set PWM clock divider in a PWM configuration using an 8:4 fractional value
+  ## Set PWM clock divider in a PWM configuration using an 8:4 fractional value
   ##     \ingroup hardware_pwm
   ##   
   ##    \param c PWM configuration struct to modify
@@ -94,7 +89,6 @@ proc pwmConfigSetClkDivIntFrac*(pwmConfig: ptr PwmConfig; integer: uint8; fract:
   ##    If the divide mode is free-running, the PWM counter runs at clk_sys / div.
   ##    Otherwise, the divider reduces the rate of events seen on the B pin input (level or edge)
   ##    before passing them on to the PWM counter.
-  ## ```
 
 proc pwmConfigSetClkDivInt*(pwmConfig: ptr PwmConfig, divider: cuint) {.importc: "pwm_config_set_clkdiv_int".}
   ## Set PWM clock divider in a PWM configuration. 
@@ -126,14 +120,12 @@ proc pwmConfigSetClkDivMode*(pwmConfig: ptr PwmConfig, mode: PwmClkdivMode) {.im
   ## =============  ====== 
 
 proc pwmConfigSetOutputPolarity*(c: ptr PwmConfig; a: bool; b: bool) {.importc: "pwm_config_set_output_polarity".}
-  ## ```
-  ##   \brief Set output polarity in a PWM configuration
+  ## Set output polarity in a PWM configuration
   ##     \ingroup hardware_pwm
   ##   
   ##    \param c PWM configuration struct to modify
   ##    \param a true to invert output A
   ##    \param b true to invert output B
-  ## ```
 
 proc pwmConfigSetWrap*(pwmConfig: ptr PwmConfig, wrap: uint16) {.importc: "pwm_config_set_wrap".}
   ## Set PWM counter wrap value in a PWM configuration. 
@@ -413,11 +405,9 @@ proc pwmForceIrq*(sliceNum: PwmSliceNum) {.importc: "pwm_force_irq".}
   ## =============  ======  
 
 proc pwmGetDreq*(sliceNum: PwmSliceNum): cuint {.importc: "pwm_get_dreq".}
-  ## ```
-  ##   ! \brief Return the DREQ to use for pacing transfers to a particular PWM slice
+  ## Return the DREQ to use for pacing transfers to a particular PWM slice
   ##     \ingroup hardware_pwm
   ##   
   ##    \param slice_num PWM slice number
-  ## ```
 
 {.pop.}

@@ -14,8 +14,7 @@ type
       ## spin lock protecting this lock's state
 
 proc lockInit*(core: ptr LockCore; lockNum: cuint) {.importc: "lock_init".}
-  ## ```
-  ##   ! \brief  Initialise a lock structure
+  ## Initialise a lock structure
   ##     \ingroup lock_core
   ##   
   ##    Inititalize a lock structure, providing the spin lock number to use for protecting internal state.
@@ -23,6 +22,5 @@ proc lockInit*(core: ptr LockCore; lockNum: cuint) {.importc: "lock_init".}
   ##    \param core Pointer to the lock_core to initialize
   ##    \param lock_num Spin lock number to use for the lock. As the spin lock is only used internally to the locking primitive
   ##                    method implementations, this does not need to be globally unique, however could suffer contention
-  ## ```
 
 {.pop.}

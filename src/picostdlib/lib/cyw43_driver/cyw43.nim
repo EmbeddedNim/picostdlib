@@ -46,7 +46,7 @@ export cyw43_ll
 ## !\{
 ## *
 ##  \file cyw43.h
-##  \brief CYW43 driver interface
+## CYW43 driver interface
 ##
 ## !
 ##  \name Trace flags
@@ -130,7 +130,7 @@ var cyw43Poll*: proc ()
 var cyw43Sleep* {.importc: "cyw43_sleep".}: uint32
 
 ## !
-##  \brief Initialize the driver
+## Initialize the driver
 ##
 ##  This method must be called before using the driver
 ##
@@ -139,7 +139,7 @@ var cyw43Sleep* {.importc: "cyw43_sleep".}: uint32
 
 proc cyw43Init*(self: ptr Cyw43T) {.importc: "cyw43_init".}
 ## !
-##  \brief Shut the driver down
+## Shut the driver down
 ##
 ##  This method will close the network interfaces, and free up resources
 ##
@@ -148,7 +148,7 @@ proc cyw43Init*(self: ptr Cyw43T) {.importc: "cyw43_init".}
 
 proc cyw43Deinit*(self: ptr Cyw43T) {.importc: "cyw43_deinit".}
 ## !
-##  \brief Send an ioctl command to cyw43
+## Send an ioctl command to cyw43
 ##
 ##  This method sends a command to cyw43.
 ##
@@ -163,7 +163,7 @@ proc cyw43Deinit*(self: ptr Cyw43T) {.importc: "cyw43_deinit".}
 proc cyw43Ioctl*(self: ptr Cyw43T; cmd: uint32; len: csize_t; buf: ptr uint8;
                 iface: uint32): cint {.importc: "cyw43_ioctl".}
 ## !
-##  \brief Send a raw ethernet packet
+## Send a raw ethernet packet
 ##
 ##  This method sends a raw ethernet packet.
 ##
@@ -178,7 +178,7 @@ proc cyw43Ioctl*(self: ptr Cyw43T; cmd: uint32; len: csize_t; buf: ptr uint8;
 proc cyw43SendEthernet*(self: ptr Cyw43T; itf: cint; len: csize_t; buf: pointer;
                        isPbuf: bool): cint {.importc: "cyw43_send_ethernet".}
 ## !
-##  \brief Set the wifi power management mode
+## Set the wifi power management mode
 ##
 ##  This method sets the power management mode used by cyw43.
 ##  This should be called after cyw43_wifi_set_up
@@ -195,7 +195,7 @@ proc cyw43SendEthernet*(self: ptr Cyw43T; itf: cint; len: csize_t; buf: pointer;
 
 proc cyw43WifiPm*(self: ptr Cyw43T; pm: uint32): cint {.importc: "cyw43_wifi_pm".}
 ## !
-##  \brief Get the wifi link status
+## Get the wifi link status
 ##
 ##  Returns the status of the wifi link.
 ##
@@ -217,7 +217,7 @@ proc cyw43WifiPm*(self: ptr Cyw43T; pm: uint32): cint {.importc: "cyw43_wifi_pm"
 
 proc cyw43WifiLinkStatus*(self: ptr Cyw43T; itf: cint): cint {.importc: "cyw43_wifi_link_status".}
 ## !
-##  \brief Set up and initialise wifi
+## Set up and initialise wifi
 ##
 ##  This method turns on wifi and sets the country for regulation purposes.
 ##  The power management mode is initialised to \ref CYW43_DEFAULT_PM
@@ -234,7 +234,7 @@ proc cyw43WifiLinkStatus*(self: ptr Cyw43T; itf: cint): cint {.importc: "cyw43_w
 
 proc cyw43WifiSetUp*(self: ptr Cyw43T; itf: cint; up: bool; country: uint32) {.importc: "cyw43_wifi_set_up".}
 ## !
-##  \brief Get the mac address of the device
+## Get the mac address of the device
 ##
 ##  This method returns the mac address of the interface.
 ##
@@ -246,7 +246,7 @@ proc cyw43WifiSetUp*(self: ptr Cyw43T; itf: cint; up: bool; country: uint32) {.i
 
 proc cyw43WifiGetMac*(self: ptr Cyw43T; itf: cint; mac: array[6, uint8]): cint {.importc: "cyw43_wifi_get_mac".}
 ## !
-##  \brief Perform a wifi scan for wifi networks
+## Perform a wifi scan for wifi networks
 ##
 ##  Start a scan for wifi networks. Results are returned via the callback.
 ##
@@ -261,7 +261,7 @@ proc cyw43WifiGetMac*(self: ptr Cyw43T; itf: cint; mac: array[6, uint8]): cint {
 
 proc cyw43WifiScan*(self: ptr Cyw43T; opts: ptr Cyw43WifiScanOptionsT; env: pointer; resultCb: Cyw43WifiScanResultCb): cint {.importc: "cyw43_wifi_scan".}
 ## !
-##  \brief Determine if a wifi scan is in progress
+## Determine if a wifi scan is in progress
 ##
 ##  This method tells you if the scan is still in progress
 ##
@@ -272,7 +272,7 @@ proc cyw43WifiScan*(self: ptr Cyw43T; opts: ptr Cyw43WifiScanOptionsT; env: poin
 proc cyw43WifiScanActive*(self: ptr Cyw43T): bool {.inline, importc: "cyw43_wifi_scan_active".}
 
 ## !
-##  \brief Connect or \em join a wifi network
+## Connect or \em join a wifi network
 ##
 ##  Connect to a wifi network in STA (client) mode
 ##  After success is returned, periodically call \ref cyw43_wifi_link_status or \ref cyw43_tcpip_link_status,
@@ -295,7 +295,7 @@ proc cyw43WifiJoin*(self: ptr Cyw43T; ssidLen: csize_t; ssid: ptr uint8;
                    keyLen: csize_t; key: ptr uint8; authType: uint32;
                    bssid: ptr uint8; channel: uint32): cint {.importc: "cyw43_wifi_join".}
 ## !
-##  \brief Dissassociate from a wifi network
+## Dissassociate from a wifi network
 ##
 ##  This method dissassociates from a wifi network.
 ##
@@ -306,7 +306,7 @@ proc cyw43WifiJoin*(self: ptr Cyw43T; ssidLen: csize_t; ssid: ptr uint8;
 
 proc cyw43WifiLeave*(self: ptr Cyw43T; itf: cint): cint {.importc: "cyw43_wifi_leave".}
 ## !
-##  \brief Get the ssid for the access point
+## Get the ssid for the access point
 ##
 ##  For access point (AP) mode, this method can be used to get the SSID name of the wifi access point.
 ##
@@ -318,7 +318,7 @@ proc cyw43WifiLeave*(self: ptr Cyw43T; itf: cint): cint {.importc: "cyw43_wifi_l
 proc cyw43WifiApGetSsid*(self: ptr Cyw43T; len: ptr csize_t; buf: ptr ptr uint8) {.inline, importc: "cyw43_wifi_ap_get_ssid".}
 
 ## !
-##  \brief Set the the channel for the access point
+## Set the the channel for the access point
 ##
 ##  For access point (AP) mode, this method can be used to set the channel used for the wifi access point.
 ##
@@ -329,7 +329,7 @@ proc cyw43WifiApGetSsid*(self: ptr Cyw43T; len: ptr csize_t; buf: ptr ptr uint8)
 proc cyw43WifiApSetChannel*(self: ptr Cyw43T; channel: uint32) {.inline, importc: "cyw43_wifi_ap_set_channel".}
 
 ## !
-##  \brief Set the ssid for the access point
+## Set the ssid for the access point
 ##
 ##  For access point (AP) mode, this method can be used to set the SSID name of the wifi access point.
 ##
@@ -341,7 +341,7 @@ proc cyw43WifiApSetChannel*(self: ptr Cyw43T; channel: uint32) {.inline, importc
 proc cyw43WifiApSetSsid*(self: ptr Cyw43T; len: csize_t; buf: ptr uint8) {.inline, importc: "cyw43_wifi_ap_set_ssid".}
 
 ## !
-##  \brief Set the password for the wifi access point
+## Set the password for the wifi access point
 ##
 ##  For access point (AP) mode, this method can be used to set the password for the wifi access point.
 ##
@@ -353,7 +353,7 @@ proc cyw43WifiApSetSsid*(self: ptr Cyw43T; len: csize_t; buf: ptr uint8) {.inlin
 proc cyw43WifiApSetPassword*(self: ptr Cyw43T; len: csize_t; buf: ptr uint8) {.inline, importc: "cyw43_wifi_ap_set_password".}
 
 ## !
-##  \brief Set the security authorisation used in AP mode
+## Set the security authorisation used in AP mode
 ##
 ##  For access point (AP) mode, this method can be used to set how access to the access point is authorised.
 ##
@@ -371,7 +371,7 @@ proc cyw43WifiApSetPassword*(self: ptr Cyw43T; len: csize_t; buf: ptr uint8) {.i
 proc cyw43WifiApSetAuth*(self: ptr Cyw43T; auth: uint32) {.inline, importc: "cyw43_wifi_ap_set_auth".}
 
 ## !
-##  \brief Get the maximum number of devices (STAs) that can be associated with the wifi access point
+## Get the maximum number of devices (STAs) that can be associated with the wifi access point
 ##
 ##  For access point (AP) mode, this method can be used to get the maximum number of devices that can be
 ##  connected to the wifi access point.
@@ -382,7 +382,7 @@ proc cyw43WifiApSetAuth*(self: ptr Cyw43T; auth: uint32) {.inline, importc: "cyw
 
 proc cyw43WifiApGetMaxStas*(self: ptr Cyw43T; maxStas: ptr cint) {.importc: "cyw43_wifi_ap_get_max_stas".}
 ## !
-##  \brief Get the number of devices (STAs) associated with the wifi access point
+## Get the number of devices (STAs) associated with the wifi access point
 ##
 ##  For access point (AP) mode, this method can be used to get the number of devices and mac addresses of devices
 ##  connected to the wifi access point.
@@ -396,7 +396,7 @@ proc cyw43WifiApGetMaxStas*(self: ptr Cyw43T; maxStas: ptr cint) {.importc: "cyw
 
 proc cyw43WifiApGetStas*(self: ptr Cyw43T; numStas: ptr cint; macs: ptr uint8) {.importc: "cyw43_wifi_ap_get_stas".}
 ## !
-##  \brief Determines if the cyw43 driver been initialised
+## Determines if the cyw43 driver been initialised
 ##
 ##  Returns true if the cyw43 driver has been initialised with a call to \ref cyw43_init
 ##
@@ -407,7 +407,7 @@ proc cyw43WifiApGetStas*(self: ptr Cyw43T; numStas: ptr cint; macs: ptr uint8) {
 proc cyw43IsInitialized*(self: ptr Cyw43T): bool {.inline, importc: "cyw43_is_initialized".}
 
 ## !
-##  \brief Initialise the IP stack
+## Initialise the IP stack
 ##
 ##  This method must be provided by the network stack interface
 ##  It is called to initialise the IP stack.
@@ -418,7 +418,7 @@ proc cyw43IsInitialized*(self: ptr Cyw43T): bool {.inline, importc: "cyw43_is_in
 
 proc cyw43CbTcpipInit*(self: ptr Cyw43T; itf: cint) {.importc: "cyw43_cb_tcpip_init".}
 ## !
-##  \brief Deinitialise the IP stack
+## Deinitialise the IP stack
 ##
 ##  This method must be provided by the network stack interface
 ##  It is called to close the IP stack and free resources.
@@ -429,7 +429,7 @@ proc cyw43CbTcpipInit*(self: ptr Cyw43T; itf: cint) {.importc: "cyw43_cb_tcpip_i
 
 proc cyw43CbTcpipDeinit*(self: ptr Cyw43T; itf: cint) {.importc: "cyw43_cb_tcpip_deinit".}
 ## !
-##  \brief Notify the IP stack that the link is up
+## Notify the IP stack that the link is up
 ##
 ##  This method must be provided by the network stack interface
 ##  It is called to notify the IP stack that the link is up.
@@ -441,7 +441,7 @@ proc cyw43CbTcpipDeinit*(self: ptr Cyw43T; itf: cint) {.importc: "cyw43_cb_tcpip
 
 proc cyw43CbTcpipSetLinkUp*(self: ptr Cyw43T; itf: cint) {.importc: "cyw43_cb_tcpip_set_link_up".}
 ## !
-##  \brief Notify the IP stack that the link is down
+## Notify the IP stack that the link is down
 ##
 ##  This method must be provided by the network stack interface
 ##  It is called to notify the IP stack that the link is down.
@@ -452,7 +452,7 @@ proc cyw43CbTcpipSetLinkUp*(self: ptr Cyw43T; itf: cint) {.importc: "cyw43_cb_tc
 
 proc cyw43CbTcpipSetLinkDown*(self: ptr Cyw43T; itf: cint) {.importc: "cyw43_cb_tcpip_set_link_down".}
 ## !
-##  \brief Get the link status
+## Get the link status
 ##
 ##  Returns the status of the link which is a superset of the wifi link status returned by \ref cyw43_wifi_link_status
 ##  \note If the link status is negative it indicates an error
@@ -476,9 +476,9 @@ proc cyw43TcpipLinkStatus*(self: ptr Cyw43T; itf: cint): cint {.importc: "cyw43_
 
 when defined(cyw43Gpio):
   ## !
-  ##  \brief Set the value of the cyw43 gpio
+  ## Set the value of the cyw43 gpio
   ##
-  ##  Set the value of a cyw43 gpio.
+  ## Set the value of a cyw43 gpio.
   ##  \note Check the datasheet for the number and purpose of the cyw43 gpios.
   ##
   ##  \param self the driver state object. This should always be \c &cyw43_state
@@ -489,9 +489,9 @@ when defined(cyw43Gpio):
   proc cyw43GpioSet*(self: ptr Cyw43T; gpio: cint; val: bool): cint {.importc: "cyw43_gpio_set".}
 
   ## !
-  ##  \brief Get the value of the cyw43 gpio
+  ## Get the value of the cyw43 gpio
   ##
-  ##  Get the value of a cyw43 gpio.
+  ## Get the value of a cyw43 gpio.
   ##  \note Check the datasheet for the number and purpose of the cyw43 gpios.
   ##
   ##  \param self the driver state object. This should always be \c &cyw43_state
@@ -502,7 +502,7 @@ when defined(cyw43Gpio):
   proc cyw43GpioGet*(self: ptr Cyw43T; gpio: cint; val: ptr bool): cint {.importc: "cyw43_gpio_get".}
 
 ## !
-##  \brief Return a power management value to pass to cyw43_wifi_pm
+## Return a power management value to pass to cyw43_wifi_pm
 ##
 ##  Generate the power management (PM) value to pass to cyw43_wifi_pm
 ##
@@ -527,19 +527,19 @@ when defined(cyw43Gpio):
 proc cyw43PmValue*(pmMode: uint8; pm2SleepRetMs: uint16; liBeaconPeriod: uint8; liDtimPeriod: uint8; liAssoc: uint8): uint32 {.inline, importc: "cyw43_pm_value".}
 
 ## !
-##  \brief Default power management mode
+## Default power management mode
 ##
 
 let CYW43_DEFAULT_PM* {.importc: "CYW43_DEFAULT_PM"}: uint32
 
 ## !
-##  \brief Aggressive power management mode for optimial power usage at the cost of performance
+## Aggressive power management mode for optimial power usage at the cost of performance
 ##
 
 let CYW43_AGGRESSIVE_PM* {.importc: "CYW43_AGGRESSIVE_PM"}: uint32
 
 ## !
-##  \brief Performance power management mode where more power is used to increase performance
+## Performance power management mode where more power is used to increase performance
 ##
 
 let CYW43_PERFORMANCE_PM* {.importc: "CYW43_PERFORMANCE_PM"}: uint32

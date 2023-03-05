@@ -89,22 +89,22 @@ type PbufLayer* = distinct cint
 
 let
   PBUF_TRANSPORT* {.importc: "PBUF_TRANSPORT", header: "lwip/pbuf.h".}: PbufLayer
-    ##  Includes spare room for transport layer header, e.g. UDP header.
-    ##  Use this if you intend to pass the pbuf to functions like udp_send().
+    ## Includes spare room for transport layer header, e.g. UDP header.
+    ## Use this if you intend to pass the pbuf to functions like udp_send().
   PBUF_IP* {.importc: "PBUF_IP", header: "lwip/pbuf.h".}: PbufLayer
-    ##  Includes spare room for IP header.
-    ##  Use this if you intend to pass the pbuf to functions like raw_send().
+    ## Includes spare room for IP header.
+    ## Use this if you intend to pass the pbuf to functions like raw_send().
   PBUF_LINK* {.importc: "PBUF_LINK", header: "lwip/pbuf.h".}: PbufLayer
-    ##  Includes spare room for link layer header (ethernet header).
-    ##  Use this if you intend to pass the pbuf to functions like ethernet_output().
+    ## Includes spare room for link layer header (ethernet header).
+    ## Use this if you intend to pass the pbuf to functions like ethernet_output().
     ##  @see PBUF_LINK_HLEN
   PBUF_RAW_TX* {.importc: "PBUF_RAW_TX", header: "lwip/pbuf.h".}: PbufLayer
-    ##  Includes spare room for additional encapsulation header before ethernet
+    ## Includes spare room for additional encapsulation header before ethernet
     ##  headers (e.g. 802.11).
-    ##  Use this if you intend to pass the pbuf to functions like netif->linkoutput().
+    ## Use this if you intend to pass the pbuf to functions like netif->linkoutput().
     ##  @see PBUF_LINK_ENCAPSULATION_HLEN
   PBUF_RAW* {.importc: "PBUF_RAW", header: "lwip/pbuf.h".}: PbufLayer
-    ##  Use this for input packets in a netif driver when calling netif->input()
+    ## Use this for input packets in a netif driver when calling netif->input()
     ##  in the most common case - ethernet-layer netif driver.
 
 
@@ -116,20 +116,20 @@ const
   PBUF_TYPE_FLAG_STRUCT_DATA_CONTIGUOUS* = 0x80
 
 ## * Indicates the data stored in this pbuf can change. If this pbuf needs
-##  to be queued, it must be copied/duplicated.
+##   to be queued, it must be copied/duplicated.
 
 const
   PBUF_TYPE_FLAG_DATA_VOLATILE* = 0x40
 
 ## * 4 bits are reserved for 16 allocation sources (e.g. heap, pool1, pool2, etc)
-##  Internally, we use: 0=heap, 1=MEMP_PBUF, 2=MEMP_PBUF_POOL -> 13 types free
+##   Internally, we use: 0=heap, 1=MEMP_PBUF, 2=MEMP_PBUF_POOL -> 13 types free
 
 const
   PBUF_TYPE_ALLOC_SRC_MASK* = 0x0F
 
 ## * Indicates this pbuf is used for RX (if not set, indicates use for TX).
-##  This information can be used to keep some spare RX buffers e.g. for
-##  receiving TCP ACKs to unblock a connection)
+##   This information can be used to keep some spare RX buffers e.g. for
+##   receiving TCP ACKs to unblock a connection)
 
 const
   PBUF_ALLOC_FLAG_RX* = 0x0100
@@ -166,7 +166,7 @@ let
     ##  can be calculated from struct pbuf).
     ##  pbuf_alloc() allocates PBUF_RAM pbufs as unchained pbufs (although that might
     ##  change in future versions).
-    ##  This should be used for all OUTGOING packets (TX).
+    ## This should be used for all OUTGOING packets (TX).
   PBUF_ROM* {.importc: "PBUF_ROM", header: "lwip/pbuf.h".}: PbufType
     ##  pbuf data is stored in ROM, i.e. struct pbuf and its payload are located in
     ##  totally different memory areas. Since it points to ROM, payload does not
@@ -180,7 +180,7 @@ let
     ##  for RX. Payload can be chained (scatter-gather RX) but like PBUF_RAM, struct
     ##  pbuf and its payload are allocated in one piece of contiguous memory (so
     ##  the first payload byte can be calculated from struct pbuf).
-    ##  Don't use this for TX, if the pool becomes empty e.g. because of TCP queuing,
+    ## Don't use this for TX, if the pool becomes empty e.g. because of TCP queuing,
     ##  you are unable to receive TCP acks!
 
 
@@ -190,7 +190,7 @@ const
   PBUF_FLAG_PUSH* = 0x01
 
 ## * indicates this is a custom pbuf: pbuf_free calls pbuf_custom->custom_free_function()
-##     when the last reference is released (plus custom PBUF_RAM cannot be trimmed)
+##   when the last reference is released (plus custom PBUF_RAM cannot be trimmed)
 
 const
   PBUF_FLAG_IS_CUSTOM* = 0x02
@@ -228,7 +228,7 @@ type
       ##  total length of this buffer and all next buffers in chain
       ##  belonging to the same packet.
       ##
-      ##  For non-queue packet chains this is the invariant:
+      ## For non-queue packet chains this is the invariant:
       ##  p->tot_len == p->len + (p->next? p->next->tot_len: 0)
       ##
     len* {.importc: "len".}: uint16
@@ -296,7 +296,7 @@ when defined(lwipTcp) and defined(tcpQueueOoseq) and defined(noSys) and defined(
         break
 
 else:
-  ##  Otherwise declare an empty PBUF_CHECK_FREE_OOSEQ
+  ## Otherwise declare an empty PBUF_CHECK_FREE_OOSEQ
 ##  Initializes the pbuf module. This call is empty for now, but may not be in future.
 
 proc pbufAlloc*(l: PbufLayer; length: uint16; `type`: PbufType): ptr Pbuf {.importc: "pbuf_alloc", header: "lwip/pbuf.h".}

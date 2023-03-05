@@ -101,7 +101,7 @@ type
     LinkUp = Cyw43LinkUp            ## Connect to wifi with an IP address
 
   Cyw43Ioctl* {.pure.} = enum
-    ##  IOCTL commands
+    ## IOCTL commands
     GetSsid = Cyw43IoctlGetSsid
     GetChannel = Cyw43IoctlGetChannel
     SetDisassoc = Cyw43IoctlSetDisassoc
@@ -112,7 +112,7 @@ type
     SetVar = Cyw43IoctlSetVar
 
   Cyw43EventType* {.pure.} = enum
-    ##  Async events, event_type field
+    ## Async events, event_type field
     EvSetSsid = Cyw43evsetssid
     EvJoin = Cyw43evjoin
     EvAuth = Cyw43evauth
@@ -130,7 +130,7 @@ type
     EvAssocRespIe = Cyw43EvAssocRespIe
 
   Cyw43EventStatus* {.pure.} = enum
-    ##  Event status values
+    ## Event status values
     StatusSuccess = Cyw43StatusSuccess
     StatusFail = Cyw43StatusFail
     StatusTimeout = Cyw43StatusTimeout
@@ -144,7 +144,7 @@ type
     StatusNewassoc = Cyw43StatusNewassoc
 
   Cyw43AuthReason* {.pure.} = enum
-    ##  Values for AP auth setting
+    ## Values for AP auth setting
     AuthReasonInitialAssoc = Cyw43ReasonInitialAssoc ##  initial assoc
     AuthReasonLowRssi = Cyw43ReasonLowRssi  ##  roamed due to low RSSI
     AuthReasonDeauth = Cyw43ReasonDeauth    ##  roamed due to DEAUTH indication
@@ -178,7 +178,7 @@ type
     PruneReasonNoDiagSupport = Cyw43ReasonPruneNoDiagSupport ##  prune due to diagnostic mode not supported
 
   Cyw43ReasonSup* {.pure.} = enum
-    ##  WPA failure reason codes carried in the WLC_E_PSK_SUP event
+    ## WPA failure reason codes carried in the WLC_E_PSK_SUP event
     ReasonSupOther = Cyw43ReasonSupOther ##  Other reason
     ReasonSupDecryptKeyData = Cyw43ReasonSupDecryptKeyData ##  Decryption of key data failed
     ReasonSupBadUcastWep128 = Cyw43ReasonSupBadUcastWep128 ##  Illegal use of ucast WEP128
@@ -197,7 +197,7 @@ type
     ReasonSupWpaPskTmo = Cyw43ReasonSupWpaPskTmo ##  WPA PSK 4-way handshake timeout
 
   Cyw43Auth* {.pure.} = enum
-    ##  Values used for STA and AP auth settings
+    ## Values used for STA and AP auth settings
     WpaAuthPsk = Cyw43WpaAuthPsk
     Wpa2AuthPsk = Cyw43Wpa2AuthPsk
 
@@ -256,7 +256,7 @@ const
     ## Default power management mode
 
   Cyw43AggressivePm* = cyw43PmValue(Cyw43Pm2PowersaveMode, 2000, 1, 1, 10)
-    ##  Aggressive power management mode for optimial power usage at the cost of performance
+    ## Aggressive power management mode for optimial power usage at the cost of performance
 
   Cyw43PerformancePm* = cyw43PmValue(Cyw43Pm2PowersaveMode, 20, 1, 1, 1)
     ## Performance power management mode where more power is used to increase performance

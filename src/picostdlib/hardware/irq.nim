@@ -12,8 +12,7 @@ type
   IrqHandler* {.importc: "irq_handler_t".} = proc () {.cdecl.}
 
 proc irqSetPriority*(num: InterruptNumber; hardwarePriority: uint8) {.importc: "irq_set_priority".}
-  ## ```
-  ##   ! \brief Set specified interrupt's priority
+  ## Set specified interrupt's priority
   ##     \ingroup hardware_irq
   ##   
   ##    \param num Interrupt number \ref interrupt_nums
@@ -24,11 +23,9 @@ proc irqSetPriority*(num: InterruptNumber; hardwarePriority: uint8) {.importc: "
   ##    higher or lower priorities than the default, all IRQ priorities are
   ##    initialized to PICO_DEFAULT_IRQ_PRIORITY by the SDK runtime at startup.
   ##    PICO_DEFAULT_IRQ_PRIORITY defaults to 0x80
-  ## ```
 
 proc irqGetPriority*(num: InterruptNumber): cuint {.importc: "irq_get_priority".}
-  ## ```
-  ##   ! \brief Get specified interrupt's priority
+  ## Get specified interrupt's priority
   ##     \ingroup hardware_irq
   ##   
   ##    Numerically-lower values indicate a higher priority. Hardware priorities
@@ -40,38 +37,30 @@ proc irqGetPriority*(num: InterruptNumber): cuint {.importc: "irq_get_priority".
   ##   
   ##    \param num Interrupt number \ref interrupt_nums
   ##    \return the IRQ priority
-  ## ```
 
 proc irqSetEnabled*(num: InterruptNumber; enabled: bool) {.importc: "irq_set_enabled".}
-  ## ```
-  ##   ! \brief Enable or disable a specific interrupt on the executing core
+  ## Enable or disable a specific interrupt on the executing core
   ##     \ingroup hardware_irq
   ##   
   ##    \param num Interrupt number \ref interrupt_nums
   ##    \param enabled true to enable the interrupt, false to disable
-  ## ```
 
 proc irqIsEnabled*(num: InterruptNumber): bool {.importc: "irq_is_enabled".}
-  ## ```
-  ##   ! \brief Determine if a specific interrupt is enabled on the executing core
+  ## Determine if a specific interrupt is enabled on the executing core
   ##     \ingroup hardware_irq
   ##   
   ##    \param num Interrupt number \ref interrupt_nums
   ##    \return true if the interrupt is enabled
-  ## ```
 
 proc irqSetMaskEnabled*(mask: uint32; enabled: bool) {.importc: "irq_set_mask_enabled".}
-  ## ```
-  ##   ! \brief Enable/disable multiple interrupts on the executing core
+  ## Enable/disable multiple interrupts on the executing core
   ##     \ingroup hardware_irq
   ##   
   ##    \param mask 32-bit mask with one bits set for the interrupts to enable/disable \ref interrupt_nums
   ##    \param enabled true to enable the interrupts, false to disable them.
-  ## ```
 
 proc irqSetExclusiveHandler*(num: InterruptNumber; handler: IrqHandler) {.importc: "irq_set_exclusive_handler".}
-  ## ```
-  ##   ! \brief  Set an exclusive interrupt handler for an interrupt on the executing core.
+  ## Set an exclusive interrupt handler for an interrupt on the executing core.
   ##     \ingroup hardware_irq
   ##   
   ##    Use this method to set a handler for single IRQ source interrupts, or when
@@ -84,11 +73,9 @@ proc irqSetExclusiveHandler*(num: InterruptNumber; handler: IrqHandler) {.import
   ##    \param num Interrupt number \ref interrupt_nums
   ##    \param handler The handler to set. See \ref irq_handler_t
   ##    \see irq_add_shared_handler()
-  ## ```
 
 proc irqGetExclusiveHandler*(num: InterruptNumber): IrqHandler {.importc: "irq_get_exclusive_handler".}
-  ## ```
-  ##   ! \brief  Get the exclusive interrupt handler for an interrupt on the executing core.
+  ## Get the exclusive interrupt handler for an interrupt on the executing core.
   ##     \ingroup hardware_irq
   ##   
   ##    This method will return an exclusive IRQ handler set on this core
@@ -98,12 +85,10 @@ proc irqGetExclusiveHandler*(num: InterruptNumber): IrqHandler {.importc: "irq_g
   ##    \see irq_set_exclusive_handler()
   ##    \return handler The handler if an exclusive handler is set for the IRQ,
   ##                    NULL if no handler is set or shared/shareable handlers are installed
-  ## ```
 # TODO: How is NULL return value handled here?
 
 proc irqAddSharedHandler*(num: InterruptNumber; handler: IrqHandler; orderPriority: uint8) {.importc: "irq_add_shared_handler".}
-  ## ```
-  ##   ! \brief Add a shared interrupt handler for an interrupt on the executing core
+  ## Add a shared interrupt handler for an interrupt on the executing core
   ##     \ingroup hardware_irq
   ##   
   ##    Use this method to add a handler on an irq number shared between multiple distinct hardware sources (e.g. GPIO, DMA or PIO IRQs).
@@ -126,11 +111,9 @@ proc irqAddSharedHandler*(num: InterruptNumber; handler: IrqHandler; orderPriori
   ##    to irq_set_priority() which use lower values for higher priorities.
   ##   
   ##    \see irq_set_exclusive_handler()
-  ## ```
 
 proc irqRemoveHandler*(num: InterruptNumber; handler: IrqHandler) {.importc: "irq_remove_handler".}
-  ## ```
-  ##   ! \brief Remove a specific interrupt handler for the given irq number on the executing core
+  ## Remove a specific interrupt handler for the given irq number on the executing core
   ##     \ingroup hardware_irq
   ##   
   ##    This method may be used to remove an irq set via either irq_set_exclusive_handler() or
@@ -145,32 +128,26 @@ proc irqRemoveHandler*(num: InterruptNumber; handler: IrqHandler) {.importc: "ir
   ##    \param handler The handler to removed.
   ##    \see irq_set_exclusive_handler()
   ##    \see irq_add_shared_handler()
-  ## ```
 
 proc irqHasSharedHandler*(num: InterruptNumber): bool {.importc: "irq_has_shared_handler".}
-  ## ```
-  ##   ! \brief Determine if the current handler for the given number is shared
+  ## Determine if the current handler for the given number is shared
   ##     \ingroup hardware_irq
   ##   
   ##    \param num Interrupt number \ref interrupt_nums
   ##    \return true if the specified IRQ has a shared handler
   ##   
-  ## ```
 
 proc irqGetVtableHandler*(num: InterruptNumber): IrqHandler {.importc: "irq_get_vtable_handler".}
-  ## ```
-  ##   ! \brief Get the current IRQ handler for the specified IRQ from the currently installed hardware vector table (VTOR)
+  ## Get the current IRQ handler for the specified IRQ from the currently installed hardware vector table (VTOR)
   ##    of the execution core
   ##     \ingroup hardware_irq
   ##   
   ##    \param num Interrupt number \ref interrupt_nums
   ##    \return the address stored in the VTABLE for the given irq number
-  ## ```
 # TODO: How is NULL return value handled here?
 
 proc irqClear*(intNum: InterruptNumber) {.importc: "irq_clear".}
-  ## ```
-  ##   ! \brief Clear a specific interrupt on the executing core
+  ## Clear a specific interrupt on the executing core
   ##     \ingroup hardware_irq
   ##   
   ##    This method is only useful for "software" IRQs that are not connected to hardware (i.e. IRQs 26-31)
@@ -178,28 +155,22 @@ proc irqClear*(intNum: InterruptNumber) {.importc: "irq_clear".}
   ##    of the IRQ state of the hardware is performed via the hardware's registers instead.
   ##   
   ##    \param int_num Interrupt number \ref interrupt_nums
-  ## ```
 
 proc irqSetPending*(num: InterruptNumber) {.importc: "irq_set_pending".}
-  ## ```
-  ##   ! \brief Force an interrupt to be pending on the executing core
+  ## Force an interrupt to be pending on the executing core
   ##     \ingroup hardware_irq
   ##   
   ##    This should generally not be used for IRQs connected to hardware.
   ##   
   ##    \param num Interrupt number \ref interrupt_nums
-  ## ```
 
 proc irqInitPriorities*() {.importc: "irq_init_priorities".}
-  ## ```
-  ##   ! \brief Perform IRQ priority initialization for the current core
+  ## Perform IRQ priority initialization for the current core
   ##   
   ##    \note This is an internal method and user should generally not call it.
-  ## ```
 
 proc user_irq_claim*(irqNum: InterruptNumber) {.importc: "user_irq_claim".}
-  ## ```
-  ##   ! \brief Claim ownership of a user IRQ on the calling core
+  ## Claim ownership of a user IRQ on the calling core
   ##     \ingroup hardware_irq
   ##     
   ##    User IRQs are numbered 26-31 and are not connected to any hardware, but can be triggered by \ref irq_set_pending.
@@ -210,11 +181,9 @@ proc user_irq_claim*(irqNum: InterruptNumber) {.importc: "user_irq_claim".}
   ##    This method explicitly claims ownership of a user IRQ, so other code can know it is being used.
   ##   
   ##    \param irq_num the user IRQ to claim
-  ## ```
 
 proc userIrqUnclaim*(irqNum: InterruptNumber) {.importc: "user_irq_unclaim".}
-  ## ```
-  ##   ! \brief Mark a user IRQ as no longer used on the calling core
+  ## Mark a user IRQ as no longer used on the calling core
   ##     \ingroup hardware_irq
   ##   
   ##    User IRQs are numbered 26-31 and are not connected to any hardware, but can be triggered by \ref irq_set_pending.
@@ -227,11 +196,9 @@ proc userIrqUnclaim*(irqNum: InterruptNumber) {.importc: "user_irq_unclaim".}
   ##    \note it is customary to have disabled the irq and removed the handler prior to calling this method.
   ##   
   ##    \param irq_num the irq irq_num to unclaim
-  ## ```
 
 proc userIrqClaimUnused*(required: bool): cint {.importc: "user_irq_claim_unused".}
-  ## ```
-  ##   ! \brief Claim ownership of a free user IRQ on the calling core
+  ## Claim ownership of a free user IRQ on the calling core
   ##     \ingroup hardware_irq
   ##     
   ##    User IRQs are numbered 26-31 and are not connected to any hardware, but can be triggered by \ref irq_set_pending.
@@ -243,11 +210,9 @@ proc userIrqClaimUnused*(required: bool): cint {.importc: "user_irq_claim_unused
   ##   
   ##    \param required if true the function will panic if none are available
   ##    \return the user IRQ number or -1 if required was false, and none were free
-  ## ```
 
 proc userIrqIsClaimed*(irqNum: InterruptNumber): bool {.importc: "user_irq_is_claimed".}
-  ## ```
-  ##   ! \brief Check if a user IRQ is in use on the calling core
+  ## Check if a user IRQ is in use on the calling core
   ##     \ingroup hardware_irq
   ##     
   ##    User IRQs are numbered 26-31 and are not connected to any hardware, but can be triggered by \ref irq_set_pending.
@@ -260,6 +225,5 @@ proc userIrqIsClaimed*(irqNum: InterruptNumber): bool {.importc: "user_irq_is_cl
   ##    \sa user_irq_claim
   ##    \sa user_irq_unclaim
   ##    \sa user_irq_claim_unused
-  ## ```
 
 {.pop.}

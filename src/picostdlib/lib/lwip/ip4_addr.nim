@@ -47,7 +47,7 @@ when defined(lwipIpv4):
   ##  operate both on ip4_addr_t as well as on ip4_addr_p_t.
   type
     Ip4AddrT* = Ip4Addr
-  ##  Forward declaration to not include netif.h
+  ## Forward declaration to not include netif.h
   discard "forward decl of netif"
   const
     IPADDR_NONE* = (cast[uint32](0xffffffff))
@@ -60,7 +60,7 @@ when defined(lwipIpv4):
   ## * 255.255.255.255
   const
     IPADDR_BROADCAST* = (cast[uint32](0xffffffff))
-  ##  Definitions of the bits in an Internet address integer.
+  ## Definitions of the bits in an Internet address integer.
   ##
   ##    On subnets, host and network parts are found according to
   ##    the subnet mask, not these masks.
@@ -155,14 +155,14 @@ when defined(lwipIpv4):
         break
 
   ## *
-  ##  Determine if two address are on the same network.
+  ## Determine if two address are on the same network.
   ##  @deprecated Renamed to @ref ip4_addr_net_eq
   ##
   template ip4AddrNetcmp*(addr1, addr2, mask: untyped): untyped =
     ip4AddrNetEq(addr1, addr2, mask)
 
   ## *
-  ##  Determine if two address are on the same network.
+  ## Determine if two address are on the same network.
   ##
   ##  @arg addr1 IP address 1
   ##  @arg addr2 IP address 2
@@ -219,7 +219,7 @@ when defined(lwipIpv4):
   ##                       ip4_addr3_16_val(ipaddr),       \
   ##                       ip4_addr4_16_val(ipaddr))
   ##
-  ##  Get one byte from the 4-byte address
+  ## Get one byte from the 4-byte address
   template ip4AddrGetByte*(ipaddr, idx: untyped): untyped =
     ((cast[ptr uint8]((addr((ipaddr).`addr`))))[idx])
 
@@ -235,7 +235,7 @@ when defined(lwipIpv4):
   template ip4Addr4*(ipaddr: untyped): untyped =
     ip4AddrGetByte(ipaddr, 3)
 
-  ##  Get one byte from the 4-byte address, but argument is 'ip4_addr_t',
+  ## Get one byte from the 4-byte address, but argument is 'ip4_addr_t',
   ##  not a pointer
   template ip4AddrGetByteVal*(ipaddr, idx: untyped): untyped =
     ((uint8)(((ipaddr).`addr` shr (idx * 8)) and 0xff))
@@ -252,7 +252,7 @@ when defined(lwipIpv4):
   template ip4Addr4Val*(ipaddr: untyped): untyped =
     ip4AddrGetByteVal(ipaddr, 3)
 
-  ##  These are cast to u16_t, with the intent that they are often arguments
+  ## These are cast to u16_t, with the intent that they are often arguments
   ##  to printf using the U16_F format from cc.h.
   template ip4Addr116*(ipaddr: untyped): untyped =
     (cast[uint16](ip4Addr1(ipaddr)))

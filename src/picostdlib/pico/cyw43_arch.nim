@@ -23,7 +23,7 @@ proc cyw43ThreadExit() {.importc: "cyw43_thread_exit".}
 # {.push header: "pico/cyw43_arch.h".}
 
 proc cyw43ArchInit*(): PicoErrorCodes {.importc: "cyw43_arch_init".}
-  ## \brief Initialize the CYW43 architecture
+  ## Initialize the CYW43 architecture
   ## \ingroup pico_cyw43_arch
   ##
   ## This method initializes the `cyw43_driver` code and initializes the lwIP stack (if it
@@ -41,7 +41,7 @@ proc cyw43ArchInit*(): PicoErrorCodes {.importc: "cyw43_arch_init".}
   ## \return 0 if the initialization is successful, an error code otherwise \see pico_error_codes
 
 proc cyw43ArchInitWithCountry*(country: Cyw43Country): PicoErrorCodes {.importc: "cyw43_arch_init_with_country".}
-  ## \brief Initialize the CYW43 architecture for use in a specific country
+  ## Initialize the CYW43 architecture for use in a specific country
   ## \ingroup pico_cyw43_arch
   ##
   ## This method initializes the `cyw43_driver` code and initializes the lwIP stack (if it
@@ -56,7 +56,7 @@ proc cyw43ArchInitWithCountry*(country: Cyw43Country): PicoErrorCodes {.importc:
   ## \return 0 if the initialization is successful, an error code otherwise \see pico_error_codes
 
 proc cyw43ArchDeinit*() {.importc: "cyw43_arch_deinit".}
-  ## \brief De-initialize the CYW43 architecture
+  ## De-initialize the CYW43 architecture
   ## \ingroup pico_cyw43_arch
   ##
   ## This method de-initializes the `cyw43_driver` code and de-initializes the lwIP stack (if it
@@ -66,13 +66,13 @@ proc cyw43ArchDeinit*() {.importc: "cyw43_arch_deinit".}
   ## Additionally if the cyw43_arch is using its own async_context instance, then that instance is de-initialized.
 
 proc cyw43ArchAsyncContext*(): ptr AsyncContext {.importc: "cyw43_arch_async_context".}
-  ## \brief Return the current async_context currently in use by the cyw43_arch code
+  ## Return the current async_context currently in use by the cyw43_arch code
   ## \ingroup pico_cyw43_arch
   ##
   ## \return the async_context.
 
 proc cyw43ArchSetAsyncContext*(context: ptr AsyncContext) {.importc: "cyw43_arch_set_async_context".}
-  ## \brief Set the async_context to be used by the cyw43_arch_init
+  ## Set the async_context to be used by the cyw43_arch_init
   ## \ingroup pico_cyw43_arch
   ##
   ## \note This method must be called before calling cyw43_arch_init or cyw43_arch_init_with_country
@@ -81,7 +81,7 @@ proc cyw43ArchSetAsyncContext*(context: ptr AsyncContext) {.importc: "cyw43_arch
   ## \param context the async_context to be used
 
 proc cyw43ArchInitDefaultAsyncContext*(): ptr AsyncContext {.importc: "cyw43_arch_init_default_async_context".}
-  ## \brief Initialize the default async_context for the current cyw43_arch type
+  ## Initialize the default async_context for the current cyw43_arch type
   ## \ingroup pico_cyw43_arch
   ##
   ## This method initializes and returns a pointer to the static async_context associated
@@ -91,7 +91,7 @@ proc cyw43ArchInitDefaultAsyncContext*(): ptr AsyncContext {.importc: "cyw43_arc
   ## \return the context or NULL if initialization failed.
 
 proc cyw43ArchPoll*() {.importc: "cyw43_arch_poll".}
-  ## \brief Perform any processing required by the \c cyw43_driver or the TCP/IP stack
+  ## Perform any processing required by the \c cyw43_driver or the TCP/IP stack
   ## \ingroup pico_cyw43_arch
   ##
   ## This method must be called periodically from the main loop when using a
@@ -99,7 +99,7 @@ proc cyw43ArchPoll*() {.importc: "cyw43_arch_poll".}
   ## may be called in other styles, but it is unnecessary to do so.
 
 proc cyw43ArchWaitForWorkUntil*(until: AbsoluteTime) {.importc: "cyw43_arch_wait_for_work_until".}
-  ## \brief Sleep until there is cyw43_driver work to be done
+  ## Sleep until there is cyw43_driver work to be done
   ## \ingroup pico_cyw43_arch
   ##
   ## This method may be called by code that is waiting for an event to
@@ -110,7 +110,7 @@ proc cyw43ArchWaitForWorkUntil*(until: AbsoluteTime) {.importc: "cyw43_arch_wait
 
 proc cyw43ArchLwipBegin*() {.inline.} = cyw43ThreadEnter()
   ## \fn cyw43_arch_lwip_begin
-  ## \brief Acquire any locks required to call into lwIP
+  ## Acquire any locks required to call into lwIP
   ## \ingroup pico_cyw43_arch
   ##
   ## The lwIP API is not thread safe. You should surround calls into the lwIP API
@@ -129,7 +129,7 @@ proc cyw43ArchLwipBegin*() {.inline.} = cyw43ThreadEnter()
 
 proc cyw43ArchLwipEnd*() {.inline.} = cyw43ThreadExit()
   ## \fn void cyw43_arch_lwip_end(void)
-  ## \brief Release any locks required for calling into lwIP
+  ## Release any locks required for calling into lwIP
   ## \ingroup pico_cyw43_arch
   ##
   ## The lwIP API is not thread safe. You should surround calls into the lwIP API
@@ -148,7 +148,7 @@ proc cyw43ArchLwipEnd*() {.inline.} = cyw43ThreadExit()
 
 proc cyw43ArchLwipProtect*(`func`: proc (param: pointer): cint {.cdecl.}, param: pointer): cint {.inline.} =
   ## \fn int cyw43_arch_lwip_protect(int (*func)(void *param), void *param)
-  ## \brief sad Release any locks required for calling into lwIP
+  ## sad Release any locks required for calling into lwIP
   ## \ingroup pico_cyw43_arch
   ##
   ## The lwIP API is not thread safe. You can use this method to wrap a function
@@ -167,19 +167,19 @@ proc cyw43ArchLwipProtect*(`func`: proc (param: pointer): cint {.cdecl.}, param:
   return rc
 
 proc cyw43ArchGetCountryCode*(): uint32 {.importc: "cyw43_arch_get_country_code".}
-  ## \brief Return the country code used to initialize cyw43_arch
+  ## Return the country code used to initialize cyw43_arch
   ## \ingroup pico_cyw43_arch
   ##
   ## \return the country code (see \ref CYW43_COUNTRY_)
 
 proc cyw43ArchEnableStaMode*() {.importc: "cyw43_arch_enable_sta_mode".}
-  ## \brief Enables Wi-Fi STA (Station) mode.
+  ## Enables Wi-Fi STA (Station) mode.
   ## \ingroup pico_cyw43_arch
   ##
   ## This enables the Wi-Fi in \emStation mode such that connections can be made to other Wi-Fi Access Points
 
 proc cyw43ArchEnableApMode*(ssid: cstring; password: cstring; auth: Cyw43ArchAuth) {.importc: "cyw43_arch_enable_ap_mode".}
-  ## \brief Enables Wi-Fi AP (Access point) mode.
+  ## Enables Wi-Fi AP (Access point) mode.
   ## \ingroup pico_cyw43_arch
   ##
   ## This enables the Wi-Fi in \em Access \em Point mode such that connections can be made to the device by  other Wi-Fi clients
@@ -189,7 +189,7 @@ proc cyw43ArchEnableApMode*(ssid: cstring; password: cstring; auth: Cyw43ArchAut
   ##             \ref CYW43_AUTH_WPA2_AES_PSK, or \ref CYW43_AUTH_WPA2_MIXED_PSK (see \ref CYW43_AUTH_)
 
 proc cyw43ArchWifiConnectBlocking*(ssid: cstring; pw: cstring; auth: Cyw43ArchAuth): PicoErrorCodes {.importc: "cyw43_arch_wifi_connect_blocking".}
-  ## \brief Attempt to connect to a wireless access point, blocking until the network is joined or a failure is detected.
+  ## Attempt to connect to a wireless access point, blocking until the network is joined or a failure is detected.
   ## \ingroup pico_cyw43_arch
   ##
   ## \param ssid the network name to connect to
@@ -200,7 +200,7 @@ proc cyw43ArchWifiConnectBlocking*(ssid: cstring; pw: cstring; auth: Cyw43ArchAu
   ## \return 0 if the initialization is successful, an error code otherwise \see pico_error_codes
 
 proc cyw43ArchWifiConnectBssidBlocking*(ssid: cstring; bssid: ptr uint8; pw: cstring; auth: Cyw43ArchAuth): PicoErrorCodes {.importc: "cyw43_arch_wifi_connect_bssid_blocking".}
-  ## \brief Attempt to connect to a wireless access point specified by SSID and BSSID, blocking until the network is joined or a failure is detected.
+  ## Attempt to connect to a wireless access point specified by SSID and BSSID, blocking until the network is joined or a failure is detected.
   ## \ingroup pico_cyw43_arch
   ##
   ## \param ssid the network name to connect to
@@ -212,7 +212,7 @@ proc cyw43ArchWifiConnectBssidBlocking*(ssid: cstring; bssid: ptr uint8; pw: cst
   ## \return 0 if the initialization is successful, an error code otherwise \see pico_error_codes
 
 proc cyw43ArchWifiConnectTimeoutMs*(ssid: cstring; pw: cstring; auth: Cyw43ArchAuth; timeoutMs: uint32): PicoErrorCodes {.importc: "cyw43_arch_wifi_connect_timeout_ms".}
-  ## \brief Attempt to connect to a wireless access point, blocking until the network is joined, a failure is detected or a timeout occurs
+  ## Attempt to connect to a wireless access point, blocking until the network is joined, a failure is detected or a timeout occurs
   ## \ingroup pico_cyw43_arch
   ##
   ## \param ssid the network name to connect to
@@ -223,7 +223,7 @@ proc cyw43ArchWifiConnectTimeoutMs*(ssid: cstring; pw: cstring; auth: Cyw43ArchA
   ## \return 0 if the initialization is successful, an error code otherwise \see pico_error_codes
 
 proc cyw43ArchWifiConnectBssidTimeoutMms*(ssid: cstring; bssid: ptr uint8; pw: cstring; auth: Cyw43ArchAuth; timeoutMs: uint32): PicoErrorCodes {.importc: "cyw43_arch_wifi_connect_bssid_timeout_ms".}
-  ## \brief Attempt to connect to a wireless access point specified by SSID and BSSID, blocking until the network is joined, a failure is detected or a timeout occurs
+  ## Attempt to connect to a wireless access point specified by SSID and BSSID, blocking until the network is joined, a failure is detected or a timeout occurs
   ## \ingroup pico_cyw43_arch
   ##
   ## \param ssid the network name to connect to
@@ -235,7 +235,7 @@ proc cyw43ArchWifiConnectBssidTimeoutMms*(ssid: cstring; bssid: ptr uint8; pw: c
   ## \return 0 if the initialization is successful, an error code otherwise \see pico_error_codes
 
 proc cyw43ArchWifiConnectAsync*(ssid: cstring; pw: cstring; auth: Cyw43ArchAuth): PicoErrorCodes {.importc: "cyw43_arch_wifi_connect_async".}
-  ## \brief Start attempting to connect to a wireless access point
+  ## Start attempting to connect to a wireless access point
   ## \ingroup pico_cyw43_arch
   ##
   ## This method tells the CYW43 driver to start connecting to an access point. You should subsequently check the
@@ -249,7 +249,7 @@ proc cyw43ArchWifiConnectAsync*(ssid: cstring; pw: cstring; auth: Cyw43ArchAuth)
   ## \return 0 if the scan was started successfully, an error code otherwise \see pico_error_codes
 
 proc cyw43ArchWifiConnectBssidAsync*(ssid: cstring; bssid: ptr uint8; pw: cstring; auth: Cyw43ArchAuth): PicoErrorCodes {.importc: "cyw43_arch_wifi_connect_bssid_async".}
-  ## \brief Start attempting to connect to a wireless access point specified by SSID and BSSID
+  ## Start attempting to connect to a wireless access point specified by SSID and BSSID
   ## \ingroup pico_cyw43_arch
   ##
   ## This method tells the CYW43 driver to start connecting to an access point. You should subsequently check the
@@ -264,7 +264,7 @@ proc cyw43ArchWifiConnectBssidAsync*(ssid: cstring; bssid: ptr uint8; pw: cstrin
   ## \return 0 if the scan was started successfully, an error code otherwise \see pico_error_codes
 
 proc cyw43ArchGpioPut*(wlGpio: Cyw43ArchPin; value: bool) {.importc: "cyw43_arch_gpio_put".}
-  ## \brief Set a GPIO pin on the wireless chip to a given value
+  ## Set a GPIO pin on the wireless chip to a given value
   ## \ingroup pico_cyw43_arch
   ## \note this method does not check for errors setting the GPIO. You can use the lower level \ref cyw43_gpio_set instead if you wish
   ## to check for errors.
@@ -273,7 +273,7 @@ proc cyw43ArchGpioPut*(wlGpio: Cyw43ArchPin; value: bool) {.importc: "cyw43_arch
   ## \param value true to set the GPIO, false to clear it.
 
 proc cyw43ArchGpioGet*(wlGpio: Cyw43ArchPin): bool {.importc: "cyw43_arch_gpio_get".}
-  ## \brief Read the value of a GPIO pin on the wireless chip
+  ## Read the value of a GPIO pin on the wireless chip
   ## \ingroup pico_cyw43_arch
   ## \note this method does not check for errors setting the GPIO. You can use the lower level \ref cyw43_gpio_get instead if you wish
   ## to check for errors.

@@ -16,11 +16,11 @@ type
     coreNum* {.importc: "core_num".}: uint8
 
   AsyncAtTimeWorker* {.importc: "async_at_time_worker_t".} = object
-    ##  \brief A "timeout" instance used by an async_context
+    ## A "timeout" instance used by an async_context
     ##  \ingroup pico_async_context
     ##
-    ##  A "timeout" represents some future action that must be taken at a specific time.
-    ##  It's methods are called from the async_context under lock at the given time
+    ## A "timeout" represents some future action that must be taken at a specific time.
+    ## It's methods are called from the async_context under lock at the given time
     ##
     ## \see async_context_add_worker_at
     ## \see async_context_add_worker_in_ms
@@ -40,12 +40,12 @@ type
       ## User data associated with the timeout instance
   
   AsyncWhenPendingWorker* {.importc: "async_when_pending_worker_t".} = object
-    ##  \brief A "worker" instance used by an async_context
+    ## A "worker" instance used by an async_context
     ##  \ingroup pico_async_context
     ##
-    ##  A "worker" represents some external entity that must do work in response
+    ## A "worker" represents some external entity that must do work in response
     ##  to some external stimulus (usually an IRQ).
-    ##  It's methods are called from the async_context under lock at the given time
+    ## It's methods are called from the async_context under lock at the given time
     ##
     ## \see async_context_add_worker_at
     ## \see async_context_add_worker_in_ms
@@ -77,7 +77,7 @@ type
     deinit*: proc (self: ptr AsyncContext) {.cdecl.}
 
 proc asyncContextAcquireLockBlocking*(context: ptr AsyncContext) {.importc: "async_context_acquire_lock_blocking".}
-  ## \brief Acquire the async_context lock
+  ## Acquire the async_context lock
   ## \ingroup pico_async_context
   ##
   ## The owner of the async_context lock is the logic owner of the async_context
@@ -95,7 +95,7 @@ proc asyncContextAcquireLockBlocking*(context: ptr AsyncContext) {.importc: "asy
   ## \see async_context_release_lock
 
 proc asyncContextReleaseLock*(context: ptr AsyncContext) {.importc: "async_context_release_lock".}
-  ## \brief Release the async_context lock
+  ## Release the async_context lock
   ## \ingroup pico_async_context
   ##
   ## \note the async_context lock may be called in a nested fashion, so an internal count is maintained. On the outermost
@@ -110,14 +110,14 @@ proc asyncContextReleaseLock*(context: ptr AsyncContext) {.importc: "async_conte
   ## \see async_context_acquire_lock_blocking
 
 proc asyncContextLockCheck*(context: ptr AsyncContext) {.importc: "async_context_lock_check".}
-  ## \brief Assert if the caller does not own the lock for the async_context
+  ## Assert if the caller does not own the lock for the async_context
   ## \ingroup pico_async_context
   ## \note this method is thread-safe
   ##
   ## \param context the async_context
 
 proc asyncContextExecuteSync*(context: ptr AsyncContext; `func`: proc (param: pointer): uint32 {.cdecl.}; param: pointer): uint32 {.importc: "async_context_execute_sync".}
-  ## \brief Execute work synchronously on the core the async_context belongs to.
+  ## Execute work synchronously on the core the async_context belongs to.
   ## \ingroup pico_async_context
   ##
   ## This method is intended for code external to the async_context (e.g. another thread/task) to
@@ -132,7 +132,7 @@ proc asyncContextExecuteSync*(context: ptr AsyncContext; `func`: proc (param: po
   ## \return the return value from func
 
 proc asyncContextAddAtTimeWorker*(context: ptr AsyncContext; worker: ptr AsyncAtTimeWorker): bool {.importc: "async_context_add_at_time_worker".}
-  ## \brief Add an "at time" worker to a context
+  ## Add an "at time" worker to a context
   ## \ingroup pico_async_context
   ##
   ## An "at time" worker will run at or after a specific point in time, and is automatically when (just before) it runs.
@@ -147,7 +147,7 @@ proc asyncContextAddAtTimeWorker*(context: ptr AsyncContext; worker: ptr AsyncAt
   ## \return true if the worker was added, false if the worker was already present.
 
 proc asyncContextAddAtTimeWorkerAt*(context: ptr AsyncContext; worker: ptr AsyncAtTimeWorker; at: AbsoluteTime): bool {.importc: "async_context_add_at_time_worker_at".}
-  ## \brief Add an "at time" worker to a context
+  ## Add an "at time" worker to a context
   ## \ingroup pico_async_context
   ##
   ## An "at time" worker will run at or after a specific point in time, and is automatically when (just before) it runs.
@@ -163,7 +163,7 @@ proc asyncContextAddAtTimeWorkerAt*(context: ptr AsyncContext; worker: ptr Async
   ## \return true if the worker was added, false if the worker was already present.
 
 proc asyncContextAddAtTimeWorkerInMs*(context: ptr AsyncContext; worker: ptr AsyncAtTimeWorker; ms: uint32): bool {.importc: "async_context_add_at_time_worker_in_ms".}
-  ## \brief Add an "at time" worker to a context
+  ## Add an "at time" worker to a context
   ## \ingroup pico_async_context
   ##
   ## An "at time" worker will run at or after a specific point in time, and is automatically when (just before) it runs.
@@ -179,7 +179,7 @@ proc asyncContextAddAtTimeWorkerInMs*(context: ptr AsyncContext; worker: ptr Asy
   ## \return true if the worker was added, false if the worker was already present.
 
 proc asyncContextRemoveAtTimeWorker*(context: ptr AsyncContext; worker: ptr AsyncAtTimeWorker): bool {.importc: "async_context_remove_at_time_worker".}
-  ## \brief Remove an "at time" worker from a context
+  ## Remove an "at time" worker from a context
   ## \ingroup pico_async_context
   ##
   ## \note for async_contexts that provide locking (not async_context_poll), this method is threadsafe. and may be called from within any 
@@ -190,7 +190,7 @@ proc asyncContextRemoveAtTimeWorker*(context: ptr AsyncContext; worker: ptr Asyn
   ## \return true if the worker was removed, false if the instance not present.
 
 proc async_context_add_when_pending_worker*(context: ptr AsyncContext; worker: ptr AsyncWhenPendingWorker): bool {.importc: "async_context_add_when_pending_worker".}
-  ## \brief Add a "when pending" worker to a context
+  ## Add a "when pending" worker to a context
   ## \ingroup pico_async_context
   ##
   ## An "when pending" worker will run when it is pending (can be set via \ref async_context_set_work_pending), and
@@ -206,7 +206,7 @@ proc async_context_add_when_pending_worker*(context: ptr AsyncContext; worker: p
   ## \return true if the worker was added, false if the worker was already present.
 
 proc asyncContextRemoveWhenPendingWorker*(context: ptr AsyncContext; worker: ptr AsyncWhenPendingWorker): bool {.importc: "async_context_remove_when_pending_worker".}
-  ## \brief Remove a "when pending" worker from a context
+  ## Remove a "when pending" worker from a context
   ## \ingroup pico_async_context
   ##
   ## \note for async_contexts that provide locking (not async_context_poll), this method is threadsafe. and may be called from within any 
@@ -217,7 +217,7 @@ proc asyncContextRemoveWhenPendingWorker*(context: ptr AsyncContext; worker: ptr
   ## \return true if the worker was removed, false if the instance not present.
 
 proc asyncContextSetWorkPending*(context: ptr AsyncContext; worker: ptr AsyncWhenPendingWorker) {.importc: "async_context_set_work_pending".}
-  ## \brief Mark a "when pending" worker as having work pending
+  ## Mark a "when pending" worker as having work pending
   ## \ingroup pico_async_context
   ##
   ## The worker will be run from the async_context at a later time.
@@ -228,7 +228,7 @@ proc asyncContextSetWorkPending*(context: ptr AsyncContext; worker: ptr AsyncWhe
   ## \param worker the "when pending" worker to mark as pending.
 
 proc asyncContextPoll*(context: ptr AsyncContext) {.importc: "async_context_poll".}
-  ## \brief Perform any pending work for polling style async_context
+  ## Perform any pending work for polling style async_context
   ## \ingroup pico_async_context
   ##
   ## For a polled async_context (e.g. \ref async_context_poll) the user is responsible for calling this method
@@ -239,7 +239,7 @@ proc asyncContextPoll*(context: ptr AsyncContext) {.importc: "async_context_poll
   ## \param context the async_context
 
 proc asyncContextWaitUntil*(context: ptr AsyncContext; until: AbsoluteTime) {.importc: "async_context_wait_until".}
-  ## \brief sleep until the specified time in an async_context callback safe way
+  ## sleep until the specified time in an async_context callback safe way
   ## \ingroup pico_async_context
   ##
   ## \note for async_contexts that provide locking (not async_context_poll), this method is threadsafe. and may be called from within any
@@ -249,7 +249,7 @@ proc asyncContextWaitUntil*(context: ptr AsyncContext; until: AbsoluteTime) {.im
   ## \param until the time to sleep until
 
 proc asyncContextWaitForWorkUntil*(context: ptr AsyncContext; until: AbsoluteTime) {.importc: "async_context_wait_for_work_until".}
-  ## \brief Block until work needs to be done or the specified time has been reached
+  ## Block until work needs to be done or the specified time has been reached
   ## \ingroup pico_async_context
   ##
   ## \note this method should not be called from a worker callback
@@ -258,7 +258,7 @@ proc asyncContextWaitForWorkUntil*(context: ptr AsyncContext; until: AbsoluteTim
   ## \param until the time to return at if no work is required
 
 proc asyncContextWaitForWorkMs*(context: ptr AsyncContext; ms: uint32) {.importc: "async_context_wait_for_work_ms".}
-  ## \brief Block until work needs to be done or the specified number of milliseconds have passed
+  ## Block until work needs to be done or the specified number of milliseconds have passed
   ## \ingroup pico_async_context
   ##
   ## \note this method should not be called from a worker callback
@@ -267,14 +267,14 @@ proc asyncContextWaitForWorkMs*(context: ptr AsyncContext; ms: uint32) {.importc
   ## \param ms the number of milliseconds to return after if no work is required
 
 proc asyncContextCoreNum*(context: ptr AsyncContext): cuint {.importc: "async_context_core_num".}
-  ## \brief Return the processor core this async_context belongs to
+  ## Return the processor core this async_context belongs to
   ## \ingroup pico_async_context
   ##
   ## \param context the async_context
   ## \return the physical core number
 
 proc asyncContextDeinit*(context: ptr AsyncContext) {.importc: "async_context_deinit".}
-  ## \brief End async_context processing, and free any resources
+  ## End async_context processing, and free any resources
   ## \ingroup pico_async_context
   ##
   ## Note the user should clean up any resources associated with workers

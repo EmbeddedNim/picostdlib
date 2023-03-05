@@ -111,7 +111,7 @@ else:
   template lwipNtohl*(x: untyped): untyped =
     lwipHtonl(x)
 
-  ##  These macros should be calculated by the preprocessor and are used
+  ## These macros should be calculated by the preprocessor and are used
   ##    with compile-time constants only (so that there is no little-endian
   ##    overhead at runtime).
   template pp_Htons*(x: untyped): untyped =
@@ -152,22 +152,22 @@ when not defined(LWIP_DONT_PROVIDE_BYTEORDER_FUNCTIONS):
 ##
 
 when not defined(lwip_itoa):
-  ##  This can be #defined to itoa() or snprintf(result, bufsize, "%d", number) depending on your platform
+  ## This can be #defined to itoa() or snprintf(result, bufsize, "%d", number) depending on your platform
   proc lwipItoa*(result: cstring; bufsize: csize_t; number: cint) {.
       importc: "lwip_itoa", header: "lwip/def.h".}
 when not defined(lwip_strnicmp):
-  ##  This can be #defined to strnicmp() or strncasecmp() depending on your platform
+  ## This can be #defined to strnicmp() or strncasecmp() depending on your platform
   proc lwipStrnicmp*(str1: cstring; str2: cstring; len: csize_t): cint {.
       importc: "lwip_strnicmp", header: "lwip/def.h".}
 when not defined(lwip_stricmp):
-  ##  This can be #defined to stricmp() or strcasecmp() depending on your platform
+  ## This can be #defined to stricmp() or strcasecmp() depending on your platform
   proc lwipStricmp*(str1: cstring; str2: cstring): cint {.importc: "lwip_stricmp",
       header: "lwip/def.h".}
 when not defined(lwip_strnstr):
-  ##  This can be #defined to strnstr() depending on your platform
+  ## This can be #defined to strnstr() depending on your platform
   proc lwipStrnstr*(buffer: cstring; token: cstring; n: csize_t): cstring {.
       importc: "lwip_strnstr", header: "lwip/def.h".}
 when not defined(lwip_strnistr):
-  ##  This can be #defined to strnistr() depending on your platform
+  ## This can be #defined to strnistr() depending on your platform
   proc lwipStrnistr*(buffer: cstring; token: cstring; n: csize_t): cstring {.
       importc: "lwip_strnistr", header: "lwip/def.h".}

@@ -47,40 +47,40 @@
 type
   ErrEnumT* {.pure, size: sizeof(cint).} = enum
     ERR_ARG        = -16
-      ##  Illegal argument.
+      ## Illegal argument.
     ERR_CLSD       = -15
-      ##  Connection closed.
+      ## Connection closed.
     ERR_RST        = -14
-      ##  Connection reset.
+      ## Connection reset.
     ERR_ABRT       = -13
-      ##  Connection aborted.
+      ## Connection aborted.
     
     ERR_IF         = -12
-      ##  Low-level netif error
+      ## Low-level netif error
     ERR_CONN       = -11
-      ##  Not connected.
+      ## Not connected.
     ERR_ISCONN     = -10
-      ##  Conn already established.
+      ## Conn already established.
     ERR_ALREADY    = -9
-      ##  Already connecting.
+      ## Already connecting.
     ERR_USE        = -8
-      ##  Address in use.
+      ## Address in use.
     ERR_WOULDBLOCK = -7
-      ##  Operation would block.
+      ## Operation would block.
     ERR_VAL        = -6
-      ##  Illegal value.
+      ## Illegal value.
     ERR_INPROGRESS = -5
-      ##  Operation in progress
+      ## Operation in progress
     ERR_RTE        = -4
-      ##  Routing problem.
+      ## Routing problem.
     ERR_TIMEOUT    = -3
-      ##  Timeout.
+      ## Timeout.
     ERR_BUF        = -2
-      ##  Buffer error.
+      ## Buffer error.
     ERR_MEM        = -1
-      ##  Out of memory error.
+      ## Out of memory error.
     ERR_OK         = 0,
-      ##  No error, everything OK.
+      ## No error, everything OK.
 
 
 ## * Define LWIP_ERR_T in cc.h if you want to use

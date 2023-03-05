@@ -38,11 +38,11 @@
 ## !\{
 ## *
 ##   \file cyw43_ll.h
-##   \brief Low Level CYW43 driver interface
+## Low Level CYW43 driver interface
 ##
 type
   Cyw43Ioctl* {.pure.} = enum
-    ##  IOCTL commands
+    ## IOCTL commands
     GetSsid = (0x32)
     GetChannel = (0x3a)
     SetDisassoc = (0x69)
@@ -53,7 +53,7 @@ type
     SetVar = (0x20f)
 
   Cyw43EventType* {.pure.} = enum
-    ##  Async events, event_type field
+    ## Async events, event_type field
     TypeSetSsid = (0)
     TypeJoin = (1)
     TypeAuth = (3)
@@ -71,7 +71,7 @@ type
     TypeAssonRespIe = (88)
 
   Cyw43EventStatus* {.pure.} = enum
-    ##  Event status values
+    ## Event status values
     StatusSuccess = (0)
     StatusFail = (1)
     StatusTimeout = (2)
@@ -85,7 +85,7 @@ type
     StatusNewassoc = (10)
 
   Cyw43AuthReason* {.pure.} = enum
-    ##  Values for AP auth setting
+    ## Values for AP auth setting
     AuthReasonInitialAssoc = (0) ##  initial assoc
     AuthReasonLowRssi = (1)  ##  roamed due to low RSSI
     AuthReasonDeauth = (2)    ##  roamed due to DEAUTH indication
@@ -119,7 +119,7 @@ type
     PruneReasonNoDiagSupport = (19) ##  prune due to diagnostic mode not supported
 
   Cyw43ReasonSup* {.pure.} = enum
-    ##  WPA failure reason codes carried in the WLC_E_PSK_SUP event
+    ## WPA failure reason codes carried in the WLC_E_PSK_SUP event
     ReasonSupOther = (0) ##  Other reason
     ReasonSupDecryptKeyData = (1) ##  Decryption of key data failed
     ReasonSupBadUcastWep128 = (2) ##  Illegal use of ucast WEP128
@@ -138,7 +138,7 @@ type
     ReasonSupWpaPskTmo = (15) ##  WPA PSK 4-way handshake timeout
 
   Cyw43Auth* {.pure.} = enum
-    ##  Values used for STA and AP auth settings
+    ## Values used for STA and AP auth settings
     WpaAuthPsk = (0x0004)
     Wpa2AuthPsk = (0x0080)
 
@@ -164,15 +164,15 @@ const
   Cyw43Pm2PowersaveMode* = (2).Cyw43PowersaveMode ##  Powersave mode on specified interface with High throughput
 
 const
-  ##  Values used for STA and AP auth settings
+  ## Values used for STA and AP auth settings
   Cyw43SupDisconnected* = (0) ##  Disconnected
-  Cyw43SupConnecting* = (1)   ##  Connecting
-  Cyw43SupIdRequired* = (2)   ##  ID Required
+  Cyw43SupConnecting* = (1)   ## Connecting
+  Cyw43SupIdRequired* = (2)   ## ID Required
   Cyw43SupAuthenticating* = (3) ##  Authenticating
   Cyw43SupAuthenticated* = (4) ##  Authenticated
-  Cyw43SupKeyxchange* = (5)   ##  Key Exchange
-  Cyw43SupKeyed* = (6)        ##  Key Exchanged
-  Cyw43SupTimeout* = (7)      ##  Timeout
+  Cyw43SupKeyxchange* = (5)   ## Key Exchange
+  Cyw43SupKeyed* = (6)        ## Key Exchanged
+  Cyw43SupTimeout* = (7)      ## Timeout
   Cyw43SupLastBasicState* = (8) ##  Last Basic State
   Cyw43SupKeyxchangeWaitM1* = Cyw43SupAuthenticated
   Cyw43SupKeyxchangePrepM2* = Cyw43SupKeyxchange
@@ -186,7 +186,7 @@ const
 
 ## !\}
 ## !
-##  \brief Structure to return wifi scan results
+## Structure to return wifi scan results
 ##
 ## !\{
 
@@ -223,7 +223,7 @@ type
 
 
 ## !
-##  \brief wifi scan options passed to cyw43_wifi_scan
+## wifi scan options passed to cyw43_wifi_scan
 ##
 ## !\{
 

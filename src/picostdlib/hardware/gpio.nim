@@ -75,40 +75,40 @@ let DefaultLedPin* {.importc: "PICO_DEFAULT_LED_PIN".}: Gpio
 
 proc gpioSetFunction*(gpio: Gpio, fn: GpioFunction) {.importc: "gpio_set_function".}
   ## Select GPIO function. 
-  ## 
+  ##
   ## **Parameters:**
-  ## 
+  ##
   ## =========  ====== 
   ## **gpio**    Gpio number
   ## **fn**      GpioFunction: XIP, SPI, UART, I2C, PWM, SIO, PIO0, PIO1, GPCK, USB, NULL
 
 proc gpioGetFunction*(gpio: Gpio): GpioFunction {.importc: "gpio_get_function".}
   ## Returns a Gpio function
-  ## 
+  ##
   ## **Parameters:**
-  ## 
+  ##
   ## =========   ====== 
   ## **gpio**    Gpio number
   ## =========   ======
-  ## 
+  ##
   ## **Returns:** GpioFunction: XIP, SPI, UART, I2C, PWM, SIO, PIO0, PIO1, GPCK, USB, NULL
-  ## 
+  ##
 
 proc gpioSetPulls*(gpio: Gpio; up: bool; down: bool) {.importc: "gpio_set_pulls".}
   ## Select up and down pulls on specific GPIO
-  ## 
+  ##
   ## \param gpio GPIO number
   ## \param up If true set a pull up on the GPIO
   ## \param down If true set a pull down on the GPIO
-  ## 
+  ##
   ## \note On the RP2040, setting both pulls enables a "bus keep" function,
   ## i.e. a weak pull to whatever is current high/low state of GPIO.
 
 proc gpioPullUp*(gpio: Gpio) {.importc: "gpio_pull_up".}
   ## Set specified Gpio to be pulled up. 
-  ## 
+  ##
   ## **Parameters:**
-  ## 
+  ##
   ## =========  ====== 
   ## **gpio**    Gpio number
 
@@ -120,9 +120,9 @@ proc gpioIsPulledUp*(gpio: Gpio): bool {.importc: "gpio_is_pulled_up".}
 
 proc gpioPullDown*(gpio: Gpio) {.importc: "gpio_pull_down".}
   ## Set specified Gpio to be pulled down. 
-  ## 
+  ##
   ## **Parameters:**
-  ## 
+  ##
   ## =========   ====== 
   ## **gpio**    Gpio number
 
@@ -134,9 +134,9 @@ proc gpioIsPulledDown*(gpio: Gpio): bool {.importc: "gpio_is_pulled_down".}
 
 proc gpioDisablePulls*(gpio: Gpio) {.importc: "gpio_disable_pulls".}
   ## Disable pulls on specified GPIO
-  ## 
+  ##
   ## **Parameters:**
-  ## 
+  ##
   ## =========  ====== 
   ## **gpio**    Gpio number
 
@@ -186,7 +186,7 @@ proc gpioSetInputHysteresisEnabled*(gpio: Gpio; enabled: bool) {.importc: "gpio_
 
 proc gpioIsInputHysteresisEnabled*(gpio: Gpio): bool {.importc: "gpio_is_input_hysteresis_enabled".}
   ## Determine whether input hysteresis is enabled on a specified GPIO
-  ## 
+  ##
   ## \sa gpio_set_input_hysteresis_enabled
   ## \param gpio GPIO number
 
@@ -462,7 +462,7 @@ proc gpioInit*(gpio: Gpio) {.importc: "gpio_init".}
   ## Clear the output enable (i.e. set to input) Clear any output value.
   ##
   ## **Parameters:**
-  ## 
+  ##
   ## =========  ====== 
   ## **gpio**    Gpio number
 
@@ -476,13 +476,13 @@ proc gpioInitMask*(gpioMask: cuint) {.importc: "gpio_init_mask".}
   ## Clear the output enable (i.e. set to input) Clear any output value.
   ##
   ## **Parameters:**
-  ## 
+  ##
   ## ================  ====== 
   ## **gpioMask**      Mask with 1 bit per Gpio number to initialize 
 
 proc gpioGet*(gpio: Gpio): Value #[bool]# {.importc: "gpio_get".}
   ## Get state of a single specified Gpio. 
-  ## 
+  ##
   ## **Returns:** Current state of the Gpio. Low (0.Value) or High (1.Value)
   
 proc gpioGetAll*(): uint32 {.importc: "gpio_get_all".}
@@ -523,9 +523,9 @@ proc gpioPutAll*(value: uint32) {.importc: "gpio_put_all".}
 
 proc gpioPut*(gpio: Gpio, value: Value #[bool]#) {.importc: "gpio_put".}
   ## Drive a single Gpio high/low. 
-  ## 
+  ##
   ## **Parameters:**
-  ## 
+  ##
   ## =======================================  ====== 
   ## **gpio**                                 Gpio number
   ## **High**, **Low**, **true**, **false**   High or true sets output, otherwise clears Gpio
@@ -576,9 +576,9 @@ proc gpioSetDirAllBits*(values: uint32) {.importc: "gpio_set_dir_all_bits".}
 
 proc gpioSetDir*(gpio: Gpio, `out`: Direction) {.importc: "gpio_set_dir".}
   ## Set a single Gpio direction. 
-  ## 
+  ##
   ## **Parameters:**
-  ## 
+  ##
   ## =====================================  ====== 
   ## **gpio**                               Gpio number
   ## **In**, **Out**, **true**, **false**   true or Output for output; In or false for input
@@ -614,7 +614,7 @@ template setupGpio*(name: untyped, pin: Gpio, dir: bool) =
   
 proc init*( _ : typedesc[Gpio], pin: range[0 .. 35], dir = Out): Gpio =
   ## perform the typical assignment, init(), and setDir() steps all in one proc. 
-  ## 
+  ##
   ## **parameters**
   ## **pin** : *int* (between 0 and 35) - the pin number corresponding the the Gpio pin
   ## **dir** : *bool* [optional, defaults to Out] - *Out* or *In*

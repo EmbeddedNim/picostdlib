@@ -4,14 +4,14 @@ import ../hardware/i2c
 
 type
   I2cSlaveEvent* {.pure, importc: "i2c_slave_event_t".} = enum
-    ## \brief I2C slave event types.
+    ## I2C slave event types.
     ## \ingroup pico_i2c_slave
     I2cSlaveReceive  # Data from master is available for reading. Slave must read from Rx FIFO.
     I2cSlaveRequest  # Master is requesting data. Slave must write into Tx FIFO.
     I2cSlaveFinish   # Master has sent a Stop or Restart signal. Slave may prepare for the next transfer.
 
   I2cSlaveHandler* = proc (i2c: ptr I2cInst; event: I2cSlaveEvent) {.cdecl.}
-    ## \brief I2C slave event handler
+    ## I2C slave event handler
     ## \ingroup pico_i2c_slave
     ##
     ## The event handler will run from the I2C ISR, so it should return quickly (under 25 us at 400 kb/s).
@@ -23,7 +23,7 @@ type
     ## \param event Event type.
 
 proc i2cSlaveInit*(i2c: ptr I2cInst; address: I2cAddress; handler: I2cSlaveHandler) {.importc: "i2c_slave_init".}
-  ## \brief Configure an I2C instance for slave mode.
+  ## Configure an I2C instance for slave mode.
   ## \ingroup pico_i2c_slave
   ## \param i2c I2C instance.
   ## \param address 7-bit slave address.
@@ -31,7 +31,7 @@ proc i2cSlaveInit*(i2c: ptr I2cInst; address: I2cAddress; handler: I2cSlaveHandl
   ##                where the slave was initialised.
 
 proc i2cSlaveDeinit*() {.importc: "i2c_slave_deinit".}
-  ## \brief Restore I2C instance to master mode.
+  ## Restore I2C instance to master mode.
   ## \ingroup pico_i2c_slave
   ## \param i2c Either \ref i2c0 or \ref i2c1
 

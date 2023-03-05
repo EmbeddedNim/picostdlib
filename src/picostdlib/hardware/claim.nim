@@ -82,6 +82,4 @@ proc hwClaimUnlock*(token: HwClaimToken) {.importc: "hw_claim_lock".}
   ## **token**        the token returned by the corresponding call to hwClaimLock()
   ## ==============  ======
 
-
-
 {.pop.}

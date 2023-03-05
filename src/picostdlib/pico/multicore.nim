@@ -4,18 +4,15 @@ type
   MulticoreThreadFunc* = proc() {.cdecl.}
 
 proc multicoreResetCore1*() {.importc: "multicore_reset_core1".}
-  ## ```
-  ##   ! \brief  Reset core 1
+  ## Reset core 1
   ##     \ingroup pico_multicore
   ##   
   ##    This function can be used to reset core 1 into its initial state (ready for launching code against via \ref multicore_launch_core1 and similar methods)
   ##   
   ##    \note this function should only be called from core 0
-  ## ```
 
 proc multicoreLaunchCore1*(entry: MulticoreThreadFunc) {.importc: "multicore_launch_core1".}
-  ## ```
-  ##   ! \brief  Run code on core 1
+  ## Run code on core 1
   ##     \ingroup pico_multicore
   ##   
   ##    Wake up (a previously reset) core 1 and enter the given function on core 1 using the default core 1 stack (below core 0 stack).
@@ -26,11 +23,9 @@ proc multicoreLaunchCore1*(entry: MulticoreThreadFunc) {.importc: "multicore_lau
   ##   
   ##    \param entry Function entry point
   ##    \see multicore_reset_core1
-  ## ```
 
 proc multicoreLaunchCore1WithStack*(entry: MulticoreThreadFunc; stackBottom: ptr uint32; stackSizeBytes: csize_t) {.importc: "multicore_launch_core1_with_stack".}
-  ## ```
-  ##   ! \brief  Launch code on core 1 with stack
+  ## Launch code on core 1 with stack
   ##     \ingroup pico_multicore
   ##   
   ##    Wake up (a previously reset) core 1 and enter the given function on core 1 using the passed stack for core 1
@@ -43,11 +38,9 @@ proc multicoreLaunchCore1WithStack*(entry: MulticoreThreadFunc; stackBottom: ptr
   ##    \param stack_bottom The bottom (lowest address) of the stack
   ##    \param stack_size_bytes The size of the stack in bytes (must be a multiple of 4)
   ##    \see multicore_reset_core1
-  ## ```
 
 proc multicore_launch_core1_raw*(entry: MulticoreThreadFunc; sp: ptr uint32; vectorTable: uint32) {.importc: "multicore_launch_core1_raw".}
-  ## ```
-  ##   ! \brief  Launch code on core 1 with no stack protection
+  ## Launch code on core 1 with no stack protection
   ##     \ingroup pico_multicore
   ##   
   ##    Wake up (a previously reset) core 1 and start it executing with a specific entry point, stack pointer
@@ -61,46 +54,39 @@ proc multicore_launch_core1_raw*(entry: MulticoreThreadFunc; sp: ptr uint32; vec
   ##    \param sp Pointer to the top of the core 1 stack
   ##    \param vector_table address of the vector table to use for core 1
   ##    \see multicore_reset_core1
-  ## ```
+
+## \defgroup multicore_fifo fifo
+## \ingroup pico_multicore
+## Functions for the inter-core FIFOs
+##
+## The RP2040 contains two FIFOs for passing data, messages or ordered events between the two cores. Each FIFO is 32 bits
+## wide, and 8 entries deep. One of the FIFOs can only be written by core 0, and read by core 1. The other can only be written
+## by core 1, and read by core 0.
+##
+## \note The inter-core FIFOs are a very precious resource and are frequently used for SDK functionality (e.g. during
+## core 1 launch or by the \ref multicore_lockout functions). Additionally they are often required for the exclusive use
+## of an RTOS (e.g. FreeRTOS SMP). For these reasons it is suggested that you do not use the FIFO for your own purposes
+## unless none of the above concerns apply; the majority of cases for transferring data between cores can be eqaully
+## well handled  by using a \ref queue
 
 proc multicoreFifoRvalid*(): bool {.importc: "multicore_fifo_rvalid".}
-  ## ```
-  ##   !
-  ##    \defgroup multicore_fifo fifo
-  ##    \ingroup pico_multicore
-  ##    \brief Functions for the inter-core FIFOs
-  ##   
-  ##    The RP2040 contains two FIFOs for passing data, messages or ordered events between the two cores. Each FIFO is 32 bits
-  ##    wide, and 8 entries deep. One of the FIFOs can only be written by core 0, and read by core 1. The other can only be written
-  ##    by core 1, and read by core 0.
-  ##   
-  ##    \note The inter-core FIFOs are a very precious resource and are frequently used for SDK functionality (e.g. during
-  ##    core 1 launch or by the \ref multicore_lockout functions). Additionally they are often required for the exclusive use
-  ##    of an RTOS (e.g. FreeRTOS SMP). For these reasons it is suggested that you do not use the FIFO for your own purposes
-  ##    unless none of the above concerns apply; the majority of cases for transferring data between cores can be eqaully
-  ##    well handled  by using a \ref queue
-  ##    
-  ##     ! \brief Check the read FIFO to see if there is data available (sent by the other core)
+  ## Check the read FIFO to see if there is data available (sent by the other core)
   ##     \ingroup multicore_fifo
   ##   
   ##    See the note in the \ref multicore_fifo section for considerations regarding use of the inter-core FIFOs
   ##   
   ##    \return true if the FIFO has data in it, false otherwise
-  ## ```
 
 proc multicoreFifoWready*(): bool {.importc: "multicore_fifo_wready".}
-  ## ```
-  ##   ! \brief Check the write FIFO to see if it has space for more data
+  ## Check the write FIFO to see if it has space for more data
   ##     \ingroup multicore_fifo
   ##   
   ##    See the note in the \ref multicore_fifo section for considerations regarding use of the inter-core FIFOs
   ##   
   ##     @return true if the FIFO has room for more data, false otherwise
-  ## ```
 
 proc multicoreFifoPushBlocking*(data: uint32) {.importc: "multicore_fifo_push_blocking".}
-  ## ```
-  ##   ! \brief Push data on to the write FIFO (data to the other core).
+  ## Push data on to the write FIFO (data to the other core).
   ##     \ingroup multicore_fifo
   ##   
   ##    This function will block until there is space for the data to be sent.
@@ -110,11 +96,9 @@ proc multicoreFifoPushBlocking*(data: uint32) {.importc: "multicore_fifo_push_bl
   ##    See the note in the \ref multicore_fifo section for considerations regarding use of the inter-core FIFOs
   ##   
   ##    \param data A 32 bit value to push on to the FIFO
-  ## ```
 
 proc multicoreFifoPushTimeoutUs*(data: uint32; timeoutUs: uint64): bool {.importc: "multicore_fifo_push_timeout_us".}
-  ## ```
-  ##   ! \brief Push data on to the write FIFO (data to the other core) with timeout.
+  ## Push data on to the write FIFO (data to the other core) with timeout.
   ##     \ingroup multicore_fifo
   ##   
   ##    This function will block until there is space for the data to be sent
@@ -123,11 +107,9 @@ proc multicoreFifoPushTimeoutUs*(data: uint32; timeoutUs: uint64): bool {.import
   ##    \param data A 32 bit value to push on to the FIFO
   ##    \param timeout_us the timeout in microseconds
   ##    \return true if the data was pushed, false if the timeout occurred before data could be pushed
-  ## ```
 
 proc multicoreFifoPopBlocking*(): uint32 {.importc: "multicore_fifo_pop_blocking".}
-  ## ```
-  ##   ! \brief Pop data from the read FIFO (data from the other core).
+  ## Pop data from the read FIFO (data from the other core).
   ##     \ingroup multicore_fifo
   ##   
   ##    This function will block until there is data ready to be read
@@ -137,11 +119,9 @@ proc multicoreFifoPopBlocking*(): uint32 {.importc: "multicore_fifo_pop_blocking
   ##    See the note in the \ref multicore_fifo section for considerations regarding use of the inter-core FIFOs
   ##   
   ##    \return 32 bit data from the read FIFO.
-  ## ```
 
 proc multicoreFifoPopTimeoutUs*(timeoutUs: uint64; `out`: ptr uint32): bool {.importc: "multicore_fifo_pop_timeout_us".}
-  ## ```
-  ##   ! \brief Pop data from the read FIFO (data from the other core) with timeout.
+  ## Pop data from the read FIFO (data from the other core) with timeout.
   ##     \ingroup multicore_fifo
   ##   
   ##    This function will block until there is data ready to be read or the timeout is reached
@@ -151,19 +131,15 @@ proc multicoreFifoPopTimeoutUs*(timeoutUs: uint64; `out`: ptr uint32): bool {.im
   ##    \param timeout_us the timeout in microseconds
   ##    \param out the location to store the popped data if available
   ##    \return true if the data was popped and a value copied into `out`, false if the timeout occurred before data could be popped
-  ## ```
 
 proc multicoreFifoDrain*() {.importc: "multicore_fifo_drain".}
-  ## ```
-  ##   ! \brief Discard any data in the read FIFO
+  ## Discard any data in the read FIFO
   ##     \ingroup multicore_fifo
   ##   
   ##    See the note in the \ref multicore_fifo section for considerations regarding use of the inter-core FIFOs
-  ## ```
 
 proc multicoreFifoClearIrq*() {.importc: "multicore_fifo_clear_irq".}
-  ## ```
-  ##   ! \brief Clear FIFO interrupt
+  ## Clear FIFO interrupt
   ##     \ingroup multicore_fifo
   ##   
   ##    Note that this only clears an interrupt that was caused by the ROE or WOF flags.
@@ -172,11 +148,9 @@ proc multicoreFifoClearIrq*() {.importc: "multicore_fifo_clear_irq".}
   ##    See the note in the \ref multicore_fifo section for considerations regarding use of the inter-core FIFOs
   ##   
   ##    \see multicore_fifo_get_status
-  ## ```
 
 proc multicoreFifoGetStatus*(): uint32 {.importc: "multicore_fifo_get_status".}
-  ## ```
-  ##   ! \brief Get FIFO statuses
+  ## Get FIFO statuses
   ##     \ingroup multicore_fifo
   ##   
   ##    \return The statuses as a bitfield
@@ -189,57 +163,50 @@ proc multicoreFifoGetStatus*(): uint32 {.importc: "multicore_fifo_get_status".}
   ##    0 | Value is 1 if this core’s RX FIFO is not empty (i.e. if FIFO_RD is valid)
   ##   
   ##    See the note in the \ref multicore_fifo section for considerations regarding use of the inter-core FIFOs
-  ## ```
+
+## \defgroup multicore_lockout lockout
+## \ingroup pico_multicore
+## Functions to enable one core to force the other core to pause execution in a known state.
+##   
+## Sometimes it is useful to enter a critical section on both cores at once. On a single
+## core system a critical section can trivially be entered by disabling interrupts, however on a multi-core
+## system that is not sufficient, and unless the other core is polling in some way, then it will need to be interrupted
+## in order to cooperatively enter a blocked state.
+##   
+## These "lockout" functions use the inter core FIFOs to cause an interrupt on one core from the other, and manage
+## waiting for the other core to enter the "locked out" state.
+##   
+## The usage is that the "victim" core ... i.e the core that can be "locked out" by the other core calls
+## \ref multicore_lockout_victim_init to hook the FIFO interrupt. Note that either or both cores may do this.
+##   
+## \note When "locked out" the victim core is paused (it is actually executing a tight loop with code in RAM) and has interrupts disabled.
+## This makes the lockout functions suitable for use by code that wants to write to flash (at which point no code may be executing
+## from flash)
+##   
+## The core which wishes to lockout the other core calls \ref multicore_lockout_start_blocking or
+## \ref multicore_lockout_start_timeout_us to interrupt the other "victim" core and wait for it to be in a
+## "locked out" state. Once the lockout is no longer needed it calls \ref multicore_lockout_end_blocking or
+## \ref multicore_lockout_end_timeout_us to release the lockout and wait for confirmation.
+##   
+## \note Because multicore lockout uses the intercore FIFOs, the FIFOs <b>cannot</b> be used for any other purpose
 
 proc multicoreLockoutVictimInit*() {.importc: "multicore_lockout_victim_init".}
-  ## ```
-  ##   !
-  ##    \defgroup multicore_lockout lockout
-  ##    \ingroup pico_multicore
-  ##    \brief Functions to enable one core to force the other core to pause execution in a known state.
-  ##   
-  ##    Sometimes it is useful to enter a critical section on both cores at once. On a single
-  ##    core system a critical section can trivially be entered by disabling interrupts, however on a multi-core
-  ##    system that is not sufficient, and unless the other core is polling in some way, then it will need to be interrupted
-  ##    in order to cooperatively enter a blocked state.
-  ##   
-  ##    These "lockout" functions use the inter core FIFOs to cause an interrupt on one core from the other, and manage
-  ##    waiting for the other core to enter the "locked out" state.
-  ##   
-  ##    The usage is that the "victim" core ... i.e the core that can be "locked out" by the other core calls
-  ##    \ref multicore_lockout_victim_init to hook the FIFO interrupt. Note that either or both cores may do this.
-  ##   
-  ##    \note When "locked out" the victim core is paused (it is actually executing a tight loop with code in RAM) and has interrupts disabled.
-  ##    This makes the lockout functions suitable for use by code that wants to write to flash (at which point no code may be executing
-  ##    from flash)
-  ##   
-  ##    The core which wishes to lockout the other core calls \ref multicore_lockout_start_blocking or
-  ##    \ref multicore_lockout_start_timeout_us to interrupt the other "victim" core and wait for it to be in a
-  ##    "locked out" state. Once the lockout is no longer needed it calls \ref multicore_lockout_end_blocking or
-  ##    \ref multicore_lockout_end_timeout_us to release the lockout and wait for confirmation.
-  ##   
-  ##    \note Because multicore lockout uses the intercore FIFOs, the FIFOs <b>cannot</b> be used for any other purpose
-  ##    
-  ##     ! \brief Initialize the current core such that it can be a "victim" of lockout (i.e. forced to pause in a known state by the other core)
+  ## Initialize the current core such that it can be a "victim" of lockout (i.e. forced to pause in a known state by the other core)
   ##     \ingroup multicore_lockout
   ##   
   ##    This code hooks the intercore FIFO IRQ, and the FIFO may not be used for any other purpose after this.
-  ## ```
 
 proc multicoreLockoutStartBlocking*() {.importc: "multicore_lockout_start_blocking".}
-  ## ```
-  ##   ! \brief Request the other core to pause in a known state and wait for it to do so
+  ## Request the other core to pause in a known state and wait for it to do so
   ##     \ingroup multicore_lockout
   ##   
   ##    The other (victim) core must have previously executed \ref multicore_lockout_victim_init()
   ##   
   ##    \note multicore_lockout_start_ functions are not nestable, and must be paired with a call to a corresponding
   ##    \ref multicore_lockout_end_blocking
-  ## ```
 
 proc multicoreLockoutStartTimeoutUs*(timeoutUs: uint64): bool {.importc: "multicore_lockout_start_timeout_us".}
-  ## ```
-  ##   ! \brief Request the other core to pause in a known state and wait up to a time limit for it to do so
+  ## Request the other core to pause in a known state and wait up to a time limit for it to do so
   ##     \ingroup multicore_lockout
   ##   
   ##    The other core must have previously executed \ref multicore_lockout_victim_init()
@@ -249,20 +216,16 @@ proc multicoreLockoutStartTimeoutUs*(timeoutUs: uint64): bool {.importc: "multic
   ##   
   ##    \param timeout_us the timeout in microseconds
   ##    \return true if the other core entered the locked out state within the timeout, false otherwise
-  ## ```
 
 proc multicoreLockoutEndBlocking*() {.importc: "multicore_lockout_end_blocking".}
-  ## ```
-  ##   ! \brief Release the other core from a locked out state amd wait for it to acknowledge
+  ## Release the other core from a locked out state amd wait for it to acknowledge
   ##     \ingroup multicore_lockout
   ##   
   ##    \note The other core must previously have been "locked out" by calling a multicore_lockout_start_ function
   ##    from this core
-  ## ```
 
 proc multicoreLockoutEndTimeoutUs*(timeoutUs: uint64): bool {.importc: "multicore_lockout_end_timeout_us".}
-  ## ```
-  ##   ! \brief Release the other core from a locked out state amd wait up to a time limit for it to acknowledge
+  ## Release the other core from a locked out state amd wait up to a time limit for it to acknowledge
   ##     \ingroup multicore_lockout
   ##   
   ##    The other core must previously have been "locked out" by calling a `multicore_lockout_start_` function
@@ -275,6 +238,5 @@ proc multicoreLockoutEndTimeoutUs*(timeoutUs: uint64): bool {.importc: "multicor
   ##   
   ##    \param timeout_us the timeout in microseconds
   ##    \return true if the other core successfully exited locked out state within the timeout, false otherwise
-  ## ```
 
 {.pop.}

@@ -47,8 +47,8 @@ elif defined(memUsePools):
     MemSizeT* = uint16
     # MEM_SIZE_F* = uint16
 else:
-  ##  MEM_SIZE would have to be aligned, but using 64000 here instead of
-  ##  65535 leaves some room for alignment...
+  ## MEM_SIZE would have to be aligned, but using 64000 here instead of
+  ## 65535 leaves some room for alignment...
   ##
   when mem_Size > 64000.clong:
     type

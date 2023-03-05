@@ -54,8 +54,8 @@ type
 when defined(lwipIpv4) and defined(lwipIpv6):
   ## *
   ##  @ingroup ipaddr
-  ##  A union struct for both IP version's addresses.
-  ##  ATTENTION: watch out for its size when adding IPv6 address scope!
+  ## A union struct for both IP version's addresses.
+  ## ATTENTION: watch out for its size when adding IPv6 address scope!
   ##
   type
     INNER_C_UNION_ip_addr_76* {.importc: "ip_addr_t::no_name", header: "lwip/ip_addr.h",
@@ -129,13 +129,13 @@ when defined(lwipIpv4) and defined(lwipIpv6):
         ip_Addr_Pcb_Version_Match_Exact(pcb, ipaddr))
 
   ## * @ingroup ip6addr
-  ##  Convert generic ip address to specific protocol version
+  ## Convert generic ip address to specific protocol version
   ##
   template ip2Ip6*(ipaddr: untyped): untyped =
     (addr(((ipaddr).uAddr.ip6)))
 
   ## * @ingroup ip4addr
-  ##  Convert generic ip address to specific protocol version
+  ## Convert generic ip address to specific protocol version
   ##
   template ip2Ip4*(ipaddr: untyped): untyped =
     (addr(((ipaddr).uAddr.ip4)))
@@ -728,18 +728,18 @@ when defined(lwipIpv4):
   var ipAddrBroadcast* {.importc: "ip_addr_broadcast", header: "lwip/ip_addr.h".}: IpAddrT
   ## *
   ##  @ingroup ip4addr
-  ##  Can be used as a fixed/const ip_addr_t
+  ## Can be used as a fixed/const ip_addr_t
   ##  for the IP wildcard.
-  ##  Defined to @ref IP4_ADDR_ANY when IPv4 is enabled.
-  ##  Defined to @ref IP6_ADDR_ANY in IPv6 only systems.
-  ##  Use this if you can handle IPv4 _AND_ IPv6 addresses.
-  ##  Use @ref IP4_ADDR_ANY or @ref IP6_ADDR_ANY when the IP
+  ## Defined to @ref IP4_ADDR_ANY when IPv4 is enabled.
+  ## Defined to @ref IP6_ADDR_ANY in IPv6 only systems.
+  ## Use this if you can handle IPv4 _AND_ IPv6 addresses.
+  ## Use @ref IP4_ADDR_ANY or @ref IP6_ADDR_ANY when the IP
   ##  type matters.
   ##
     
   ## *
   ##  @ingroup ip4addr
-  ##  Can be used as a fixed/const ip_addr_t
+  ## Can be used as a fixed/const ip_addr_t
   ##  for the IPv4 wildcard and the broadcast address
   ##
   let
@@ -747,7 +747,7 @@ when defined(lwipIpv4):
     IP_ADDR_ANY* = IP4_ADDR_ANY
   ## *
   ##  @ingroup ip4addr
-  ##  Can be used as a fixed/const ip4_addr_t
+  ## Can be used as a fixed/const ip4_addr_t
   ##  for the wildcard and the broadcast address
   ##
   let
@@ -762,14 +762,14 @@ when defined(lwipIpv6):
   var ip6AddrAny* {.importc: "ip6_addr_any", header: "lwip/ip_addr.h".}: IpAddrT
   ## *
   ##  @ingroup ip6addr
-  ##  IP6_ADDR_ANY can be used as a fixed ip_addr_t
+  ## IP6_ADDR_ANY can be used as a fixed ip_addr_t
   ##  for the IPv6 wildcard address
   ##
   let
     IP6_ADDR_ANY* = (addr(ip6AddrAny))
   ## *
   ##  @ingroup ip6addr
-  ##  IP6_ADDR_ANY6 can be used as a fixed ip6_addr_t
+  ## IP6_ADDR_ANY6 can be used as a fixed ip6_addr_t
   ##  for the IPv6 wildcard address
   ##
   let

@@ -40,22 +40,22 @@ export opt, ip_addr, err, altcp, pbuf
 when defined(lwipTcp) and defined(lwipCallbackApi):
   ## *
   ##  @ingroup httpc
-  ##  HTTPC_HAVE_FILE_IO: define this to 1 to have functions dowloading directly
+  ## HTTPC_HAVE_FILE_IO: define this to 1 to have functions dowloading directly
   ##  to disk via fopen/fwrite.
-  ##  These functions are example implementations of the interface only.
+  ## These functions are example implementations of the interface only.
   ##
   when not defined(LWIP_HTTPC_HAVE_FILE_IO):
     const
       LWIP_HTTPC_HAVE_FILE_IO* = 0
   ## *
   ##  @ingroup httpc
-  ##  The default TCP port used for HTTP
+  ## The default TCP port used for HTTP
   ##
   const
     HTTP_DEFAULT_PORT* = LWIP_IANA_PORT_HTTP
   ## *
   ##  @ingroup httpc
-  ##  HTTP client result codes
+  ## HTTP client result codes
   ##
 
   type                        ## * File successfully received
@@ -75,7 +75,7 @@ when defined(lwipTcp) and defined(lwipCallbackApi):
 
     ## *
     ##  @ingroup httpc
-    ##  Prototype of a http client callback function
+    ## Prototype of a http client callback function
     ##
     ##  @param arg argument specified when initiating the request
     ##  @param httpc_result result of the http transfer (see enum httpc_result_t)
@@ -88,7 +88,7 @@ when defined(lwipTcp) and defined(lwipCallbackApi):
 
     ## *
     ##  @ingroup httpc
-    ##  Prototype of http client callback: called when the headers are received
+    ## Prototype of http client callback: called when the headers are received
     ##
     ##  @param connection http client connection
     ##  @param arg argument specified when initiating the request

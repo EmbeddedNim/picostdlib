@@ -44,7 +44,7 @@
 
 let
   LWIP_VERSION_MAJOR* {.importc: "LWIP_VERSION_MAJOR".}: cint
-    ##  X.x.x: Major version of the stack
+    ## X.x.x: Major version of the stack
 
   LWIP_VERSION_MINOR* {.importc: "LWIP_VERSION_MINOR".}: cint
     ##  x.X.x: Minor version of the stack
@@ -53,16 +53,16 @@ let
     ##  x.x.X: Revision of the stack
 
   LWIP_VERSION_RC* {.importc: "LWIP_VERSION_RC".}: cint
-    ##  For release candidates, this is set to 1..254
-    ##  For official releases, this is set to 255 (LWIP_RC_RELEASE)
-    ##  For development versions (Git), this is set to 0 (LWIP_RC_DEVELOPMENT)
+    ## For release candidates, this is set to 1..254
+    ## For official releases, this is set to 255 (LWIP_RC_RELEASE)
+    ## For development versions (Git), this is set to 0 (LWIP_RC_DEVELOPMENT)
 
 const
   LWIP_RC_RELEASE* = 255
-    ##  LWIP_VERSION_RC is set to LWIP_RC_RELEASE for official releases
+    ## LWIP_VERSION_RC is set to LWIP_RC_RELEASE for official releases
 
   LWIP_RC_DEVELOPMENT* = 0
-    ##  LWIP_VERSION_RC is set to LWIP_RC_DEVELOPMENT for Git versions
+    ## LWIP_VERSION_RC is set to LWIP_RC_DEVELOPMENT for Git versions
 
 let
   LWIP_VERSION_IS_RELEASE* {.importc: "LWIP_VERSION_IS_RELEASE".}: bool
@@ -74,10 +74,10 @@ let
 
 let
   LWIP_VERSION* {.importc: "LWIP_VERSION".}: cint
-    ##  Provides the version of the stack
+    ## Provides the version of the stack
 
   LWIP_VERSION_STRING* {.importc: "LWIP_VERSION_STRING".}: cstring
-    ##  Provides the version of the stack as string
+    ## Provides the version of the stack as string
 
 
 ## *
@@ -86,6 +86,6 @@ let
 
 
 proc lwipInit*() {.importc: "lwip_init".}
-  ##  Modules initialization
+  ## Modules initialization
 
 {.pop.}

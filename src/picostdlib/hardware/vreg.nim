@@ -19,11 +19,8 @@ const
   VregVoltageMax* = VregVoltage.V1_30  # Always the maximum possible voltage
 
 proc vregSetVoltage*(voltage: VregVoltage) {.importc: "vreg_set_voltage".}
-  ## ```
-  ##   ! \brief  Set voltage
-  ##     \ingroup hardware_vreg
+  ## Set voltage
   ##   
-  ##    \param voltage  The voltage (from enumeration \ref vreg_voltage) to apply to the voltage regulator
-  ## ```
+  ## \param voltage  The voltage (from enumeration \ref vreg_voltage) to apply to the voltage regulator
 
 {.pop.}

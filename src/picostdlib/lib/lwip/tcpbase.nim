@@ -59,10 +59,10 @@ when defined(lwipTcp):
       LAST_ACK = 9
       TIME_WAIT = 10
 
-  ##  ATTENTION: this depends on state number ordering!
+  ## ATTENTION: this depends on state number ordering!
   template tcp_State_Is_Closing*(state: untyped): untyped = ((state) >= fin_Wait_1)
 
-  ##  Flags for "apiflags" parameter in tcp_write
+  ## Flags for "apiflags" parameter in tcp_write
   const
     TCP_WRITE_FLAG_COPY* = 0x01
     TCP_WRITE_FLAG_MORE* = 0x02

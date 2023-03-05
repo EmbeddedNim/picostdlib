@@ -58,7 +58,7 @@ when defined(lwipDhcp):
     DHCP_BOOT_FILE_LEN* = 128'u
     DHCP_FLAG_SUBNET_MASK_GIVEN* = 0x01
     DHCP_FLAG_EXTERNAL_MEM* = 0x02
-  ##  AutoIP cooperation flags (struct dhcp.autoip_coop_state)
+  ## AutoIP cooperation flags (struct dhcp.autoip_coop_state)
   type
     DhcpAutoipCoopStateEnumT* {.size: sizeof(cint).} = enum
       DHCP_AUTOIP_COOP_STATE_OFF = 0, DHCP_AUTOIP_COOP_STATE_ON = 1
@@ -117,7 +117,7 @@ when defined(lwipDhcp):
   when lwip_Dhcp_Get_Ntp_Srv:
     ## * This function must exist, in other to add offered NTP servers to
     ##  the NTP (or SNTP) engine.
-    ##  See LWIP_DHCP_MAX_NTP_SERVERS
+    ## See LWIP_DHCP_MAX_NTP_SERVERS
     proc dhcpSetNtpServers*(numNtpServers: U8T; ntpServerAddrs: ptr Ip4AddrT) {.
         importc: "dhcp_set_ntp_servers", header: "lwip/dhcp.h".}
   template netifDhcpData*(netif: untyped): untyped =

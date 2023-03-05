@@ -120,7 +120,7 @@ when defined(lwipAltcp):
     proc altcpDbgGetTcpState*(conn: ptr AltcpPcb): TcpState {.importc: "altcp_dbg_get_tcp_state", header: "lwip/altcp.h".}
 
 else:
-  ##  ALTCP disabled, define everything to link against tcp callback API (e.g. to get a small non-ssl httpd)
+  ## ALTCP disabled, define everything to link against tcp callback API (e.g. to get a small non-ssl httpd)
   import ./tcp
 
   type

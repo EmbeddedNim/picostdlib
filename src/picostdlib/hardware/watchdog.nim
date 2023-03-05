@@ -1,8 +1,7 @@
 {.push header: "hardware/watchdog.h".}
 
 proc watchdogReboot*(pc: uint32; sp: uint32; delayMs: uint32) {.importc: "watchdog_reboot".}
-  ## ```
-  ##   ! \brief Define actions to perform at watchdog timeout
+  ## Define actions to perform at watchdog timeout
   ##     \ingroup hardware_watchdog
   ##   
   ##    \note If \ref watchdog_start_tick value does not give a 1MHz clock to the watchdog system, then the \p delay_ms
@@ -13,26 +12,20 @@ proc watchdogReboot*(pc: uint32; sp: uint32; delayMs: uint32) {.importc: "watchd
   ##    \param pc If Zero, a standard boot will be performed, if non-zero this is the program counter to jump to on reset.
   ##    \param sp If \p pc is non-zero, this will be the stack pointer used.
   ##    \param delay_ms Initial load value. Maximum value 0x7fffff, approximately 8.3s.
-  ## ```
 
 proc watchdogStartTick*(cycles: cuint) {.importc: "watchdog_start_tick".}
-  ## ```
-  ##   ! \brief Start the watchdog tick
+  ## Start the watchdog tick
   ##     \ingroup hardware_watchdog
   ##   
   ##    \param cycles This needs to be a divider that when applied to the XOSC input, produces a 1MHz clock. So if the XOSC is
   ##    12MHz, this will need to be 12.
-  ## ```
 
 proc watchdogUpdate*() {.importc: "watchdog_update".}
-  ## ```
-  ##   ! \brief Reload the watchdog counter with the amount of time set in watchdog_enable
+  ## Reload the watchdog counter with the amount of time set in watchdog_enable
   ##     \ingroup hardware_watchdog
-  ## ```
 
 proc watchdogEnable*(delayMs: uint32; pauseOnDebug: bool) {.importc: "watchdog_enable".}
-  ## ```
-  ##   ! \brief Enable the watchdog
+  ## Enable the watchdog
   ##     \ingroup hardware_watchdog
   ##   
   ##    \note If \ref watchdog_start_tick value does not give a 1MHz clock to the watchdog system, then the \p delay_ms
@@ -47,20 +40,16 @@ proc watchdogEnable*(delayMs: uint32; pauseOnDebug: bool) {.importc: "watchdog_e
   ##   
   ##    \param delay_ms Number of milliseconds before watchdog will reboot without watchdog_update being called. Maximum of 0x7fffff, which is approximately 8.3 seconds
   ##    \param pause_on_debug If the watchdog should be paused when the debugger is stepping through code
-  ## ```
 
 proc watchdogCausedReboot*(): bool {.importc: "watchdog_caused_reboot".}
-  ## ```
-  ##   ! \brief Did the watchdog cause the last reboot?
+  ## Did the watchdog cause the last reboot?
   ##     \ingroup hardware_watchdog
   ##   
   ##    @return true If the watchdog timer or a watchdog force caused the last reboot
   ##    @return false If there has been no watchdog reboot since the last power on reset. A power on reset is typically caused by a power cycle or the run pin (reset button) being toggled.
-  ## ```
 
 proc watchdogEnableCausedReboot*(): bool {.importc: "watchdog_enable_caused_reboot".}
-  ## ```
-  ##   ! \brief Did watchdog_enable cause the last reboot?
+  ## Did watchdog_enable cause the last reboot?
   ##     \ingroup hardware_watchdog
   ##   
   ##    Perform additional checking along with \ref watchdog_caused_reboot to determine if a watchdog timeout initiated by
@@ -75,14 +64,11 @@ proc watchdogEnableCausedReboot*(): bool {.importc: "watchdog_enable_caused_rebo
   ##    @return false If there has been no watchdog reboot since the last power on reset, or the watchdog reboot was not caused
   ##                  by a watchdog timeout after \ref watchdog_enable was called.
   ##                  A power on reset is typically caused by a power cycle or the run pin (reset button) being toggled.
-  ## ```
 
 proc watchdogGetCount*(): uint32 {.importc: "watchdog_get_count".}
-  ## ```
-  ##   @brief Returns the number of microseconds before the watchdog will reboot the chip.
+  ## Returns the number of microseconds before the watchdog will reboot the chip.
   ##    \ingroup hardware_watchdog
   ##   
   ##    @return The number of microseconds before the watchdog will reboot the chip.
-  ## ```
 
 {.pop.}

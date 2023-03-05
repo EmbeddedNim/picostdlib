@@ -147,13 +147,13 @@ when defined(lwip_Dhcp) or defined(lwip_Autoip) or defined(lwipIgmp) or defined(
     proc netifAllocClientDataId*(): uint8 {.importc: "netif_alloc_client_data_id",
                                        header: "lwip/netif.h".}
   ## * @ingroup netif_cd
-  ##  Set client data. Obtain ID from netif_alloc_client_data_id().
+  ## Set client data. Obtain ID from netif_alloc_client_data_id().
   ##
   template netifSetClientData*(netif, id, data: untyped): untyped =
     netifGetClientData(netif, id) = (data)
 
   ## * @ingroup netif_cd
-  ##  Get client data. Obtain ID from netif_alloc_client_data_id().
+  ## Get client data. Obtain ID from netif_alloc_client_data_id().
   ##
   template netifGetClientData*(netif, id: untyped): untyped =
     (netif).clientData[(id)]
@@ -237,9 +237,9 @@ type
   NetifLinkoutputFn* = proc (netif: ptr Netif; p: ptr Pbuf): ErrT {.cdecl.}
 
   Netif* {.importc: "struct netif", header: "lwip/netif.h", bycopy.} = object
-    ##  Generic data structure used for all lwIP network interfaces.
-    ##  The following fields should be filled in by the initialization
-    ##  function for the device driver: hwaddr_len, hwaddr[], mtu, flags
+    ## Generic data structure used for all lwIP network interfaces.
+    ## The following fields should be filled in by the initialization
+    ## function for the device driver: hwaddr_len, hwaddr[], mtu, flags
 
     when not defined(lwipSingleNetif):
       next* {.importc: "next".}: ptr Netif
@@ -257,8 +257,8 @@ type
         ##  @see ip6_addr.h
       when defined(lwipIpv6AddressLifetimes):
         ## * Remaining valid and preferred lifetime of each IPv6 address, in seconds.
-        ##  For valid lifetimes, the special value of IP6_ADDR_LIFE_STATIC (0)
-        ##  indicates the address is static and has no lifetimes.
+        ## For valid lifetimes, the special value of IP6_ADDR_LIFE_STATIC (0)
+        ## indicates the address is static and has no lifetimes.
         ip6AddrValidLife* {.importc: "ip6_addr_valid_life".}: array[lwip_Ipv6Num_Addresses, uint32]
         ip6AddrPrefLife* {.importc: "ip6_addr_pref_life".}: array[lwip_Ipv6Num_Addresses, uint32]
 
@@ -285,11 +285,9 @@ type
       outputIp6* {.importc: "output_ip6".}: NetifOutputIp6Fn
     when defined(lwip_Netif_Status_Callback):
       ## * This function is called when the netif state is set to up or down
-      ##
       statusCallback* {.importc: "status_callback".}: NetifStatusCallbackFn
     when defined(lwip_Netif_Link_Callback):
       ## * This function is called when the netif link is set to up or down
-      ##
       linkCallback* {.importc: "link_callback".}: NetifStatusCallbackFn
     when defined(lwip_Netif_Remove_Callback):
       ## * This function is called when the netif has been removed
@@ -351,13 +349,13 @@ type
     when defined(lwipNetifUseHints):
       hints* {.importc: "hints".}: ptr NetifHint
     when defined(enableLoopback):
-      ##  List of packets to be queued for ourselves.
+      ## List of packets to be queued for ourselves.
       loopFirst* {.importc: "loop_first".}: ptr Pbuf
       loopLast* {.importc: "loop_last".}: ptr Pbuf
       when defined(lwip_Loopback_Max_Pbufs):
         loopCntCurrent* {.importc: "loop_cnt_current".}: uint16
       when defined(lwip_Netif_Loopback_Multithreading):
-        ##  Used if the original scheduling failed.
+        ## Used if the original scheduling failed.
         reschedulePoll* {.importc: "reschedule_poll".}: uint8
 
 
@@ -465,7 +463,7 @@ proc netifSetDown*(netif: ptr Netif) {.importc: "netif_set_down", header: "lwip/
 ## * @ingroup netif
 
 template netifIsUp*(netif: untyped): untyped =
-  ##  Ask if an interface is up
+  ## Ask if an interface is up
   (if ((netif).flags and netif_Flag_Up): cast[uint8](1) else: cast[uint8](0))
 
 when defined(lwipNetifStatusCallback):
@@ -493,7 +491,7 @@ when defined(lwipNetifHostname):
 
 when defined(lwipIgmp):
   ## * @ingroup netif
-  ##  Set igmp mac filter function for a netif.
+  ## Set igmp mac filter function for a netif.
   template netifSetIgmpMacFilter*(netif, function: untyped): void =
     while true:
       if (netif) != nil:
@@ -507,7 +505,7 @@ when defined(lwipIgmp):
 
 when defined(lwipIpv6) and defined(lwipIpv6Mld):
   ## * @ingroup netif
-  ##  Set mld mac filter function for a netif.
+  ## Set mld mac filter function for a netif.
   template netifSetMldMacFilter*(netif, function: untyped): void =
     while true:
       if (netif) != nil:
