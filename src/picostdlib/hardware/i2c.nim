@@ -17,9 +17,10 @@ let
   i2c1* {.importc: "i2c1".}: ptr I2cInst
   i2cDefault* {.importc: "i2c_default".}: ptr I2cInst
 
-let DefaultI2c* {.importc: "PICO_DEFAULT_I2C".}: cuint
-let DefaultI2cSdaPin* {.importc: "PICO_DEFAULT_I2C_SDA_PIN".}: Gpio
-let DefaultI2cSclPin* {.importc: "PICO_DEFAULT_I2C_SCL_PIN".}: Gpio
+  DefaultI2c* {.importc: "PICO_DEFAULT_I2C".}: cuint
+  DefaultI2cSdaPin* {.importc: "PICO_DEFAULT_I2C_SDA_PIN".}: Gpio
+  DefaultI2cSclPin* {.importc: "PICO_DEFAULT_I2C_SCL_PIN".}: Gpio
+
 
 proc i2cInit*(i2c: ptr I2cInst, baudrate: cuint): cuint {.importc: "i2c_init".}
   ## Initialise the I2C HW block
