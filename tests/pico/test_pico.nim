@@ -9,6 +9,7 @@ import picostdlib/hardware/structs/i2c
 import picostdlib/hardware/structs/interp
 import picostdlib/hardware/structs/rosc
 import picostdlib/hardware/structs/spi
+import picostdlib/hardware/structs/uart
 
 import picostdlib/hardware/adc
 import picostdlib/hardware/base
