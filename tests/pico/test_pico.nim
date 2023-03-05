@@ -3,6 +3,7 @@ import picostdlib
 
 import picostdlib/hardware/regs/clocks
 import picostdlib/hardware/regs/intctrl
+import picostdlib/hardware/regs/resets
 
 import picostdlib/hardware/structs/i2c
 import picostdlib/hardware/structs/interp
@@ -61,7 +62,10 @@ import picostdlib/pico/types
 import picostdlib/pico/unique_id
 import picostdlib/pico/version
 
+# misc
 import picostdlib/memoryinfo
+import picostdlib/sevensegdisplay
+
 
 # examples
 import ../examples/blink
