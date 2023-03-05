@@ -208,8 +208,6 @@ proc i2cGetDreq*(i2c: ptr I2cInst; isTx: bool): cuint {.importc: "i2c_get_dreq".
 
 ## Nim helpers
 
-import gpio
-
 template i2cSetupNim*(blokk: ptr I2cInst, pSda, pScl: Gpio, freq: uint, pull = true) =
   #sugar setup for i2c:
   #blokk= block i2c0 / i2c1 (see pinout)
