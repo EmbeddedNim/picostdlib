@@ -1,5 +1,6 @@
 import strutils
-import picostdlib/[pico/stdio, pico/binary_info, hardware/i2c, pico/error]
+import picostdlib
+import picostdlib/hardware/i2c
 
 # I2C reserves some addresses for special purposes. We exclude these from the scan.
 # These are any addresses of the form 000 0xxx or 111 1xxx

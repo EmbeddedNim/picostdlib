@@ -1,4 +1,5 @@
-import picostdlib/[pico/stdio, hardware/resets]
+import picostdlib
+import picostdlib/hardware/resets
 
 stdioInitAll()
 

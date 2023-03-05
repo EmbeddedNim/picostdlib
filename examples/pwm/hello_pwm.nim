@@ -1,4 +1,5 @@
-import picostdlib/[hardware/pwm]
+import picostdlib
+import picostdlib/hardware/pwm
 
 # Output PWM signals on pins 0 and 1
 

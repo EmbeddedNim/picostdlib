@@ -1,4 +1,5 @@
-import picostdlib/[pico/stdio, hardware/rtc, pico/util/datetime, pico/time]
+import picostdlib
+import picostdlib/hardware/rtc
 
 stdioInitAll()
 echo "Hello RTC!"

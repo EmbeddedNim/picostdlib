@@ -1,4 +1,3 @@
-
 import std/os, std/strutils
 
 const picoSdkPath* {.strdefine.} = os.getEnv("PICO_SDK_PATH")

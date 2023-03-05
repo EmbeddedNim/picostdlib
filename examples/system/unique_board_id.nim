@@ -1,5 +1,6 @@
 import std/strutils
-import picostdlib/[pico/stdio, pico/unique_id]
+import picostdlib
+import picostdlib/pico/unique_id
 
 # RP2040 does not have a unique on-board ID, but this is a standard feature
 # on the NOR flash it boots from. There is a 1:1 association between RP2040

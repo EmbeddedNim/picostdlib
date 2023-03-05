@@ -1,8 +1,7 @@
-import picostdlib/[pico/stdio, pico/time, hardware/watchdog, pico/platform]
-
+import picostdlib
+import picostdlib/hardware/watchdog
 
 stdioInitAll()
-
 
 if watchdogCausedReboot():
   echo "Reboot by WatchDog!"

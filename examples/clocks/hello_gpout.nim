@@ -1,4 +1,5 @@
-import picostdlib/[pico/stdio, hardware/gpio, hardware/clocks]
+import picostdlib
+import picostdlib/[hardware/pll, hardware/clocks]
 
 stdioInitAll()
 

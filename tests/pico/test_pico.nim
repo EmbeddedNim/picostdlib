@@ -1,4 +1,6 @@
 # stdlib
+import picostdlib
+
 import picostdlib/hardware/regs/clocks
 import picostdlib/hardware/regs/intctrl
 

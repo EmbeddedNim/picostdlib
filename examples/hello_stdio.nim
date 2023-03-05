@@ -1,4 +1,4 @@
-import picostdlib/[pico/stdio, hardware/gpio, pico/time, pico/error]
+import picostdlib
 
 stdioInitAll()
 

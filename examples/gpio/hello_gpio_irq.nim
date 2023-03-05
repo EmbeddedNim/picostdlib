@@ -1,4 +1,4 @@
-import picostdlib/[pico/stdio, hardware/gpio, pico/platform]
+import picostdlib
 
 proc callback(pin: Gpio, events: set[GpioIrqLevel]) {.cdecl.} =
   echo $pin & ": " & $events

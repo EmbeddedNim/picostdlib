@@ -1,5 +1,6 @@
 import std/strformat
-import picostdlib/[pico/stdio, hardware/adc, hardware/gpio, pico/time]
+import picostdlib
+import picostdlib/hardware/adc
 
 type
   TempUnit = enum

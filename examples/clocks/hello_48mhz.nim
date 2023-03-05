@@ -1,5 +1,6 @@
 import std/strformat
-import picostdlib/[pico/stdio, hardware/pll, hardware/clocks]
+import picostdlib
+import picostdlib/[hardware/pll, hardware/clocks]
 
 proc measureFreqs() =
   let

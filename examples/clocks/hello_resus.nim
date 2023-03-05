@@ -1,5 +1,6 @@
 import std/volatile
-import picostdlib/[pico/stdio, hardware/pll, hardware/clocks, hardware/gpio, pico/time, pico/platform]
+import picostdlib
+import picostdlib/[hardware/pll, hardware/clocks]
 
 var seenResus: bool
 

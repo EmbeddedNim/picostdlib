@@ -1,4 +1,5 @@
-import picostdlib/[pico/stdio, pico/multicore, pico/time, pico/platform]
+import picostdlib
+import picostdlib/pico/multicore
 
 stdioInitAll()
 

@@ -1,5 +1,6 @@
 import std/volatile
-import picostdlib/[pico/stdio, pico/time, hardware/timer, pico/platform]
+import picostdlib
+import picostdlib/hardware/timer
 
 var timerFired = false
 

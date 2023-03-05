@@ -1,4 +1,5 @@
-import picostdlib/[pico/stdio, sevensegdisplay, pico/time, hardware/gpio]
+import picostdlib
+import picostdlib/sevensegdisplay
 
 #This module counts seconds displaying the current on a seven segment display
 

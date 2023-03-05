@@ -1,4 +1,5 @@
-import picostdlib/[hardware/pwm, hardware/irq, pico/time, pico/platform]
+import picostdlib
+import picostdlib/hardware/pwm
 
 # Fade an LED between low and high brightness. An interrupt handler updates
 # the PWM slice's output level each time the counter wraps.

@@ -1,5 +1,6 @@
 import std/volatile
-import picostdlib/[pico/stdio, hardware/rtc, pico/util/datetime, pico/time, pico/platform]
+import picostdlib
+import picostdlib/hardware/rtc
 
 var fired = false
 

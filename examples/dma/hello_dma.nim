@@ -1,4 +1,5 @@
-import picostdlib/[pico/stdio, hardware/dma]
+import picostdlib
+import picostdlib/hardware/dma
 
 ## Use the DMA to copy data between two buffers in memory.
 
