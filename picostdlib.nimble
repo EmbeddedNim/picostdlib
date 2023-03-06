@@ -38,9 +38,9 @@ task test, "Runs the test suite":
   when not defined(windows):
     exec "nimble c tests/pico_w/test_pico_w"
 
-  exec "cp build/test_pico/nimcache/test_pico.json build/test_pico/nimcache/test_pico.cached.json"
+  cpFile("build/test_pico/nimcache/test_pico.json", "build/test_pico/nimcache/test_pico.cached.json")
   when not defined(windows):
-    exec "cp build/test_pico_w/nimcache/test_pico_w.json build/test_pico_w/nimcache/test_pico_w.cached.json"
+    cpFile("build/test_pico_w/nimcache/test_pico_w.json", "build/test_pico_w/nimcache/test_pico_w.cached.json")
 
   exec "cmake --build build/test_pico -- -j4"
   when not defined(windows):
