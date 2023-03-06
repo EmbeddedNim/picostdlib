@@ -1,6 +1,6 @@
 # Package
 
-version       = "0.3.3"
+version       = "1.0.0"
 author        = "Jason"
 description   = "Raspberry Pi Pico SDK bindings"
 license       = "MIT"
