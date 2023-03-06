@@ -45,10 +45,11 @@ set(NIMCACHE_JSON_FILE "${NIMCACHE_DIR}/${OUTPUT_NAME}.cached.json")
 
 # Get the Nim include path to get nimbase.h
 execute_process(
-  COMMAND sh "-c" "nim dump --dump.format:json --hints:off - | jq -r .lib_paths[-1]"
-  OUTPUT_VARIABLE NIM_INCLUDE_PATH
+  COMMAND nim dump --dump.format:json --hints:off -
+  OUTPUT_VARIABLE NIM_DUMP_JSON
   OUTPUT_STRIP_TRAILING_WHITESPACE
 )
+string(JSON NIM_LIB_PATH GET "${NIM_DUMP_JSON}" libpath)
 
 set_directory_properties(PROPERTIES CMAKE_CONFIGURE_DEPENDS ${NIMCACHE_JSON_FILE})
 
@@ -79,7 +80,7 @@ add_executable(${OUTPUT_NAME} ${NimSources})
 # required for a project can also be placed here.
 target_include_directories(${OUTPUT_NAME} PUBLIC
   ${CMAKE_CURRENT_LIST_DIR}
-  ${NIM_INCLUDE_PATH}
+  ${NIM_LIB_PATH}
 )
 
 if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/imports.cmake)
