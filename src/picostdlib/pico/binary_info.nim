@@ -17,7 +17,6 @@ macro bi_decl*(input: untyped) =
       if i < input.len - 1:
         b.add newStrLitNode(", ")
   b.add newStrLitNode("));")
-  echo result.repr
 
 {.push header: "pico/binary_info.h".}
 

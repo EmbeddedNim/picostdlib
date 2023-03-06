@@ -1,5 +1,5 @@
 import picostdlib
-import picostdlib/[hardware/pll, hardware/clocks]
+import picostdlib/hardware/clocks
 
 stdioInitAll()
 

@@ -1,3 +1,5 @@
+{.warning[UnusedImport]:off.}
+
 # stdlib
 import picostdlib/pico/cyw43_arch
 import picostdlib/pico/cyw43_driver
