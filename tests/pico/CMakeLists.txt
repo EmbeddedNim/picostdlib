@@ -19,7 +19,7 @@ set(PICO_CXX_ENABLE_EXCEPTIONS 1)
 
 # pico_sdk_import.cmake is a single file copied from this SDK
 # note: this must happen before project()
-include(../pico_sdk_import.cmake)
+include(../../src/picostdlib/build_utils/template/csource/pico_sdk_import.cmake)
 
 # Set standards
 set(CMAKE_C_STANDARD 11)
