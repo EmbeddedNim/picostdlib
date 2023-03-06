@@ -1,4 +1,3 @@
-nimblecache/
 htmldocs/
-picostdlib/build_utils/piconim
+picostdlib/build_utils/piconim*
 build/
