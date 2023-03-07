@@ -52,7 +52,10 @@ const
 
 
 importc:
-  sysPath futhark.getClangIncludePath()
+  compilerArg "-fshort-enums"
+  compilerArg "--target=armv6m-none-eabi"
+
+  sysPath armNoneEabiIncludePath
   sysPath cmakeBinaryDir / "generated/pico_base"
   sysPath picoSdkPath / "src/common/pico_base/include"
   sysPath picoSdkPath / "src/rp2040/hardware_regs/include"
@@ -71,8 +74,6 @@ importc:
   path picoSdkPath / "lib/cyw43-driver/src"
   path cmakeSourceDir
   path getProjectPath()
-
-  compilerArg "-fshort-enums"
 
   # TODO: Make this configurable
   define PICO_CYW43_ARCH_THREADSAFE_BACKGROUND

@@ -32,7 +32,10 @@ import ../private
 import futhark
 
 importc:
-  sysPath futhark.getClangIncludePath()
+  compilerArg "-fshort-enums"
+  compilerArg "--target=armv6m-none-eabi"
+
+  sysPath armNoneEabiIncludePath
   sysPath picoSdkPath / "src/rp2040/hardware_regs/include"
   sysPath picoSdkPath / "lib/lwip/contrib/ports/freertos/include"
   sysPath picoSdkPath / "src/common/pico_base/include"
@@ -45,8 +48,6 @@ importc:
   path picoSdkPath / "lib/lwip/src/include"
   path cmakeSourceDir
   path getProjectPath()
-
-  compilerArg "-fshort-enums"
 
   renameCallback futharkRenameCallback
 
@@ -122,14 +123,14 @@ proc pbufMemfind*(p: ptr Pbuf; mem: string; startOffset: int|uint16): uint16 {.i
 when declared(ip4addrntoa) and declared(ip6addrntoa):
   discard
 elif declared(ip4addrntoa):
-  proc `$`*(ip: ptr IpAddrT): string = $(ip4addrntoa(ip))
+  proc `$`*(ip: ptr IpAddrT): string = $cast[cstring](ip4addrntoa(ip))
 
-  proc `$`*(ip: var IpAddrT): string = $(ip4addrntoa(addr(ip)))
+  proc `$`*(ip: var IpAddrT): string = $cast[cstring](ip4addrntoa(addr(ip)))
 
 elif declared(ip6addrntoa):
-  proc `$`*(ip: ptr IpAddrT): string = $(ip6addrntoa(ip))
+  proc `$`*(ip: ptr IpAddrT): string = $cast[cstring](ip6addrntoa(ip))
 
-  proc `$`*(ip: var IpAddrT): string = $(ip6addrntoa(addr(ip)))
+  proc `$`*(ip: var IpAddrT): string = $cast[cstring](ip6addrntoa(addr(ip)))
 
 when declared(ip4addrAton):
   template ipaddrAton*(cp, `addr`: untyped): untyped =

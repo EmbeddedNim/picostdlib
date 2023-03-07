@@ -45,12 +45,14 @@ import ../private
 import futhark
 
 importc:
-  sysPath futhark.getClangIncludePath()
+  compilerArg "-fshort-enums"
+  compilerArg "--target=armv6m-none-eabi"
+
+  sysPath armNoneEabiIncludePath
   sysPath picoSdkPath / "lib/btstack/src"
+  sysPath picoSdkPath / "lib/btstack/3rd-party/lc3-google/include"
   path cmakeSourceDir
   path getProjectPath()
-
-  compilerArg "-fshort-enums"
 
   renameCallback futharkRenameCallback
 

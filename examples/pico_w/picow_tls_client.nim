@@ -98,13 +98,13 @@ proc tlsClientConnectToServerIp(ipaddr: ptr IpAddrT; state: ptr TlsClient) {.cde
     echo "error initiating connect, err=", $err.ErrEnumT
     discard tlsClientClose(state)
 
-proc tlsClientDnsFound(hostname: cstring; ipaddr: ptr IpAddrT; arg: pointer) {.cdecl.} =
+proc tlsClientDnsFound(hostname: ptr uint8; ipaddr: ptr IpAddrT; arg: pointer) {.cdecl.} =
   if not ipaddr.isNil:
     echo "DNS resolving complete"
     tlsClientConnectToServerIp(ipaddr, cast[ptr TlsClient](arg))
 
   else:
-    echo "error resolving hostname ", hostname
+    echo "error resolving hostname ", cast[cstring](hostname)
     discard tlsClientClose(arg)
 
 proc tlsClientOpen(hostname: cstring; arg: pointer): bool =
@@ -123,13 +123,13 @@ proc tlsClientOpen(hostname: cstring; arg: pointer): bool =
   state.pcb.altcpErr(tlsClientErr)
 
   ## Set SNI
-  discard mbedtlsSslSetHostname(cast[ptr MbedtlsSslContext](altcpTlsContext(state.pcb)), hostname)
+  discard mbedtlsSslSetHostname(cast[ptr MbedtlsSslContext](altcpTlsContext(state.pcb)), cast[ptr uint8](hostname))
 
   echo "resolving ", hostname
 
   cyw43ArchLwipBegin()
 
-  err = dnsGethostbyname(hostname, addr(serverIp), tlsClientDnsFound, state)
+  err = dnsGethostbyname(cast[ptr uint8](hostname), addr(serverIp), tlsClientDnsFound, state)
 
   if err == ERR_OK.ErrT:
     tlsClientConnectToServerIp(addr(serverIp), state)
@@ -164,7 +164,7 @@ proc tlsClientExample*() =
   cyw43ArchGpioPut(CYW43_WL_GPIO_LED_PIN, false)
 
   echo "ip: ", cyw43State.netif[0].ipAddr, " mask: ", cyw43State.netif[0].netmask, " gateway: ", cyw43State.netif[0].gw
-  echo "hostname: ", cyw43State.netif[0].hostname
+  echo "hostname: ", cast[cstring](cyw43State.netif[0].hostname)
 
   echo "Opening TLS connection..."
 

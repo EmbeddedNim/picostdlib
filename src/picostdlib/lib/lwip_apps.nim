@@ -35,7 +35,10 @@ export lwip
 
 
 importc:
-  sysPath futhark.getClangIncludePath()
+  compilerArg "-fshort-enums"
+  compilerArg "--target=armv6m-none-eabi"
+
+  sysPath armNoneEabiIncludePath
   sysPath picoSdkPath / "src/rp2040/hardware_regs/include"
   sysPath picoSdkPath / "src/common/pico_base/include"
   sysPath picoSdkPath / "src/rp2_common/pico_platform/include"
@@ -45,8 +48,6 @@ importc:
   path picoSdkPath / "lib/lwip/src/include"
   path cmakeSourceDir
   path getProjectPath()
-
-  compilerArg "-fshort-enums"
 
   renameCallback futharkRenameCallback
 

@@ -48,12 +48,13 @@ import ./btstack
 export btstack
 
 importc:
-  sysPath futhark.getClangIncludePath()
+  compilerArg "-fshort-enums"
+  compilerArg "--target=armv6m-none-eabi"
+
+  sysPath armNoneEabiIncludePath
   sysPath picoSdkPath / "lib/btstack/src"
   sysPath cmakeSourceDir
   sysPath getProjectPath()
-
-  compilerArg "-fshort-enums"
 
   renameCallback futharkRenameCallback
 
