@@ -44,14 +44,16 @@ importc:
   sysPath picoSdkPath / "src/rp2_common/pico_cyw43_driver/include"
   sysPath cmakeBinaryDir / "generated/pico_base"
   path picoSdkPath / "lib/mbedtls/include"
+  path picoSdkPath / "lib/mbedtls/library"
   path picoSdkPath / "src/rp2_common/pico_lwip/include"
   path picoSdkPath / "lib/lwip/src/include"
   path cmakeSourceDir
   path getProjectPath()
 
+  define "MBEDTLS_CONFIG_FILE \"mbedtls_config.h\""
+
   renameCallback futharkRenameCallback
 
-  "mbedtls_config.h"
   "lwip/acd.h"
   "lwip/altcp.h"
   "lwip/altcp_tcp.h"

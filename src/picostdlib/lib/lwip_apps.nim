@@ -49,6 +49,8 @@ importc:
   path cmakeSourceDir
   path getProjectPath()
 
+  define "MBEDTLS_CONFIG_FILE \"mbedtls_config.h\""
+
   renameCallback futharkRenameCallback
 
   "lwip/apps/altcp_proxyconnect.h"

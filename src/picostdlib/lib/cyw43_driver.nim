@@ -78,6 +78,8 @@ importc:
   # TODO: Make this configurable
   define PICO_CYW43_ARCH_THREADSAFE_BACKGROUND
 
+  define "MBEDTLS_CONFIG_FILE \"mbedtls_config.h\""
+
   renameCallback futharkRenameCallback
 
   "cyw43.h"
