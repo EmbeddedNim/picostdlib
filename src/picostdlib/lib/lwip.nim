@@ -51,6 +51,7 @@ importc:
 
   renameCallback futharkRenameCallback
 
+  "mbedtls_config.h"
   "lwip/acd.h"
   "lwip/altcp.h"
   "lwip/altcp_tcp.h"
