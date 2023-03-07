@@ -4,7 +4,7 @@ const picoSdkPath* {.strdefine.} = os.getEnv("PICO_SDK_PATH")
 const cmakeBinaryDir* {.strdefine.} = os.getEnv("CMAKE_BINARY_DIR")
 const cmakeSourceDir* {.strdefine.} = os.getEnv("CMAKE_SOURCE_DIR")
 
-const armNoneEabiIncludePath* = staticExec("arm-none-eabi-gcc -print-sysroot") / "include"
+const armNoneEabiIncludePath* = staticExec("arm-none-eabi-gcc -print-sysroot").strip() / "include"
 
 func futharkRenameCallback*(name: string; kind: string; partof: string): string =
   result = name
