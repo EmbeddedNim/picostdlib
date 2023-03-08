@@ -4,6 +4,9 @@ if(NOT DEFINED OUTPUT_NAME)
   set(OUTPUT_NAME blink)
 endif()
 
+# Set CMake build type. Debug, Release, MinSizeRel, RelWithDebInfo
+set(CMAKE_BUILD_TYPE Debug)
+
 # initialize pico-sdk from GIT
 # (note this can come from environment, CMake cache etc)
 #set(PICO_SDK_FETCH_FROM_GIT on)

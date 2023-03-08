@@ -2,8 +2,8 @@ switch("cpu", "arm")
 switch("os", "freertos")
 
 switch("define", "release")
-# switch("define", "NDEBUG")
-switch("opt", "size")
+#switch("define", "NDEBUG") # uncomment when in release mode
+# switch("opt", "size") # doesnt do anything since cmake does the compilation
 switch("mm", "orc") # use "arc", "orc" or "none"
 switch("deepcopy", "on")
 switch("threads", "off")
