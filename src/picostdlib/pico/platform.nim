@@ -61,7 +61,7 @@ proc mulInstruction*(a: int32; b: int32): int32 {.importc: "__mul_instruction".}
   ##    \param b the second operand
   ##    \return a b
 
-proc getCurrentException*(): cuint {.importc: "__get_current_exception".}
+proc picoGetCurrentException*(): cuint {.importc: "__get_current_exception".}
   ## Get the current exception level on this core
   ##     \ingroup pico_platform
   ##   

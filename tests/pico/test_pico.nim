@@ -94,6 +94,5 @@ import ../examples/hello_serial
 import ../examples/hello_stdio
 import ../examples/hello_timestart
 
-
 # include blink from template
 include ../src/picostdlib/build_utils/"template"/src/blink
