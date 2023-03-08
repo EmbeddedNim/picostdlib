@@ -37,7 +37,9 @@ import futhark
 
 importc:
   compilerArg "-fshort-enums"
-  compilerArg "--target=armv6m-none-eabi"
+  compilerArg "--target=arm-none-eabi"
+  compilerArg "-mthumb"
+  compilerArg "-mcpu=cortex-m0plus"
 
   sysPath armNoneEabiIncludePath
   sysPath picoSdkPath / "lib/btstack/src"
