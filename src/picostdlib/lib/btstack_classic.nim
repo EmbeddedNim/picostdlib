@@ -1,43 +1,34 @@
 ##
-## Copyright (C) 2009 BlueKitchen GmbH
-## All rights reserved 
+## “BlueKitchen” shall refer to BlueKitchen GmbH.
+## “Raspberry Pi” shall refer to Raspberry Pi Ltd.
+## “Product” shall refer to Raspberry Pi hardware products Raspberry Pi Pico W or Raspberry Pi Pico WH.
+## “Customer” means any purchaser of a Product.
+## “Customer Products” means products manufactured or distributed by Customers which use or are derived from Products.
 ##
-## Redistribution and use in source and binary forms, with or without
-## modification, are permitted provided that the following conditions
-## are met:
+## Raspberry Pi grants to the Customer a non-exclusive, non-transferable, non-sublicensable, irrevocable, perpetual
+## and worldwide licence to use, copy, store, develop, modify, and transmit BTstack in order to use BTstack with or
+## integrate BTstack into Products or Customer Products, and distribute BTstack as part of these Products or
+## Customer Products or their related documentation or SDKs.
 ##
-## 1. Redistributions of source code must retain the above copyright
-##    notice, this list of conditions and the following disclaimer.
+## All use of BTstack by the Customer is limited to Products or Customer Products, and the Customer represents and
+## warrants that all such use shall be in compliance with the terms of this licence and all applicable laws and
+## regulations, including but not limited to, copyright and other intellectual property laws and privacy regulations.
 ##
-## 2. Redistributions in binary form must reproduce the above copyright
-##    notice, this list of conditions and the following disclaimer in the
-##    documentation and/or other materials provided with the distribution.
+## BlueKitchen retains all rights, title and interest in, to and associated with BTstack and associated websites.
+## Customer shall not take any action inconsistent with BlueKitchen’s ownership of BTstack, any associated services,
+## websites and related content.
 ##
-## 3. Neither the name of the copyright holders nor the names of
-##    contributors may be used to endorse or promote products derived
-##    from this software without specific prior written permission.
+## There are no implied licences under the terms set forth in this licence, and any rights not expressly granted
+## hereunder are reserved by BlueKitchen.
 ##
-## 4. Any redistribution, use, or modification is done solely for
-##    personal benefit and not for any commercial purpose or for
-##    monetary gain.
+## BTSTACK IS PROVIDED BY RASPBERRY PI "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+## THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED TO THE FULLEST EXTENT
+## PERMISSIBLE UNDER APPLICABLE LAW. IN NO EVENT SHALL RASPBERRY PI OR BLUEKITCHEN BE LIABLE FOR ANY DIRECT, INDIRECT,
+## INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+## GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+## LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+## OUT OF THE USE OF BTSTACK, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ##
-## THIS SOFTWARE IS PROVIDED BY BLUEKITCHEN GMBH AND CONTRIBUTORS
-## ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-## LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
-## FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL BLUEKITCHEN 
-## GMBH OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-## INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-## BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
-## OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
-## AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-## OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
-## THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
-## SUCH DAMAGE.
-##
-## Please inquire about commercial licensing options at 
-## contact@bluekitchen-gmbh.com
-##
-
 
 import std/os, std/macros
 import ../private
