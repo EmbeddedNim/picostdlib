@@ -35,7 +35,6 @@ export lwip
 
 
 importc:
-  compilerArg "-fshort-enums"
   compilerArg "--target=arm-none-eabi"
   compilerArg "-mthumb"
   compilerArg "-mcpu=cortex-m0plus"

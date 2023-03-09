@@ -33,7 +33,6 @@ import futhark
 import ../hardware/timer # for clock_gettime
 
 importc:
-  compilerArg "-fshort-enums"
   compilerArg "--target=arm-none-eabi"
   compilerArg "-mthumb"
   compilerArg "-mcpu=cortex-m0plus"
