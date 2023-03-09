@@ -33,6 +33,12 @@ project(${OUTPUT_NAME})
 # initialize the Raspberry Pi Pico SDK
 pico_sdk_init()
 
+# hide a warning in lwip
+set_source_files_properties(
+  "${PICO_LWIP_PATH}/src/apps/altcp_tls/altcp_tls_mbedtls.c"
+  PROPERTIES COMPILE_OPTIONS "-Wno-unused-result"
+)
+
 # # fetch and initialize FreeRTOS-Kernel
 # include(FetchContent)
 # FetchContent_Declare( freertos_kernel
