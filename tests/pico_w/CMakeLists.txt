@@ -73,6 +73,7 @@ if(EXISTS ${NIMCACHE_JSON_FILE})
   set_source_files_properties(${NimSources} PROPERTIES COMPILE_OPTIONS "-w")
 endif()
 
+set_source_files_properties("${PICO_LWIP_PATH}/src/apps/altcp_tls/altcp_tls_mbedtls.c" PROPERTIES COMPILE_OPTIONS "-Wno-unused-result")
 
 add_executable(${OUTPUT_NAME} ${NimSources})
 
