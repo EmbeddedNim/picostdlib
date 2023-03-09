@@ -7,6 +7,7 @@ import picostdlib/hardware/regs/clocks
 import picostdlib/hardware/regs/intctrl
 import picostdlib/hardware/regs/resets
 
+import picostdlib/hardware/structs/clocks
 import picostdlib/hardware/structs/i2c
 import picostdlib/hardware/structs/interp
 import picostdlib/hardware/structs/rosc
@@ -17,9 +18,11 @@ import picostdlib/hardware/adc
 import picostdlib/hardware/base
 import picostdlib/hardware/claim
 import picostdlib/hardware/clocks
+discard clockGetHz(Sys)
 import picostdlib/hardware/divider
 import picostdlib/hardware/dma
 import picostdlib/hardware/exception
+exceptionRestoreHandler(SVCallException, exceptionSetExclusiveHandler(SVCallException, proc() {.cdecl.} = discard))
 import picostdlib/hardware/flash
 import picostdlib/hardware/gpio
 import picostdlib/hardware/i2c

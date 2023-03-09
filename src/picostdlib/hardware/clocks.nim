@@ -1,28 +1,15 @@
-import ./regs/clocks
+import ./structs/clocks
 import ./gpio
 export clocks
 
-type
-  ClockIndex* {.pure, size: sizeof(cuint).} = enum
-    ## Enumeration identifying a hardware clock
-    GpOut0  # GPIO Muxing 0
-    GpOut1  # GPIO Muxing 1
-    GpOut2  # GPIO Muxing 2
-    GpOut3  # GPIO Muxing 3
-    Ref   # Watchdog and timers reference clock
-    Sys     # Processors, bus fabric, memory, memory mapped registers
-    Peri    # Peripheral clock for UART and SPI
-    Usb     # USB clock
-    Adc     # ADC clock
-    Rtc     # Real Time Clock
+{.push header: "hardware/clocks.h".}
 
+type
   ResusCallback* {.importc: "resus_callback_t".} = proc () {.cdecl.}
 
 const
   KHz* = 1000
   MHz* = 1000000
-
-{.push header: "hardware/clocks.h".}
 
 proc clocksInit*() {.importc: "clocks_init".}
   ## Initialise the clock hardware
@@ -63,7 +50,6 @@ proc clockGetHz*(clkInd: ClockIndex): uint32 {.importc: "clock_get_hz".}
   ## ===========  ====== 
   ## 
   ## **Returns:** Clock frequency in Hz
-
 
 proc frequencyCountKHz*(src: ClocksFc0Src): uint32 {.importc: "frequency_count_khz".}
   ## Measure a clocks frequency using the Frequency counter.
