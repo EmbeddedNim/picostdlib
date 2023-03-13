@@ -34,6 +34,7 @@ task test, "Runs the test suite":
   exec "nimble c tests/pico/test_pico"
   exec "nimble c tests/pico_w/test_pico_w"
 
+after test:
   cpFile("build/test_pico/nimcache/test_pico.json", "build/test_pico/nimcache/test_pico.cached.json")
   cpFile("build/test_pico_w/nimcache/test_pico_w.json", "build/test_pico_w/nimcache/test_pico_w.cached.json")
 
