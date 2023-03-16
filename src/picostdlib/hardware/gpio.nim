@@ -2,7 +2,7 @@ import ./irq
 export irq
 
 type
-  Gpio* = distinct range[0.cuint .. 35.cuint]
+  Gpio* = distinct range[0.cuint .. 29.cuint] # NUM_BANK0_GPIOS = 30
     ## Gpio pins available to the RP2040. Not all pins may be available on some
     ## microcontroller boards.
 
@@ -325,7 +325,7 @@ proc gpioAcknowledgeIrq*(gpio: Gpio; eventMask: set[GpioIrqLevel]) {.importc: "g
   ## \note For callbacks set with \ref gpio_set_irq_enabled_with_callback, or \ref gpio_set_irq_callback, this function is called automatically.
   ## \param event_mask Bitmask of events to clear. See \ref gpio_irq_level for details.
 
-proc gpioAddRawIrqHandlerWithOrderPriorityMasked*(gpioMask: cuint; handler: IrqHandler; order_priority: uint8) {.importc: "gpio_add_raw_irq_handler_with_order_priority_masked".}
+proc gpioAddRawIrqHandlerWithOrderPriorityMasked*(gpioMask: set[Gpio]; handler: IrqHandler; order_priority: uint8) {.importc: "gpio_add_raw_irq_handler_with_order_priority_masked".}
   ## Adds a raw GPIO IRQ handler for the specified GPIOs on the current core
   ##
   ## In addition to the default mechanism of a single GPIO IRQ event callback per core (see \ref gpio_set_irq_callback),
@@ -383,7 +383,7 @@ proc gpioAddRawIrqHandlerWithOrderPriority*(gpio: Gpio; handler: IrqHandler; ord
   ## @param handler the handler to add to the list of GPIO IRQ handlers for this core
   ## @param order_priority the priority order to determine the relative position of the handler in the list of GPIO IRQ handlers for this core.
 
-proc gpioAddRawIrqHandlerMasked*(gpioMask: cuint; handler: IrqHandler) {.importc: "gpio_add_raw_irq_handler_masked".}
+proc gpioAddRawIrqHandlerMasked*(gpioMask: set[Gpio]; handler: IrqHandler) {.importc: "gpio_add_raw_irq_handler_masked".}
   ## Adds a raw GPIO IRQ handler for the specified GPIOs on the current core
   ##
   ## In addition to the default mechanism of a single GPIO IRQ event callback per core (see \ref gpio_set_irq_callback),
@@ -435,7 +435,7 @@ proc gpioAddRawIrqHandler*(gpio: Gpio; handler: IrqHandler) {.importc: "gpio_add
   ## @param gpio the GPIO number that will no longer be passed to the default callback for this core
   ## @param handler the handler to add to the list of GPIO IRQ handlers for this core
 
-proc gpioRemoveRawIrqHandlerMasked*(gpioMask: cuint; handler: IrqHandler) {.importc: "gpio_remove_raw_irq_handler_masked".}
+proc gpioRemoveRawIrqHandlerMasked*(gpioMask: set[Gpio]; handler: IrqHandler) {.importc: "gpio_remove_raw_irq_handler_masked".}
   ## Removes a raw GPIO IRQ handler for the specified GPIOs on the current core
   ##
   ## In addition to the default mechanism of a single GPIO IRQ event callback per core (see \ref gpio_set_irq_callback),
@@ -471,7 +471,7 @@ proc gpioDeinit*(gpio: Gpio) {.importc: "gpio_deinit".}
   ##
   ## \param gpio GPIO number
 
-proc gpioInitMask*(gpioMask: cuint) {.importc: "gpio_init_mask".}
+proc gpioInitMask*(gpioMask: set[Gpio]) {.importc: "gpio_init_mask".}
   ## Initialise multiple Gpios (enabled I/O and set func to Gpio_FUNC_SIO).
   ## Clear the output enable (i.e. set to input) Clear any output value.
   ##
@@ -490,22 +490,22 @@ proc gpioGetAll*(): uint32 {.importc: "gpio_get_all".}
   ##
   ## \return Bitmask of raw GPIO values, as bits 0-29
 
-proc gpioSetMask*(mask: uint32) {.importc: "gpio_set_mask".}
+proc gpioSetMask*(mask: set[Gpio]) {.importc: "gpio_set_mask".}
   ## Drive high every GPIO appearing in mask
   ##
   ## \param mask Bitmask of GPIO values to set, as bits 0-29
 
-proc gpioClrMask*(mask: uint32) {.importc: "gpio_clr_mask".}
+proc gpioClrMask*(mask: set[Gpio]) {.importc: "gpio_clr_mask".}
   ## Drive low every GPIO appearing in mask
   ##
   ## \param mask Bitmask of GPIO values to clear, as bits 0-29
 
-proc gpioXorMask*(mask: uint32) {.importc: "gpio_xor_mask".}
+proc gpioXorMask*(mask: set[Gpio]) {.importc: "gpio_xor_mask".}
   ## Toggle every GPIO appearing in mask
   ##
   ## \param mask Bitmask of GPIO values to toggle, as bits 0-29
 
-proc gpioPutMasked*(mask: uint32; value: uint32) {.importc: "gpio_put_masked".}
+proc gpioPutMasked*(mask: set[Gpio]; value: uint32) {.importc: "gpio_put_masked".}
   ## Drive GPIO high/low depending on parameters
   ##
   ## \param mask Bitmask of GPIO values to change, as bits 0-29
@@ -546,19 +546,19 @@ proc gpioGetOutLevel*(gpio: Gpio): bool {.importc: "gpio_get_out_level".}
   ## \param gpio GPIO number
   ## \return true if the GPIO output level is high, false if low.
 
-proc gpioSetDirOutMasked*(mask: uint32) {.importc: "gpio_set_dir_out_masked".}
+proc gpioSetDirOutMasked*(mask: set[Gpio]) {.importc: "gpio_set_dir_out_masked".}
   ## Set a number of GPIOs to output
   ##
   ## Switch all GPIOs in "mask" to output
   ##
   ## \param mask Bitmask of GPIO to set to output, as bits 0-29
 
-proc gpioSetDirInMasked*(mask: uint32) {.importc: "gpio_set_dir_in_masked".}
+proc gpioSetDirInMasked*(mask: set[Gpio]) {.importc: "gpio_set_dir_in_masked".}
   ## Set a number of GPIOs to input
   ##
   ## \param mask Bitmask of GPIO to set to input, as bits 0-29
 
-proc gpioSetDirMasked*(mask: uint32; value: uint32) {.importc: "gpio_set_dir_masked".}
+proc gpioSetDirMasked*(mask: set[Gpio]; value: set[Gpio]) {.importc: "gpio_set_dir_masked".}
   ## Set multiple GPIO directions
   ##
   ## \param mask Bitmask of GPIO to set to input, as bits 0-29
@@ -569,7 +569,7 @@ proc gpioSetDirMasked*(mask: uint32; value: uint32) {.importc: "gpio_set_dir_mas
   ## E.g. gpio_set_dir_masked(0x3, 0x2); -> set pin 0 to input, pin 1 to output,
   ## simultaneously.
 
-proc gpioSetDirAllBits*(values: uint32) {.importc: "gpio_set_dir_all_bits".}
+proc gpioSetDirAllBits*(values: set[Gpio]) {.importc: "gpio_set_dir_all_bits".}
   ## Set direction of all pins simultaneously.
   ##
   ## \param values individual settings for each gpio; for GPIO N, bit N is 1 for out, 0 for in
@@ -596,6 +596,13 @@ proc gpioGetDir*(gpio: Gpio): uint {.importc: "gpio_get_dir".}
   ## \return 1 for out, 0 for in
 
 {.pop.}
+
+## Nim helpers
+
+template gpioMaskCall*(gpioMask: static[set[Gpio]]; function: proc) =
+  for gpio in gpioMask:
+    function(gpio)
+
 
 #[
 
