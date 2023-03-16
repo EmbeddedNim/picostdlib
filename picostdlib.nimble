@@ -5,7 +5,7 @@ author        = "Jason"
 description   = "Raspberry Pi Pico SDK bindings"
 license       = "MIT"
 srcDir        = "src"
-
+backend       = "c"
 bin           = @["picostdlib/build_utils/piconim"]
 installExt    = @["nim"]
 
