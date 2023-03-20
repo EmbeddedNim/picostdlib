@@ -252,7 +252,7 @@ after build:
 
 task buildclean, "Clean and build task":
   let selectedBins = getSelectedBins()
-  exec("nimble clean " & quoteShellCommand(selectedBins))
+  exec("nimble fastclean " & quoteShellCommand(selectedBins))
   exec("nimble build " & quoteShellCommand(selectedBins))
 
 task upload, "Upload task":
