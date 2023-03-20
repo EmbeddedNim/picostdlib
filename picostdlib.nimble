@@ -1,9 +1,9 @@
 # Package
 
-version       = "1.0.0"
+version       = "1.0.0"  # Don't forget to update version in piconim.nim (nimble requires)
 author        = "Jason"
 description   = "Raspberry Pi Pico SDK bindings"
-license       = "MIT"
+license       = "BSD-3-Clause"
 srcDir        = "src"
 backend       = "c"
 bin           = @["picostdlib/build_utils/piconim"]

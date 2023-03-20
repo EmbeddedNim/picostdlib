@@ -74,7 +74,7 @@ proc createProject(projectPath: string; sdk = "", override = false) =
     # change all instances of template `blink` to the project name
     let nimbleFile = projectPath / name & ".nimble"
     # moveFile(projectPath / "template.nimble", nimbleFile)
-    nimbleFile.writeFile(nimbleFile.readFile() & "requires \"picostdlib >= 0.3.2\"\n\ninclude picostdlib/build_utils/tasks\n")
+    nimbleFile.writeFile(nimbleFile.readFile() & "requires \"picostdlib >= 1.0.0\"\n\ninclude picostdlib/build_utils/tasks\n")
     let cmakelists = projectPath / "csource" / "CMakeLists.txt"
     cmakelists.writeFile cmakelists.readFile.replace("blink", name)
 
