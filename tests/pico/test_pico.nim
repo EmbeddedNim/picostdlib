@@ -18,11 +18,13 @@ import picostdlib/hardware/adc
 import picostdlib/hardware/base
 import picostdlib/hardware/claim
 import picostdlib/hardware/clocks
-discard clockGetHz(Sys)
+block:
+  discard clockGetHz(Sys)
 import picostdlib/hardware/divider
 import picostdlib/hardware/dma
 import picostdlib/hardware/exception
-exceptionRestoreHandler(SVCallException, exceptionSetExclusiveHandler(SVCallException, proc() {.cdecl.} = discard))
+block:
+  exceptionRestoreHandler(SVCallException, exceptionSetExclusiveHandler(SVCallException, proc() {.cdecl.} = discard))
 import picostdlib/hardware/flash
 import picostdlib/hardware/gpio
 import picostdlib/hardware/i2c
