@@ -5,7 +5,7 @@ const cmakeBinaryDir* {.strdefine.} = os.getEnv("CMAKE_BINARY_DIR").replace('\\'
 const cmakeSourceDir* {.strdefine.} = os.getEnv("CMAKE_SOURCE_DIR").replace('\\', DirSep)
 const picostdlibFutharkSysroot* {.strdefine.} = ""
 
-const armNoneEabiIncludePath* = static:
+const armSysrootInclude* = static:
   when picostdlibFutharkSysroot != "":
     picostdlibFutharkSysroot
   else:
@@ -16,6 +16,18 @@ const armNoneEabiIncludePath* = static:
       "/usr/lib/arm-none-eabi/include"
     else:
       ""
+
+const armInstallInclude* = static:
+  let searchDirsResult = staticExec("arm-none-eabi-gcc -print-search-dirs").strip()
+  if searchDirsResult != "":
+    let lines = searchDirsResult.split("\n")
+    if lines.len >= 1:
+      let firstLine = lines[0].strip().split(": ")
+      if firstLine.len >= 2:
+        firstLine[1].replace('\\', DirSep).normalizedPath() / "include"
+      else: ""
+    else: ""
+  else: ""
 
 func futharkRenameCallback*(name: string; kind: string; partof: string): string =
   result = name

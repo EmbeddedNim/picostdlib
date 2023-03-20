@@ -39,7 +39,8 @@ importc:
   compilerArg "-mthumb"
   compilerArg "-mcpu=cortex-m0plus"
 
-  sysPath armNoneEabiIncludePath
+  sysPath armSysrootInclude
+  sysPath armInstallInclude
   sysPath picoSdkPath / "src/rp2040/hardware_regs/include"
   sysPath picoSdkPath / "src/common/pico_base/include"
   sysPath picoSdkPath / "src/rp2_common/pico_platform/include"

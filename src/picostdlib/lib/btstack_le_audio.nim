@@ -43,7 +43,8 @@ importc:
   compilerArg "-mthumb"
   compilerArg "-mcpu=cortex-m0plus"
 
-  sysPath armNoneEabiIncludePath
+  sysPath armSysrootInclude
+  sysPath armInstallInclude
   sysPath picoSdkPath / "lib/btstack/src"
   sysPath cmakeSourceDir
   sysPath getProjectPath()
