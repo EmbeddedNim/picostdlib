@@ -12,8 +12,8 @@ const armNoneEabiIncludePath* = static:
     let sysroot = staticExec("arm-none-eabi-gcc -print-sysroot").strip().replace('\\', DirSep).normalizedPath()
     if sysroot != "" and dirExists(sysroot / "include"):
       sysroot / "include"
-    elif dirExists("/usr/include/newlib"):
-      "/usr/include/newlib"
+    elif dirExists("/usr/lib/arm-none-eabi/include"): # symlink to /usr/include/newlib on debian
+      "/usr/lib/arm-none-eabi/include"
     else:
       ""
 
