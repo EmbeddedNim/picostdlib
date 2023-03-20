@@ -27,6 +27,7 @@ let
 
   # Flash
   PicoBootStage2ChooseW25Q080* {.importc: "PICO_BOOT_STAGE2_CHOOSE_W25Q080".}: bool
+  PicoBootStage2ChooseGeneric03H* {.importc: "PICO_BOOT_STAGE2_CHOOSE_GENERIC_03H".}: bool
   PicoFlashSpiClkdiv* {.importc: "PICO_FLASH_SPI_CLKDIV".}: cuint
   PicoFlashSizeBytes* {.importc: "PICO_FLASH_SIZE_BYTES".}: cuint
 

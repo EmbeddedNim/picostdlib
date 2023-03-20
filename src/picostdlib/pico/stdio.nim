@@ -136,17 +136,17 @@ var stdioUsb* {.importc: "stdio_usb".}: StdioDriver
 
 proc stdioUsbInit*(): bool {.importc: "stdio_usb_init".}
   ## Explicitly initialize USB stdio and add it to the current set of stdin drivers
-  ##   
-  ##  \ref PICO_STDIO_USB_CONNECT_WAIT_TIMEOUT_MS can be set to cause this method to wait for a CDC connection
-  ##  from the host before returning, which is useful if you don't want any initial stdout output to be discarded
-  ##  before the connection is established.
-  ##   
-  ##  \return true if the USB CDC was initialized, false if an error occurred
+  ##
+  ## \ref PICO_STDIO_USB_CONNECT_WAIT_TIMEOUT_MS can be set to cause this method to wait for a CDC connection
+  ## from the host before returning, which is useful if you don't want any initial stdout output to be discarded
+  ## before the connection is established.
+  ##
+  ## \return true if the USB CDC was initialized, false if an error occurred
 
 proc stdioUsbConnected*(): bool {.importc: "stdio_usb_connected".}
   ## Check if there is an active stdio CDC connection to a host
   ##   
-  ##  \return true if stdio is connected over CDC
+  ## \return true if stdio is connected over CDC
 
 {.pop.}
 
@@ -159,7 +159,7 @@ proc blockUntilUsbConnected*() =
   ## Blocks until the usb is connected, useful if reliant on USB interface.
   while not stdioUsbConnected(): discard
 
-proc print*(s: cstring) {.inline.} = cPrintf(s)
+proc print*(s: cstring) {.inline.} = c_printf(s)
   ## write output directly to the console (or serial console)
 
 proc print*(s: string) =
