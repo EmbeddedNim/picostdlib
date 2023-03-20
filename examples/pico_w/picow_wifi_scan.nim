@@ -1,11 +1,7 @@
 import std/strutils
 
-import picostdlib/[
-  pico/stdio,
-  pico/platform,
-  pico/time,
-  pico/cyw43_arch
-]
+import picostdlib
+import picostdlib/pico/cyw43_arch
 
 proc scanResult(env: pointer; res: ptr Cyw43EvScanResultT): cint {.cdecl.} =
   if not res.isNil:
@@ -27,7 +23,7 @@ proc wifiScanExample*() =
 
   echo "Wifi init successful!"
 
-  cyw43ArchGpioPut(CYW43_WL_GPIO_LED_PIN, true)
+  cyw43ArchGpioPut(Cyw43WlGpioLedPin, High)
 
   cyw43ArchEnableStaMode()
 
@@ -43,7 +39,7 @@ proc wifiScanExample*() =
 
   echo "Finished scan!"
 
-  cyw43ArchGpioPut(CYW43_WL_GPIO_LED_PIN, false)
+  cyw43ArchGpioPut(Cyw43WlGpioLedPin, Low)
 
   cyw43ArchDeinit()
 

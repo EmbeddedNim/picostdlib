@@ -14,8 +14,13 @@ type
     ## Gpio function value
     Low, High
 
+  Cyw43WlGpio* = distinct range[0.cuint .. 2.cuint]
+    ## Gpio pins on the Cyw43 chip
+
 proc `==`*(a, b: Gpio): bool {.borrow.}
 proc `$`*(a: Gpio): string {.borrow.}
+proc `==`*(a, b: Cyw43WlGpio): bool {.borrow.}
+proc `$`*(a: Cyw43WlGpio): string {.borrow.}
 
 {.push header: "hardware/gpio.h".}
 
@@ -70,8 +75,6 @@ type
 
   GpioIrqCallback* {.importc: "gpio_irq_callback_t".} = proc (gpio: Gpio; eventMask: set[GpioIrqLevel]) {.cdecl.}
 
-let DefaultLedPin* {.importc: "PICO_DEFAULT_LED_PIN".}: Gpio
-    ## constant variable for the on-board LED
 
 proc gpioSetFunction*(gpio: Gpio, fn: GpioFunction) {.importc: "gpio_set_function".}
   ## Select GPIO function. 
@@ -596,38 +599,3 @@ proc gpioGetDir*(gpio: Gpio): uint {.importc: "gpio_get_dir".}
   ## \return 1 for out, 0 for in
 
 {.pop.}
-
-## Nim helpers
-
-template gpioMaskCall*(gpioMask: static[set[Gpio]]; function: proc) =
-  for gpio in gpioMask:
-    function(gpio)
-
-
-#[
-
-proc put*(gpio: Gpio, value: bool) =
-  gpio.gpioPut(
-    if value:
-      High
-    else:
-      Low)
-
-template setupGpio*(name: untyped, pin: Gpio, dir: bool) =
-  # Makes a `const 'name' = pin; init(name); name.setDir(dir)
-  const name = pin
-  init(name)
-  gpioSetDir(name, dir)
-  
-proc init*( _ : typedesc[Gpio], pin: range[0 .. 35], dir = Out): Gpio =
-  ## perform the typical assignment, init(), and setDir() steps all in one proc. 
-  ##
-  ## **parameters**
-  ## **pin** : *int* (between 0 and 35) - the pin number corresponding the the Gpio pin
-  ## **dir** : *bool* [optional, defaults to Out] - *Out* or *In*
-  
-  result = pin.Gpio
-  result.gpioInit()
-  result.gpioSetDir(dir)
-
-]#

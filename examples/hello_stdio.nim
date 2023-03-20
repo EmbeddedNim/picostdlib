@@ -2,7 +2,7 @@ import picostdlib
 
 stdioInitAll()
 
-let led = DefaultLedPin
+let led = PicoDefaultLedPin
 led.gpioInit()
 led.gpioSetDir(Out)
 sleepMs(600)

@@ -75,7 +75,7 @@ proc blinkLedTask(elapsed: TimestampMicros) =
   if nextChange > elapsed:
     nextChange = nextChange - elapsed
   else:
-    DefaultLedPin.put (if ledState: Low else: High)
+    PicoDefaultLedPin.put (if ledState: Low else: High)
     ledState = not ledState
     nextChange = ledBlinkInterval * 1000
 
@@ -124,8 +124,8 @@ var SchedulerTable = [
 proc setup() =
   ledBlinkInterval = LedBlinkIntervalNotMounted
 
-  DefaultLedPin.init()
-  DefaultLedPin.setDir(Out)
+  PicoDefaultLedPin.init()
+  PicoDefaultLedPin.setDir(Out)
   
   # TinyUSB initialization
   discard usbInit()

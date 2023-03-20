@@ -1,9 +1,10 @@
+import ../pico
 import ./error
 import ./types
 import ./async_context
 import ../lib/cyw43_driver
 
-export error, types, async_context
+export pico, error, types, async_context
 export cyw43_driver
 
 
@@ -11,11 +12,7 @@ export cyw43_driver
 #export cyw43, cyw43_country
 
 type
-  Cyw43ArchPin* = distinct cuint
-
   Cyw43ArchAuth* = Cyw43AuthType
-
-const CYW43_WL_GPIO_LED_PIN* = 0.Cyw43ArchPin
 
 proc cyw43ThreadEnter() {.importc: "cyw43_thread_enter".}
 proc cyw43ThreadExit() {.importc: "cyw43_thread_exit".}
@@ -263,7 +260,7 @@ proc cyw43ArchWifiConnectBssidAsync*(ssid: cstring; bssid: ptr uint8; pw: cstrin
   ##
   ## \return 0 if the scan was started successfully, an error code otherwise \see pico_error_codes
 
-proc cyw43ArchGpioPut*(wlGpio: Cyw43ArchPin; value: bool) {.importc: "cyw43_arch_gpio_put".}
+proc cyw43ArchGpioPut*(wlGpio: Cyw43WlGpio; value: Value) {.importc: "cyw43_arch_gpio_put".}
   ## Set a GPIO pin on the wireless chip to a given value
   ## \ingroup pico_cyw43_arch
   ## \note this method does not check for errors setting the GPIO. You can use the lower level \ref cyw43_gpio_set instead if you wish
@@ -272,7 +269,7 @@ proc cyw43ArchGpioPut*(wlGpio: Cyw43ArchPin; value: bool) {.importc: "cyw43_arch
   ## \param wl_gpio the GPIO number on the wireless chip
   ## \param value true to set the GPIO, false to clear it.
 
-proc cyw43ArchGpioGet*(wlGpio: Cyw43ArchPin): bool {.importc: "cyw43_arch_gpio_get".}
+proc cyw43ArchGpioGet*(wlGpio: Cyw43WlGpio): Value {.importc: "cyw43_arch_gpio_get".}
   ## Read the value of a GPIO pin on the wireless chip
   ## \ingroup pico_cyw43_arch
   ## \note this method does not check for errors setting the GPIO. You can use the lower level \ref cyw43_gpio_get instead if you wish

@@ -1,15 +1,12 @@
-
 import std/uri
-import picostdlib/lib/lwip
+
+import picostdlib
+import picostdlib/[
+  pico/cyw43_arch,
+  lib/lwip
+]
 # import picostdlib/lib/lwip/[altcp_tls, dns]
 # import picostdlib/lib/mbedtls/ssl
-
-import picostdlib/[
-  pico/stdio,
-  pico/time,
-  pico/cyw43_arch,
-  pico/platform
-]
 
 const WIFI_SSID {.strdefine.} = ""
 const WIFI_PASSWORD {.strdefine.} = ""
@@ -148,7 +145,7 @@ proc tlsClientExample*() =
 
   echo "Wifi init successful!"
 
-  cyw43ArchGpioPut(CYW43_WL_GPIO_LED_PIN, true)
+  cyw43ArchGpioPut(Cyw43WlGpioLedPin, High)
 
   cyw43ArchEnableStaMode()
 
@@ -161,7 +158,7 @@ proc tlsClientExample*() =
   else:
     echo "Connected"
 
-  cyw43ArchGpioPut(CYW43_WL_GPIO_LED_PIN, false)
+  cyw43ArchGpioPut(Cyw43WlGpioLedPin, Low)
 
   echo "ip: ", cyw43State.netif[0].ipAddr, " mask: ", cyw43State.netif[0].netmask, " gateway: ", cyw43State.netif[0].gw
   echo "hostname: ", cast[cstring](cyw43State.netif[0].hostname)

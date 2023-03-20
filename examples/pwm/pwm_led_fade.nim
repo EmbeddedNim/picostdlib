@@ -5,9 +5,9 @@ import picostdlib/hardware/pwm
 # the PWM slice's output level each time the counter wraps.
 
 # Tell the LED pin that the PWM is in charge of its value.
-gpioSetFunction(DefaultLedPin, Pwm)
+gpioSetFunction(PicoDefaultLedPin, Pwm)
 # Figure out which slice we just connected to the LED pin
-let sliceNum = pwmGpioToSliceNum(DefaultLedPin)
+let sliceNum = pwmGpioToSliceNum(PicoDefaultLedPin)
 
 var fade: int = 0
 var goingUp: bool = true
@@ -28,7 +28,7 @@ proc onPwmWrap() {.cdecl.} =
   
   # Square the fade value to make the LED's brightness appear more linear
   # Note this range matches with the wrap value
-  pwmSetGpioLevel(DefaultLedPin, uint16 fade * fade)
+  pwmSetGpioLevel(PicoDefaultLedPin, uint16 fade * fade)
 
 
 # Mask our slice's IRQ output into the PWM block's single interrupt line,

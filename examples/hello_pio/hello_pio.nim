@@ -46,7 +46,7 @@ if smResult >= 0:
   let sm = smResult.PioStateMachine
 
   # Prepare for running our PIO program, using the onboard LED pin as output
-  initPioHelloProgram(helloPioInst, sm, offset, DefaultLedPin)
+  initPioHelloProgram(helloPioInst, sm, offset, PicoDefaultLedPin)
 
   while true:
     # Push some data to the PIO output FIFO to make the LED blink

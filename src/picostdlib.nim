@@ -1,4 +1,5 @@
 import ./picostdlib/[
+  pico,
   pico/stdio,
   pico/time,
   hardware/gpio,
@@ -9,6 +10,7 @@ import ./picostdlib/[
   pico/error
 ]
 export
+  pico,
   stdio,
   time,
   gpio,
