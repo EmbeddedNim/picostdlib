@@ -9,14 +9,13 @@ const armNoneEabiIncludePath* = static:
   when picostdlibFutharkSysroot != "":
     picostdlibFutharkSysroot
   else:
-    let sysroot = (staticExec("arm-none-eabi-gcc -print-sysroot").strip().replace('\\', DirSep) / "include").normalizedPath()
-    if dirExists(sysroot):
-      sysroot
+    let sysroot = staticExec("arm-none-eabi-gcc -print-sysroot").strip().replace('\\', DirSep).normalizedPath()
+    if sysroot != "" and dirExists(sysroot / "include"):
+      sysroot / "include"
     elif dirExists("/usr/include/newlib"):
       "/usr/include/newlib"
     else:
       ""
-
 
 func futharkRenameCallback*(name: string; kind: string; partof: string): string =
   result = name
