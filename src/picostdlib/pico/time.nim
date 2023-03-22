@@ -54,7 +54,7 @@ proc `$`*(a: AlarmId): string {.borrow.}
 
 ## MODULE TIMESTAMP
 
-proc getAbsoluteTime*: AbsoluteTime {.importc: "get_absolute_time".}
+proc getAbsoluteTime*(): AbsoluteTime {.importc: "get_absolute_time".}
   ## Return a representation of the current time.
   ##
   ## Returns an opaque high fidelity representation of the current time 

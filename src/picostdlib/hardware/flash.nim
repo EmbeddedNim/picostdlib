@@ -1,10 +1,15 @@
-const
-  FlashPageSize* = (1'u shl typeof(1'u)(8))
-  FlashSectorSize* = (1'u shl typeof(1'u)(12))
-  FlashBlockSize* = (1'u shl typeof(1'u)(16))
-  FlashUniqueIdSizeBytes* = 8
+let tFlashBinaryStart {.importc: "__flash_binary_start".}: cchar
+let tFlashBinaryEnd {.importc: "__flash_binary_end".}: cchar
+template FlashBinaryStart*: untyped = cast[cuint](tFlashBinaryStart.unsafeAddr)
+template FlashBinaryEnd*: untyped = cast[cuint](tFlashBinaryEnd.unsafeAddr)
 
 {.push header: "hardware/flash.h".}
+
+let
+  FlashPageSize* {.importc: "FLASH_PAGE_SIZE".}: cuint
+  FlashSectorSize* {.importc: "FLASH_SECTOR_SIZE".}: cuint
+  FlashBlockSize* {.importc: "FLASH_BLOCK_SIZE".}: cuint
+  FlashUniqueIdSizeBytes* {.importc: "FLASH_UNIQUE_ID_SIZE_BYTES".}: cuint
 
 proc flashRangeErase*(flashOffs: uint32; count: cuint) {.importc: "flash_range_erase".}
   ## Erase areas of flash

@@ -1,5 +1,13 @@
 {.push header: "pico/platform.h".}
 
+let
+  XipBase* {.importc: "XIP_BASE".}: uint32
+  XipMainBase* {.importc: "XIP_MAIN_BASE".}: uint32
+  XipNoallocBase* {.importc: "XIP_NOALLOC_BASE".}: uint32
+  XipNocacheBase* {.importc: "XIP_NOCACHE_BASE".}: uint32
+  XipNocacheNoallocBase* {.importc: "XIP_NOCACHE_NOALLOC_BASE".}: uint32
+
+
 proc breakpoint*() {.importc: "__breakpoint".}
   ## Execute a breakpoint instruction
   ##     \ingroup pico_platform

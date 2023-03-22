@@ -77,6 +77,8 @@ import picostdlib/pico/version
 import picostdlib/memoryinfo
 import picostdlib/sevensegdisplay
 
+# futhark stuff
+import picostdlib/lib/littlefs
 
 # examples
 import ../examples/blink
@@ -86,6 +88,7 @@ import ../examples/clocks/hello_48mhz
 import ../examples/clocks/hello_gpout
 import ../examples/clocks/hello_resus
 import ../examples/dma/hello_dma
+import ../examples/flash/hello_littlefs
 import ../examples/gpio/hello_gpio_irq
 import ../examples/i2c/bus_scan
 import ../examples/multicore/hello_multicore

@@ -36,7 +36,6 @@ let
 
 template BINARY_INFO_MAKE_TAG*(c1, c2: static[char]): static[uint] = static (((c2.uint and 0xff) shl 8) or (c1.uint and 0xff))
 
-
 #[
 import ../hardware/gpio
 

@@ -1,3 +1,4 @@
 htmldocs/
 picostdlib/build_utils/piconim*
 build/
+src/picostdlib/vendor/littlefs
