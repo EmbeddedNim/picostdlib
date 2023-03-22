@@ -1,5 +1,15 @@
 import std/macros
 
+type
+  BinaryInfoBlockDevConfigFlag* = enum
+    FlagRead
+    FlagWrite
+    FlagReformat
+    FlagPtUnknown
+    FlagPtMbr
+    FlagPtGpt
+    FlagPtNone
+
 template bi_decl_include*() = {.emit: "#include \"pico/binary_info.h\"".}
 
 macro bi_decl*(input: untyped) =
@@ -23,6 +33,9 @@ macro bi_decl*(input: untyped) =
 let
   BinaryInfoMarkerStart* {.importc: "BINARY_INFO_MARKER_START".}: uint32
   BinaryInfoMarkerEnd* {.importc: "BINARY_INFO_MARKER_END".}: uint32
+
+template BINARY_INFO_MAKE_TAG*(c1, c2: static[char]): static[uint] = static (((c2.uint and 0xff) shl 8) or (c1.uint and 0xff))
+
 
 #[
 import ../hardware/gpio

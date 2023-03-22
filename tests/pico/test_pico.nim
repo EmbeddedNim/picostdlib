@@ -49,6 +49,9 @@ import picostdlib/pico/util/queue
 
 import picostdlib/pico/async_context
 import picostdlib/pico/binary_info
+block:
+  bi_decl_include()
+  bi_decl(bi_block_device(BINARY_INFO_MAKE_TAG('N', 'I'), "\"Nim\"", 0x1000, 1024, nil, {FlagRead, FlagWrite, FlagPtUnknown}))
 import picostdlib/pico/bit_ops
 import picostdlib/pico/bootrom
 import picostdlib/pico/critical_section
