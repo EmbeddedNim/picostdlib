@@ -32,6 +32,8 @@ import ../pico/[platform, types]
 import ../hardware/[flash, sync]
 import futhark
 
+export flash, types
+
 const littlefsInclude = currentSourcePath.parentDir / ".." / "vendor" / "littlefs"
 
 {.compile: littlefsInclude / "lfs.c".}
