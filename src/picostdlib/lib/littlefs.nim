@@ -27,7 +27,7 @@
 ##
 
 import std/os
-import ../private
+import ../helpers
 import ../pico/[platform, types]
 import ../hardware/[flash, sync]
 import futhark

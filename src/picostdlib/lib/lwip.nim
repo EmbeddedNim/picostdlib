@@ -27,7 +27,7 @@
 
 
 import std/os, std/macros
-import ../private
+import ../helpers
 
 import futhark
 
