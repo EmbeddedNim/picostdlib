@@ -26,7 +26,7 @@
 ## SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ##
 
-import std/os
+import std/os, std/strutils
 import ../helpers
 import ../pico/[platform, types]
 import ../hardware/[flash, sync]
@@ -34,7 +34,7 @@ import futhark
 
 export flash, types
 
-const littlefsInclude = currentSourcePath.parentDir / ".." / "vendor" / "littlefs"
+const littlefsInclude = currentSourcePath.replace('\\', DirSep).parentDir / ".." / "vendor" / "littlefs"
 
 {.compile: littlefsInclude / "lfs.c".}
 {.compile: littlefsInclude / "lfs_util.c".}
