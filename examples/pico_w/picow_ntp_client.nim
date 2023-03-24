@@ -46,6 +46,9 @@ proc runNtpTest() =
   else:
     echo "No datetime set!"
 
+  # we are done
+  sntp_stop()
+
 proc ntpClientExample*() =
   if cyw43ArchInit() != PicoErrorNone:
     echo "Wifi init failed!"
