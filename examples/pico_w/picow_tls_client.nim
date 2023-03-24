@@ -174,7 +174,8 @@ proc tlsClientExample*() =
     return
 
   while not state.complete:
-    sleepMs(100)
+    tightLoopContents()
+    sleepMs(10)
 
   echo "Completed!"
 

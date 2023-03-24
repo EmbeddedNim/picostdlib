@@ -10,7 +10,7 @@ else:
       time*{.importc: "_private_us_since_boot".}: uint64
 
 type
-  Datetime* {.bycopy, importc: "datetime_t".} = object
+  Datetime* {.importc: "datetime_t".} = object
     # Structure containing date and time information
     # When setting an RTC alarm, set a field to -1 tells
     # the RTC to not match on this field

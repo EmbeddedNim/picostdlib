@@ -16,7 +16,7 @@ type
     ##    the alarm id may be reused for another alarm.
     ##
 
-  AlarmCallback* {.importc: "alarm_callback_t".} = proc(id: AlarmId, userData: pointer): int64 {.cdecl.}
+  AlarmCallback* {.importc: "alarm_callback_t".} = proc (id: AlarmId, userData: pointer): int64 {.cdecl.}
     ## User alarm callback
     ##    \param id the alarm_id as returned when the alarm was added
     ##    \param user_data the user data passed when the alarm was added

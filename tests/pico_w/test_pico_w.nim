@@ -18,6 +18,7 @@ import picostdlib/lib/btstack_le_audio
 # examples
 import ../examples/pico_w/picow_tls_client
 import ../examples/pico_w/picow_wifi_scan
+import ../examples/pico_w/picow_ntp_client
 
 # include pico_w blink example
 include ../examples/pico_w/picow_blink

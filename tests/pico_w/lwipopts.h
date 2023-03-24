@@ -1,6 +1,8 @@
 #ifndef _LWIPOPTS_H
 #define _LWIPOPTS_H
 
+#include <stdint.h>
+
 // Common settings used in most of the pico_w examples
 // (see https://www.nongnu.org/lwip/2_1_x/group__lwip__opts.html for details)
 
@@ -112,5 +114,13 @@
 
 // #define LWIP_DEBUG 1
 // #define ALTCP_MBEDTLS_DEBUG  LWIP_DBG_ON
+
+// SNTP
+#define SNTP_DEBUG LWIP_DBG_OFF
+#define SNTP_SERVER_DNS 1
+extern void __sntp_set_system_time(uint32_t sec);
+#define SNTP_SET_SYSTEM_TIME(sec) __sntp_set_system_time(sec)
+// once an hour
+#define SNTP_UPDATE_DELAY 60*1000*1000
 
 #endif
