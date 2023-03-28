@@ -3,24 +3,24 @@
 # stdlib
 import picostdlib
 
-import picostdlib/hardware/regs/clocks
-import picostdlib/hardware/regs/intctrl
-import picostdlib/hardware/regs/resets
+import picostdlib/hardware/regs/clocks as hardware_regs_clocks
+import picostdlib/hardware/regs/intctrl as hardware_regs_intctrl
+import picostdlib/hardware/regs/resets as hardware_regs_resets
 
-import picostdlib/hardware/structs/clocks
-import picostdlib/hardware/structs/i2c
-import picostdlib/hardware/structs/interp
-import picostdlib/hardware/structs/rosc
-import picostdlib/hardware/structs/spi
-import picostdlib/hardware/structs/uart
+import picostdlib/hardware/structs/clocks as hardware_structs_clocks
+import picostdlib/hardware/structs/i2c as hardware_structs_i2c
+import picostdlib/hardware/structs/interp as hardware_structs_interp
+import picostdlib/hardware/structs/rosc as hardware_structs_rosc
+import picostdlib/hardware/structs/spi as hardware_structs_spi
+import picostdlib/hardware/structs/uart as hardware_structs_uart
 
 import picostdlib/hardware/adc
 import picostdlib/hardware/base
 import picostdlib/hardware/claim
-import picostdlib/hardware/clocks
+import picostdlib/hardware/clocks as hardware_clocks
 block:
   discard clockGetHz(Sys)
-import picostdlib/hardware/divider
+import picostdlib/hardware/divider as hardware_divider
 import picostdlib/hardware/dma
 import picostdlib/hardware/exception
 block:
@@ -36,7 +36,7 @@ import picostdlib/hardware/pwm
 import picostdlib/hardware/resets
 import picostdlib/hardware/rtc
 import picostdlib/hardware/spi
-import picostdlib/hardware/sync
+import picostdlib/hardware/sync as hardware_sync
 import picostdlib/hardware/timer
 import picostdlib/hardware/uart
 import picostdlib/hardware/vreg

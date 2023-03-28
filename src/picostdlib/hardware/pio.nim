@@ -182,7 +182,7 @@ proc smInit(pio: PioInstance; sm: uint; initialpc: uint; config: ptr PioSmConfig
 proc setEnabled(pio: PioInstance; sm: PioStateMachine; enabled: bool)
   {.importc: "pio_sm_set_enabled".}
 
-proc setSmMaskEnabled(pio: PioInstance; mask: uint32; enabled: bool)
+proc setSmMaskEnabled(pio: PioInstance; mask: set[PioStateMachine]; enabled: bool)
   {.importc: "pio_set_sm_mask_enabled".}
 
 proc restart*(pio: PioInstance; sm: PioStateMachine)
@@ -220,13 +220,13 @@ proc enable*(pio: PioInstance; sm: PioStateMachine) {.inline.} =
   pio.setEnabled(sm, true)
 
 proc enable*(pio: PioInstance; sm: set[PioStateMachine]) {.inline.} =
-  setSmMaskEnabled(pio, cast[uint32](sm), true)
+  setSmMaskEnabled(pio, sm, true)
 
 proc disable*(pio: PioInstance; sm: PioStateMachine) {.inline.} =
   pio.setEnabled(sm, false)
 
 proc disable*(pio: PioInstance; sm: set[PioStateMachine]) {.inline.} =
-  setSmMaskEnabled(pio, cast[uint32](sm), false)
+  setSmMaskEnabled(pio, sm, false)
 
 # FIFO API
 

@@ -2,7 +2,7 @@
 
 # stdlib
 import picostdlib/pico/cyw43_arch
-import picostdlib/pico/cyw43_driver
+import picostdlib/pico/cyw43_driver as pico_cyw43_driver
 
 # futhark stuff
 import picostdlib/lib/lwip
