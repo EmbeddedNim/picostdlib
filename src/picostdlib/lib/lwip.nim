@@ -35,6 +35,7 @@ importc:
   compilerArg "--target=arm-none-eabi"
   compilerArg "-mthumb"
   compilerArg "-mcpu=cortex-m0plus"
+  compilerArg "-fsigned-char"
 
   sysPath armSysrootInclude
   sysPath armInstallInclude

@@ -95,7 +95,7 @@ proc tlsClientConnectToServerIp(ipaddr: ptr IpAddrT; state: ptr TlsClient) {.cde
     echo "error initiating connect, err=", $err.ErrEnumT
     discard tlsClientClose(state)
 
-proc tlsClientDnsFound(hostname: ptr uint8; ipaddr: ptr IpAddrT; arg: pointer) {.cdecl.} =
+proc tlsClientDnsFound(hostname: cstring; ipaddr: ptr IpAddrT; arg: pointer) {.cdecl.} =
   if not ipaddr.isNil:
     echo "DNS resolving complete"
     tlsClientConnectToServerIp(ipaddr, cast[ptr TlsClient](arg))
@@ -120,13 +120,13 @@ proc tlsClientOpen(hostname: cstring; arg: pointer): bool =
   state.pcb.altcpErr(tlsClientErr)
 
   ## Set SNI
-  discard mbedtlsSslSetHostname(cast[ptr MbedtlsSslContext](altcpTlsContext(state.pcb)), cast[ptr uint8](hostname))
+  discard mbedtlsSslSetHostname(cast[ptr MbedtlsSslContext](altcpTlsContext(state.pcb)), hostname)
 
   echo "resolving ", hostname
 
   cyw43ArchLwipBegin()
 
-  err = dnsGethostbyname(cast[ptr uint8](hostname), addr(serverIp), tlsClientDnsFound, state)
+  err = dnsGethostbyname(hostname, addr(serverIp), tlsClientDnsFound, state)
 
   if err == ERR_OK.ErrT:
     tlsClientConnectToServerIp(addr(serverIp), state)

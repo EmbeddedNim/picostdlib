@@ -33,11 +33,16 @@ import futhark
 import ./lwip
 export lwip
 
+type
+  SntpOpmode* = enum
+    SntpOPmodePoll
+    SntpOpmodeListenonly
 
 importc:
   compilerArg "--target=arm-none-eabi"
   compilerArg "-mthumb"
   compilerArg "-mcpu=cortex-m0plus"
+  compilerArg "-fsigned-char"
 
   sysPath armSysrootInclude
   sysPath armInstallInclude
@@ -68,3 +73,9 @@ importc:
   "lwip/apps/sntp.h"
   "lwip/apps/tftp_client.h"
   "lwip/apps/tftp_server.h"
+
+
+# Nim helpers
+
+proc sntp_setoperatingmode*(operatingMode: SntpOpmode) =
+  sntp_setoperatingmode(operatingMode.uint8)

@@ -43,6 +43,7 @@ importc:
   compilerArg "--target=arm-none-eabi"
   compilerArg "-mthumb"
   compilerArg "-mcpu=cortex-m0plus"
+  compilerArg "-fsigned-char"
 
   sysPath armSysrootInclude
   sysPath armInstallInclude
@@ -64,8 +65,6 @@ type
     size: uint32
     autoFormat*: bool
     timeCallback*: proc (): Datetime
-
-converter stringToPtrUint8(x: string): ptr uint8 = cast[ptr uint8](x.cstring)
 
 proc pico_lfs_read(c: ptr LfsConfig; blk: LfsBlockT; off: LfsOffT; buffer: pointer; size: LfsSizeT): cint {.cdecl.} =
   let me = cast[ptr LittleFS](c.context)

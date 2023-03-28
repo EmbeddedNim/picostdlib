@@ -31,9 +31,9 @@ proc sntpSetSystemTime(sec: uint32) {.exportc: "__sntp_set_system_time", cdecl.}
 proc runNtpTest() =
   rtcInit()
 
-  sntp_setservername(0, cast[ptr uint8](NTP_SERVER.cstring))
+  sntp_setservername(0, NTP_SERVER.cstring)
 
-  sntp_setoperatingmode(SNTP_OPMODE_POLL)
+  sntp_setoperatingmode(SntpOPmodePoll)
   sntp_init()
 
   while not volatileLoad(sntpTimeSynced.addr):
