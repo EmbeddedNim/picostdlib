@@ -6,6 +6,7 @@ import picostdlib
 import picostdlib/hardware/regs/clocks as hardware_regs_clocks
 import picostdlib/hardware/regs/intctrl as hardware_regs_intctrl
 import picostdlib/hardware/regs/resets as hardware_regs_resets
+import picostdlib/hardware/regs/spi as hardware_regs_spi
 
 import picostdlib/hardware/structs/clocks as hardware_structs_clocks
 import picostdlib/hardware/structs/i2c as hardware_structs_i2c

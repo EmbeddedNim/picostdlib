@@ -1,6 +1,7 @@
-import ./structs/spi
+import ./structs/spi as structs_spi
+import ./regs/spi as regs_spi
 import ./gpio
-export spi, gpio
+export structs_spi, regs_spi, gpio
 
 ## spi_inst struct does not exist
 ## cpp backend needs this to be defined
@@ -48,7 +49,6 @@ proc spiInit*(spi: ptr SpiInst; baudrate: cuint): cuint {.importc: "spi_init".}
   ## \param baudrate Baudrate requested in Hz
   ## \return the actual baud rate set
 
-
 proc spiDeinit*(spi: ptr SpiInst) {.importc: "spi_deinit".}
   ## Deinitialise SPI instances
   ## Puts the SPI into a disabled state. Init will need to be called to reenable the device
@@ -79,6 +79,10 @@ proc spiGetIndex*(spi: ptr SpiInst): cuint {.importc: "spi_get_index".}
   ##
   ## \param spi SPI instance
   ## \return Number of SPI, 0 or 1.
+
+proc spiGetHw*(spi: ptr SpiInst): ptr SpiHw {.importc: "spi_get_hw".}
+
+proc spiGetConstHw*(spi: ptr SpiInst): ptr SpiHw {.importc: "spi_get_const_hw".}
 
 proc spiSetFormat*(spi: ptr SpiInst; dataBits: cuint(4) .. cuint(16); cpol: SpiClockPolarity; cpha: SpiClockPhase; order: SpiOrder) {.importc: "spi_set_format".}
   ## Configure SPI
