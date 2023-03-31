@@ -15,7 +15,7 @@ let
   PicoStdioDeadlockTimeoutMs* {.importc: "PICO_STDIO_DEADLOCK_TIMEOUT_MS".}: cuint
 
 
-proc stdioInitAll*() {.importc: "stdio_init_all".}
+proc stdioInitAll*(): bool {.importc: "stdio_init_all".}
   ## Initialize all of the present standard stdio types that are linked into the binary.
   ##
   ## Call this method once you have set up your clocks to enable the stdio support for UART, USB
