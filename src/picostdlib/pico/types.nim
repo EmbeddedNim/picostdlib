@@ -50,3 +50,29 @@ proc fromUsSinceBoot*(usSinceBoot: uint64): AbsoluteTime {.importc: "from_us_sin
   ## \ingroup timestamp
 
 {.pop.}
+
+
+## Nim helpers
+
+import std/times
+
+proc toNimDateTime*(dt: Datetime; zone: Timezone = utc()): times.DateTime =
+  return dateTime(
+    year = int dt.year,
+    month = Month dt.month,
+    monthday = MonthdayRange dt.day,
+    hour = HourRange dt.hour,
+    minute = MinuteRange dt.min,
+    second = SecondRange dt.sec,
+    zone = zone
+  )
+
+proc fromNimDateTime*(dt: times.DateTime): Datetime =
+  let ndt = dt.utc()
+  result.year = ndt.year.int16
+  result.month = ndt.month.int8
+  result.day = ndt.monthday
+  result.hour = ndt.hour
+  result.min = ndt.minute
+  result.sec = ndt.second
+  result.dotw = (ndt.weekday.int8 + 1) mod 7

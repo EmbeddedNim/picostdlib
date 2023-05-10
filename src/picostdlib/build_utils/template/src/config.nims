@@ -22,7 +22,7 @@ switch("define", "useMalloc")
 switch("d", "nimEmulateOverflowChecks")
 
 # for futhark to work
-switch("maxLoopIterationsVM", "1000000000")
+switch("maxLoopIterationsVM", "100000000")
 
 # switch("d", "PICO_SDK_PATH:/path/to/pico-sdk")
 switch("d", "CMAKE_BINARY_DIR:" & getCurrentDir() & "/build/" & projectName())
