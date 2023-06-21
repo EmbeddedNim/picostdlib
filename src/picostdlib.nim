@@ -23,7 +23,7 @@ export
 {.push header: "pico/stdlib.h".}
 
 proc setupDefaultUart*() {.importc: "setup_default_uart".}
-  ## Set up the default UART and assign it to the default GPIO's
+  ## Set up the default UART and assign it to the default GPIOs
   ##
   ## By default this will use UART 0, with TX to pin GPIO 0,
   ## RX to pin GPIO 1, and the baudrate to 115200
@@ -55,7 +55,7 @@ proc checkSysClockKhz*(freqKhz: uint32; vcoFreqOut, postDiv1Out, postDiv2Out: pt
   ## Check if a given system clock frequency is valid/attainable
   ##
   ## \param freq_khz Requested frequency
-  ## \param vco_freq_out On success, the voltage controller oscillator frequeucny to be used by the SYS PLL
+  ## \param vco_freq_out On success, the voltage controlled oscillator frequency to be used by the SYS PLL
   ## \param post_div1_out On success, The first post divider for the SYS PLL
   ## \param post_div2_out On success, The second post divider for the SYS PLL.
   ## @return true if the frequency is possible and the output parameters have been written.

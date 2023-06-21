@@ -20,7 +20,7 @@ type
     ##  \ingroup pico_async_context
     ##
     ## A "timeout" represents some future action that must be taken at a specific time.
-    ## It's methods are called from the async_context under lock at the given time
+    ## Its methods are called from the async_context under lock at the given time
     ##
     ## \see async_context_add_worker_at
     ## \see async_context_add_worker_in_ms
@@ -45,7 +45,7 @@ type
     ##
     ## A "worker" represents some external entity that must do work in response
     ##  to some external stimulus (usually an IRQ).
-    ## It's methods are called from the async_context under lock at the given time
+    ## Its methods are called from the async_context under lock at the given time
     ##
     ## \see async_context_add_worker_at
     ## \see async_context_add_worker_in_ms
@@ -57,6 +57,8 @@ type
       ## @param worker the function to be called when work is pending
     workPending* {.importc: "work_pending".}: bool
       ## True if the worker need do_work called
+    userData* {.importc: "user_data".}: pointer
+      ## User data associated with the worker instance
   
   AsyncContextType* {.importc: "async_context_type_t".} = object
     ## Implementation of an async_context type, providing methods common to that type
@@ -128,7 +130,7 @@ proc asyncContextExecuteSync*(context: ptr AsyncContext; `func`: proc (param: po
   ##
   ## \param context the async_context
   ## \param func the function to call
-  ## \param parm the paramter to pass to the function
+  ## \param param the paramter to pass to the function
   ## \return the return value from func
 
 proc asyncContextAddAtTimeWorker*(context: ptr AsyncContext; worker: ptr AsyncAtTimeWorker): bool {.importc: "async_context_add_at_time_worker".}
@@ -284,6 +286,5 @@ proc asyncContextDeinit*(context: ptr AsyncContext) {.importc: "async_context_de
   ## callback is being called once this method returns.
   ##
   ## \param context the async_context
-  ## \return the physical core number
 
 {.pop.}

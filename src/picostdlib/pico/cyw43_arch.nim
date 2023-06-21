@@ -173,17 +173,30 @@ proc cyw43ArchEnableStaMode*() {.importc: "cyw43_arch_enable_sta_mode".}
   ## Enables Wi-Fi STA (Station) mode.
   ## \ingroup pico_cyw43_arch
   ##
-  ## This enables the Wi-Fi in \emStation mode such that connections can be made to other Wi-Fi Access Points
+  ## This enables the Wi-Fi in \em Station mode such that connections can be made to other Wi-Fi Access Points
+
+proc cyw43ArchDisableStaMode* {.importc: "cyw43_arch_disable_sta_mode".}
+  ## Disables Wi-Fi STA (Station) mode.
+  ## \ingroup pico_cyw43_arch
+  ##
+  ## This disables the Wi-Fi in \em Station mode, disconnecting any active connection.
+  ## You should subsequently check the status by calling \ref cyw43_wifi_link_status.
 
 proc cyw43ArchEnableApMode*(ssid: cstring; password: cstring; auth: Cyw43ArchAuth) {.importc: "cyw43_arch_enable_ap_mode".}
   ## Enables Wi-Fi AP (Access point) mode.
   ## \ingroup pico_cyw43_arch
   ##
-  ## This enables the Wi-Fi in \em Access \em Point mode such that connections can be made to the device by  other Wi-Fi clients
+  ## This enables the Wi-Fi in \em Access \em Point mode such that connections can be made to the device by other Wi-Fi clients
   ## \param ssid the name for the access point
   ## \param password the password to use or NULL for no password.
   ## \param auth the authorization type to use when the password is enabled. Values are \ref CYW43_AUTH_WPA_TKIP_PSK,
   ##             \ref CYW43_AUTH_WPA2_AES_PSK, or \ref CYW43_AUTH_WPA2_MIXED_PSK (see \ref CYW43_AUTH_)
+
+proc cyw43ArchDisableApMode*() {.importc: "cyw43_arch_disable_ap_mode".}
+  ## Disables Wi-Fi AP (Access point) mode.
+  ## \ingroup pico_cyw43_arch
+  ##
+  ## This Disbles the Wi-Fi in \em Access \em Point mode.
 
 proc cyw43ArchWifiConnectBlocking*(ssid: cstring; pw: cstring; auth: Cyw43ArchAuth): PicoErrorCodes {.importc: "cyw43_arch_wifi_connect_blocking".}
   ## Attempt to connect to a wireless access point, blocking until the network is joined or a failure is detected.
@@ -202,13 +215,13 @@ proc cyw43ArchWifiConnectBssidBlocking*(ssid: cstring; bssid: ptr uint8; pw: cst
   ##
   ## \param ssid the network name to connect to
   ## \param bssid the network BSSID to connect to or NULL if ignored
-  ## \param password the network password or NULL if there is no password required
+  ## \param pw the network password or NULL if there is no password required
   ## \param auth the authorization type to use when the password is enabled. Values are \ref CYW43_AUTH_WPA_TKIP_PSK,
   ##             \ref CYW43_AUTH_WPA2_AES_PSK, or \ref CYW43_AUTH_WPA2_MIXED_PSK (see \ref CYW43_AUTH_)
   ##
   ## \return 0 if the initialization is successful, an error code otherwise \see pico_error_codes
 
-proc cyw43ArchWifiConnectTimeoutMs*(ssid: cstring; pw: cstring; auth: Cyw43ArchAuth; timeoutMs: uint32): PicoErrorCodes {.importc: "cyw43_arch_wifi_connect_timeout_ms".}
+proc cyw43ArchWifiConnectTimeoutMs*(ssid: cstring; pw: cstring; auth: Cyw43ArchAuth; timeout: uint32): PicoErrorCodes {.importc: "cyw43_arch_wifi_connect_timeout_ms".}
   ## Attempt to connect to a wireless access point, blocking until the network is joined, a failure is detected or a timeout occurs
   ## \ingroup pico_cyw43_arch
   ##
@@ -216,6 +229,7 @@ proc cyw43ArchWifiConnectTimeoutMs*(ssid: cstring; pw: cstring; auth: Cyw43ArchA
   ## \param pw the network password or NULL if there is no password required
   ## \param auth the authorization type to use when the password is enabled. Values are \ref CYW43_AUTH_WPA_TKIP_PSK,
   ##             \ref CYW43_AUTH_WPA2_AES_PSK, or \ref CYW43_AUTH_WPA2_MIXED_PSK (see \ref CYW43_AUTH_)
+  ## \param timeout how long to wait in milliseconds for a connection to succeed before giving up
   ##
   ## \return 0 if the initialization is successful, an error code otherwise \see pico_error_codes
 
@@ -225,7 +239,7 @@ proc cyw43ArchWifiConnectBssidTimeoutMms*(ssid: cstring; bssid: ptr uint8; pw: c
   ##
   ## \param ssid the network name to connect to
   ## \param bssid the network BSSID to connect to or NULL if ignored
-  ## \param password the network password or NULL if there is no password required
+  ## \param pw the network password or NULL if there is no password required
   ## \param auth the authorization type to use when the password is enabled. Values are \ref CYW43_AUTH_WPA_TKIP_PSK,
   ##             \ref CYW43_AUTH_WPA2_AES_PSK, or \ref CYW43_AUTH_WPA2_MIXED_PSK (see \ref CYW43_AUTH_)
   ##
@@ -254,7 +268,7 @@ proc cyw43ArchWifiConnectBssidAsync*(ssid: cstring; bssid: ptr uint8; pw: cstrin
   ##
   ## \param ssid the network name to connect to
   ## \param bssid the network BSSID to connect to or NULL if ignored
-  ## \param password the network password or NULL if there is no password required
+  ## \param pw the network password or NULL if there is no password required
   ## \param auth the authorization type to use when the password is enabled. Values are \ref CYW43_AUTH_WPA_TKIP_PSK,
   ##             \ref CYW43_AUTH_WPA2_AES_PSK, or \ref CYW43_AUTH_WPA2_MIXED_PSK (see \ref CYW43_AUTH_)
   ##

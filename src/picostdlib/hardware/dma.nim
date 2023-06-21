@@ -704,4 +704,25 @@ proc dmaGetTimerDreq*(timerNum: cuint): cuint {.importc: "dma_get_timer_dreq".}
   ## 
   ## **returns** DREQ number for a given DMA timer
 
+
+
+proc dmaChannelCleanup*(channel: cuint) {.importc: "dma_channel_cleanup".}
+  ## ! \brief Performs DMA channel cleanup after use
+  ##   \ingroup hardware_dma
+  ## 
+  ##  This can be used to cleanup dma channels when they're no longer needed, such that they are in a clean state for reuse.
+  ##  IRQ's for the channel are disabled, any in flight-transfer is aborted and any outstanding interrupts are cleared.
+  ##  The channel is then clear to be reused for other purposes.
+  ## 
+  ##  \code
+  ##  if (dma_channel >= 0) {
+  ##      dma_channel_cleanup(dma_channel);
+  ##      dma_channel_unclaim(dma_channel);
+  ##      dma_channel = -1;
+  ##  }
+  ##  \endcode
+  ## 
+  ##  \param channel DMA channel
+  ## /
+
 {.pop.}

@@ -11,6 +11,9 @@ const
 type
   IrqHandler* {.importc: "irq_handler_t".} = proc () {.cdecl.}
 
+let
+  PICO_MAX_SHARED_IRQ_HANDLERS* {.importc: "PICO_MAX_SHARED_IRQ_HANDLERS".}: cuint
+
 proc irqSetPriority*(num: InterruptNumber; hardwarePriority: uint8) {.importc: "irq_set_priority".}
   ## Set specified interrupt's priority
   ##     \ingroup hardware_irq

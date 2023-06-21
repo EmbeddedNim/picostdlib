@@ -242,7 +242,6 @@ proc alarmPoolHardwareAlarmNum*(pool: ptr AlarmPool): cuint {.importc: "alarm_po
 proc alarmPoolDestroy*(pool: ptr AlarmPool) {.importc: "alarm_pool_destroy".}
   ## Destroy the alarm pool, cancelling all alarms and freeing up the underlying hardware alarm
   ##    \param pool the pool
-  ##    \return the hardware alarm used by the pool
 
 proc alarmPoolAddAlarmAt*(pool: ptr AlarmPool; time: AbsoluteTime; callback: AlarmCallback; userData: pointer; fireIfPast: bool): AlarmId {.importc: "alarm_pool_add_alarm_at".}
   ## Add an alarm callback to be called at a specific time

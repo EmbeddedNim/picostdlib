@@ -192,9 +192,18 @@ proc multicoreFifoGetStatus*(): uint32 {.importc: "multicore_fifo_get_status".}
 
 proc multicoreLockoutVictimInit*() {.importc: "multicore_lockout_victim_init".}
   ## Initialize the current core such that it can be a "victim" of lockout (i.e. forced to pause in a known state by the other core)
-  ##     \ingroup multicore_lockout
-  ##   
-  ##    This code hooks the intercore FIFO IRQ, and the FIFO may not be used for any other purpose after this.
+  ##
+  ## This code hooks the intercore FIFO IRQ, and the FIFO may not be used for any other purpose after this.
+
+proc multicoreLockoutVictimIsInitialized*(coreNum: cuint): bool {.importc: "multicore_lockout_victim_is_initialized".}
+  ##  Determine if \ref multicore_victim_init() has been called on the specified core.
+  ##
+  ## \note this state persists even if the core is subsequently reset; therefore you are advised to
+  ## always call \ref multicore_lockout_victim_init() again after resetting a core, which had previously
+  ## been initialized.
+  ##
+  ## \param core_num the core number (0 or 1)
+  ## \return true if \ref multicore_victim_init() has been called on the specified core, false otherwise.
 
 proc multicoreLockoutStartBlocking*() {.importc: "multicore_lockout_start_blocking".}
   ## Request the other core to pause in a known state and wait for it to do so

@@ -35,10 +35,15 @@ let
   PicoRP2040B0Supported* {.importc: "PICO_RP2040_B0_SUPPORTED".}: bool
   PicoRP2040B1Supported* {.importc: "PICO_RP2040_B1_SUPPORTED".}: bool
 
+  PicoVbusPin* {.importc: "PICO_VBUS_PIN".}: Gpio
+  PicoVsysPin* {.importc: "PICO_VSYS_PIN".}: Gpio
+
   # Cyw43
   Cyw43PinWlHostWake* {.importc: "CYW43_PIN_WL_HOST_WAKE".}: Gpio
   Cyw43PinWlRegOn* {.importc: "CYW43_PIN_WL_REG_ON".}: Gpio
   Cyw43WlGpioCount* {.importc: "CYW43_WL_GPIO_COUNT".}: cuint
   Cyw43WlGpioLedPin* {.importc: "CYW43_WL_GPIO_LED_PIN".}: Cyw43WlGpio
+  Cyw43WlGpioVbusPin* {.importc: "CYW43_WL_GPIO_VBUS_PIN".}: Cyw43WlGpio
+  Cyw43UsesVsysPin* {.importc: "CYW43_USES_VSYS_PIN".}: bool
 
 {.pop.}

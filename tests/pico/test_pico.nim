@@ -59,6 +59,7 @@ import picostdlib/pico/critical_section
 import picostdlib/pico/divider
 import picostdlib/pico/double
 import picostdlib/pico/error
+import picostdlib/pico/flash
 import picostdlib/pico/"float"
 import picostdlib/pico/i2c_slave
 import picostdlib/pico/lock_core

@@ -13,7 +13,7 @@ proc criticalSectionInit*(critSec: ptr CriticalSection) {.importc: "critical_sec
   ## The critical section is initialized ready for use, and will use a (possibly shared) spin lock
   ## number assigned by the system. Note that in general it is unlikely that you would be nesting
   ## critical sections, however if you do so youmust* use \ref critical_section_init_with_lock_num
-  ## to ensure that the spin lock's used are different.
+  ## to ensure that the spin locks used are different.
   ##
   ## \param crit_sec Pointer to critical_section structure
 

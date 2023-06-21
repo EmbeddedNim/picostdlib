@@ -281,7 +281,6 @@ proc interp_add_accumulater*(interp: ptr InterpHw; lane: uint; val: uint32) {.im
   ##    \param interp Interpolator instance, interp0 or interp1.
   ##    \param lane The lane number, 0 or 1
   ##    \param val Value to add
-  ##    \return The content of the FULL register
 
 proc interp_get_raw*(interp: ptr InterpHw; lane: uint): uint32 {.importc.}
   ## Get raw lane value
