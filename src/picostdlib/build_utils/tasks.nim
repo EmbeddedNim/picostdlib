@@ -249,7 +249,6 @@ before build:
 after build:
   for program in getPrograms():
     let jsonFile = nimcache(program) / namedProgram(program) & ".json"
-    echo jsonFile
     let jsonFileCached = jsonFile.changeFileExt(".cached.json")
     if not fileExists(jsonFile):
       continue
