@@ -10,6 +10,9 @@ type
 
   I2cAddress* = distinct range[0'u8 .. 127'u8]
 
+proc `==`*(a, b: I2cAddress): bool {.borrow.}
+proc `$`*(a: I2cAddress): string {.borrow.}
+
 let
   i2c0Inst* {.importc: "i2c0_inst".}: I2cInst
   i2c1Inst* {.importc: "i2c1_inst".}: I2cInst

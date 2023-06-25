@@ -10,7 +10,7 @@ sleepMs(600)
 while true:
   let res = getcharTimeoutUs(300)
   if res < 0:
-    echo "Stdio error: ", $res.PicoErrorCodes
+    echo "Stdio error: ", $res.PicoErrorCode
     sleepMs(1000)
   else:
     let charX = res.char

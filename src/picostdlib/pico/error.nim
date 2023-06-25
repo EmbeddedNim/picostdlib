@@ -1,6 +1,6 @@
 
 type
-  PicoErrorCodes* {.pure, size: sizeof(int8), importc: "enum pico_error_codes", header: "pico/error.h".} = enum
+  PicoErrorCode* {.pure, size: sizeof(int8), importc: "enum pico_error_codes", header: "pico/error.h".} = enum
     ## Common return codes from pico_sdk methods that return a status
     PicoErrorInsufficientResources = -9
     PicoErrorConnectFailed = -8

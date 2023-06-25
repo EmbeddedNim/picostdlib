@@ -5,6 +5,7 @@ type
   Gpio* = distinct range[0.cuint .. 29.cuint] # NUM_BANK0_GPIOS = 30
     ## Gpio pins available to the RP2040. Not all pins may be available on some
     ## microcontroller boards.
+  GpioOptional* = distinct range[-1.int8 .. 29.int8]
 
   Direction* {.pure, size: sizeof(bool).} = enum
     ## Gpio direction
@@ -17,8 +18,12 @@ type
   Cyw43WlGpio* = distinct range[0.cuint .. 2.cuint]
     ## Gpio pins on the Cyw43 chip
 
+const GpioUnused* = -1.GpioOptional
+
 proc `==`*(a, b: Gpio): bool {.borrow.}
 proc `$`*(a: Gpio): string {.borrow.}
+proc `==`*(a, b: GpioOptional): bool {.borrow.}
+proc `$`*(a: GpioOptional): string {.borrow.}
 proc `==`*(a, b: Cyw43WlGpio): bool {.borrow.}
 proc `$`*(a: Cyw43WlGpio): string {.borrow.}
 
