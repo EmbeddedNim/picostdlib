@@ -66,7 +66,6 @@ type
 
 let nimbleBackend = if backend.len > 0: backend else: "c"
 let extension = $parseEnum[BackendExtension](nimbleBackend)
-proc nimcache(program: string): string = "build" / program / "nimcache"
 const importPath = "csource" / "imports.cmake"
 const cMakeIncludeTemplate = """
 # This is a generated file do not modify it, 'picostdlib' makes it every build.
@@ -76,17 +75,41 @@ function(link_imported_libs name)
 endFunction()
 """
 
+proc nimcache(program: string): string = "build" / program / "nimcache"
+
+proc namedProgram(program: string): string =
+  if namedBin.hasKey(program):
+    namedBin[program]
+  else:
+    program
 
 template picoError(msg: string) =
   raise newException(PicoSetupError, msg)
 
-proc getSelectedBins(): seq[string] =
-  for program in bin:
-    if program in commandLineParams:
-      result.add program
+iterator getPrograms(): string =
+  if namedBin.len > 0:
+    for key in namedBin.keys:
+      yield key
+  else:
+    for program in bin:
+      yield program
 
-  if result.len == 0:
-    result = bin
+proc getSelectedBins(): seq[string] =
+  if namedBin.len > 0:
+    for key in namedBin.keys:
+      if key in commandLineParams:
+        result.add key
+    if result.len == 0:
+      for key in namedBin.keys:
+        result.add key
+        break
+  else:
+    for program in bin:
+      if program in commandLineParams:
+        result.add program
+
+    if result.len == 0:
+      result = bin
 
 macro parseLinkableLib(s: string) =
   ## Parses enum using the field name and field str
@@ -158,7 +181,7 @@ proc genCMakeInclude(projectName: string) =
 
 task fastclean, "Clean task":
   let selectedBins = getSelectedBins()
-  for program in bin:
+  for program in getPrograms():
     if program notin selectedBins:
       continue
 
@@ -172,7 +195,7 @@ task fastclean, "Clean task":
 
 task distclean, "Distclean task":
   let selectedBins = getSelectedBins()
-  for program in bin:
+  for program in getPrograms():
     if program notin selectedBins:
       continue
 
@@ -191,11 +214,11 @@ task configure, "Setup task":
   rmFile(importPath)
 
   let selectedBins = getSelectedBins()
-  for program in bin:
+  for program in getPrograms():
     if program notin selectedBins:
       continue
 
-    let jsonFileCached = nimcache(program) / program & ".cached.json"
+    let jsonFileCached = nimcache(program) / namedProgram(program) & ".cached.json"
 
     # truncate the json cache file
     # for CMake to detect changes later
@@ -204,7 +227,7 @@ task configure, "Setup task":
 
     var cmakeArgs: seq[string]
     cmakeArgs.add "-DPICO_SDK_FETCH_FROM_GIT=on"
-    cmakeArgs.add "-DOUTPUT_NAME=" & program
+    cmakeArgs.add "-DOUTPUT_NAME=" & namedProgram(program)
     cmakeArgs.add "-S"
     cmakeArgs.add "csource"
     cmakeArgs.add "-B"
@@ -217,15 +240,16 @@ task configure, "Setup task":
 before build:
   # delete the nimcache json files
   # afterBuild hook will only build those that have a json file
-  for program in bin:
-    let jsonFile = nimcache(program) / program & ".json"
+  for program in getPrograms():
+    let jsonFile = nimcache(program) / namedProgram(program) & ".json"
     if fileExists(jsonFile):
       rmFile(jsonFile)
 
 
 after build:
-  for program in bin:
-    let jsonFile = nimcache(program) / program & ".json"
+  for program in getPrograms():
+    let jsonFile = nimcache(program) / namedProgram(program) & ".json"
+    echo jsonFile
     let jsonFileCached = jsonFile.changeFileExt(".cached.json")
     if not fileExists(jsonFile):
       continue
