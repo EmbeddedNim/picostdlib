@@ -1,4 +1,4 @@
-import picostdlib/[hardware/gpio, pico/time]
+import picostdlib
 
 gpioInit(PicoDefaultLedPin)
 gpioSetDir(PicoDefaultLedPin, Out)
