@@ -27,23 +27,22 @@ echo "   0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F"
 var ret: int
 var rxdata: uint8
 for address in 0..<(1 shl 7):
-  if address mod 16 == 0:
-    stdout.write(address.toHex(2) & " ")
-    stdioFlush()
+  stdout.write(address.toHex(2) & " ")
+  stdioFlush()
 
-    # Perform a 1-byte dummy read from the probe address. If a slave
-    # acknowledges this address, the function returns the number of bytes
-    # transferred. If the address byte is ignored, the function returns
-    # -1.
+  # Perform a 1-byte dummy read from the probe address. If a slave
+  # acknowledges this address, the function returns the number of bytes
+  # transferred. If the address byte is ignored, the function returns
+  # -1.
 
-    # Skip over any reserved addresses.
-    if reservedAddr(address.I2cAddress):
-      ret = PicoErrorGeneric.ord
-    else:
-      ret = i2cReadBlocking(i2cDefault, address.I2cAddress, rxdata.addr, 1, false)
+  # Skip over any reserved addresses.
+  if reservedAddr(address.I2cAddress):
+    ret = PicoErrorGeneric.ord
+  else:
+    ret = i2cReadBlocking(i2cDefault, address.I2cAddress, rxdata.addr, 1, false)
 
-    stdout.write(if ret < 0: '.' else: '@')
-    stdout.write(if address mod 16 == 15: "\n" else: "  ")
-    stdioFlush()
+  stdout.write(if ret < 0: '.' else: '@')
+  stdout.write(if address mod 16 == 15: "\n" else: "  ")
+  stdioFlush()
 
 echo "Done"
