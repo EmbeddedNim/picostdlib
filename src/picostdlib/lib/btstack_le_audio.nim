@@ -52,14 +52,9 @@ importc:
 
   renameCallback futharkRenameCallback
 
-  "le-audio/gatt-service/audio_input_control_service_server.h"
   "le-audio/gatt-service/broadcast_audio_scan_service_client.h"
   "le-audio/gatt-service/broadcast_audio_scan_service_server.h"
   "le-audio/gatt-service/broadcast_audio_scan_service_util.h"
-  "le-audio/gatt-service/microphone_control_service_client.h"
-  "le-audio/gatt-service/microphone_control_service_server.h"
-  "le-audio/gatt-service/volume_control_service_server.h"
-  "le-audio/gatt-service/volume_offset_control_service_server.h"
   "le-audio/le_audio_base_builder.h"
   "le-audio/le_audio_base_parser.h"
   "le-audio/le_audio.h"
