@@ -24,6 +24,6 @@ bi_decl(bi_block_device(
 if not lfs.mount():
   echo "Failed to mount LittleFS!"
 else:
-  echo "Successfully mounted LittleFS at 0x", startAddress.toHex(), ", size ", partitionSize div 1024, " kilobytes"
+  echo "Successfully mounted LittleFS at 0x", startAddress.uint64.toHex(), ", size ", partitionSize div 1024, " kilobytes"
 
   lfs.unmount()

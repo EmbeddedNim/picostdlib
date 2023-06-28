@@ -17,9 +17,9 @@ var boardId: PicoUniqueBoardId
 picoGetUniqueBoardId(boardId.addr)
 
 echo "Unique identifier:"
-for i in 0..<PicoUniqueBoardIdSizeBytes:
-  stdout.write(" " & boardId.id[i].toHex(2))
 
+for i in 0..<PicoUniqueBoardIdSizeBytes:
+  stdout.write(" " & boardId.id[i].uint64.toHex(2))
 echo ""
 
 echo picoGetUniqueBoardIdString()

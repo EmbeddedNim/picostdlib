@@ -134,7 +134,7 @@ proc init*(self: var LittleFS; start, size: uint32) =
 
 proc `=destroy`*(self: var LittleFS) =
   if self.mounted:
-    discard lfs_unmount(self.lfs.addr)
+    discard lfs_unmount(self.lfs.unsafeAddr)
 
 proc tryMount(self: var LittleFS): bool =
   if self.mounted:
