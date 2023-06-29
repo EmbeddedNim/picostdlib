@@ -75,7 +75,7 @@ proc createProject(projectPath: string; sdk = "", override = false) =
     # add picostdlib tasks to nimble file
     let nimbleFile = projectPath / name & ".nimble"
     echo "piconim: updating file ", nimbleFile
-    nimbleFile.writeFile(nimbleFile.readFile() & "requires \"picostdlib >= 1.0.0\"\n\ninclude picostdlib/build_utils/tasks\n")
+    nimbleFile.writeFile(nimbleFile.readFile() & "requires \"picostdlib >= 0.4.0\"\n\ninclude picostdlib/build_utils/tasks\n")
 
     # replace blink name with project name
     # set SDK path if provided
