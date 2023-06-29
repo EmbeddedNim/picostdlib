@@ -247,6 +247,7 @@ before build:
 
 
 after build:
+  var elfs: seq[string]
   for program in getPrograms():
     let jsonFile = nimcache(program) / namedProgram(program) & ".json"
     let jsonFileCached = jsonFile.changeFileExt(".cached.json")
@@ -272,6 +273,11 @@ after build:
     var command = "cmake --build " & "build" / program & " -- -j4"
     echo command
     exec(command)
+    elfs.add("build" / program / program & ".elf")
+
+  try:
+    exec("arm-none-eabi-size -G " & quoteShellCommand(elfs))
+  except OSError as e: echo e.msg
 
 task buildclean, "Clean and build task":
   let selectedBins = getSelectedBins()
