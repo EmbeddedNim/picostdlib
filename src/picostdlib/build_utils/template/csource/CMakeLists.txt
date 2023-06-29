@@ -10,6 +10,7 @@ set(CMAKE_BUILD_TYPE Debug)
 # initialize pico-sdk from GIT
 # (note this can come from environment, CMake cache etc)
 #set(PICO_SDK_FETCH_FROM_GIT on)
+#set(PICO_SDK_PATH ENV{PICO_SDK_PATH})
 
 # Set board type here
 # set(PICO_BOARD pico_w)

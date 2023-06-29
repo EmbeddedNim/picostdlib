@@ -50,46 +50,46 @@ proc createProject(projectPath: string; sdk = "", override = false) =
 
   echo "Select type binary or hybrid to be able to build the program"
 
-  var nimbleProc = startProcess(
+  let nimbleProc = startProcess(
     "nimble",
     args=["init", name],
     options={poEchoCmd, poUsePath, poParentStreams}
   )
-  var nimbleExit = nimbleProc.waitForExit()
+  let nimbleExit = nimbleProc.waitForExit()
   if nimbleExit != 0:
-    echo fmt"nimble exited with error code: {nimbleExit}"
+    echo "Nimble exited with error code: ", nimbleExit
     echo "Will not copy over template"
   else:
     discard existsOrCreateDir(projectPath)
 
     for f in embeddedFiles.keys:
-      echo "writing to ", projectPath / f
+      echo "piconim: writing file ", projectPath / f
       let filepath = projectPath / f
       createDir(filepath.parentDir)
       writeFile(filepath, embeddedFiles[f])
 
     # rename nim file
-    moveFile(projectPath / "src/blink.nim", projectPath / fmt"src/{name}.nim")
+    echo "piconim: renaming ", projectPath / "src" / "blink.nim", " to ", projectPath / "src" / "name" & ".nim"
+    moveFile(projectPath / "src" / "blink.nim", projectPath / "src" / "name" & ".nim")
 
-    # change all instances of template `blink` to the project name
+    # add picostdlib tasks to nimble file
     let nimbleFile = projectPath / name & ".nimble"
-    # moveFile(projectPath / "template.nimble", nimbleFile)
-    nimbleFile.writeFile(nimbleFile.readFile() & "requires \"picostdlib >= 1.0.0\"\n\ninclude picostdlib/build_utils/tasks\n")
-    let cmakelists = projectPath / "csource" / "CMakeLists.txt"
-    cmakelists.writeFile cmakelists.readFile.replace("blink", name)
+    echo "piconim: updating file ", nimbleFile
+    nimbleFile.writeFile(nimbleFile.readFile() & "requires \"picostdlib >= 0.4.0\"\n\ninclude picostdlib/build_utils/tasks\n")
 
-  # doSetup(projectPath, name, sdk=sdk)
-  #[
-  nimbleProc = startProcess(
-    "nimble",
-    args=["configure"],
-    workingDir=projectPath,
-    options={poEchoCmd, poUsePath, poParentStreams}
-  )
-  nimbleExit = nimbleProc.waitForExit()
-  if nimbleExit != 0:
-    picoError fmt"nimble exited with error code: {nimbleExit}"
-  ]#
+    # replace blink name with project name
+    # set SDK path if provided
+    let cmakelists = projectPath / "csource" / "CMakeLists.txt"
+    var cmakefile = cmakelists.readFile()
+    cmakefile = cmakefile.replace("blink", name)
+    if sdk != "":
+      cmakefile = cmakefile.replace("#set(PICO_SDK_PATH ENV{PICO_SDK_PATH})", "set(PICO_SDK_PATH \"" & sdk & "\")")
+    echo "piconim: updating file ", cmakelists
+    cmakelists.writeFile cmakefile
+
+    echo "Project created!"
+    echo &"Type `cd {name}` and then `nimble configure` to configure CMake"
+    echo "Then run `nimble build` to compile the project"
 
 proc validateInitInputs(name: string, sdk: string = "", overwrite: bool) =
   ## ensures that provided setup cli parameters will work
@@ -114,7 +114,7 @@ when isMainModule:
       commandant.option(sdk, string, "sdk", "s")
       flag(overwriteTemplate, "overwrite", "O")
 
-  echo "piconim : Create Raspberry Pi Pico projects using Nim"
+  echo "piconim: Create Raspberry Pi Pico projects using Nim"
 
   if init:
     validateInitInputs(name, sdk, overwriteTemplate)
@@ -130,4 +130,3 @@ when isMainModule:
           discard
   else:
     echo helpMessage()
-

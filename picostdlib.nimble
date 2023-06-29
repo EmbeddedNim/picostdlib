@@ -1,7 +1,7 @@
 # Package
 
-version       = "1.0.0"  # Don't forget to update version in piconim.nim (nimble requires)
-author        = "Jason"
+version       = "0.4.0"  # Don't forget to update version in piconim.nim (nimble requires)
+author        = "The picostdlib contributors"
 description   = "Raspberry Pi Pico SDK bindings"
 license       = "BSD-3-Clause"
 srcDir        = "src"
@@ -15,7 +15,7 @@ installExt    = @["nim", "h", "c"]
 requires "nim >= 1.6.0"
 requires "commandant >= 0.15.0"  # for piconim
 requires "micros >= 0.1.8"  # for the after build hook
-requires "futhark >= 0.9.1" # for bindings to lwip, cyw43_driver, btstack...
+requires "futhark >= 0.9.2" # for bindings to lwip, cyw43_driver, btstack...
 
 
 # Helpers
