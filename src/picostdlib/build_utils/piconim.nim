@@ -23,7 +23,7 @@ template. This will create a new folder, so make sure you are in the parent
 folder. You can also provide the following options to the subcommand:
 
     (--sdk, -s) ->       specify the path to a locally installed pico-sdk
-                         repository. ex: --sdk:/home/casey/pico-sdk
+                         repository. ex: --sdk:/home/user/pico-sdk
     (--overwrite, -O) -> a flag to specify overwriting an exisiting directory
                          with the <project-name> already created. Be careful
                          with this. ex: piconim myProject --overwrite will

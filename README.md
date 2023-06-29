@@ -38,7 +38,7 @@ When it asks for what project type, choose `>binary<` or `>hybrid<`. If you choo
 `>library<` there will be nothing to build.
 You can also provide the following options to the subcommand:
     - (--sdk, -s) -> specify the path to a locally installed `pico-sdk` repository,
-    ex.  `--sdk:/home/casey/pico-sdk`.
+    ex.  `--sdk:/home/user/pico-sdk`.
     - (--overwrite, -O) -> a flag to specify overwriting an exisiting directory 
     with the `<project-name>` already created. Be careful with this. 
     ex. `piconim myProject --overwrite` will replace a folder named `myProject`
