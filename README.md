@@ -15,18 +15,6 @@ SDK](https://github.com/raspberrypi/pico-sdk). Here are some of the feature high
 
 See the [examples](examples) folder for examples on how to use the SDK using Nim.
 
-## Table of Contents
-
-[Setup](#setup)
-
-[Building](#building)
-
-[Examples](examples)
-
-[Contributing](#contributing)
-
-[License](LICENSE)
-
 
 ## Setup
 
