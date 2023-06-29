@@ -1,5 +1,6 @@
-import ./structs/i2c, ./gpio, ../pico/types
+import ./structs/i2c, ./gpio, ../pico/types, ../pico
 export i2c, gpio, types
+export DefaultI2c, DefaultI2cSdaPin, DefaultI2cSclPin
 
 {.push header: "hardware/i2c.h".}
 
@@ -20,9 +21,6 @@ let
   i2c1* {.importc: "i2c1".}: ptr I2cInst
   i2cDefault* {.importc: "i2c_default".}: ptr I2cInst
 
-  DefaultI2c* {.importc: "PICO_DEFAULT_I2C".}: cuint
-  DefaultI2cSdaPin* {.importc: "PICO_DEFAULT_I2C_SDA_PIN".}: Gpio
-  DefaultI2cSclPin* {.importc: "PICO_DEFAULT_I2C_SCL_PIN".}: Gpio
 
 
 proc i2cInit*(i2c: ptr I2cInst, baudrate: cuint): cuint {.importc: "i2c_init".}

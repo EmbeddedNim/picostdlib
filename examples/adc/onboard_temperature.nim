@@ -19,8 +19,8 @@ proc readOnboardTemperature(unit: TempUnit): float =
 
 stdioInitAll()
 
-gpioInit(PicoDefaultLedPin)
-gpioSetDir(PicoDefaultLedPin, Out)
+gpioInit(DefaultLedPin)
+gpioSetDir(DefaultLedPin, Out)
 
 adcInit()
 adcSetTempSensorEnabled(true)
@@ -29,7 +29,7 @@ adcSelectInput(AdcTemp)
 while true:
   let temperature = readOnboardTemperature(tempUnit)
   echo &"Onboard temperature = {temperature:.2f} {tempUnit}"
-  gpioPut(PicoDefaultLedPin, High)
+  gpioPut(DefaultLedPin, High)
   sleepMs(10)
-  gpioPut(PicoDefaultLedPin, Low)
+  gpioPut(DefaultLedPin, Low)
   sleepMs(990)

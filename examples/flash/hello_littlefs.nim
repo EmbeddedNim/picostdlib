@@ -3,7 +3,7 @@ import picostdlib
 import picostdlib/lib/littlefs
 
 const partitionSize = 848 * 1024
-template startAddress: uint32 = XipBase + PicoFlashSizeBytes - partitionSize
+template startAddress: uint32 = XipBase + FlashSizeBytes - partitionSize
 const partitionName = "Hello LittleFS!"
 
 stdioInitAll()

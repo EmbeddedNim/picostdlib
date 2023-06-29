@@ -1,10 +1,10 @@
 import picostdlib
 
-gpioInit(PicoDefaultLedPin)
-gpioSetDir(PicoDefaultLedPin, Out)
+gpioInit(DefaultLedPin)
+gpioSetDir(DefaultLedPin, Out)
 
 while true:
-  gpioPut(PicoDefaultLedPin, High)
+  gpioPut(DefaultLedPin, High)
   sleepMs(250)
-  gpioPut(PicoDefaultLedPin, Low)
+  gpioPut(DefaultLedPin, Low)
   sleepMs(250)

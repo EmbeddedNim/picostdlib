@@ -24,9 +24,9 @@ proc resusCallback {.cdecl.} =
   # Wait for uart output to finish
   uartDefaultTxWaitBlocking()
 
-  gpioInit(PicoDefaultLedPin)
-  gpioSetDir(PicoDefaultLedPin, Out)
-  gpioPut(PicoDefaultLedPin, High)
+  gpioInit(DefaultLedPin)
+  gpioSetDir(DefaultLedPin, Out)
+  gpioPut(DefaultLedPin, High)
 
   volatileStore(seenResus.addr, true)
 
@@ -48,6 +48,6 @@ proc main() =
     tightLoopContents()
 
   sleepMs(1000)
-  gpioPut(PicoDefaultLedPin, Low)
+  gpioPut(DefaultLedPin, Low)
 
 main()
