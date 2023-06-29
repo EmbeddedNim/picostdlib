@@ -1,7 +1,9 @@
 import ./structs/spi as structs_spi
 import ./regs/spi as regs_spi
 import ./gpio
+import ../pico
 export structs_spi, regs_spi, gpio
+export DefaultSpi, DefaultSpiSckPin, DefaultSpiTxPin, DefaultSpiRxPin, DefaultSpiCsnPin
 
 ## spi_inst struct does not exist
 ## cpp backend needs this to be defined
@@ -29,12 +31,6 @@ let
   spi0* {.importc: "spi0".}: ptr SpiInst
   spi1* {.importc: "spi1".}: ptr SpiInst
   spiDefault* {.importc: "spi_default".}: ptr SpiInst
-
-  DefaultSpi* {.importc: "PICO_DEFAULT_SPI".}: cuint
-  DefaultSpiSckPin* {.importc: "PICO_DEFAULT_SPI_SCK_PIN".}: Gpio
-  DefaultSpiTxPin* {.importc: "PICO_DEFAULT_SPI_TX_PIN".}: Gpio
-  DefaultSpiRxPin* {.importc: "PICO_DEFAULT_SPI_RX_PIN".}: Gpio
-  DefaultSpiCsnPin* {.importc: "PICO_DEFAULT_SPI_CSN_PIN".}: Gpio
 
 
 proc spiInit*(spi: ptr SpiInst; baudrate: cuint): cuint {.importc: "spi_init".}

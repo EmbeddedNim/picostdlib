@@ -5,15 +5,15 @@ type
     ## A spin lock identifier
 
 const
-  PicoSpinlockIdIrq* = 9
-  PicoSpinlockIdTimer* = 10
-  PicoSpinlockIdHardwareClaim* = 11
-  PicoSpinlockIdOs1* = 14
-  PicoSpinlockIdOs2* = 15
-  PicoSpinlockIdStripedFirst* = 16
-  PicoSpinlockIdStripedLast* = 23
-  PicoSpinlockIdClaimFreeFirst* = 24
-  PicoSpinlockIdClaimFreeLast* = 31
+  SpinlockIdIrq* = 9
+  SpinlockIdTimer* = 10
+  SpinlockIdHardwareClaim* = 11
+  SpinlockIdOs1* = 14
+  SpinlockIdOs2* = 15
+  SpinlockIdStripedFirst* = 16
+  SpinlockIdStripedLast* = 23
+  SpinlockIdClaimFreeFirst* = 24
+  SpinlockIdClaimFreeLast* = 31
 
 proc saveAndDisableInterrupts*(): uint32 {.importc: "save_and_disable_interrupts".}
   ## Save and disable interrupts

@@ -9,10 +9,10 @@ type
 
 let
   StdoutMutex* {.importc: "PICO_STDOUT_MUTEX".}: bool
-  PicoStdioEnableCrlfSupport* {.importc: "PICO_STDIO_ENABLE_CRLF_SUPPORT".}: bool
-  PicoStdioDefaultCrlf* {.importc: "PICO_STDIO_DEFAULT_CRLF".}: bool
-  PicoStdioStackBufferSize* {.importc: "PICO_STDIO_STACK_BUFFER_SIZE".}: cuint
-  PicoStdioDeadlockTimeoutMs* {.importc: "PICO_STDIO_DEADLOCK_TIMEOUT_MS".}: cuint
+  StdioEnableCrlfSupport* {.importc: "PICO_STDIO_ENABLE_CRLF_SUPPORT".}: bool
+  StdioDefaultCrlf* {.importc: "PICO_STDIO_DEFAULT_CRLF".}: bool
+  StdioStackBufferSize* {.importc: "PICO_STDIO_STACK_BUFFER_SIZE".}: cuint
+  StdioDeadlockTimeoutMs* {.importc: "PICO_STDIO_DEADLOCK_TIMEOUT_MS".}: cuint
 
 
 proc stdioInitAll*(): bool {.discardable, importc: "stdio_init_all".}

@@ -1,18 +1,18 @@
 {.push header: "pico/unique_id.h".}
 
 const
-  PicoUniqueBoardIdSizeBytes* = 8
+  UniqueBoardIdSizeBytes* = 8
 
 type
-  PicoUniqueBoardId* {.bycopy, importc: "pico_unique_board_id_t".} = object
+  UniqueBoardId* {.bycopy, importc: "pico_unique_board_id_t".} = object
     ## Unique board identifier
     ##
     ## This struct is suitable for holding the unique identifier of a NOR flash
     ## device on an RP2040-based board. It contains an array of
     ## PICO_UNIQUE_BOARD_ID_SIZE_BYTES identifier bytes.
-    id*: array[PicoUniqueBoardIdSizeBytes, uint8]
+    id*: array[UniqueBoardIdSizeBytes, uint8]
 
-proc picoGetUniqueBoardId*(idOut: ptr PicoUniqueBoardId) {.importc: "pico_get_unique_board_id".}
+proc picoGetUniqueBoardId*(idOut: ptr UniqueBoardId) {.importc: "pico_get_unique_board_id".}
   ## Get unique ID
   ##
   ## Get the unique 64-bit device identifier which was retrieved from the

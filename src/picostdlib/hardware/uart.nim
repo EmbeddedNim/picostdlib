@@ -1,5 +1,6 @@
-import ./structs/uart, ./gpio
+import ./structs/uart, ./gpio, ../pico
 export uart, gpio
+export DefaultUart, DefaultUartTxPin, DefaultUartRxPin
 
 ## uart_inst struct does not exist
 ## cpp backend needs this to be defined
@@ -23,10 +24,7 @@ let
   UartAssertionsEnabled* {.importc: "PARAM_ASSERTIONS_ENABLED_UART".}: bool
   UartEnableCrlfSupport* {.importc: "PICO_UART_ENABLE_CRLF_SUPPORT".}: bool
   UartDefaultCrlf* {.importc: "PICO_UART_DEFAULT_CRLF".}: bool
-  DefaultUart* {.importc: "PICO_DEFAULT_UART".}: cuint
-  DefaultUartTxPin* {.importc: "PICO_DEFAULT_UART_TX_PIN".}: Gpio
-  DefaultUartRxPin* {.importc: "PICO_DEFAULT_UART_RX_PIN".}: Gpio
-  PicoDefaultUartBaudrate* {.importc: "PICO_DEFAULT_UART_BAUD_RATE".}: cuint
+  DefaultUartBaudrate* {.importc: "PICO_DEFAULT_UART_BAUD_RATE".}: cuint
 
 
 proc uartGetIndex*(uart: ptr UartInst): cuint {.importc: "uart_get_index".}

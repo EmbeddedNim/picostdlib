@@ -13,12 +13,12 @@ import picostdlib/pico/unique_id
 
 stdioInitAll()
 
-var boardId: PicoUniqueBoardId
+var boardId: UniqueBoardId
 picoGetUniqueBoardId(boardId.addr)
 
 echo "Unique identifier:"
 
-for i in 0..<PicoUniqueBoardIdSizeBytes:
+for i in 0 ..< UniqueBoardIdSizeBytes:
   stdout.write(" " & boardId.id[i].uint64.toHex(2))
 echo ""
 
