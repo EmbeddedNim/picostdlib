@@ -1,6 +1,6 @@
 # Package
 
-version       = "0.4.0"  # Don't forget to update version in piconim.nim (nimble requires)
+version       = "1.0.0"  # Don't forget to update version in piconim.nim (if needed)
 author        = "The picostdlib contributors"
 description   = "Raspberry Pi Pico SDK bindings"
 license       = "BSD-3-Clause"
