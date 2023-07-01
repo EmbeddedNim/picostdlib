@@ -1,6 +1,5 @@
 import pkg/[commandant]
-import std/[strformat, strutils, os, osproc, terminal, sequtils, tables]
-
+import std/[strformat, strutils, os, osproc, terminal, sequtils, tables, macros]
 
 type PicoSetupError = object of CatchableError
 
@@ -31,9 +30,9 @@ folder. You can also provide the following options to the subcommand:
 """
 
 const embeddedFiles = (proc (): Table[string, string] =
-  const root = "src/picostdlib/build_utils/template"
+  const root = getProjectPath() / ".." / ".." / ".." / "template"
   for item in os.walkDirRec(root, relative=true, checkDir=true):
-    result[item] = staticRead("template" / item)
+    result[item] = staticRead(root / item)
 )()
 
 proc validateSdkPath(sdk: string) =
