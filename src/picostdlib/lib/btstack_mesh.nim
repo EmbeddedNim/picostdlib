@@ -47,7 +47,7 @@ importc:
   sysPath armSysrootInclude
   sysPath armInstallInclude
   sysPath picoSdkPath / "lib/btstack/src"
-  sysPath cmakeSourceDir
+  sysPath piconimCsourceDir
   sysPath getProjectPath()
 
   renameCallback futharkRenameCallback

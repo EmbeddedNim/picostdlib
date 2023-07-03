@@ -66,7 +66,7 @@ type
 
 let nimbleBackend = if backend.len > 0: backend else: "c"
 let extension = $parseEnum[BackendExtension](nimbleBackend)
-const importPath = "csource" / "imports.cmake"
+const importPath = "generated" / "picostdlib" / "imports.cmake"
 const cMakeIncludeTemplate = """
 # This is a generated file do not modify it, 'picostdlib' makes it every build.
 
@@ -164,20 +164,24 @@ proc genCMakeInclude(projectName: string) =
   ##  - all pico-sdk libs to link
   ##  - path to current Nim compiler "lib" path, to be added to the
   ##    C compiler include path
-  # rmFile(importPath)
+
+  let buildImportPath = "build" / projectName / importPath
+
+  # rmFile(buildImportPath)
 
   # pico-sdk libs
   let strLibs = getPicoLibs(projectName, extension)
 
   # only update file if contents change
   # to prevent CMake from reconfiguring
-  if fileExists(importPath):
-    let oldTemplate = readFile(importPath)
+  if fileExists(buildImportPath):
+    let oldTemplate = readFile(buildImportPath)
     let newTemplate = fmt(cMakeIncludeTemplate)
     if oldTemplate != newTemplate:
-      writeFile(importPath, newTemplate)
+      writeFile(buildImportPath, newTemplate)
   else:
-    writeFile(importPath, fmt(cMakeIncludeTemplate))
+    mkDir(buildImportPath.parentDir())
+    writeFile(buildImportPath, fmt(cMakeIncludeTemplate))
 
 task fastclean, "Clean task":
   let selectedBins = getSelectedBins()
@@ -205,18 +209,19 @@ task distclean, "Distclean task":
 
 
 task configure, "Setup task":
-  if not dirExists("csource"):
-    picoError "Could not find csource directory!"
 
   # I want to put this in the beforeBuild hook,
   # but there you can't see what binaries are
   # about to be built using commandLineParams.
-  rmFile(importPath)
+
 
   let selectedBins = getSelectedBins()
   for program in getPrograms():
     if program notin selectedBins:
       continue
+
+    let buildImportPath = "build" / namedProgram(program) / importPath
+    rmFile(buildImportPath)
 
     let jsonFileCached = nimcache(program) / namedProgram(program) & ".cached.json"
 
@@ -229,7 +234,7 @@ task configure, "Setup task":
     cmakeArgs.add "-DPICO_SDK_FETCH_FROM_GIT=on"
     cmakeArgs.add "-DOUTPUT_NAME=" & namedProgram(program)
     cmakeArgs.add "-S"
-    cmakeArgs.add "csource"
+    cmakeArgs.add "."
     cmakeArgs.add "-B"
     cmakeArgs.add "build" / program
 
@@ -267,7 +272,7 @@ after build:
     if not dirExists("build" / program):
       picoError "Build directory " & "build" / program & " does not exist. Try run nimble configure."
 
-    genCMakeInclude(program)
+    genCMakeInclude(namedProgram(program))
 
     # run cmake build
     var command = "cmake --build " & "build" / program & " -- -j4"

@@ -46,7 +46,7 @@ importc:
   sysPath picoSdkPath / "src/rp2040/hardware_regs/include"
   sysPath cmakeBinaryDir / "_deps/freertos_kernel-src/portable/ThirdParty/GCC/RP2040/include"
   sysPath cmakeBinaryDir / "_deps/freertos_kernel-src/include"
-  path cmakeSourceDir
+  path piconimCsourceDir
   path getProjectPath()
 
   renameCallback futharkRenameCallback

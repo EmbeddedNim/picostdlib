@@ -34,15 +34,16 @@ if(EXISTS ${NIMCACHE_JSON_FILE})
   set_source_files_properties(${NimSources} PROPERTIES COMPILE_OPTIONS "-w")
 endif()
 
+set(PICOSTDLIB_IMPORTS_PATH ${CMAKE_CURRENT_BINARY_DIR}/picostdlib/imports.cmake)
 
 function(picostdlib_configure name)
   target_include_directories(${name} PRIVATE
     ${NIM_LIB_DIR}
   )
 
-  if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/imports.cmake)
-    include(${CMAKE_CURRENT_SOURCE_DIR}/imports.cmake) # Include our generated file
-    link_imported_libs(${name}) # call our generated function to import all libs we're using
+  if(EXISTS ${PICOSTDLIB_IMPORTS_PATH})
+    include(${PICOSTDLIB_IMPORTS_PATH}) # Include our generated file
+    link_imported_libs(${name}) # call our generated function to import all pico-sdk libs we're using
   else()
     # fallback to something
     target_link_libraries(${name} pico_stdlib)

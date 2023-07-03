@@ -23,13 +23,15 @@ folder. You can also provide the following options to the subcommand:
 
     (--sdk, -s) ->       specify the path to a locally installed pico-sdk
                          repository. ex: --sdk:/home/user/pico-sdk
+    (--board, -b) ->     specify the board type (pico or pico_w are accepted),
+                         choosing pico_w includes a pico_w blink example
     (--overwrite, -O) -> a flag to specify overwriting an exisiting directory
                          with the <project-name> already created. Be careful
                          with this. ex: piconim myProject --overwrite will
                          replace a folder named myProject.
 """
 
-const embeddedFiles = (proc (): Table[string, string] =
+const embeddedFiles = (proc (): OrderedTable[string, string] =
   const root = getProjectPath() / ".." / ".." / ".." / "template"
   for item in os.walkDirRec(root, relative=true, checkDir=true):
     result[item] = staticRead(root / item)
@@ -44,7 +46,7 @@ proc validateSdkPath(sdk: string) =
     picoError fmt"directory provided with --sdk argument does not appear to be a valid pico-sdk library: {sdk}"
 
 
-proc createProject(projectPath: string; sdk = "", override = false) =
+proc createProject(projectPath: string; sdk = ""; board: string = ""; override = false) =
   let name = projectPath.splitPath.tail
 
   echo "Select type binary or hybrid to be able to build the program"
@@ -67,9 +69,16 @@ proc createProject(projectPath: string; sdk = "", override = false) =
       createDir(filepath.parentDir)
       writeFile(filepath, embeddedFiles[f])
 
+    if board == "pico_w":
+      echo "piconim: moving ", projectPath / "src" / "picow_blink.nim", " to ", projectPath / "src" / "blink.nim"
+      moveFile(projectPath / "src" / "picow_blink.nim", projectPath / "src" / "blink.nim")
+    else:
+      echo "piconim: removing ", projectPath / "src" / "picow_blink.nim"
+      removeFile(projectPath / "src" / "picow_blink.nim")
+
     # rename nim file
-    echo "piconim: renaming ", projectPath / "src" / "blink.nim", " to ", projectPath / "src" / "name" & ".nim"
-    moveFile(projectPath / "src" / "blink.nim", projectPath / "src" / "name" & ".nim")
+    echo "piconim: moving ", projectPath / "src" / "blink.nim", " to ", projectPath / "src" / name & ".nim"
+    moveFile(projectPath / "src" / "blink.nim", projectPath / "src" / name & ".nim")
 
     # add picostdlib tasks to nimble file
     let nimbleFile = projectPath / name & ".nimble"
@@ -78,19 +87,27 @@ proc createProject(projectPath: string; sdk = "", override = false) =
 
     # replace blink name with project name
     # set SDK path if provided
-    let cmakelists = projectPath / "csource" / "CMakeLists.txt"
-    var cmakefile = cmakelists.readFile()
-    cmakefile = cmakefile.replace("blink", name)
+    let cmakelistsPath = projectPath / "CMakeLists.txt"
+    var cmakelistsContent = cmakelistsPath.readFile()
+    cmakelistsContent = cmakelistsContent.replace("blink", name)
     if sdk != "":
-      cmakefile = cmakefile.replace("#set(PICO_SDK_PATH ENV{PICO_SDK_PATH})", "set(PICO_SDK_PATH \"" & sdk & "\")")
-    echo "piconim: updating file ", cmakelists
-    cmakelists.writeFile cmakefile
+      cmakelistsContent = cmakelistsContent.replace("# set(PICO_SDK_PATH ENV{PICO_SDK_PATH})", "set(PICO_SDK_PATH \"" & sdk & "\") # Set by piconim")
+      let configPath = projectPath / "src" / "config.nims"
+      var configContent = configPath.readFile()
+      configContent = configContent.replace("# switch(\"d\", \"PICO_SDK_PATH:/path/to/pico-sdk\")", "switch(\"d\", \"" & "PICO_SDK_PATH:" & sdk & "\") # Set by piconim")
+      echo "piconim: updating file ", configContent
+      configPath.writeFile(configContent)
+    cmakelistsContent = cmakelistsContent.replace("# set(PICO_BOARD pico_w)", "set(PICO_BOARD " & board & ") # Set by piconim")
+    if board == "pico_w":
+      cmakelistsContent = cmakelistsContent.replace("# pico_cyw43_arch_lwip_threadsafe_background pico_lwip_mbedtls pico_mbedtls", "pico_cyw43_arch_lwip_threadsafe_background pico_lwip_mbedtls pico_mbedtls")
+    echo "piconim: updating file ", cmakelistsPath
+    cmakelistsPath.writeFile(cmakelistsContent)
 
     echo "Project created!"
     echo &"Type `cd {name}` and then `nimble configure` to configure CMake"
     echo "Then run `nimble build` to compile the project"
 
-proc validateInitInputs(name: string, sdk: string = "", overwrite: bool) =
+proc validateInitInputs(name: string, sdk: string = "", board: string = "", overwrite: bool) =
   ## ensures that provided setup cli parameters will work
 
   # check if name is valid filename
@@ -110,16 +127,17 @@ when isMainModule:
   commandline:
     subcommand(init, "init", "i"):
       argument(name, string)
+      commandant.option(board, string, "board", "b", "pico")
       commandant.option(sdk, string, "sdk", "s")
       flag(overwriteTemplate, "overwrite", "O")
 
   echo "piconim: Create Raspberry Pi Pico projects using Nim"
 
   if init:
-    validateInitInputs(name, sdk, overwriteTemplate)
+    validateInitInputs(name, sdk, board, overwriteTemplate)
     let dirDidExist = dirExists(name)
     try:
-      createProject(name, sdk)
+      createProject(name, sdk, board)
     except PicoSetupError as e:
       printError(e.msg)
       if not dirDidExist:

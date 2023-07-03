@@ -26,21 +26,8 @@ switch("maxLoopIterationsVM", "100000000")
 
 # switch("d", "PICO_SDK_PATH:/path/to/pico-sdk")
 switch("d", "CMAKE_BINARY_DIR:" & getCurrentDir() & "/build/" & projectName())
-switch("d", "CMAKE_SOURCE_DIR:" & getCurrentDir() & "/csource")
+switch("d", "CMAKE_SOURCE_DIR:" & getCurrentDir())
+# switch("d", "piconimCsourceDir:" & getCurrentDir() & "/csource")
 
-## For using TCP over Wifi without futhark
-# switch("d", "cyw43Gpio")
-# switch("d", "cyw43Lwip")
-# switch("d", "lwipIpv4")
-# switch("d", "lwipTcp")
-# switch("d", "lwipDns")
-# switch("d", "lwipCallbackApi")
-# switch("d", "lwipNetifHostname")
-# switch("d", "lwipAltcp")
-# # switch("d", "lwipAltcpTls")
-# # switch("d", "lwipAltcpTlsMbedtls")
-# # switch("d", "lwipDhcp")
-
-switch("d", "WIFI_SSID:myssid")
-switch("d", "WIFI_PASSWORD:mypassword")
-
+# switch("d", "WIFI_SSID:myssid")
+# switch("d", "WIFI_PASSWORD:mypassword")

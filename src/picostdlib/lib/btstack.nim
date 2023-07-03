@@ -45,7 +45,7 @@ importc:
   sysPath armInstallInclude
   sysPath picoSdkPath / "lib/btstack/src"
   sysPath picoSdkPath / "lib/btstack/3rd-party/lc3-google/include"
-  path cmakeSourceDir
+  path piconimCsourceDir
   path getProjectPath()
 
   renameCallback futharkRenameCallback

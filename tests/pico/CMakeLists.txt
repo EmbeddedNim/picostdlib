@@ -47,6 +47,7 @@ pico_sdk_init()
 # include(${FREERTOS_KERNEL_PATH}/portable/ThirdParty/GCC/RP2040/FreeRTOS_Kernel_import.cmake)
 
 include(${PICOSTDLIB_DIR}/picostdlib/cmake/picostdlib.cmake)
+set(PICOSTDLIB_IMPORTS_PATH ${CMAKE_CURRENT_SOURCE_DIR}/imports.cmake)
 
 add_executable(${OUTPUT_NAME} ${NimSources})
 
@@ -59,6 +60,7 @@ picostdlib_configure(${OUTPUT_NAME})
 # required for a project can also be placed here.
 target_include_directories(${OUTPUT_NAME} PUBLIC
   ${CMAKE_SOURCE_DIR}
+  ${CMAKE_SOURCE_DIR}/../../template/csource
 )
 
 # Additional libraries

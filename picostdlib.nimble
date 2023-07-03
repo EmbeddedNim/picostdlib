@@ -23,6 +23,9 @@ before test:
   mkDir "build/test_pico/nimcache"
   mkDir "build/test_pico_w/nimcache"
 
+  rmDir "testproject_pico"
+  rmDir "testproject_pico_w"
+
   # truncate the json cache file
   # for CMake to detect changes later
   writeFile("build/test_pico/nimcache/test_pico.cached.json", "")
@@ -31,11 +34,13 @@ before test:
   exec "cmake -DPICO_SDK_FETCH_FROM_GIT=on -DOUTPUT_NAME=test_pico -S tests/pico -B build/test_pico"
   exec "cmake -DPICO_SDK_FETCH_FROM_GIT=on -DOUTPUT_NAME=test_pico_w -S tests/pico_w -B build/test_pico_w"
 
+
 task test, "Runs the test suite":
-  rmDir "testproject"
-  exec "echo -ne '\t\r\n\r\n\r\n' | piconim init testproject && cd testproject && nimble configure && nimble build"
   exec "nimble c tests/pico/test_pico"
   exec "nimble c tests/pico_w/test_pico_w"
+
+  exec "echo -ne '\t\r\n\r\n\r\n' | piconim init testproject_pico && cd testproject_pico && nimble configure && nimble build"
+  exec "echo -ne '\t\r\n\r\n\r\n' | piconim init -b pico_w testproject_pico_w && cd testproject_pico_w && nimble configure && nimble build"
 
 after test:
   cpFile("build/test_pico/nimcache/test_pico.json", "build/test_pico/nimcache/test_pico.cached.json")

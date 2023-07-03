@@ -38,15 +38,17 @@ When it asks for what project type, choose `>binary<` or `>hybrid<`. If you choo
 `>library<` there will be nothing to build.
 You can also provide the following options to the subcommand:
     - (--sdk, -s) -> specify the path to a locally installed `pico-sdk` repository,
-    ex.  `--sdk:/home/user/pico-sdk`.
+      ex.  `--sdk:/home/user/pico-sdk`.
+    - (--board, -b) -> specify the board type (`pico` or `pico_w` are accepted),
+      choosing pico_w includes a pico_w blink example
     - (--overwrite, -O) -> a flag to specify overwriting an exisiting directory 
-    with the `<project-name>` already created. Be careful with this. 
-    ex. `piconim myProject --overwrite` will replace a folder named `myProject`
+      with the `<project-name>` already created. Be careful with this.
+      ex. `piconim myProject --overwrite` will replace a folder named `myProject`
 
 6. Change directory to the new project and run `nimble configure`. This will initialize
 the Pico SDK using CMake. If you provided a path to the SDK in the previous step, it will
-use that, otherwise it will download the SDK from GitHub, but you can also set
-the environment variable `PICO_SDK_PATH` before running `nimble configure`.
+use that, otherwise it will download the SDK from GitHub, or if you have the Pico SDK installed
+already, it will use environment variable `PICO_SDK_PATH`.
 
 You are now ready to start developing and building your project.
 
@@ -60,7 +62,7 @@ you can use the `build` command of Nimble:
 
 The generated `.uf2` file is placed in `build/<bin name>/<bin name>.uf2`
 
-Modify `csource/CMakeLists.txt` to suit your project's needs.
+Modify `CMakeLists.txt` to suit your project's needs.
 
 Examples:
 

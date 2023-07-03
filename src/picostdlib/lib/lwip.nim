@@ -50,7 +50,7 @@ importc:
   path picoSdkPath / "lib/mbedtls/library"
   path picoSdkPath / "src/rp2_common/pico_lwip/include"
   path picoSdkPath / "lib/lwip/src/include"
-  path cmakeSourceDir
+  path piconimCsourceDir
   path getProjectPath()
 
   define "MBEDTLS_USER_CONFIG_FILE \"mbedtls_config.h\""
