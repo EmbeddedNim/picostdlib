@@ -34,7 +34,7 @@ if(EXISTS ${NIMCACHE_JSON_FILE})
   set_source_files_properties(${NimSources} PROPERTIES COMPILE_OPTIONS "-w")
 endif()
 
-set(PICOSTDLIB_IMPORTS_PATH ${CMAKE_CURRENT_BINARY_DIR}/picostdlib/imports.cmake)
+set(PICOSTDLIB_IMPORTS_PATH ${CMAKE_CURRENT_BINARY_DIR}/generated/picostdlib/imports.cmake)
 
 function(picostdlib_configure name)
   target_include_directories(${name} PRIVATE
