@@ -2,18 +2,16 @@ set(OUTPUT_NAME test_pico)
 
 add_executable(${OUTPUT_NAME})
 
-picostdlib_sources(${OUTPUT_NAME})
-
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/test_pico_imports.cmake ${CMAKE_BINARY_DIR}/${OUTPUT_NAME}/imports.cmake COPYONLY)
 
-picostdlib_configure(${OUTPUT_NAME})
+picostdlib_target(${OUTPUT_NAME} ${OUTPUT_NAME})
 
 # set_target_properties(${OUTPUT_NAME} PROPERTIES LINKER_LANGUAGE CXX)
 
 # Add directory containing this CMakeLists file to include search path.
 # This is required so that the lwipopts.h file is found. Other headers
 # required for a project can also be placed here.
-target_include_directories(${OUTPUT_NAME} PUBLIC
+target_include_directories(${OUTPUT_NAME} PRIVATE
   ${CMAKE_SOURCE_DIR}
   ${CMAKE_SOURCE_DIR}/../template/csource
 )

@@ -59,13 +59,11 @@ include(${PICOSTDLIB_DIR}/picostdlib/cmake/picostdlib.cmake)
 
 add_executable(${OUTPUT_NAME})
 
-picostdlib_sources(${OUTPUT_NAME})
-
-picostdlib_configure(${OUTPUT_NAME})
+picostdlib_target(${OUTPUT_NAME} ${OUTPUT_NAME})
 
 # set_target_properties(${OUTPUT_NAME} PROPERTIES LINKER_LANGUAGE CXX)
 
-target_include_directories(${OUTPUT_NAME} PUBLIC
+target_include_directories(${OUTPUT_NAME} PRIVATE
   ${CMAKE_SOURCE_DIR}/csource
 )
 

@@ -13,7 +13,7 @@ execute_process(
 )
 string(JSON NIM_LIB_DIR GET "${NIM_DUMP_JSON}" libpath)
 
-function(picostdlib_sources name)
+function(picostdlib_target target name)
   set(NIMCACHE_DIR "${CMAKE_BINARY_DIR}/${name}/nimcache")
   set(NIMCACHE_JSON_FILE "${NIMCACHE_DIR}/${name}.json")
 
@@ -22,8 +22,6 @@ function(picostdlib_sources name)
   endif()
 
   set_directory_properties(PROPERTIES CMAKE_CONFIGURE_DEPENDS ${NIMCACHE_JSON_FILE})
-
-  message("Picostdlib: Nimcache json for target ${name}: ${NIMCACHE_JSON_FILE}")
 
   set(NIM_SOURCES "")
   set(NIMCACHE_JSON_DATA "")
@@ -43,20 +41,17 @@ function(picostdlib_sources name)
     endforeach()
     # Suppress gcc warnings for nim-generated files
     set_source_files_properties(${NIM_SOURCES} PROPERTIES COMPILE_OPTIONS "-w")
-    target_sources(${name} PRIVATE ${NIM_SOURCES})
+    target_sources(${target} PRIVATE ${NIM_SOURCES})
   endif()
 
-  target_include_directories(${name} PRIVATE ${NIM_LIB_DIR})
-endfunction()
+  target_include_directories(${target} PRIVATE ${NIM_LIB_DIR})
 
-function(picostdlib_configure name)
-  set(PICOSTDLIB_IMPORTS_PATH ${CMAKE_BINARY_DIR}/${name}/imports.cmake)
-  message("Picostdlib: Imports path for target ${name}: ${PICOSTDLIB_IMPORTS_PATH}")
+  set(PICOSTDLIB_IMPORTS_PATH "${CMAKE_BINARY_DIR}/${name}/imports.cmake")
   if(EXISTS ${PICOSTDLIB_IMPORTS_PATH})
     include(${PICOSTDLIB_IMPORTS_PATH}) # Include our generated file
-    link_imported_libs(${name}) # call our generated function to import all pico-sdk libs we're using
+    link_imported_libs(${target}) # call our generated function to import all pico-sdk libs we're using
   else()
     # fallback to something
-    target_link_libraries(${name} pico_stdlib)
+    target_link_libraries(${target} pico_stdlib)
   endif()
 endfunction()
