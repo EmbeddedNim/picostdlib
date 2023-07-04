@@ -1,4 +1,4 @@
-switch("path", "$projectDir/../../src")
+switch("path", "$projectDir/../src")
 
 include "../template/src/config.nims"
 

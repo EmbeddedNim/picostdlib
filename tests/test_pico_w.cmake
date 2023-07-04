@@ -4,7 +4,7 @@ add_executable(${OUTPUT_NAME})
 
 picostdlib_sources(${OUTPUT_NAME})
 
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/imports.cmake ${CMAKE_BINARY_DIR}/${OUTPUT_NAME}/imports.cmake COPYONLY)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/test_pico_w_imports.cmake ${CMAKE_BINARY_DIR}/${OUTPUT_NAME}/imports.cmake COPYONLY)
 
 picostdlib_configure(${OUTPUT_NAME})
 
