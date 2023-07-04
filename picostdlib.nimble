@@ -19,32 +19,18 @@ requires "futhark >= 0.9.2" # for bindings to lwip, cyw43_driver, btstack...
 
 # Tests
 
-before test:
-  mkDir "build/test_pico/nimcache"
-  mkDir "build/test_pico_w/nimcache"
-
-  rmDir "testproject_pico"
-  rmDir "testproject_pico_w"
-
-  # truncate the json cache file
-  # for CMake to detect changes later
-  writeFile("build/test_pico/nimcache/test_pico.cached.json", "")
-  writeFile("build/test_pico_w/nimcache/test_pico_w.cached.json", "")
-
-  exec "cmake -DPICO_SDK_FETCH_FROM_GIT=on -DOUTPUT_NAME=test_pico -S tests/pico -B build/test_pico"
-  exec "cmake -DPICO_SDK_FETCH_FROM_GIT=on -DOUTPUT_NAME=test_pico_w -S tests/pico_w -B build/test_pico_w"
-
 task test, "Runs the test suite":
+
+  exec "cmake -DPICO_SDK_FETCH_FROM_GIT=on -DPICO_BOARD=pico -S tests -B build/tests"
   exec "nimble c tests/pico/test_pico"
+  exec "cmake --build build/tests -- -j4"
+
+  exec "cmake -DPICO_SDK_FETCH_FROM_GIT=on -DPICO_BOARD=pico_w -S tests -B build/tests"
   exec "nimble c tests/pico_w/test_pico_w"
+  exec "cmake --build build/tests -- -j4"
 
   when not defined(windows):
+    rmDir "testproject_pico"
+    rmDir "testproject_pico_w"
     exec "printf '\t\r\n\r\n\r\n\r\n\r\n' | piconim init testproject_pico && cd testproject_pico && nimble configure && nimble build"
     exec "printf '\t\r\n\r\n\r\n\r\n\r\n' | piconim init -b pico_w testproject_pico_w && cd testproject_pico_w && nimble configure && nimble build"
-
-after test:
-  cpFile("build/test_pico/nimcache/test_pico.json", "build/test_pico/nimcache/test_pico.cached.json")
-  cpFile("build/test_pico_w/nimcache/test_pico_w.json", "build/test_pico_w/nimcache/test_pico_w.cached.json")
-
-  exec "cmake --build build/test_pico -- -j4"
-  exec "cmake --build build/test_pico_w -- -j4"

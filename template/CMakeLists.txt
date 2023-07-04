@@ -17,7 +17,9 @@ set(CMAKE_CXX_STANDARD 17)
 # set(PICO_SDK_PATH ENV{PICO_SDK_PATH})
 
 # Set board type here
-# set(PICO_BOARD pico_w)
+if(NOT DEFINED PICO_BOARD)
+  set(PICO_BOARD pico)
+endif()
 
 # Support C++ exceptions with Nim
 set(PICO_CXX_ENABLE_EXCEPTIONS 1)
@@ -35,7 +37,7 @@ execute_process(
 # note: this must happen before project()
 include(${PICOSTDLIB_DIR}/picostdlib/cmake/pico_sdk_import.cmake)
 
-project(${OUTPUT_NAME})
+project(${OUTPUT_NAME} C CXX ASM)
 
 # initialize the Raspberry Pi Pico SDK
 pico_sdk_init()
@@ -53,7 +55,11 @@ pico_sdk_init()
 
 include(${PICOSTDLIB_DIR}/picostdlib/cmake/picostdlib.cmake)
 
-add_executable(${OUTPUT_NAME} ${NimSources})
+# add executables below, either directly or with include/add_subdirectory
+
+add_executable(${OUTPUT_NAME})
+
+picostdlib_sources(${OUTPUT_NAME})
 
 picostdlib_configure(${OUTPUT_NAME})
 

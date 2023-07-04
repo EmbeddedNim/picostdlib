@@ -66,7 +66,6 @@ type
 
 let nimbleBackend = if backend.len > 0: backend else: "c"
 let extension = $parseEnum[BackendExtension](nimbleBackend)
-const importPath = "generated" / "picostdlib" / "imports.cmake"
 const cMakeIncludeTemplate = """
 # This is a generated file do not modify it, 'picostdlib' makes it every build.
 
@@ -75,7 +74,8 @@ function(link_imported_libs name)
 endFunction()
 """
 
-proc nimcache(program: string): string = "build" / program / "nimcache"
+proc importPath(program: string): string = "build" / projectName() / program / "imports.cmake"
+proc nimcache(program: string): string = "build" / projectName() / program / "nimcache"
 
 proc namedProgram(program: string): string =
   if namedBin.hasKey(program):
@@ -159,18 +159,18 @@ proc getPicoLibs(program: string, extension: string): string =
     result.add $lib
     result.add " "
 
-proc genCMakeInclude(projectName: string) =
+proc genCMakeInclude(program: string) =
   ## Create a CMake include file in the csources containing:
   ##  - all pico-sdk libs to link
   ##  - path to current Nim compiler "lib" path, to be added to the
   ##    C compiler include path
 
-  let buildImportPath = "build" / projectName / importPath
+  let buildImportPath = importPath(program)
 
   # rmFile(buildImportPath)
 
   # pico-sdk libs
-  let strLibs = getPicoLibs(projectName, extension)
+  let strLibs = getPicoLibs(program, extension)
 
   # only update file if contents change
   # to prevent CMake from reconfiguring
@@ -214,21 +214,13 @@ task configure, "Setup task":
   # but there you can't see what binaries are
   # about to be built using commandLineParams.
 
-
   let selectedBins = getSelectedBins()
   for program in getPrograms():
     if program notin selectedBins:
       continue
 
-    let buildImportPath = "build" / namedProgram(program) / importPath
+    let buildImportPath = importPath(program)
     rmFile(buildImportPath)
-
-    let jsonFileCached = nimcache(program) / namedProgram(program) & ".cached.json"
-
-    # truncate the json cache file
-    # for CMake to detect changes later
-    mkDir(nimcache(program))
-    writeFile(jsonFileCached, "")
 
     var cmakeArgs: seq[string]
     cmakeArgs.add "-DPICO_SDK_FETCH_FROM_GIT=on"
@@ -255,17 +247,20 @@ after build:
   var elfs: seq[string]
   for program in getPrograms():
     let jsonFile = nimcache(program) / namedProgram(program) & ".json"
-    let jsonFileCached = jsonFile.changeFileExt(".cached.json")
     if not fileExists(jsonFile):
       continue
+    let jsonFileCached = jsonFile.changeFileExt(".cached.json")
 
-    # only copy the json file to cache if contents change
-    # to prevent CMake from reconfiguring
     if fileExists(jsonFileCached):
       let oldJsonFile = readFile(jsonFileCached)
       let newJsonFile = readFile(jsonFile)
       if oldJsonFile != newJsonFile:
+        # only copy the json file if contents change
         cpFile(jsonFile, jsonFileCached)
+      else:
+        # copy and preserve timestamp to prevent CMake from reconfiguring
+        when defined(posix):
+          exec("cp -p " & quoteShell(jsonFileCached) & " " & quoteShell(jsonFile))
     else:
       cpFile(jsonFile, jsonFileCached)
 

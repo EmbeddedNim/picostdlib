@@ -1,3 +1,6 @@
+import std/os
+const packageName = getCurrentDir().splitPath().tail
+
 switch("cpu", "arm")
 switch("os", "freertos")
 
@@ -9,7 +12,7 @@ switch("deepcopy", "on")
 switch("threads", "off")
 
 switch("compileOnly", "on")
-switch("nimcache", "build/" & projectName() & "/nimcache")
+switch("nimcache", "build/" & packageName & "/" & projectName() & "/nimcache")
 
 switch("define", "checkAbi")
 switch("define", "nimMemAlignTiny")
@@ -25,7 +28,7 @@ switch("d", "nimEmulateOverflowChecks")
 switch("maxLoopIterationsVM", "100000000")
 
 # switch("d", "PICO_SDK_PATH:/path/to/pico-sdk")
-switch("d", "CMAKE_BINARY_DIR:" & getCurrentDir() & "/build/" & projectName())
+switch("d", "CMAKE_BINARY_DIR:" & getCurrentDir() & "/build/" & packageName)
 switch("d", "CMAKE_SOURCE_DIR:" & getCurrentDir())
 switch("d", "piconimCsourceDir:" & getCurrentDir() & "/csource")
 

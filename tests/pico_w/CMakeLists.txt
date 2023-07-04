@@ -1,55 +1,10 @@
-cmake_minimum_required(VERSION 3.13)
+set(OUTPUT_NAME test_pico_w)
 
-if(NOT DEFINED OUTPUT_NAME)
-  set(OUTPUT_NAME blink)
-endif()
+add_executable(${OUTPUT_NAME})
 
-# Set CMake build type. Debug, Release, MinSizeRel, RelWithDebInfo
-set(CMAKE_BUILD_TYPE Debug)
+picostdlib_sources(${OUTPUT_NAME})
 
-# Set standards
-set(CMAKE_C_STANDARD 11)
-set(CMAKE_CXX_STANDARD 17)
-
-# initialize pico-sdk from GIT
-# (note this can come from environment, CMake cache etc)
-#set(PICO_SDK_FETCH_FROM_GIT on)
-#set(PICO_SDK_PATH ENV{PICO_SDK_PATH}) # Set by piconim
-
-# Set board type here
-set(PICO_BOARD pico_w)
-
-# Support C++ exceptions with Nim
-set(PICO_CXX_ENABLE_EXCEPTIONS 1)
-
-# Uncomment to disable picotool binary info
-# set(PICO_NO_BINARY_INFO 1)
-
-
-set(PICOSTDLIB_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../src")
-
-# note: this must happen before project()
-include(${PICOSTDLIB_DIR}/picostdlib/cmake/pico_sdk_import.cmake)
-
-project(${OUTPUT_NAME})
-
-# initialize the Raspberry Pi Pico SDK
-pico_sdk_init()
-
-# # fetch and initialize FreeRTOS-Kernel
-# include(FetchContent)
-# FetchContent_Declare( freertos_kernel
-#   GIT_REPOSITORY https://github.com/FreeRTOS/FreeRTOS-Kernel.git
-#   GIT_TAG        V10.5.1
-# )
-# FetchContent_Populate(freertos_kernel)
-# set(FREERTOS_KERNEL_PATH ${freertos_kernel_SOURCE_DIR})
-# include(${FREERTOS_KERNEL_PATH}/portable/ThirdParty/GCC/RP2040/FreeRTOS_Kernel_import.cmake)
-
-include(${PICOSTDLIB_DIR}/picostdlib/cmake/picostdlib.cmake)
-set(PICOSTDLIB_IMPORTS_PATH ${CMAKE_CURRENT_SOURCE_DIR}/imports.cmake)
-
-add_executable(${OUTPUT_NAME} ${NimSources})
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/imports.cmake ${CMAKE_BINARY_DIR}/${OUTPUT_NAME}/imports.cmake COPYONLY)
 
 picostdlib_configure(${OUTPUT_NAME})
 
@@ -60,7 +15,7 @@ picostdlib_configure(${OUTPUT_NAME})
 # required for a project can also be placed here.
 target_include_directories(${OUTPUT_NAME} PUBLIC
   ${CMAKE_SOURCE_DIR}
-  ${CMAKE_SOURCE_DIR}/../../template/csource
+  ${CMAKE_SOURCE_DIR}/../template/csource
 )
 
 # Additional libraries
@@ -88,4 +43,4 @@ pico_enable_stdio_uart(${OUTPUT_NAME} 0)
 pico_add_extra_outputs(${OUTPUT_NAME})
 
 # add url via pico_set_program_url
-#pico_set_program_url(${OUTPUT_NAME} "")
+# pico_set_program_url(${OUTPUT_NAME} "")
