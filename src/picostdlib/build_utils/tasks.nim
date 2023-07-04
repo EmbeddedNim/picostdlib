@@ -73,9 +73,10 @@ function(link_imported_libs name)
   target_link_libraries(${{name}} {strLibs})
 endFunction()
 """
-
-proc importPath(program: string): string = "build" / projectName() / program / "imports.cmake"
-proc nimcache(program: string): string = "build" / projectName() / program / "nimcache"
+const buildDir = "build" / projectName()
+doAssert projectName().len > 0
+proc importPath(program: string): string = buildDir / program / "imports.cmake"
+proc nimcache(program: string): string = buildDir / program / "nimcache"
 
 proc namedProgram(program: string): string =
   if namedBin.hasKey(program):
@@ -167,8 +168,6 @@ proc genCMakeInclude(program: string) =
 
   let buildImportPath = importPath(program)
 
-  # rmFile(buildImportPath)
-
   # pico-sdk libs
   let strLibs = getPicoLibs(program, extension)
 
@@ -184,28 +183,25 @@ proc genCMakeInclude(program: string) =
     writeFile(buildImportPath, fmt(cMakeIncludeTemplate))
 
 task fastclean, "Clean task":
-  let selectedBins = getSelectedBins()
-  for program in getPrograms():
-    if program notin selectedBins:
-      continue
 
-    rmDir(nimcache(program))
+  if dirExists(buildDir):
+    echo "Cleaning ", buildDir
+    let command = "cmake --build " & quoteShell(buildDir) & " --target clean"
+    echo command
+    exec(command)
 
-    if dirExists("build" / program):
-      echo "Cleaning ", "build" / program
-      let command = "cmake --build " & "build" / program & " --target clean"
-      echo command
-      exec(command)
+    let selectedBins = getSelectedBins()
+    for program in getPrograms():
+      if program notin selectedBins:
+        continue
+
+      rmDir(nimcache(program))
+
 
 task distclean, "Distclean task":
-  let selectedBins = getSelectedBins()
-  for program in getPrograms():
-    if program notin selectedBins:
-      continue
-
-    if dirExists("build" / program):
-      echo "Removing ", "build" / program
-      rmDir("build" / program)
+  if dirExists(buildDir):
+    echo "Removing ", buildDir
+    rmDir(buildDir)
 
 
 task configure, "Setup task":
@@ -222,17 +218,16 @@ task configure, "Setup task":
     let buildImportPath = importPath(program)
     rmFile(buildImportPath)
 
-    var cmakeArgs: seq[string]
-    cmakeArgs.add "-DPICO_SDK_FETCH_FROM_GIT=on"
-    cmakeArgs.add "-DOUTPUT_NAME=" & namedProgram(program)
-    cmakeArgs.add "-S"
-    cmakeArgs.add "."
-    cmakeArgs.add "-B"
-    cmakeArgs.add "build" / program
+  var cmakeArgs: seq[string]
+  cmakeArgs.add "-DPICO_SDK_FETCH_FROM_GIT=on"
+  cmakeArgs.add "-S"
+  cmakeArgs.add "."
+  cmakeArgs.add "-B"
+  cmakeArgs.add buildDir
 
-    let command = "cmake " & quoteShellCommand(cmakeArgs)
-    echo command
-    exec(command)
+  let command = "cmake " & quoteShellCommand(cmakeArgs)
+  echo command
+  exec(command)
 
 before build:
   # delete the nimcache json files
@@ -264,25 +259,29 @@ after build:
     else:
       cpFile(jsonFile, jsonFileCached)
 
-    if not dirExists("build" / program):
-      picoError "Build directory " & "build" / program & " does not exist. Try run nimble configure."
+    if not dirExists(buildDir):
+      picoError "Build directory " & buildDir & " does not exist. Try run nimble configure."
 
     genCMakeInclude(namedProgram(program))
 
-    # run cmake build
-    var command = "cmake --build " & "build" / program & " -- -j4"
-    echo command
-    exec(command)
-    elfs.add("build" / program / program & ".elf")
+    elfs.add(buildDir / program & ".elf")
 
-  try:
-    exec("arm-none-eabi-size -G " & quoteShellCommand(elfs))
-  except OSError as e: echo e.msg
+  # run cmake build
+  var command = "cmake --build " & quoteShell(buildDir) & " -- -j4"
+  echo command
+  exec(command)
+
+  if elfs.len > 0:
+    try:
+      exec("arm-none-eabi-size -G " & quoteShellCommand(elfs))
+    except OSError as e: echo e.msg
+
 
 task buildclean, "Clean and build task":
   let selectedBins = getSelectedBins()
   exec("nimble fastclean " & quoteShellCommand(selectedBins))
   exec("nimble build " & quoteShellCommand(selectedBins))
+
 
 task upload, "Upload task":
   let selectedBins = getSelectedBins()
@@ -293,9 +292,9 @@ task upload, "Upload task":
       exec(fmt"nimble buildclean {program}")
     elif "--build" in commandLineParams:
       exec(fmt"nimble build {program}")
-    exec(fmt"picotool info build/{program}/{name}.uf2 -a")
+    exec(fmt"picotool info {buildDir}/{name}.uf2 -a")
     echo "\nUploading..."
-    exec(fmt"picotool load build/{program}/{name}.uf2 -v -x -f")
+    exec(fmt"picotool load {buildDir}/{name}.uf2 -v -x -f")
 
 
 task monitor, "Monitor task":
