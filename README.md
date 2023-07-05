@@ -63,7 +63,7 @@ you can use the `build` command of Nimble:
 
 `nimble build`
 
-The generated `.uf2` file is placed in `build/<bin name>/<bin name>.uf2`
+The generated `.uf2` file is placed in `build/<project>/<program>.uf2`
 
 Modify `CMakeLists.txt` to suit your project's needs.
 
@@ -72,13 +72,6 @@ Examples:
 ```bash
 # Initialize a new project
 piconim init [--sdk <sdk-path>] [--board <pico-board>] [--overwrite] <project-name>
-
-# Runs CMake configure without Nimble.
-piconim setup [--project <project-name>] [--source <source-dir>] [--sdk <sdk-path>]
-  [--board <pico-board>] [--fresh]
-
-# Build a program without Nimble. Runs setup --project <project-name> if build dir is empty
-piconim build [--project <project-name>] [--target <target>] <program>
 
 # Run the following commands from the project root.
 # If you don't specify a program name, it will use all
@@ -105,6 +98,13 @@ nimble upload [program] [--build] [--clean]
 
 # Monitors the tty port using minicom (/dev/ttyACM0)
 nimble monitor
+
+# Runs CMake configure without Nimble.
+piconim setup [--project <project-name>] [--source <source-dir>] [--sdk <sdk-path>]
+  [--board <pico-board>] [--fresh]
+
+# Build a program without Nimble. Runs setup --project <project-name> if build dir is empty
+piconim build [--project <project-name>] [--target <target>] <program>
 
 ```
 
