@@ -1,5 +1,6 @@
 import pkg/[commandant]
-import std/[strformat, strutils, os, osproc, terminal, sequtils, tables, macros]
+import std/[strformat, strutils, os, osproc, terminal, sequtils, tables, macros, json]
+import ./common
 
 type PicoSetupError = object of CatchableError
 
@@ -16,6 +17,7 @@ proc helpMessage(): string =
 
 Subcommands:
   init
+  build
 
 Run piconim init <project-name> to create a new project directory from a
 template. This will create a new folder, so make sure you are in the parent
@@ -29,6 +31,14 @@ folder. You can also provide the following options to the subcommand:
                          with the <project-name> already created. Be careful
                          with this. ex: piconim myProject --overwrite will
                          replace a folder named myProject.
+
+Run piconim build <program> to compile the project, the <program>.uf2
+file will be located in `build/<project>/`
+
+    (--project, -p) ->   specify build project name. By default it will
+                         use the nimble package's name as project name
+    (--target, -t) ->    specify the cmake target associated with this binary.
+                         By default it will be the program's basename.
 """
 
 const embeddedFiles = (proc (): OrderedTable[string, string] =
@@ -107,6 +117,42 @@ proc createProject(projectPath: string; sdk = ""; board: string = ""; override =
     echo &"Type `cd {name}` and then `nimble configure` to configure CMake"
     echo "Then run `nimble build` to compile the project"
 
+proc doBuild(mainProgram: string; projectIn: string; targetIn: string) =
+  let program = mainProgram.split(DirSep)[^1]
+  let projectInfo = execProcess("nimble", args = ["dump", "--json"], options = {poStdErrToStdOut, poUsePath}).parseJson()
+  let project = if projectIn != "": projectIn else: projectInfo["name"].str
+  let target = if targetIn != "": targetIn else: program
+  let backend = if projectInfo["backend"].str != "": projectInfo["backend"].str else: "c"
+  buildDir = "build" / project
+
+  echo "Building in " & buildDir
+  let jsonFile = nimcache(program) / program & ".json"
+  if fileExists(jsonFile):
+    removeFile(jsonFile)
+
+  # compile the nim program to .c files
+  let nimcmd = "nim " & quoteShellCommand([backend, "-c", "--hints:off", mainProgram])
+  echo ">> " & nimcmd
+  if execCmd(nimcmd) != 0:
+    picoError(fmt"unable to compile the provided nim program: {mainProgram}")
+
+  genCMakeInclude(program, backend)
+  updateJsonCache(jsonFile)
+
+  # run cmake build
+  var args = @["--build", buildDir, "--target", target, "--"]
+  if countProcessors() > 1:
+    args.add("-j" & $countProcessors())
+  let cmakecmd = "cmake " & quoteShellCommand(args)
+  echo ">> " & cmakecmd
+  discard execCmd(cmakecmd)
+
+  # size statistics for compiled binary
+  let elf = buildDir / program & ".elf"
+  if fileExists(elf):
+    discard execCmd("arm-none-eabi-size -G " & quoteShell(elf))
+
+
 proc validateInitInputs(name: string, sdk: string = "", board: string = "", overwrite: bool) =
   ## ensures that provided setup cli parameters will work
 
@@ -130,6 +176,10 @@ when isMainModule:
       commandant.option(board, string, "board", "b", "pico")
       commandant.option(sdk, string, "sdk", "s")
       flag(overwriteTemplate, "overwrite", "O")
+    subcommand(build, "build", "b"):
+      argument(mainProgram, string)
+      commandant.option(projectIn, string, "project", "p")
+      commandant.option(targetIn, string, "target", "t")
 
   echo "piconim: Create Raspberry Pi Pico projects using Nim"
 
@@ -145,5 +195,7 @@ when isMainModule:
          removeDir(name) # We failed remove file
         except IOError:
           discard
+  elif build:
+    doBuild(mainProgram, projectIn, targetIn)
   else:
     echo helpMessage()

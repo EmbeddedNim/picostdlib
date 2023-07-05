@@ -1,5 +1,5 @@
 
-# hide a warning in lwip
+# Hide a warning in lwIP
 set_source_files_properties(
   "${PICO_LWIP_PATH}/src/apps/altcp_tls/altcp_tls_mbedtls.c"
   PROPERTIES COMPILE_OPTIONS "-Wno-unused-result"

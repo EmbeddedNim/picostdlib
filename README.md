@@ -70,6 +70,9 @@ Examples:
 # Initialize a new project
 piconim init <project-name>
 
+# Build a program without Nimble
+piconim build [--project <project-name>] [--target <target>] <program>
+
 # Run the following commands from the project root.
 # If you don't specify a program name, it will use all
 # binaries specified in your Nimble file. You can specify multiple.

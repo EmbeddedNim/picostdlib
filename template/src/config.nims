@@ -28,8 +28,8 @@ switch("d", "nimEmulateOverflowChecks")
 switch("maxLoopIterationsVM", "100000000")
 
 # switch("d", "PICO_SDK_PATH:/path/to/pico-sdk")
-switch("d", "CMAKE_BINARY_DIR:" & getCurrentDir() & "/build/" & packageName)
-switch("d", "CMAKE_SOURCE_DIR:" & getCurrentDir())
+switch("d", "cmakeBinaryDir:" & getCurrentDir() & "/build/" & packageName)
+switch("d", "cmakeSourceDir:" & getCurrentDir())
 switch("d", "piconimCsourceDir:" & getCurrentDir() & "/csource")
 
 # switch("d", "WIFI_SSID:myssid")

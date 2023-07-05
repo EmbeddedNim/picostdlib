@@ -6,7 +6,7 @@ description   = "Nim bindings for the Raspberry Pi Pico SDK"
 license       = "BSD-3-Clause"
 srcDir        = "src"
 backend       = "c"
-bin           = @["picostdlib/build_utils/piconim"]
+namedBin["picostdlib/build_utils/piconim"] = "piconim"
 installExt    = @["nim", "h", "c", "cmake", "txt", "md"]
 
 
@@ -21,12 +21,10 @@ requires "futhark >= 0.9.2" # for bindings to lwip, cyw43_driver, btstack...
 
 task test, "Runs the test suite":
   exec "cmake -DPICO_SDK_FETCH_FROM_GIT=on -DPICO_BOARD=pico -S tests -B build/test_pico"
-  exec "nimble c tests/test_pico"
-  exec "cmake --build build/test_pico -- -j4"
+  exec "nimble run piconim -- build --project test_pico tests/test_pico"
 
   exec "cmake -DPICO_SDK_FETCH_FROM_GIT=on -DPICO_BOARD=pico_w -S tests -B build/test_pico_w"
-  exec "nimble c tests/test_pico_w"
-  exec "cmake --build build/test_pico_w -- -j4"
+  exec "nimble run piconim -- build --project test_pico_w tests/test_pico_w"
 
   when not defined(windows):
     rmDir "testproject_pico"

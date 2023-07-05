@@ -1,82 +1,18 @@
-import std/[strformat, strutils, strscans, sequtils, sets, genasts, json]
-import std/os except commandLineParams
-import pkg/micros
+import std/strformat
+import std/strutils
+import std/json
+import std/sequtils
+import ./common
 
 type
   PicoSetupError = object of CatchableError
 
-  LinkableLib = enum
-    adc = "hardware_adc"
-    base = "hardware_base"
-    claim = "hardware_claim"
-    clocks = "hardware_clocks"
-    # divider = "hardware_divider"  ## collides with pico_divider
-    dma = "hardware_dma"
-    exception = "hardware_exception"
-    flash = "hardware_flash"
-    gpio = "pico_stdlib"
-    i2c = "hardware_i2c"
-    interp = "hardware_interp"
-    irq = "hardware_irq"
-    pio = "hardware_pio"
-    pll = "hardware_pll"
-    pwm = "hardware_pwm"
-    reset = "hardware_resets"
-    rtc = "hardware_rtc"
-    spi = "hardware_spi"
-    # sync = "hardware_sync"  ## collides with pico_sync
-    timer = "hardware_timer"
-    uart = "pico_stdlib"
-    vreg = "hardware_vreg"
-    watchdog = "hardware_watchdog"
-    xosc = "hardware_xosc"
-
-    multicore = "pico_multicore"
-
-    ## pico_stdlib group
-    binary_info = "pico_stdlib"
-    runtime = "pico_stdlib"
-    platform = "pico_stdlib"
-    # printf = "pico_stdlib"  ## TODO
-    stdio = "pico_stdlib"
-    util = "pico_stdlib"
-
-    rand = "pico_rand"
-
-    sync = "pico_sync"
-
-    time = "pico_time"
-
-    unique_id = "pico_unique_id"
-
-    ## pico_runtime group, part of pico_stdlib
-    bit_ops = "pico_stdlib"
-    divider = "pico_stdlib"
-    double = "pico_stdlib"
-    # int64_ops = "pico_stdlib"  ## TODO
-    `float` = "pico_stdlib"
-    # malloc = "pico_stdlib"  ## TODO
-    # mem_ops = "pico_stdlib"  ## TODO
-    # standard_link = "pico_stdlib"  ## TODO
-
-    # util = "pico_util"  ## in group pico_stdlib already
-
-  BackendExtension {.pure.} = enum
-    c, cpp
-
 let nimbleBackend = if backend.len > 0: backend else: "c"
-let extension = $parseEnum[BackendExtension](nimbleBackend)
-const cMakeIncludeTemplate = """
-# This is a generated file do not modify it, 'picostdlib' makes it every build.
 
-function(link_imported_libs name)
-  target_link_libraries(${{name}} {strLibs})
-endFunction()
-"""
-const buildDir = "build" / projectName()
+common.buildDir = "build" / projectName()
 doAssert projectName().len > 0
-proc importPath(program: string): string = buildDir / program / "imports.cmake"
-proc nimcache(program: string): string = buildDir / program / "nimcache"
+# proc importPath(program: string): string = buildDir / program / "imports.cmake"
+# proc nimcache(program: string): string = buildDir / program / "nimcache"
 
 proc namedProgram(program: string): string =
   if namedBin.hasKey(program):
@@ -112,75 +48,6 @@ proc getSelectedBins(): seq[string] =
     if result.len == 0:
       result = bin
 
-macro parseLinkableLib(s: string) =
-  ## Parses enum using the field name and field str
-  let
-    lLib = bindSym"LinkableLib".enumDef
-    caseStmt = caseStmt(NimName s)
-  var usedLabels = initHashSet[string]()
-  for field in lLib.fields:
-    let
-      fieldName = NimNode(field)[0]
-      strName = newLit $fieldName
-      valStr = NimNode(field)[^1].strVal
-    caseStmt.add:
-      let ofBrch = ofBranch(strName, fieldName)
-      if valStr notin usedLabels:
-        ofBrch.addCondition NimNode(field)[^1]
-      ofBrch
-    usedLabels.incl valStr
-  caseStmt.add:
-    elseBranch():
-      genAst():
-        raise newException(ValueError, "Not found field")
-  result = NimNode caseStmt
-
-
-proc getLinkedLib(fileName: string): set[LinkableLib] =
-  ## Iterates over lines searching for includes adding to result
-  let file = readFile(fileName)
-  for line in file.split("\n"):
-    if not line.startsWith("typedef"):
-      var incld = ""
-      if line.scanf("""#include "$+.""", incld) or line.scanf("""#include <$+.""", incld):
-        let incld = incld.replace('/', '_')
-        try:
-          result.incl incld.splitFile.name.parseLinkableLib()
-        except: discard
-    else:
-      break
-
-proc getPicoLibs(program: string, extension: string): string =
-  var libs: set[LinkableLib]
-  for kind, path in walkDir(nimcache(program)):
-    if kind == pcFile and path.endsWith(fmt".{extension}"):
-      libs.incl getLinkedLib(path)
-
-  for lib in libs:
-    result.add $lib
-    result.add " "
-
-proc genCMakeInclude(program: string) =
-  ## Create a CMake include file in the csources containing:
-  ##  - all pico-sdk libs to link
-  ##  - path to current Nim compiler "lib" path, to be added to the
-  ##    C compiler include path
-
-  let buildImportPath = importPath(program)
-
-  # pico-sdk libs
-  let strLibs = getPicoLibs(program, extension)
-
-  # only update file if contents change
-  # to prevent CMake from reconfiguring
-  if fileExists(buildImportPath):
-    let oldTemplate = readFile(buildImportPath)
-    let newTemplate = fmt(cMakeIncludeTemplate)
-    if oldTemplate != newTemplate:
-      writeFile(buildImportPath, newTemplate)
-  else:
-    mkDir(buildImportPath.parentDir())
-    writeFile(buildImportPath, fmt(cMakeIncludeTemplate))
 
 task fastclean, "Clean task":
 
@@ -216,7 +83,7 @@ task configure, "Setup task":
       continue
 
     let buildImportPath = importPath(program)
-    rmFile(buildImportPath)
+    removeFile(buildImportPath)
 
   var cmakeArgs: seq[string]
   cmakeArgs.add "-DPICO_SDK_FETCH_FROM_GIT=on"
@@ -235,7 +102,7 @@ before build:
   for program in getPrograms():
     let jsonFile = nimcache(program) / namedProgram(program) & ".json"
     if fileExists(jsonFile):
-      rmFile(jsonFile)
+      removeFile(jsonFile)
 
 
 after build:
@@ -244,27 +111,12 @@ after build:
     let jsonFile = nimcache(program) / namedProgram(program) & ".json"
     if not fileExists(jsonFile):
       continue
-    let jsonFileCached = jsonFile.changeFileExt(".cached.json")
 
-    if fileExists(jsonFileCached):
-      let oldJsonFile = readFile(jsonFileCached)
-      let newJsonFile = readFile(jsonFile)
-      if oldJsonFile != newJsonFile:
-        # only copy the json file if contents change
-        cpFile(jsonFile, jsonFileCached)
-      else:
-        # copy and preserve timestamp to prevent CMake from reconfiguring
-        when defined(posix):
-          exec("cp -p " & quoteShell(jsonFileCached) & " " & quoteShell(jsonFile))
-    else:
-      cpFile(jsonFile, jsonFileCached)
+    genCMakeInclude(namedProgram(program), nimbleBackend)
+    updateJsonCache(jsonFile)
 
-    if not dirExists(buildDir):
-      picoError "Build directory " & buildDir & " does not exist. Try run nimble configure."
-
-    genCMakeInclude(namedProgram(program))
-
-    elfs.add(buildDir / program & ".elf")
+    let elf = buildDir / program & ".elf"
+    elfs.add(elf)
 
   # run cmake build
   var command = "cmake --build " & quoteShell(buildDir) & " -- -j4"
