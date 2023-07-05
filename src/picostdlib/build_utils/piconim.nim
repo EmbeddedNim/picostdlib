@@ -130,7 +130,7 @@ proc createProject(projectPath: string; sdk = ""; board: string = ""; override =
     cmakelistsPath.writeFile(cmakelistsContent)
 
     echo "Project created!"
-    echo &"Type `cd {name}` and then `nimble configure` to configure CMake"
+    echo &"Type `cd {name}` and then `nimble setup` to configure CMake"
     echo "Then run `nimble build` to compile the project"
 
 proc getProjectInfo(): JsonNode =

@@ -71,7 +71,7 @@ task distclean, "Distclean task":
     rmDir(buildDir)
 
 
-task configure, "Setup task":
+task setup, "Setup task":
 
   # I want to put this in the beforeBuild hook,
   # but there you can't see what binaries are

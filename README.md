@@ -8,7 +8,8 @@ The libary provides a complete wrapper for the original [Raspberry Pi Pico
 SDK](https://github.com/raspberrypi/pico-sdk). Here are some of the feature highlights:
 
 * Project generator using the `piconim` tool
-* Configure, build and upload your project using Nimble, automatically runs CMake
+* Setup, build and upload your project using Nimble, automatically runs CMake
+  (use piconim for advanced building)
 * Standard SDK library features such as GPIO, time, ADC, PWM and many more
 * 1:1 wrapper for Pico SDK functions, with strict types for safety
 * Wireless support for Pico W (Wifi, Bluetooth, TLS)
@@ -28,7 +29,9 @@ have it, consider using [choosenim](https://github.com/dom96/choosenim).
 library [dependencies](https://github.com/raspberrypi/pico-sdk#quick-start-your-own-project)
 (Step 1 in the quick start section).
 
-3. Some parts of this library uses [Futhark](https://github.com/PMunch/futhark) to wrap some C libraries, which depends on libclang. See its installation guide [here](https://github.com/PMunch/futhark#installation).
+3. Some parts of this library uses [Futhark](https://github.com/PMunch/futhark) to
+wrap some C libraries, which depends on libclang.
+See its installation guide [here](https://github.com/PMunch/futhark#installation).
 
 4. From the terminal, run `nimble install https://github.com/EmbeddedNim/picostdlib`.
 
@@ -45,7 +48,7 @@ You can also provide the following options to the subcommand:
       with the `<project-name>` already created. Be careful with this.
       ex. `piconim myProject --overwrite` will replace a folder named `myProject`
 
-6. Change directory to the new project and run `nimble configure`. This will initialize
+6. Change directory to the new project and run `nimble setup`. This will initialize
 the Pico SDK using CMake. If you provided a path to the SDK in the previous step, it will
 use that, otherwise it will download the SDK from GitHub, or if you have the Pico SDK installed
 already, it will use environment variable `PICO_SDK_PATH`.
@@ -70,8 +73,9 @@ Examples:
 # Initialize a new project
 piconim init [--sdk <sdk-path>] [--board <pico-board>] [--overwrite] <project-name>
 
-# Runs CMake configure
-piconim setup [--project <project-name>] [--source <source-dir>] [--sdk <sdk-path>] [--board <pico-board>] [--fresh]
+# Runs CMake configure without Nimble.
+piconim setup [--project <project-name>] [--source <source-dir>] [--sdk <sdk-path>]
+  [--board <pico-board>] [--fresh]
 
 # Build a program without Nimble. Runs setup --project <project-name> if build dir is empty
 piconim build [--project <project-name>] [--target <target>] <program>
@@ -81,7 +85,7 @@ piconim build [--project <project-name>] [--target <target>] <program>
 # binaries specified in your Nimble file. You can specify multiple.
 
 # Run CMake configure, download Pico SDK from Github (if needed)
-nimble configure [program]
+nimble setup [program]
 
 # Builds C/C++ files with Nim, runs CMake build/make
 nimble build [program]

@@ -30,8 +30,8 @@ task test, "Runs the test suite":
     rmDir "testproject_pico"
     rmDir "testproject_pico_w"
     rmDir "testproject_piconim"
-    exec "printf '\t\r\n\r\n\r\n\r\n\r\n' | piconim init testproject_pico && cd testproject_pico && nimble configure && nimble build"
-    exec "printf '\t\r\n\r\n\r\n\r\n\r\n' | piconim init -b pico_w testproject_pico_w && cd testproject_pico_w && nimble configure && nimble build"
+    exec "printf '\t\r\n\r\n\r\n\r\n\r\n' | piconim init testproject_pico && cd testproject_pico && nimble setup && nimble build"
+    exec "printf '\t\r\n\r\n\r\n\r\n\r\n' | piconim init -b pico_w testproject_pico_w && cd testproject_pico_w && nimble setup && nimble build"
     exec "printf '\t\r\n\r\n\r\n\r\n\r\n' | piconim init testproject_piconim && cd testproject_piconim && piconim build src/testproject_piconim"
 
 
