@@ -15,6 +15,7 @@ installExt    = @["nim", "h", "c", "cmake", "txt", "md"]
 requires "nim >= 1.6.0"
 requires "commandant >= 0.15.0"  # for piconim
 requires "micros >= 0.1.8"  # for the after build hook
+requires "https://github.com/PMunch/nimbleutils >= 0.3.1" # used by futhark, version contains a fix
 requires "futhark >= 0.9.3" # for bindings to lwip, cyw43_driver, btstack...
 
 # Tests
