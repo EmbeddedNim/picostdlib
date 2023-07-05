@@ -11,8 +11,6 @@ let nimbleBackend = if backend.len > 0: backend else: "c"
 
 common.buildDir = "build" / projectName()
 doAssert projectName().len > 0
-# proc importPath(program: string): string = buildDir / program / "imports.cmake"
-# proc nimcache(program: string): string = buildDir / program / "nimcache"
 
 proc namedProgram(program: string): string =
   if namedBin.hasKey(program):
@@ -72,7 +70,6 @@ task distclean, "Distclean task":
 
 
 task setup, "Setup task":
-
   # I want to put this in the beforeBuild hook,
   # but there you can't see what binaries are
   # about to be built using commandLineParams.
@@ -97,6 +94,9 @@ task setup, "Setup task":
   exec(command)
 
 before build:
+  if not fileExists(buildDir / "CMakeCache.txt"):
+    exec("nimble setup")
+
   # delete the nimcache json files
   # afterBuild hook will only build those that have a json file
   for program in getPrograms():
