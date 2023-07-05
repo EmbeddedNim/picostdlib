@@ -67,7 +67,7 @@ The generated `.uf2` file is placed in `build/<project>/<program>.uf2`
 
 Modify `CMakeLists.txt` to suit your project's needs.
 
-Examples:
+## Usage
 
 ```bash
 # Initialize a new project
