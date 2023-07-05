@@ -17,6 +17,7 @@ proc helpMessage(): string =
 
 Subcommands:
   init
+  setup
   build
 
 Run piconim init <project-name> to create a new project directory from a
@@ -31,6 +32,21 @@ folder. You can also provide the following options to the subcommand:
                          with the <project-name> already created. Be careful
                          with this. ex: piconim myProject --overwrite will
                          replace a folder named myProject.
+
+Run piconim setup to create the `build/<project>/` directory. This
+is required before building if the `build/<project>/` does not yet exist (for
+example after a fresh clone or git clean of an existing project.) The following
+options are available:
+
+    (--project, -p) ->   specify build project name. By default it will
+                         use the nimble package's name as project name
+    (--source, -S) -->   specify the source directory containing the
+                         CMakeLists.txt file you wish to use. By default it
+                         is set to the current directory.
+    (--sdk, -s) ->       specify the path to a locally installed pico-sdk
+                         repository. This is only used for the setup.
+    (--board, -b) ->     specify the board type. This is only used for the setup.
+    (--fresh, -f) ->     Perform a fresh configuration of the build tree.
 
 Run piconim build <program> to compile the project, the <program>.uf2
 file will be located in `build/<project>/`
@@ -117,13 +133,44 @@ proc createProject(projectPath: string; sdk = ""; board: string = ""; override =
     echo &"Type `cd {name}` and then `nimble configure` to configure CMake"
     echo "Then run `nimble build` to compile the project"
 
-proc doBuild(mainProgram: string; projectIn: string; targetIn: string) =
-  let program = mainProgram.split(DirSep)[^1]
-  let projectInfo = execProcess("nimble", args = ["dump", "--json"], options = {poStdErrToStdOut, poUsePath}).parseJson()
+proc getProjectInfo(): JsonNode =
+  return execProcess("nimble", args = ["dump", "--json"], options = {poStdErrToStdOut, poUsePath}).parseJson()
+
+proc doSetup(projectIn = ""; sourceDirIn = "."; boardIn = ""; sdk = ""; fresh = false) =
+  let projectInfo = getProjectInfo()
   let project = if projectIn != "": projectIn else: projectInfo["name"].str
+  buildDir = "build" / project
+
+  echo "Setting up " & buildDir
+
+  var cmakeArgs: seq[string]
+  cmakeArgs.add "-DPICO_SDK_FETCH_FROM_GIT=on"
+  if sdk != "":
+    cmakeArgs.add "-DPICO_SDK_PATH=" & sdk
+  if boardIn != "":
+    cmakeArgs.add "-DPICO_BOARD=" & boardIn
+  cmakeArgs.add "-S"
+  cmakeArgs.add sourceDirIn
+  cmakeArgs.add "-B"
+  cmakeArgs.add buildDir
+  if fresh:
+    cmakeArgs.add "--fresh"
+
+  let cmakecmd = "cmake " & quoteShellCommand(cmakeArgs)
+  echo ">> " & cmakecmd
+  discard execCmd(cmakecmd)
+
+proc doBuild(mainProgram: string; projectIn = ""; targetIn = "") =
+  let projectInfo = getProjectInfo()
+  let project = if projectIn != "": projectIn else: projectInfo["name"].str
+  buildDir = "build" / project
+
+  let program = mainProgram.split(DirSep)[^1]
   let target = if targetIn != "": targetIn else: program
   let backend = if projectInfo["backend"].str != "": projectInfo["backend"].str else: "c"
-  buildDir = "build" / project
+
+  if not fileExists(buildDir / "CMakeCache.txt"):
+    doSetup(project)
 
   echo "Building in " & buildDir
   let jsonFile = nimcache(program) / program & ".json"
@@ -176,9 +223,15 @@ when isMainModule:
       commandant.option(board, string, "board", "b", "pico")
       commandant.option(sdk, string, "sdk", "s")
       flag(overwriteTemplate, "overwrite", "O")
+    subcommand(setup, "setup"):
+      commandant.option(projectInSetup, string, "project", "p")
+      commandant.option(sourceDirIn, string, "source", "S", ".")
+      commandant.option(setupSdk, string, "sdk", "s")
+      commandant.option(boardIn, string, "board", "b")
+      flag(setupFresh, "fresh", "f")
     subcommand(build, "build", "b"):
       argument(mainProgram, string)
-      commandant.option(projectIn, string, "project", "p")
+      commandant.option(projectInBuild, string, "project", "p")
       commandant.option(targetIn, string, "target", "t")
 
   echo "piconim: Create Raspberry Pi Pico projects using Nim"
@@ -195,7 +248,9 @@ when isMainModule:
          removeDir(name) # We failed remove file
         except IOError:
           discard
+  elif setup:
+    doSetup(projectInSetup, sourceDirIn, boardIn, setupSdk, setupFresh)
   elif build:
-    doBuild(mainProgram, projectIn, targetIn)
+    doBuild(mainProgram, projectInBuild, targetIn)
   else:
     echo helpMessage()

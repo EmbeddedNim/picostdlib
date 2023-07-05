@@ -68,9 +68,12 @@ Examples:
 
 ```bash
 # Initialize a new project
-piconim init <project-name>
+piconim init [--sdk <sdk-path>] [--board <pico-board>] [--overwrite] <project-name>
 
-# Build a program without Nimble
+# Runs CMake configure
+piconim setup [--project <project-name>] [--source <source-dir>] [--sdk <sdk-path>] [--board <pico-board>] [--fresh]
+
+# Build a program without Nimble. Runs setup --project <project-name> if build dir is empty
 piconim build [--project <project-name>] [--target <target>] <program>
 
 # Run the following commands from the project root.
