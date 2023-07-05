@@ -133,7 +133,7 @@ proc queueRemoveBlocking*(q: ptr Queue; data: pointer) {.importc: "queue_remove_
   ##
   ## If the queue is empty this function will block until a value is added.
 
-proc queue_peek_blocking*(q: ptr Queue; data: pointer) {.importc: "queue_peek_blocking".}
+proc queuePeekBlocking*(q: ptr Queue; data: pointer) {.importc: "queue_peek_blocking".}
   ## Blocking peek at next value to be removed from queue
   ##
   ## \param q Pointer to a queue_t structure, used as a handle

@@ -191,7 +191,7 @@ proc asyncContextRemoveAtTimeWorker*(context: ptr AsyncContext; worker: ptr Asyn
   ## \param worker the "at time" worker to remove
   ## \return true if the worker was removed, false if the instance not present.
 
-proc async_context_add_when_pending_worker*(context: ptr AsyncContext; worker: ptr AsyncWhenPendingWorker): bool {.importc: "async_context_add_when_pending_worker".}
+proc asyncContextAddWhenPendingWorker*(context: ptr AsyncContext; worker: ptr AsyncWhenPendingWorker): bool {.importc: "async_context_add_when_pending_worker".}
   ## Add a "when pending" worker to a context
   ## \ingroup pico_async_context
   ##

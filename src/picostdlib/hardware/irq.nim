@@ -172,7 +172,7 @@ proc irqInitPriorities*() {.importc: "irq_init_priorities".}
   ##   
   ##    \note This is an internal method and user should generally not call it.
 
-proc user_irq_claim*(irqNum: InterruptNumber) {.importc: "user_irq_claim".}
+proc userIrqClaim*(irqNum: InterruptNumber) {.importc: "user_irq_claim".}
   ## Claim ownership of a user IRQ on the calling core
   ##     \ingroup hardware_irq
   ##     

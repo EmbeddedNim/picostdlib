@@ -39,7 +39,7 @@ proc multicoreLaunchCore1WithStack*(entry: MulticoreThreadFunc; stackBottom: ptr
   ##    \param stack_size_bytes The size of the stack in bytes (must be a multiple of 4)
   ##    \see multicore_reset_core1
 
-proc multicore_launch_core1_raw*(entry: MulticoreThreadFunc; sp: ptr uint32; vectorTable: uint32) {.importc: "multicore_launch_core1_raw".}
+proc multicoreLaunchCore1Raw*(entry: MulticoreThreadFunc; sp: ptr uint32; vectorTable: uint32) {.importc: "multicore_launch_core1_raw".}
   ## Launch code on core 1 with no stack protection
   ##     \ingroup pico_multicore
   ##   

@@ -3,7 +3,7 @@ export async_context
 
 {.push header: "pico/cyw43_driver.h".}
 
-proc cyw43_driver_init*(context: ptr AsyncContext): bool {.importc: "cyw43_driver_init".}
+proc cyw43DriverInit*(context: ptr AsyncContext): bool {.importc: "cyw43_driver_init".}
   ## Initializes the lower level cyw43_driver and integrates it with the provided async_context
   ##  \ingroup pico_cyw43_driver
   ##
@@ -12,7 +12,7 @@ proc cyw43_driver_init*(context: ptr AsyncContext): bool {.importc: "cyw43_drive
   ## \param context the async_context instance that provides the abstraction for handling asynchronous work.
   ## \return true if the initialization succeeded
 
-proc cyw43_driver_deinit*(context: ptr AsyncContext) {.importc: "cyw43_driver_deinit".}
+proc cyw43DriverDeinit*(context: ptr AsyncContext) {.importc: "cyw43_driver_deinit".}
   ## De-initialize the lowever level cyw43_driver and unhooks it from the async_context
   ##  \ingroup pico_cyw43_driver
   ##
