@@ -44,6 +44,7 @@ importc:
   compilerArg "-mcpu=cortex-m0plus"
   compilerArg "-fsigned-char"
 
+  sysPath futhark.getClangIncludePath()
   sysPath armSysrootInclude
   sysPath armInstallInclude
   sysPath picoSdkPath / "src/rp2040/hardware_regs/include"

@@ -57,6 +57,7 @@ importc:
   compilerArg "-mcpu=cortex-m0plus"
   compilerArg "-fsigned-char"
 
+  sysPath futhark.getClangIncludePath()
   sysPath armSysrootInclude
   sysPath armInstallInclude
   sysPath cmakeBinaryDir / "generated/pico_base"
