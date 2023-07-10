@@ -6,6 +6,8 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/test_pico_imports.cmake ${CMAKE_BINAR
 
 picostdlib_target(${OUTPUT_NAME} ${OUTPUT_NAME})
 
+pico_generate_pio_header(${OUTPUT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/../examples/pio/hello.pio)
+
 # set_target_properties(${OUTPUT_NAME} PROPERTIES LINKER_LANGUAGE CXX)
 
 # Add directory containing this CMakeLists file to include search path.

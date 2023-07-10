@@ -1,12 +1,15 @@
-import picostdlib/[gpio, pio, time]
+import picostdlib
+import picostdlib/hardware/pio
 
 {.push header: "hello.pio.h".}
+
 # Import program and config the C header file that is generated  at
 # compile-time.
 let helloProgram {.importc: "hello_program".}: PioProgram
 
 proc helloProgramGetDefaultConfig(offset: uint): PioSmConfig
   {.importc: "hello_program_get_default_config".}
+
 {.pop.}
 
 proc initPioHelloProgram(pio: PioInstance, sm: PioStateMachine, offset: uint, pin: Gpio) =
@@ -51,6 +54,6 @@ if smResult >= 0:
   while true:
     # Push some data to the PIO output FIFO to make the LED blink
     helloPioInst.putBlocking(sm, 1)
-    sleep 500  
+    sleepMs 500  
     helloPioInst.putBlocking(sm, 0)
-    sleep 500  
+    sleepMs 500  

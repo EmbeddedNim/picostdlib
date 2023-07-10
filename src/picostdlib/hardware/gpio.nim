@@ -5,7 +5,7 @@ type
   Gpio* = distinct range[0.cuint .. 29.cuint] # NUM_BANK0_GPIOS = 30
     ## Gpio pins available to the RP2040. Not all pins may be available on some
     ## microcontroller boards.
-  GpioOptional* = distinct range[-1.int8 .. 29.int8]
+  GpioOptional* = distinct range[-1 .. 29]
 
   Direction* {.pure, size: sizeof(bool).} = enum
     ## Gpio direction
