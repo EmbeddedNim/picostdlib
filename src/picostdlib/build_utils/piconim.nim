@@ -13,7 +13,7 @@ template picoError(msg: string) =
 
 
 proc helpMessage(): string =
-  result = """Create and build Raspberry Pi Pico Nim projects.
+  result = """piconim: Create and build Raspberry Pi Pico Nim projects.
 
 Subcommands:
   init
@@ -170,7 +170,7 @@ proc doBuild(mainProgram: string; projectIn = ""; targetIn = ""; compileOnly: bo
   if not fileExists(buildDir / "CMakeCache.txt"):
     doSetup(project)
 
-  echo "Building in " & buildDir
+  echo "Building " & program & " in " & buildDir
   let jsonFile = nimcache(program) / program & ".json"
   if fileExists(jsonFile):
     removeFile(jsonFile)
@@ -235,7 +235,6 @@ when isMainModule:
       commandant.option(targetIn, string, "target", "t")
       flag(compileOnly, "compileOnly", "c")
 
-  echo "piconim: Create Raspberry Pi Pico projects using Nim"
 
   if init:
     validateInitInputs(name, sdk, board, overwriteTemplate)

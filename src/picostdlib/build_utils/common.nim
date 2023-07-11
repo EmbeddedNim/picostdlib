@@ -75,9 +75,7 @@ type
 const cMakeIncludeTemplate* = """
 # This is a generated file do not modify it, 'piconim' makes it every build.
 
-function(link_imported_libs name)
-  target_link_libraries(${{name}} {strLibs})
-endfunction()
+target_link_libraries(${{target}} {strLibs})
 """
 
 var buildDir* = ""
