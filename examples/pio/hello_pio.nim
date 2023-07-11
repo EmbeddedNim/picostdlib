@@ -30,7 +30,7 @@ proc initPioHelloProgram(pio: PioInstance, sm: PioStateMachine, offset: uint, pi
 
   # Initialize and enable the state machine, which starts running the program
   pio.init(sm, offset, cfg)
-  pio.enable sm
+  pio.enable(sm)
 
 let
   # Can run on either pio0 or pio1 instance, here we choose pio0

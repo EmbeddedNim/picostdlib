@@ -3,7 +3,7 @@ import ./gpio
 {.push header: "hardware/pio.h".}
 
 type
-  PioSmConfig* {.importc: "struct pio_sm_config", bycopy.} = object
+  PioSmConfig* {.importc: "pio_sm_config", bycopy.} = object
     clkdiv* {.importc: "clkdiv".}: uint32
     execctrl* {.importc: "execctrl".}: uint32
     shiftctrl* {.importc: "shiftctrl".}: uint32
@@ -15,7 +15,10 @@ type
 
   PioStateMachine* = range[0'u .. 3'u]
 
-  PioProgram* {.importc: "struct pio_program_t", nodecl.} = object
+  PioProgram* {.importc: "pio_program_t", packed, bycopy, nodecl.} = object
+    instructions* {.importc: "instructions".}: ptr uint16
+    length* {.importc: "length".}: uint8
+    origin* {.importc: "origin".}: int8
 
   PioFifoJoin* {.importc: "enum pio_fifo_join".} = enum
     JoinNone = 0
