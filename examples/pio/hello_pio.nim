@@ -1,5 +1,8 @@
+import std/os
 import picostdlib
 import picostdlib/hardware/pio
+
+pioInclude(currentSourcePath.parentDir / "hello.pio")
 
 {.push header: "hello.pio.h".}
 

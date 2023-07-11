@@ -87,7 +87,6 @@ endfunction()
 
 if(NOT PICO_CYW43_SUPPORTED)
   add_test(test_pico)
-  pico_generate_pio_header(test_pico ${CMAKE_CURRENT_SOURCE_DIR}/../examples/pio/hello.pio)
 else()
   add_test(test_pico_w)
 endif()

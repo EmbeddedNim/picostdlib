@@ -929,3 +929,6 @@ proc disable*(pio: PioInstance; sm: set[PioStateMachine]) {.inline.} =
 
 proc putBlocking*(pio: PioInstance; sm: PioStateMachine; data: uint32) {.inline.} =
   pioSmPutBlocking(pio, sm, data)
+
+template pioInclude*(path: static[string]) =
+  {.emit: "// picostdlib generate pio: " & path.}

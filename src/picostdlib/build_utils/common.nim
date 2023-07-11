@@ -76,6 +76,8 @@ const cMakeIncludeTemplate* = """
 # This is a generated file do not modify it, 'piconim' makes it every build.
 
 target_link_libraries(${{target}} {strLibs})
+
+{pios}
 """
 
 var buildDir* = ""
@@ -106,33 +108,37 @@ macro parseLinkableLib(s: string) =
   result = NimNode caseStmt
 
 
-proc getLinkedLib(fileName: string): HashSet[string] =
+proc getLinkedLib(fileName: string): tuple[libs: HashSet[string], pios: HashSet[string]] =
   ## Iterates over lines searching for includes adding to result
   let file = readFile(fileName)
   for line in file.split("\n"):
-    if not line.startsWith("typedef") or true:
-      var incld = ""
-      if line.scanf("""#include "$+.""", incld) or line.scanf("""#include <$+.""", incld):
-        let incld = incld.replace('/', '_')
-        try:
-          result.incl $incld.splitFile.name.parseLinkableLib()
-        except: discard
-      elif line.scanf("""// picostdlib import: $+""", incld):
-        let libs = incld.split(" ")
-        for l in libs:
-          result.incl l
-    else:
-      break
+    var incld = ""
+    if line.scanf("""#include "$+.""", incld) or line.scanf("""#include <$+.""", incld):
+      let incld = incld.replace('/', '_')
+      try:
+        result.libs.incl $incld.splitFile.name.parseLinkableLib()
+      except: discard
+    elif line.scanf("""// picostdlib import: $+""", incld):
+      let libs = incld.split(" ")
+      for l in libs:
+        result.libs.incl l
+    elif line.scanf("""// picostdlib generate pio: $+""", incld):
+      result.pios.incl incld
 
-proc getPicoLibs(program: string, extension: string): string =
+proc getPicoLibs(program: string, extension: string): tuple[libs: string, pios: string] =
   var libs = initHashSet[string]()
+  var pios = initHashSet[string]()
   for kind, path in walkDir(nimcache(program)):
     if kind == pcFile and path.endsWith(fmt".{extension}"):
-      libs.incl getLinkedLib(path)
+      let res = getLinkedLib(path)
+      libs.incl res.libs
+      pios.incl res.pios
 
   for lib in libs:
-    result.add lib
-    result.add " "
+    result.libs.add lib
+    result.libs.add " "
+  for pio in pios:
+    result.pios.add "pico_generate_pio_header(${target} \"" & pio & "\")\n"
 
 proc genCMakeInclude*(program: string; backend: string) =
   ## Create a CMake include file in the csources containing:
@@ -144,8 +150,8 @@ proc genCMakeInclude*(program: string; backend: string) =
 
   let buildImportPath = importPath(program)
 
-  # pico-sdk libs
-  let strLibs = getPicoLibs(program, extension)
+  # pico-sdk libs, pio headers
+  let (strLibs, pios) = getPicoLibs(program, extension)
 
   # only update file if contents change
   # to prevent CMake from reconfiguring
