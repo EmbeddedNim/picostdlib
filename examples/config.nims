@@ -1,4 +1,5 @@
 switch("path", "$projectDir/../src")
+switch("path", getCurrentDir() & "/src")
 
 include "../template/src/config.nims"
 

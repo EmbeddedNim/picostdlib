@@ -47,6 +47,8 @@ function(picostdlib_target target name)
   target_include_directories(${target} PRIVATE ${NIM_LIB_DIR})
 
   set(PICOSTDLIB_IMPORTS_PATH "${CMAKE_BINARY_DIR}/${name}/imports.cmake")
+  set_directory_properties(PROPERTIES CMAKE_CONFIGURE_DEPENDS ${PICOSTDLIB_IMPORTS_PATH})
+
   if(EXISTS ${PICOSTDLIB_IMPORTS_PATH})
     include(${PICOSTDLIB_IMPORTS_PATH}) # Include our generated file
     link_imported_libs(${target}) # call our generated function to import all pico-sdk libs we're using

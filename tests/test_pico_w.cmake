@@ -2,9 +2,6 @@ set(OUTPUT_NAME test_pico_w)
 
 add_executable(${OUTPUT_NAME})
 
-
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/test_pico_w_imports.cmake ${CMAKE_BINARY_DIR}/${OUTPUT_NAME}/imports.cmake COPYONLY)
-
 picostdlib_target(${OUTPUT_NAME} ${OUTPUT_NAME})
 
 # set_target_properties(${OUTPUT_NAME} PROPERTIES LINKER_LANGUAGE CXX)
@@ -20,11 +17,7 @@ target_include_directories(${OUTPUT_NAME} PRIVATE
 # Additional libraries
 target_link_libraries(${OUTPUT_NAME}
   # For wifi and tls/https
-  pico_cyw43_arch_lwip_threadsafe_background pico_lwip_mbedtls pico_mbedtls
-  # bluetooth
-  pico_btstack_ble pico_btstack_classic pico_btstack_cyw43
-  # sntp
-  pico_lwip_sntp
+  # pico_cyw43_arch_lwip_threadsafe_background pico_lwip_mbedtls pico_mbedtls
 )
 # havent gotten sockets to work with freertos yet...
 # pico_cyw43_arch_lwip_sys_freertos FreeRTOS-Kernel-Heap3

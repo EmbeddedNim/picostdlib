@@ -51,12 +51,6 @@ function(add_example name)
 
   add_executable(${target})
 
-  if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${target}_imports.cmake)
-    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/${target}_imports.cmake ${CMAKE_BINARY_DIR}/${name}/imports.cmake COPYONLY)
-  elseif(EXISTS ${CMAKE_SOURCE_DIR}/imports_${PICO_BOARD}.cmake)
-    configure_file(${CMAKE_SOURCE_DIR}/imports_${PICO_BOARD}.cmake ${CMAKE_BINARY_DIR}/${name}/imports.cmake COPYONLY)
-  endif()
-
   picostdlib_target(${target} ${name})
 
   # set_target_properties(${target} PROPERTIES LINKER_LANGUAGE CXX)

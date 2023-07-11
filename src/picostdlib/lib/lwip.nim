@@ -112,6 +112,8 @@ importc:
   "lwip/timeouts.h"
   "lwip/udp.h"
 
+{.emit: "// picostdlib import: pico_lwip pico_lwip_mbedtls pico_mbedtls".}
+
 ##  Nim helpers
 
 const PBUF_NOT_FOUND* = uint16.high

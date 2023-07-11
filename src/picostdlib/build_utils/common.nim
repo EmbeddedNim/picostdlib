@@ -73,11 +73,11 @@ type
 
 
 const cMakeIncludeTemplate* = """
-# This is a generated file do not modify it, 'picostdlib' makes it every build.
+# This is a generated file do not modify it, 'piconim' makes it every build.
 
 function(link_imported_libs name)
   target_link_libraries(${{name}} {strLibs})
-endFunction()
+endfunction()
 """
 
 var buildDir* = ""
@@ -108,28 +108,32 @@ macro parseLinkableLib(s: string) =
   result = NimNode caseStmt
 
 
-proc getLinkedLib(fileName: string): set[LinkableLib] =
+proc getLinkedLib(fileName: string): HashSet[string] =
   ## Iterates over lines searching for includes adding to result
   let file = readFile(fileName)
   for line in file.split("\n"):
-    if not line.startsWith("typedef"):
+    if not line.startsWith("typedef") or true:
       var incld = ""
       if line.scanf("""#include "$+.""", incld) or line.scanf("""#include <$+.""", incld):
         let incld = incld.replace('/', '_')
         try:
-          result.incl incld.splitFile.name.parseLinkableLib()
+          result.incl $incld.splitFile.name.parseLinkableLib()
         except: discard
+      elif line.scanf("""// picostdlib import: $+""", incld):
+        let libs = incld.split(" ")
+        for l in libs:
+          result.incl l
     else:
       break
 
 proc getPicoLibs(program: string, extension: string): string =
-  var libs: set[LinkableLib]
+  var libs = initHashSet[string]()
   for kind, path in walkDir(nimcache(program)):
     if kind == pcFile and path.endsWith(fmt".{extension}"):
       libs.incl getLinkedLib(path)
 
   for lib in libs:
-    result.add $lib
+    result.add lib
     result.add " "
 
 proc genCMakeInclude*(program: string; backend: string) =

@@ -101,7 +101,7 @@ nimble monitor
 
 # Runs CMake configure without Nimble.
 piconim setup [--project <project-name>] [--source <source-dir>] [--sdk <sdk-path>]
-  [--board <pico-board>] [--fresh]
+  [--board <pico-board>] [--compileOnly]
 
 # Build a program without Nimble. Runs setup --project <project-name> if build dir is empty
 piconim build [--project <project-name>] [--target <target>] <program>

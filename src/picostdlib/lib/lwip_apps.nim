@@ -75,8 +75,10 @@ importc:
   "lwip/apps/tftp_client.h"
   "lwip/apps/tftp_server.h"
 
+{.emit: "// picostdlib import: pico_lwip_sntp".}
 
 # Nim helpers
 
 proc sntp_setoperatingmode*(operatingMode: SntpOpmode) =
   sntp_setoperatingmode(operatingMode.uint8)
+

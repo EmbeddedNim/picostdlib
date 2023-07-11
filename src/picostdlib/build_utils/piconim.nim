@@ -46,7 +46,7 @@ options are available:
     (--sdk, -s) ->       specify the path to a locally installed pico-sdk
                          repository. This is only used for the setup.
     (--board, -b) ->     specify the board type. This is only used for the setup.
-    (--fresh, -f) ->     Perform a fresh configuration of the build tree.
+    (--compileOnly, -c) -> only compile nim code, don't invoke cmake
 
 Run piconim build <program> to compile the project, the <program>.uf2
 file will be located in `build/<project>/`
@@ -136,7 +136,7 @@ proc createProject(projectPath: string; sdk = ""; board: string = ""; override =
 proc getProjectInfo(): JsonNode =
   return execProcess("nimble", args = ["dump", "--json"], options = {poStdErrToStdOut, poUsePath}).parseJson()
 
-proc doSetup(projectIn = ""; sourceDirIn = "."; boardIn = ""; sdk = ""; fresh = false) =
+proc doSetup(projectIn = ""; sourceDirIn = "."; boardIn = ""; sdk = "") =
   let projectInfo = getProjectInfo()
   let project = if projectIn != "": projectIn else: projectInfo["name"].str
   buildDir = "build" / project
@@ -153,14 +153,12 @@ proc doSetup(projectIn = ""; sourceDirIn = "."; boardIn = ""; sdk = ""; fresh = 
   cmakeArgs.add sourceDirIn
   cmakeArgs.add "-B"
   cmakeArgs.add buildDir
-  if fresh:
-    cmakeArgs.add "--fresh"
 
   let cmakecmd = "cmake " & quoteShellCommand(cmakeArgs)
   echo ">> " & cmakecmd
-  discard execCmd(cmakecmd)
+  doAssert execCmd(cmakecmd) == 0
 
-proc doBuild(mainProgram: string; projectIn = ""; targetIn = "") =
+proc doBuild(mainProgram: string; projectIn = ""; targetIn = ""; compileOnly: bool = false) =
   let projectInfo = getProjectInfo()
   let project = if projectIn != "": projectIn else: projectInfo["name"].str
   buildDir = "build" / project
@@ -186,13 +184,16 @@ proc doBuild(mainProgram: string; projectIn = ""; targetIn = "") =
   genCMakeInclude(program, backend)
   updateJsonCache(jsonFile)
 
+  if compileOnly:
+    return
+
   # run cmake build
   var args = @["--build", buildDir, "--target", target, "--"]
   if countProcessors() > 1:
     args.add("-j" & $countProcessors())
   let cmakecmd = "cmake " & quoteShellCommand(args)
   echo ">> " & cmakecmd
-  discard execCmd(cmakecmd)
+  doAssert execCmd(cmakecmd) == 0
 
   # size statistics for compiled binary
   let elf = buildDir / program & ".elf"
@@ -228,11 +229,11 @@ when isMainModule:
       commandant.option(sourceDirIn, string, "source", "S", ".")
       commandant.option(setupSdk, string, "sdk", "s")
       commandant.option(boardIn, string, "board", "b")
-      flag(setupFresh, "fresh", "f")
     subcommand(build, "build", "b"):
       argument(mainProgram, string)
       commandant.option(projectInBuild, string, "project", "p")
       commandant.option(targetIn, string, "target", "t")
+      flag(compileOnly, "compileOnly", "c")
 
   echo "piconim: Create Raspberry Pi Pico projects using Nim"
 
@@ -249,8 +250,8 @@ when isMainModule:
         except IOError:
           discard
   elif setup:
-    doSetup(projectInSetup, sourceDirIn, boardIn, setupSdk, setupFresh)
+    doSetup(projectInSetup, sourceDirIn, boardIn, setupSdk)
   elif build:
-    doBuild(mainProgram, projectInBuild, targetIn)
+    doBuild(mainProgram, projectInBuild, targetIn, compileOnly)
   else:
     echo helpMessage()
