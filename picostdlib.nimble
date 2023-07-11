@@ -22,11 +22,11 @@ requires "futhark >= 0.9.3" # for bindings to lwip, cyw43_driver, btstack...
 
 task test, "Runs the test suite":
   exec "nimble build"
-  exec "./piconim setup --project test_pico --source tests --board pico"
-  exec "./piconim -- build --project test_pico tests/test_pico"
+  exec "./piconim setup --project tests --source tests --board pico"
+  exec "./piconim build --project tests tests/test_pico"
 
-  exec "./piconim -- setup --project test_pico_w --source tests --board pico_w"
-  exec "./piconim -- build --project test_pico_w tests/test_pico_w"
+  exec "./piconim setup --project tests --source tests --board pico_w"
+  exec "./piconim build --project tests tests/test_pico_w"
 
   when not defined(windows):
     rmDir "testproject_pico"

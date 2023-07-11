@@ -46,8 +46,48 @@ pico_sdk_init()
 
 include(${PICOSTDLIB_DIR}/picostdlib/cmake/picostdlib.cmake)
 
+function(add_test name)
+  # set(target "${PICO_BOARD}_${name}")
+  set(target "${name}")
+
+  add_executable(${target})
+
+  picostdlib_target(${target} ${name})
+
+  # set_target_properties(${target} PROPERTIES LINKER_LANGUAGE CXX)
+
+  target_include_directories(${target} PRIVATE
+    ${CMAKE_SOURCE_DIR}
+    ${CMAKE_SOURCE_DIR}/../template/csource
+  )
+
+  # Additional libraries
+  target_link_libraries(${target}
+    # For wifi and tls/https
+    # pico_cyw43_arch_lwip_threadsafe_background pico_lwip_mbedtls pico_mbedtls
+  )
+  # havent gotten sockets to work with freertos yet...
+  # pico_cyw43_arch_lwip_sys_freertos FreeRTOS-Kernel-Heap3
+
+  target_compile_definitions(${target} PRIVATE
+    # CYW43_HOST_NAME="PicoW"
+    PICO_STDIO_USB_CONNECT_WAIT_TIMEOUT_MS=2000
+  )
+
+  # enable usb output, disable uart output
+  pico_enable_stdio_usb(${target} 1)
+  pico_enable_stdio_uart(${target} 0)
+
+  # create map/bin/hex/uf2 file etc.
+  pico_add_extra_outputs(${target})
+
+  # add url via pico_set_program_url
+  # pico_set_program_url(${target} "")
+endfunction()
+
 if(NOT PICO_CYW43_SUPPORTED)
-  include(test_pico.cmake)
+  add_test(test_pico)
+  pico_generate_pio_header(test_pico ${CMAKE_CURRENT_SOURCE_DIR}/../examples/pio/hello.pio)
 else()
-  include(test_pico_w.cmake)
+  add_test(test_pico_w)
 endif()
