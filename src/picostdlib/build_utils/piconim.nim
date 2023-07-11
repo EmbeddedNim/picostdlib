@@ -46,7 +46,6 @@ options are available:
     (--sdk, -s) ->       specify the path to a locally installed pico-sdk
                          repository. This is only used for the setup.
     (--board, -b) ->     specify the board type. This is only used for the setup.
-    (--compileOnly, -c) -> only compile nim code, don't invoke cmake
 
 Run piconim build <program> to compile the project, the <program>.uf2
 file will be located in `build/<project>/`
@@ -55,6 +54,7 @@ file will be located in `build/<project>/`
                          use the nimble package's name as project name
     (--target, -t) ->    specify the cmake target associated with this binary.
                          By default it will be the program's basename.
+    (--compileOnly, -c) -> only compile nim code, don't invoke cmake
 """
 
 const embeddedFiles = (proc (): OrderedTable[string, string] =
