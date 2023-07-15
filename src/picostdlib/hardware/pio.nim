@@ -1,3 +1,5 @@
+import ./base
+import ./platform_defs
 import ./gpio
 
 {.push header: "hardware/pio.h".}
@@ -10,6 +12,13 @@ type
     pinctrl* {.importc: "pinctrl".}: uint32
 
   PioHw {.importc: "pio_hw_t", nodecl.} = object
+    ctrl*: IoRw32
+    fstat*: IoRo32
+    fdebug*: IoRw32
+    flevel*: IoRo32
+    txf*: array[NUM_PIO_STATE_MACHINES, IoWo32]
+    rxf*: array[NUM_PIO_STATE_MACHINES, IoRo32]
+    irq*: IoRw32
 
   PioInstance* = ptr PioHw
 
@@ -54,7 +63,7 @@ let
 # PIO State Machine Config
 # Private C bindings
 
-proc smConfigSetOutPins(c: ptr PioSmConfig; outBase: uint; outCount: uint)
+proc smConfigSetOutPins*(c: ptr PioSmConfig; outBase: cuint; outCount: cuint)
   {.importc: "sm_config_set_out_pins".}
   ## Set the 'out' pins in a state machine configuration
   ##
@@ -64,7 +73,7 @@ proc smConfigSetOutPins(c: ptr PioSmConfig; outBase: uint; outCount: uint)
   ## \param out_base 0-31 First pin to set as output
   ## \param out_count 0-32 Number of pins to set.
 
-proc smConfigSetSetPins(c: ptr PioSmConfig; setBase: uint; setCount: uint)
+proc smConfigSetSetPins*(c: ptr PioSmConfig; setBase: cuint; setCount: cuint)
   {.importc: "sm_config_set_set_pins".}
   ## Set the 'set' pins in a state machine configuration
   ##
@@ -74,7 +83,7 @@ proc smConfigSetSetPins(c: ptr PioSmConfig; setBase: uint; setCount: uint)
   ## \param set_base 0-31 First pin to set as
   ## \param set_count 0-5 Number of pins to set.
 
-proc smConfigSetInPins(c: ptr PioSmConfig; inBase: uint)
+proc smConfigSetInPins*(c: ptr PioSmConfig; inBase: cuint)
   {.importc: "sm_config_set_in_pins".}
   ## Set the 'in' pins in a state machine configuration
   ##
@@ -83,7 +92,7 @@ proc smConfigSetInPins(c: ptr PioSmConfig; inBase: uint)
   ## \param c Pointer to the configuration structure to modify
   ## \param in_base 0-31 First pin to use as input
 
-proc smConfigSetSidesetPins(c: ptr PioSmConfig; sidesetBase: uint)
+proc smConfigSetSidesetPins*(c: ptr PioSmConfig; sidesetBase: cuint)
   {.importc: "sm_config_set_sideset_pins".}
   ## Set the 'sideset' pins in a state machine configuration
   ##
@@ -92,7 +101,7 @@ proc smConfigSetSidesetPins(c: ptr PioSmConfig; sidesetBase: uint)
   ## \param c Pointer to the configuration structure to modify
   ## \param sideset_base 0-31 base pin for 'side set'
 
-proc smConfigSetSideset(c: ptr PioSmConfig; bitCount: uint; optional: bool; pindirs: bool)
+proc smConfigSetSideset*(c: ptr PioSmConfig; bitCount: cuint; optional: bool; pindirs: bool)
   {.importc: "sm_config_set_sideset".}
   ## Set the 'sideset' options in a state machine configuration
   ##
@@ -131,7 +140,7 @@ proc smConfigSetClkdiv(c: ptr PioSmConfig, divisor: cfloat)
   ##  Note that for small n, the jitter introduced by a fractional divider (e.g. 2.5) may be unacceptable
   ##  although it will depend on the use case.
 
-proc smConfigSetWrap(c: ptr PioSmConfig; wrapTarget: uint; wrap: uint)
+proc smConfigSetWrap(c: ptr PioSmConfig; wrapTarget: cuint; wrap: cuint)
   {.importc: "sm_config_set_wrap".}
   ## Set the wrap addresses in a state machine configuration
   ##
@@ -140,14 +149,14 @@ proc smConfigSetWrap(c: ptr PioSmConfig; wrapTarget: uint; wrap: uint)
   ## \param wrap        the instruction memory address after which to set the program counter to wrap_target
   ##                    if the instruction does not itself update the program_counter
 
-proc smConfigSetJmpPin(c: ptr PioSmConfig; pin: uint)
+proc smConfigSetJmpPin(c: ptr PioSmConfig; pin: cuint)
   {.importc: "sm_config_set_jmp_pin".}
   ## Set the 'jmp' pin in a state machine configuration
   ##
   ## \param c Pointer to the configuration structure to modify
   ## \param pin The raw GPIO pin number to use as the source for a `jmp pin` instruction
 
-proc smConfigSetInShift(c: ptr PioSmConfig; shiftRight: bool; autopush: bool; pushThreshold: uint)
+proc smConfigSetInShift(c: ptr PioSmConfig; shiftRight: bool; autopush: bool; pushThreshold: cuint)
   {.importc: "sm_config_set_in_shift".}
   ## Setup 'in' shifting parameters in a state machine configuration
   ##
@@ -156,7 +165,7 @@ proc smConfigSetInShift(c: ptr PioSmConfig; shiftRight: bool; autopush: bool; pu
   ## \param autopush whether autopush is enabled
   ## \param push_threshold threshold in bits to shift in before auto/conditional re-pushing of the ISR
 
-proc smConfigSetOutShift(c: ptr PioSmConfig; shiftRight: bool; autopull: bool; pullThreshold: uint)
+proc smConfigSetOutShift(c: ptr PioSmConfig; shiftRight: bool; autopull: bool; pullThreshold: cuint)
   {.importc: "sm_config_set_out_shift".}
   ## Setup 'out' shifting parameters in a state machine configuration
   ##
@@ -172,7 +181,7 @@ proc smConfigSetFifoJoin(c: ptr PioSmConfig; join: PioFifoJoin)
   ## \param c Pointer to the configuration structure to modify
   ## \param join Specifies the join type. \see enum pio_fifo_join
 
-proc smConfigSetOutSpecial(c: ptr PioSmConfig; sticky: bool; hasEnablePin: bool; enablePinIndex: uint)
+proc smConfigSetOutSpecial(c: ptr PioSmConfig; sticky: bool; hasEnablePin: bool; enablePinIndex: cuint)
   {.importc: "sm_config_set_out_special".}
   ## Set special 'out' operations in a state machine configuration
   ##
@@ -181,7 +190,7 @@ proc smConfigSetOutSpecial(c: ptr PioSmConfig; sticky: bool; hasEnablePin: bool;
   ## \param has_enable_pin true to enable auxiliary OUT enable pin
   ## \param enable_pin_index pin index for auxiliary OUT enable
 
-proc smConfigSetMovStatus(c: ptr PioSmConfig; statusSel: PioMovStatusType; statusN: uint)
+proc smConfigSetMovStatus(c: ptr PioSmConfig; statusSel: PioMovStatusType; statusN: cuint)
   {.importc: "sm_config_set_mov_status".}
   ## Set source for 'mov status' in a state machine configuration
   ##
@@ -219,7 +228,7 @@ proc pioSmSetConfig*(pio: PioInstance; sm: PioStateMachine; config: ptr PioSmCon
   ## \param sm State machine index (0..3)
   ## \param config the configuration to apply
 
-proc pioGetIndex*(pio: PioInstance): uint
+proc pioGetIndex*(pio: PioInstance): cuint
   {.importc: "pio_get_index".}
   ## Return the instance number of a PIO instance
   ##
@@ -239,7 +248,7 @@ proc pioGpioInit*(pio: PioInstance; pin: Gpio)
   ## \param pio The PIO instance; either \ref pio0 or \ref pio1
   ## \param pin the GPIO pin whose function select to set
 
-proc pioGetDreq*(pio: PioInstance; sm: PioStateMachine; isTx: bool): uint
+proc pioGetDreq*(pio: PioInstance; sm: PioStateMachine; isTx: bool): cuint
   {.importc: "pio_get_dreq".}
   ## Return the DREQ to use for pacing transfers to/from a particular state machine FIFO
   ##
@@ -257,7 +266,7 @@ proc pioCanAddProgram*(pio: PioInstance; program: ptr PioProgram): bool
   ## \param program the program definition
   ## \return true if the program can be loaded; false if there is not suitable space in the instruction memory
 
-proc pioCanAddProgramAtOffset*(pio: PioInstance; program: ptr PioProgram; offset: uint): bool
+proc pioCanAddProgramAtOffset*(pio: PioInstance; program: ptr PioProgram; offset: cuint): bool
   {.importc: "pio_can_add_program_at_offset".}
   ## Determine whether the given program can (at the time of the call) be loaded onto the PIO instance starting at a particular location
   ##
@@ -266,7 +275,7 @@ proc pioCanAddProgramAtOffset*(pio: PioInstance; program: ptr PioProgram; offset
   ## \param offset the instruction memory offset wanted for the start of the program
   ## \return true if the program can be loaded at that location; false if there is not space in the instruction memory
 
-proc pioAddProgram*(pio: PioInstance; program: ptr PioProgram): uint
+proc pioAddProgram*(pio: PioInstance; program: ptr PioProgram): cuint
   {.importc: "pio_add_program".}
   ## Attempt to load the program, panicking if not possible
   ##
@@ -276,7 +285,7 @@ proc pioAddProgram*(pio: PioInstance; program: ptr PioProgram): uint
   ## \param program the program definition
   ## \return the instruction memory offset the program is loaded at
 
-proc pioAddProgramAtOffset*(pio: PioInstance; program: ptr PioProgram; offset: uint)
+proc pioAddProgramAtOffset*(pio: PioInstance; program: ptr PioProgram; offset: cuint)
   {.importc: "pio_add_program_at_offset".}
   ## Attempt to load the program at the specified instruction memory offset, panicking if not possible
   ##
@@ -286,7 +295,7 @@ proc pioAddProgramAtOffset*(pio: PioInstance; program: ptr PioProgram; offset: u
   ## \param program the program definition
   ## \param offset the instruction memory offset wanted for the start of the program
 
-proc pioRemoveProgram*(pio: PioInstance; program: ptr PioProgram; loadedOffset: uint)
+proc pioRemoveProgram*(pio: PioInstance; program: ptr PioProgram; loadedOffset: cuint)
   {.importc: "pio_remove_program".}
   ## Remove a program from a PIO instance's instruction memory
   ##
@@ -300,7 +309,7 @@ proc pioClearInstructionMemory*(pio: PioInstance)
   ##
   ## \param pio The PIO instance; either \ref pio0 or \ref pio1
 
-proc pioSmInit*(pio: PioInstance; sm: PioStateMachine; initialpc: uint; config: ptr PioSmConfig)
+proc pioSmInit*(pio: PioInstance; sm: PioStateMachine; initialpc: cuint; config: ptr PioSmConfig)
   {.importc: "pio_sm_init".}
   ## Resets the state machine to a consistent state, and configures it
   ##
@@ -497,7 +506,7 @@ proc pioSmGetPc*(pio: PioInstance; sm: PioStateMachine): uint8
   ## \param sm State machine index (0..3)
   ## \return the program counter
 
-proc pioSmExec*(pio: PioInstance; sm: PioStateMachine; instr: uint)
+proc pioSmExec*(pio: PioInstance; sm: PioStateMachine; instr: cuint)
   {.importc: "pio_sm_exec".}
   ## Immediately execute an instruction on a state machine
   ##
@@ -518,7 +527,7 @@ proc pioSmIsExecStalled*(pio: PioInstance; sm: PioStateMachine): bool
   ## \param sm State machine index (0..3)
   ## \return true if the executed instruction is still running (stalled)
 
-proc pioSmExecWaitBlocking*(pio: PioInstance; sm: PioStateMachine; instr: uint)
+proc pioSmExecWaitBlocking*(pio: PioInstance; sm: PioStateMachine; instr: cuint)
   {.importc: "pio_sm_exec_wait_blocking".}
   ## Immediately execute an instruction on a state machine and wait for it to complete
   ##
@@ -531,7 +540,7 @@ proc pioSmExecWaitBlocking*(pio: PioInstance; sm: PioStateMachine; instr: uint)
   ## \param sm State machine index (0..3)
   ## \param instr the encoded PIO instruction
 
-proc pioSmSetWrap*(pio: PioInstance; sm: PioStateMachine; wrapTarget: uint; wrap: uint)
+proc pioSmSetWrap*(pio: PioInstance; sm: PioStateMachine; wrapTarget: cuint; wrap: cuint)
   {.importc: "pio_sm_set_wrap".}
   ## Set the current wrap configuration for a state machine
   ##
@@ -541,7 +550,7 @@ proc pioSmSetWrap*(pio: PioInstance; sm: PioStateMachine; wrapTarget: uint; wrap
   ## \param wrap        the instruction memory address after which to set the program counter to wrap_target
   ##                    if the instruction does not itself update the program_counter
 
-proc pioSmSetOutPins*(pio: PioInstance; sm: PioStateMachine; outBase: uint; outCount: uint)
+proc pioSmSetOutPins*(pio: PioInstance; sm: PioStateMachine; outBase: cuint; outCount: cuint)
   {.importc: "pio_sm_set_out_pins".}
   ## Set the current 'out' pins for a state machine
   ##
@@ -552,7 +561,7 @@ proc pioSmSetOutPins*(pio: PioInstance; sm: PioStateMachine; outBase: uint; outC
   ## \param out_base 0-31 First pin to set as output
   ## \param out_count 0-32 Number of pins to set.
 
-proc pioSmSetSetPins*(pio: PioInstance; sm: PioStateMachine; setBase: uint; setCount: uint)
+proc pioSmSetSetPins*(pio: PioInstance; sm: PioStateMachine; setBase: cuint; setCount: cuint)
   {.importc: "pio_sm_set_set_pins".}
   ## Set the current 'set' pins for a state machine
   ##
@@ -563,7 +572,7 @@ proc pioSmSetSetPins*(pio: PioInstance; sm: PioStateMachine; setBase: uint; setC
   ## \param set_base 0-31 First pin to set as
   ## \param set_count 0-5 Number of pins to set.
 
-proc pioSmSetInPins*(pio: PioInstance; sm: PioStateMachine; inBase: uint)
+proc pioSmSetInPins*(pio: PioInstance; sm: PioStateMachine; inBase: cuint)
   {.importc: "pio_sm_set_in_pins".}
   ## Set the current 'in' pins for a state machine
   ##
@@ -573,7 +582,7 @@ proc pioSmSetInPins*(pio: PioInstance; sm: PioStateMachine; inBase: uint)
   ## \param sm State machine index (0..3)
   ## \param in_base 0-31 First pin to use as input
 
-proc pioSmSetSidesetPins*(pio: PioInstance; sm: PioStateMachine; sidesetBase: uint)
+proc pioSmSetSidesetPins*(pio: PioInstance; sm: PioStateMachine; sidesetBase: cuint)
   {.importc: "pio_sm_set_sideset_pins".}
   ## Set the current 'sideset' pins for a state machine
   ##
@@ -630,7 +639,7 @@ proc pioSmIsRxFifoEmpty*(pio: PioInstance; sm: PioStateMachine): bool
   ## \param sm State machine index (0..3)
   ## \return true if the RX FIFO is empty
 
-proc pioSmGetRxFifoLevel*(pio: PioInstance; sm: PioStateMachine): uint
+proc pioSmGetRxFifoLevel*(pio: PioInstance; sm: PioStateMachine): cuint
   {.importc: "pio_sm_get_rx_fifo_level".}
   ## Return the number of elements currently in a state machine's RX FIFO
   ##
@@ -654,7 +663,7 @@ proc pioSmIsTxFifoEmpty*(pio: PioInstance; sm: PioStateMachine): bool
   ## \param sm State machine index (0..3)
   ## \return true if the TX FIFO is empty
 
-proc pioSmGetTxFifoLevel*(pio: PioInstance; sm: PioStateMachine): uint
+proc pioSmGetTxFifoLevel*(pio: PioInstance; sm: PioStateMachine): cuint
   {.importc: "pio_sm_get_tx_fifo_level".}
   ## Return the number of elements currently in a state machine's TX FIFO
   ##
@@ -760,7 +769,7 @@ proc pioSmSetPindirsWithMask*(pio: PioInstance; sm: PioStateMachine; pinDirs: ui
   ## \param pin_mask a bit for each pin to indicate whether the corresponding pin_value for that pin should be applied.
 
 
-proc pioSmSetConsecutivePindirs*(pio: PioInstance; sm: PioStateMachine; pinBase: uint; pinCount: uint; isOut: bool)
+proc pioSmSetConsecutivePindirs*(pio: PioInstance; sm: PioStateMachine; pinBase: cuint; pinCount: cuint; isOut: bool)
   {.importc: "pio_sm_set_consecutive_pindirs"}
   ## Use a state machine to set the same pin direction for multiple consecutive pins for the PIO instance
   ##
@@ -831,22 +840,22 @@ proc pioSmIsClaimed*(pio: PioInstance; sm: PioStateMachine): bool
 # Exported Nim API
 
 proc setOutPins*(c: var PioSmConfig, pins: Slice[Gpio]) =
-  smConfigSetOutPins(c.addr, pins.a.uint, pins.len.uint)
+  smConfigSetOutPins(c.addr, pins.a.cuint, pins.len.cuint)
 
 proc setOutPin*(c: var PioSmConfig, pin: Gpio) =
-  smConfigSetOutPins(c.addr, pin.uint, 1)
+  smConfigSetOutPins(c.addr, pin.cuint, 1)
 
 proc setInPins*(c: var PioSmConfig; inBase: Gpio) =
-  smConfigSetInPins(c.addr, inBase.uint)
+  smConfigSetInPins(c.addr, inBase.cuint)
 
 proc setSetPins*(c: var PioSmConfig; pins: Slice[Gpio]) =
-  smConfigSetSetPins(c.addr, pins.a.uint, pins.len.uint)
+  smConfigSetSetPins(c.addr, pins.a.cuint, pins.len.cuint)
 
 proc setSidesetPins*(c: var PioSmConfig; sidesetBase: Gpio) =
-  smConfigSetSidesetPins(c.addr, sidesetBase.uint)
+  smConfigSetSidesetPins(c.addr, sidesetBase.cuint)
 
 proc setSideset*(c: var PioSmConfig; bitCount: 1..5; optional: bool; pinDirs: bool) =
-  smConfigSetSideset(c.addr, bitCount.uint, optional, pinDirs)
+  smConfigSetSideset(c.addr, bitCount.cuint, optional, pinDirs)
 
 proc setClkDiv*(c: var PioSmConfig; divInt: uint16; divFrac: uint8) =
   smConfigSetClkdivIntFrac(c.addr, divInt, divFrac)
@@ -864,10 +873,10 @@ template setClkDiv*(c: var PioSmConfig, divisor: static[1.0 .. 65536.0]) =
       divFrac: uint8 = ((divisor - divInt.float32) * 256).toInt.uint8
   smConfigSetClkdivIntFrac(c.addr, divInt, divFrac)
 
-proc setInShift*(c: var PioSmConfig; shiftRight: bool; autopush: bool; pushThreshold: uint) =
+proc setInShift*(c: var PioSmConfig; shiftRight: bool; autopush: bool; pushThreshold: cuint) =
   smConfigSetInShift(c.addr, shiftRight, autopush, pushThreshold)
 
-proc setOutShift*(c: var PioSmConfig; shiftRight: bool; autopull: bool; pullThreshold: uint) =
+proc setOutShift*(c: var PioSmConfig; shiftRight: bool; autopull: bool; pullThreshold: cuint) =
   smConfigSetOutShift(c.addr, shiftRight, autopull, pullThreshold)
 
 proc setFifoJoin*(c: var PioSmConfig; join: PioFifoJoin)  =
@@ -877,25 +886,31 @@ proc setFifoJoin*(c: var PioSmConfig; join: PioFifoJoin)  =
 
 proc gpioInit*(pio: PioInstance; pin: Gpio) {.inline.} = pioGpioInit(pio, pin)
 
+proc getDreq*(pio: PioInstance; sm: PioStateMachine; isTx: bool): cuint =
+  pioGetDreq(pio, sm, isTx)
+
 proc canAddProgram*(pio: PioInstance; program: PioProgram): bool =
   var p = program
   pioCanAddProgram(pio, p.addr)
 
-proc canAddProgram*(pio: PioInstance; program: PioProgram; offset: uint): bool =
+proc canAddProgram*(pio: PioInstance; program: PioProgram; offset: cuint): bool =
   var p = program
   pioCanAddProgramAtOffset(pio, p.addr, offset)
 
-proc addProgram*(pio: PioInstance; program: PioProgram): uint =
+proc addProgram*(pio: PioInstance; program: PioProgram): cuint =
   var p = program
   pioAddProgram(pio, p.addr)
 
-proc addProgram*(pio: PioInstance; program: PioProgram; offset: uint) =
+proc addProgram*(pio: PioInstance; program: PioProgram; offset: cuint) =
   var p = program
   pioAddProgramAtOffset(pio, p.addr, offset)
 
-proc removeProgram*(pio: PioInstance; program: PioProgram; loadedOffset: uint) =
+proc removeProgram*(pio: PioInstance; program: PioProgram; loadedOffset: cuint) =
   var p = program
   pioRemoveProgram(pio, p.addr, loadedOffset)
+
+proc claimUnusedSm*(pio: PioInstance): PioStateMachine {.inline.} =
+  pioClaimUnusedSm(pio, true).PioStateMachine
 
 proc claimUnusedSm*(pio: PioInstance; required: bool): int {.inline.} =
   pioClaimUnusedSm(pio, required)
@@ -904,16 +919,16 @@ proc setPins*(pio: PioInstance; sm: PioStateMachine; pins: set[Gpio], value: Val
   let v: uint32 = if value == High: uint32.high else: 0
   pioSmSetPinsWithMask(pio, sm, v, cast[uint32](pins))
 
-proc setPinDirs*(pio: PioInstance, sm: PioStateMachine, dir: Direction, pins: set[Gpio]) =
+proc setPinDirs*(pio: PioInstance, sm: PioStateMachine, pins: set[Gpio], dir: Direction) =
   let v: uint32 = if dir == Out: uint32.high else: 0
   pioSmSetPindirsWithMask(pio, sm, v, cast[uint32](pins))
 
-proc setPinDirs*(pio: PioInstance, sm: PioStateMachine, dir: Direction, pins: Slice[Gpio]) =
-  pioSmSetConsecutivePindirs(pio, sm, pins.a.uint, pins.len.uint, dir == Out)
+proc setPinDirs*(pio: PioInstance, sm: PioStateMachine, pins: Slice[Gpio], dir: Direction) =
+  pioSmSetConsecutivePindirs(pio, sm, pins.a.cuint, pins.len.cuint, dir == Out)
 
 proc init*(pio: PioInstance; sm: PioStateMachine; initialpc: uint; config: PioSmConfig) =
   var configCopy = config 
-  pioSmInit(pio, sm, initialpc, configCopy.addr)
+  pioSmInit(pio, sm, initialpc.cuint, configCopy.addr)
 
 proc enable*(pio: PioInstance; sm: PioStateMachine) {.inline.} =
   pioSmSetEnabled(pio, sm, true)

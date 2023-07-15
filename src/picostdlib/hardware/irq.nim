@@ -1,18 +1,22 @@
 import ./regs/intctrl
 export intctrl
 
-const
-  PICO_DEFAULT_IRQ_PRIORITY* = 0x80
-  PICO_LOWEST_IRQ_PRIORITY* = 0xFF
-  PICO_HIGHEST_IRQ_PRIORITY* = 0x00
-
 {.push header: "hardware/irq.h".}
+
+const
+  PICO_LOWEST_IRQ_PRIORITY* = uint8.low
+  PICO_HIGHEST_IRQ_PRIORITY* = uint8.high
+
+let
+  PICO_MAX_SHARED_IRQ_HANDLERS* {.importc: "PICO_MAX_SHARED_IRQ_HANDLERS".}: uint
+  PICO_DISABLE_SHARED_IRQ_HANDLERS* {.importc: "PICO_DISABLE_SHARED_IRQ_HANDLERS".}: bool
+  PICO_VTABLE_PER_CORE* {.importc: "PICO_VTABLE_PER_CORE".}: bool
+  PICO_DEFAULT_IRQ_PRIORITY* {.importc: "PICO_DEFAULT_IRQ_PRIORITY".}: uint8
+  PICO_SHARED_IRQ_HANDLER_DEFAULT_ORDER_PRIORITY* {.importc: "PICO_SHARED_IRQ_HANDLER_DEFAULT_ORDER_PRIORITY".}: uint8
+  PARAM_ASSERTIONS_ENABLED_IRQ* {.importc: "PARAM_ASSERTIONS_ENABLED_IRQ".}: bool
 
 type
   IrqHandler* {.importc: "irq_handler_t".} = proc () {.cdecl.}
-
-let
-  PICO_MAX_SHARED_IRQ_HANDLERS* {.importc: "PICO_MAX_SHARED_IRQ_HANDLERS".}: cuint
 
 proc irqSetPriority*(num: InterruptNumber; hardwarePriority: uint8) {.importc: "irq_set_priority".}
   ## Set specified interrupt's priority

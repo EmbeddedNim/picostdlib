@@ -1,4 +1,31 @@
+import ./base
 import ./gpio
+
+{.push header: "hardware/regs/adc.h".}
+
+let
+  ADC_CS_EN_BITS* {.importc: "ADC_CS_EN_BITS".}: uint
+
+{.pop.}
+
+{.push header: "hardware/structs/adc.h".}
+
+type
+  AdcHw* {.importc: "adc_hw_t".} = object
+    cs*: IoRw32
+    result*: IoRo32
+    fcs*: IoRw32
+    fifo*: IoRo32
+    `div`*: IoRw32
+    intr*: IoRo32
+    inte*: IoRw32
+    intf*: IoRw32
+    ints*: IoRo32
+
+let
+  adcHw* {.importc: "adc_hw".}: ptr AdcHw
+
+{.pop.}
 
 type AdcInput* {.pure, size: sizeof(cuint).} = enum
   ## Aliases for selectInput() procedure 

@@ -1,3 +1,58 @@
+import ./base
+import ./platform_defs
+
+{.push header: "hardware/regs/dma.h".}
+
+let
+  DMA_CH0_CTRL_TRIG_BUSY_BITS* {.importc: "DMA_CH0_CTRL_TRIG_BUSY_BITS".}: uint
+  DMA_CH0_CTRL_TRIG_CHAIN_TO_BITS* {.importc: "DMA_CH0_CTRL_TRIG_CHAIN_TO_BITS".}: uint
+  DMA_CH0_CTRL_TRIG_CHAIN_TO_MSB* {.importc: "DMA_CH0_CTRL_TRIG_CHAIN_TO_MSB".}: uint
+  DMA_CH0_CTRL_TRIG_CHAIN_TO_LSB* {.importc: "DMA_CH0_CTRL_TRIG_CHAIN_TO_LSB".}: uint
+
+{.pop.}
+
+{.push header: "hardware/structs/dma.h".}
+
+type
+  DmaChannelHw* {.importc: "dma_channel_hw_t".} = object
+    read_addr*: IoRw32
+    write_addr*: IoRw32
+    transfer_count*: IoRw32
+    ctrl_trig*: IoRw32
+    al1_ctrl*: IoRw32
+    al1_read_addr*: IoRw32
+    al1_write_addr*: IoRw32
+    al1_transfer_count_trig*: IoRw32
+    al2_ctrl*: IoRw32
+    al2_transfer_count*: IoRw32
+    al2_read_addr*: IoRw32
+    al2_write_addr_trig*: IoRw32
+    al3_ctrl*: IoRw32
+    al3_write_addr*: IoRw32
+    al3_transfer_count*: IoRw32
+    al3_read_addr_trig*: IoRw32
+
+  DmaHw* {.importc: "dma_hw_t".} = object
+    ch*: array[NUM_DMA_CHANNELS, DmaChannelHw]
+    intr*: IoRw32
+    inte0*: IoRw32
+    intf0*: IoRw32
+    ints0*: IoRw32
+    inte1*: IoRw32
+    intf1*: IoRw32
+    ints1*: IoRw32
+    timer*: array[NUM_DMA_TIMERS, IoRw32]
+    multi_channel_trigger*: IoRw32
+    sniff_ctrl*: IoRw32
+    sniff_data*: IoRw32
+    fifo_levels*: IoRo32
+    abort*: IoRw32
+
+let
+  dmaHw* {.importc: "dma_hw".}: ptr DmaHw
+
+{.pop.}
+
 {.push header: "hardware/dma.h".}
 
 type
@@ -707,12 +762,11 @@ proc dmaGetTimerDreq*(timerNum: cuint): cuint {.importc: "dma_get_timer_dreq".}
 
 
 proc dmaChannelCleanup*(channel: cuint) {.importc: "dma_channel_cleanup".}
-  ## ! \brief Performs DMA channel cleanup after use
-  ##   \ingroup hardware_dma
+  ## Performs DMA channel cleanup after use
   ## 
-  ##  This can be used to cleanup dma channels when they're no longer needed, such that they are in a clean state for reuse.
-  ##  IRQ's for the channel are disabled, any in flight-transfer is aborted and any outstanding interrupts are cleared.
-  ##  The channel is then clear to be reused for other purposes.
+  ## This can be used to cleanup dma channels when they're no longer needed, such that they are in a clean state for reuse.
+  ## IRQ's for the channel are disabled, any in flight-transfer is aborted and any outstanding interrupts are cleared.
+  ## The channel is then clear to be reused for other purposes.
   ## 
   ##  \code
   ##  if (dma_channel >= 0) {
@@ -722,7 +776,32 @@ proc dmaChannelCleanup*(channel: cuint) {.importc: "dma_channel_cleanup".}
   ##  }
   ##  \endcode
   ## 
-  ##  \param channel DMA channel
-  ## /
+  ## \param channel DMA channel
 
 {.pop.}
+
+
+proc setReadIncrement*(c: var DmaChannelConfig; incr: bool) {.inline.} =
+  channelConfigSetReadIncrement(c.addr, incr)
+proc setWriteIncrement*(c: var DmaChannelConfig; incr: bool) {.inline.} =
+  channelConfigSetWriteIncrement(c.addr, incr)
+proc setDreq*(c: var DmaChannelConfig; dreq: uint) {.inline.} =
+  channelConfigSetDreq(c.addr, dreq.cuint)
+proc setChainTo*(c: var DmaChannelConfig; chainTo: cuint) {.inline.} =
+  channelConfigSetChainTo(c.addr, chainTo)
+proc setTransferDataSize*(c: var DmaChannelConfig; size: DmaChannelTransferSize) {.inline.} =
+  channelConfigSetTransferDataSize(c.addr, size)
+proc setRing*(c: var DmaChannelConfig; write: bool; sizeBits: uint) {.inline.} =
+  channelConfigSetRing(c.addr, write, sizeBits.cuint)
+proc setBswap*(c: var DmaChannelConfig; bswap: bool) {.inline.} =
+  channelConfigSetBswap(c.addr, bswap)
+proc setIrqQuiet*(c: var DmaChannelConfig; irqQuiet: bool) {.inline.} =
+  channelConfigSetIrqQuiet(c.addr, irqQuiet)
+proc setHighPriority*(c: var DmaChannelConfig; highPriority: bool) {.inline.} =
+  channelConfigSetHighPriority(c.addr, highPriority)
+proc setEnable*(c: var DmaChannelConfig; enable: bool) {.inline.} =
+  channelConfigSetEnable(c.addr, enable)
+proc setSniffEnable*(c: var DmaChannelConfig; sniffEnable: bool) {.inline.} =
+  channelConfigSetSniffEnable(c.addr, sniffEnable)
+proc getCtrlValue*(config: var DmaChannelConfig): uint32 {.inline.} =
+  channelConfigGetCtrlValue(config.addr)
