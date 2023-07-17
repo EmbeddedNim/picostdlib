@@ -47,7 +47,7 @@ pico_sdk_init()
 include(${PICOSTDLIB_DIR}/picostdlib/cmake/picostdlib.cmake)
 
 function(add_example name)
-  set(target "${PICO_BOARD}_${name}")
+  set(target "${name}")
 
   add_executable(${target})
 
@@ -84,30 +84,7 @@ function(add_example name)
   # pico_set_program_url(${target} "")
 endfunction()
 
-add_example(hello_adc)
-add_example(hello_48mhz)
-add_example(hello_gpout)
-add_example(hello_dma)
-add_example(hello_littlefs)
-add_example(hello_7segment)
-add_example(hello_gpio_irq)
-# "hello_pio"
-add_example(hello_serial)
-add_example(hello_timestart)
-add_example(bus_scan)
-# "joystickdisplay"
-# "lightsensor"
-add_example(hello_multicore)
-add_example(hello_pwm)
-add_example(hello_reset)
-add_example(hello_rtc)
-add_example(rtc_alarm)
-add_example(unique_board_id)
-add_example(hello_timer)
-# "tinyusb"
-add_example(hello_uart)
-add_example(hello_watchdog)
-# "ws2812_pio"
+
 
 if(PICO_CYW43_SUPPORTED)
   # wireless examples
@@ -121,7 +98,31 @@ else()
   add_example(hello_resus)
   add_example(onboard_temperature)
   add_example(hello_pio)
-  pico_generate_pio_header(pico_hello_pio ${CMAKE_CURRENT_SOURCE_DIR}/pio/hello.pio)
   add_example(hello_stdio)
   add_example(pwm_led_fade)
+
+  # Regular pico board examples
+  add_example(hello_adc)
+  add_example(hello_48mhz)
+  add_example(hello_gpout)
+  add_example(hello_dma)
+  add_example(hello_littlefs)
+  add_example(hello_7segment)
+  add_example(hello_gpio_irq)
+  add_example(hello_serial)
+  add_example(hello_timestart)
+  add_example(bus_scan)
+  # "joystickdisplay"
+  # "lightsensor"
+  add_example(hello_multicore)
+  add_example(hello_pwm)
+  add_example(hello_reset)
+  add_example(hello_rtc)
+  add_example(rtc_alarm)
+  add_example(unique_board_id)
+  add_example(hello_timer)
+  # "tinyusb"
+  add_example(hello_uart)
+  add_example(hello_watchdog)
+  # "ws2812_pio"
 endif()

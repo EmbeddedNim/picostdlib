@@ -10,13 +10,13 @@ var dst = newString(src.len)
 stdioInitAll()
 
 # Get a free channel, panic() if there are none
-let chan = dmaClaimUnusedChannel(true)
+let chan = dmaClaimUnusedChannel(true).cuint
 
 # 8 bit transfers. Both read and write address increment after each
 # transfer (each pointing to a location in src or dst respectively).
 # No DREQ is selected, so the DMA transfers as fast as it can.
 
-var c = dmaChannelGetDefaultConfig(chan.cuint)
+var c = dmaChannelGetDefaultConfig(chan)
 
 dmaChannelConfigure(
   chan.cuint,        # Channel to be configured

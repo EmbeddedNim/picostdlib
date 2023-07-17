@@ -867,10 +867,9 @@ template setClkDiv*(c: var PioSmConfig, divisor: static[1.0 .. 65536.0]) =
   ## Template to set floating point clock divisor when it is known at
   ## compile-time. All the float calculation is done in a  static context,
   ## so we can avoid pulling in software-float code in the final binary.
-  static:
-    let
-      divInt = divisor.uint16
-      divFrac: uint8 = ((divisor - divInt.float32) * 256).toInt.uint8
+  const
+    divInt = divisor.uint16
+    divFrac: uint8 = ((divisor - divInt.float32) * 256).toInt.uint8
   smConfigSetClkdivIntFrac(c.addr, divInt, divFrac)
 
 proc setInShift*(c: var PioSmConfig; shiftRight: bool; autopush: bool; pushThreshold: cuint) =

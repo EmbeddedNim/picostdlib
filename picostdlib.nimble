@@ -82,7 +82,7 @@ task examples, "Builds the examples":
   exec "./piconim setup --project examples --source examples --board pico"
   for ex in examples:
     let base = ex.split("/")[^1]
-    exec "./piconim build --project examples examples/" & ex & " --target pico_" & base & " --compileOnly"
+    exec "./piconim build --project examples examples/" & ex & " --target " & base & " --compileOnly"
   exec "cmake --build build/examples -- -j4"
 
   exec "./piconim setup --project examples --source examples --board pico_w"

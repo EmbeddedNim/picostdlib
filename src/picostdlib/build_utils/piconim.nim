@@ -171,18 +171,19 @@ proc doBuild(mainProgram: string; projectIn = ""; targetIn = ""; compileOnly: bo
     doSetup(project)
 
   echo "Building " & program & " in " & buildDir
-  let jsonFile = nimcache(program) / program & ".json"
+  let jsonFile = nimcache(target) / program & ".json"
   if fileExists(jsonFile):
     removeFile(jsonFile)
 
   # compile the nim program to .c files
-  let nimcmd = "nim " & quoteShellCommand([backend, "-c", "--hints:off", mainProgram])
+  let nimcmd = "nim " & quoteShellCommand([backend, "-c", "--hints:off", "--nimcache:" & "build" / project / target / "nimcache", mainProgram])
   echo ">> " & nimcmd
   if execCmd(nimcmd) != 0:
     picoError(fmt"unable to compile the provided nim program: {mainProgram}")
 
-  genCMakeInclude(program, backend)
-  updateJsonCache(jsonFile)
+  genCMakeInclude(target, backend)
+  if fileExists(jsonFile):
+    updateJsonCache(jsonFile)
 
   if compileOnly:
     return
@@ -196,7 +197,7 @@ proc doBuild(mainProgram: string; projectIn = ""; targetIn = ""; compileOnly: bo
   doAssert execCmd(cmakecmd) == 0
 
   # size statistics for compiled binary
-  let elf = buildDir / program & ".elf"
+  let elf = buildDir / target & ".elf"
   if fileExists(elf):
     discard execCmd("arm-none-eabi-size -G " & quoteShell(elf))
 

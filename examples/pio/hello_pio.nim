@@ -29,7 +29,7 @@ proc initPioHelloProgram(pio: PioInstance, sm: PioStateMachine, offset: uint, pi
   pio.gpioInit(pin)
 
   # Configure the pin as output
-  pio.setPinDirs(sm, Out, {pin})
+  pio.setPinDirs(sm, {pin}, Out)
 
   # Initialize and enable the state machine, which starts running the program
   pio.init(sm, offset, cfg)
