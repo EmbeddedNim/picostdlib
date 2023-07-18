@@ -179,6 +179,7 @@ proc doBuild(mainProgram: string; projectIn = ""; targetIn = ""; compileOnly: bo
   let nimcmd = "nim " & quoteShellCommand([backend, "-c", "--hints:off", "--nimcache:" & "build" / project / target / "nimcache", mainProgram])
   echo ">> " & nimcmd
   if execCmd(nimcmd) != 0:
+    removeFile(jsonFile.changeFileExt(".cached.json"))
     picoError(fmt"unable to compile the provided nim program: {mainProgram}")
 
   genCMakeInclude(target, backend)
