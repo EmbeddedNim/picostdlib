@@ -48,7 +48,7 @@ You can also provide the following options to the subcommand:
       with the `<project-name>` already created. Be careful with this.
       ex. `piconim myProject --overwrite` will replace a folder named `myProject`
 
-6. Change directory to the new project and run `nimble setup`. This will initialize
+6. Change directory to the new project and run `nimble configure`. This will initialize
 the Pico SDK using CMake. If you provided a path to the SDK in the previous step, it will
 use that, otherwise it will download the SDK from GitHub, or if you have the Pico SDK installed
 already, it will use environment variable `PICO_SDK_PATH`.
@@ -78,7 +78,7 @@ piconim init [--sdk <sdk-path>] [--board <pico-board>] [--overwrite] <project-na
 # binaries specified in your Nimble file. You can specify multiple.
 
 # Run CMake configure, download Pico SDK from Github (if needed)
-nimble setup [program]
+nimble configure [program]
 
 # Builds C/C++ files with Nim, runs CMake build/make
 nimble build [program]
@@ -100,10 +100,10 @@ nimble upload [program] [--build] [--clean]
 nimble monitor
 
 # Runs CMake configure without Nimble.
-piconim setup [--project <project-name>] [--source <source-dir>] [--sdk <sdk-path>]
+piconim configure [--project <project-name>] [--source <source-dir>] [--sdk <sdk-path>]
   [--board <pico-board>]
 
-# Build a program without Nimble. Runs setup --project <project-name> if build dir is empty
+# Build a program without Nimble.
 piconim build [--project <project-name>] [--target <target>] [--compileOnly] <program>
 
 ```

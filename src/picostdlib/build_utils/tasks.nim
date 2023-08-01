@@ -69,7 +69,7 @@ task distclean, "Distclean task":
     rmDir(buildDir)
 
 
-task setup, "Setup task":
+task configure, "Configure task":
   # I want to put this in the beforeBuild hook,
   # but there you can't see what binaries are
   # about to be built using commandLineParams.
@@ -95,7 +95,7 @@ task setup, "Setup task":
 
 before build:
   if not fileExists(buildDir / "CMakeCache.txt"):
-    exec("nimble setup")
+    exec("nimble configure")
 
   # delete the nimcache json files
   # afterBuild hook will only build those that have a json file

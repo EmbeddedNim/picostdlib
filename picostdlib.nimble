@@ -22,18 +22,18 @@ requires "futhark >= 0.9.3" # for bindings to lwip, cyw43_driver, btstack...
 
 task test, "Runs the test suite":
   exec "nimble build"
-  exec "./piconim setup --project tests --source tests --board pico"
+  exec "./piconim configure --project tests --source tests --board pico"
   exec "./piconim build --project tests tests/test_pico"
 
-  exec "./piconim setup --project tests --source tests --board pico_w"
+  exec "./piconim configure --project tests --source tests --board pico_w"
   exec "./piconim build --project tests tests/test_pico_w"
 
   when not defined(windows):
     rmDir "testproject_pico"
     rmDir "testproject_pico_w"
     rmDir "testproject_piconim"
-    exec "printf '\t\r\n\r\n\r\n\r\n\r\n' | ./piconim init testproject_pico && cd testproject_pico && nimble setup && nimble build"
-    exec "printf '\t\r\n\r\n\r\n\r\n\r\n' | ./piconim init -b pico_w testproject_pico_w && cd testproject_pico_w && nimble setup && nimble build"
+    exec "printf '\t\r\n\r\n\r\n\r\n\r\n' | ./piconim init testproject_pico && cd testproject_pico && nimble configure && nimble build"
+    exec "printf '\t\r\n\r\n\r\n\r\n\r\n' | ./piconim init -b pico_w testproject_pico_w && cd testproject_pico_w && nimble configure && nimble build"
     exec "printf '\t\r\n\r\n\r\n\r\n\r\n' | ./piconim init testproject_piconim && cd testproject_piconim && ../piconim build src/testproject_piconim"
 
 
@@ -79,11 +79,11 @@ task examples, "Builds the examples":
   ]
 
   exec "nimble build"
-  exec "./piconim setup --project examples --source examples --board pico"
+  exec "./piconim configure --project examples --source examples --board pico"
   for ex in examples:
     let base = ex.split("/")[^1]
     exec "./piconim build --project examples examples/" & ex & " --target " & base & " --compileOnly"
   exec "cmake --build build/examples -- -j4"
 
-  exec "./piconim setup --project examples --source examples --board pico_w"
+  exec "./piconim configure --project examples --source examples --board pico_w"
   exec "cmake --build build/examples -- -j4"

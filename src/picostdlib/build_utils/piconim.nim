@@ -17,7 +17,7 @@ proc helpMessage(): string =
 
 Subcommands:
   init
-  setup
+  configure
   build
 
 Run piconim init <project-name> to create a new project directory from a
@@ -33,7 +33,7 @@ folder. You can also provide the following options to the subcommand:
                          with this. ex: piconim myProject --overwrite will
                          replace a folder named myProject.
 
-Run piconim setup to create the `build/<project>/` directory. This
+Run piconim configure to create the `build/<project>/` directory. This
 is required before building if the `build/<project>/` does not yet exist (for
 example after a fresh clone or git clean of an existing project.) The following
 options are available:
@@ -130,7 +130,7 @@ proc createProject(projectPath: string; sdk = ""; board: string = ""; override =
     cmakelistsPath.writeFile(cmakelistsContent)
 
     echo "Project created!"
-    echo &"Type `cd {name}` and then `nimble setup` to configure CMake"
+    echo &"Type `cd {name}` and then `nimble configure` to configure CMake"
     echo "Then run `nimble build` to compile the project"
 
 proc getProjectInfo(): JsonNode =
@@ -226,7 +226,7 @@ when isMainModule:
       commandant.option(board, string, "board", "b", "pico")
       commandant.option(sdk, string, "sdk", "s")
       flag(overwriteTemplate, "overwrite", "O")
-    subcommand(setup, "setup"):
+    subcommand(setup, "configure"):
       commandant.option(projectInSetup, string, "project", "p")
       commandant.option(sourceDirIn, string, "source", "S", ".")
       commandant.option(setupSdk, string, "sdk", "s")
