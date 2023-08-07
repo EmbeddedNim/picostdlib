@@ -219,9 +219,7 @@ proc waitUntilAcked*(self: var ClientContext; maxWaitMs: uint = WIFICLIENT_MAX_F
   var lastSent: uint32
   while true:
     if millis() - lastSent > (maxWaitMs):
-      when defined(DEBUGV):
-        ##  wait until sent: timeout
-        debugv(":wustmo\n")
+      debugv(":wustmo\n")
       ## All data was not flushed, timeout hit
       return false
     if self.pcb.isNil:
@@ -571,7 +569,6 @@ proc csPeekData(s: Stream; buffer: pointer; bufLen: int): int =
   if ClientStream(s).client.isNil:
     return 0
   return ClientStream(s).client()[].peekBytes(cast[ptr char](buffer), uint bufLen).int
-
 proc csReadLine(s: Stream; line: var string): bool =
   if ClientStream(s).client.isNil:
     return false
@@ -594,6 +591,11 @@ proc csReadLine(s: Stream; line: var string): bool =
       return client[].read(line).int == line.len
     else:
       return false
+proc csFlush(s: Stream) =
+  if ClientStream(s).client.isNil:
+    return
+  let client = ClientStream(s).client()
+  discard client[].waitUntilAcked()
 
 proc init*(self: var ClientContext; pcb: ptr AltcpPcb#[; discardCb: DiscardCbT = nil; discardCbArg: pointer = nil]#) =
   assert(not pcb.isNil)
@@ -626,7 +628,7 @@ proc init*(self: var ClientContext; pcb: ptr AltcpPcb#[; discardCb: DiscardCbT =
   self.stream.readLineImpl = csReadLine
   self.stream.peekDataImpl = csPeekData
   self.stream.writeDataImpl = csWriteData
-  # self.stream.flushImpl = csFlush
+  self.stream.flushImpl = csFlush
 
   # keep-alive not enabled by default
   # self.keepAlive()

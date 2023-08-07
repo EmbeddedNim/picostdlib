@@ -41,6 +41,7 @@ proc runTcpClientTest() =
   echo "connected!"
 
   client.stream.write(HTTP_REQUEST)
+  # client.stream.flush()
 
   while not client.hasData():
     tightLoopContents()
