@@ -37,13 +37,16 @@ const
   TCP_DEFAULT_KEEPALIVE_INTERVAL_SEC*: uint32 = 75 # 75 sec
   TCP_DEFAULT_KEEPALIVE_COUNT*: uint32 = 9 # fault after 9 failures
 
-proc debugv(formatstr: cstring) {.importc: "printf", varargs, header: "<stdio.h>".}
+when not defined(release):
+  proc debugv(formatstr: cstring) {.importc: "printf", varargs, header: "<stdio.h>".}
+else:
+  proc debugv(formatstr: cstring) {.varargs.} = discard
 
 proc millis(): uint32 {.inline.} = toMsSinceBoot(getAbsoluteTime())
 
 proc getDefaultPrivateGlobalSyncValue*(): bool = false
 
-template pollDelay(timeoutMs: uint32; blocked: var bool; intvlMs: uint32) =
+template pollDelay(timeoutMs: uint; blocked: var bool; intvlMs: uint) =
   let startMs = millis()
   while ((millis() - startMs) < timeoutMs) and blocked:
     # sysCheckTimeouts()
@@ -57,13 +60,15 @@ type
     pcb: ptr AltcpPcb
     rxBuf: ptr Pbuf
     rxBufOffset: uint
-    datasource: ptr char #= nil
+    datasource: ptr byte #= nil
     datalen: uint #= 0
     written: uint #= 0
     timeoutMs: uint32 #= 5000
     opStartTime: uint32 #= 0
     sendWaiting: bool #= false
     connectPending: bool #= false
+    connectedErr: ErrEnumT
+    connected: bool
     sync: bool
     stream*: ClientStream
 
@@ -98,7 +103,7 @@ proc discardReceived(self: var ClientContext) =
 proc abort*(self: var ClientContext): ErrEnumT =
   if not self.pcb.isNil:
     self.discardReceived()
-    debugv(":abort\r\n")
+    debugv(":abort\n")
     altcpArg(self.pcb, nil)
     altcpSent(self.pcb, nil)
     altcpRecv(self.pcb, nil)
@@ -113,7 +118,7 @@ proc close*(self: var ClientContext): ErrEnumT =
   result = ErrOk
   if not self.pcb.isNil:
     self.discardReceived()
-    debugv(":close\r\n")
+    debugv(":close\n")
     altcpArg(self.pcb, nil)
     altcpSent(self.pcb, nil)
     altcpRecv(self.pcb, nil)
@@ -121,7 +126,7 @@ proc close*(self: var ClientContext): ErrEnumT =
     altcpPoll(self.pcb, nil, 0)
     result = altcpClose(self.pcb).ErrEnumT
     if result != ErrOk:
-      debugv(":tc err %d\r\n", result)
+      debugv(":tc err %d\n", result)
       altcpAbort(self.pcb)
       result = ErrAbrt
     self.pcb = nil
@@ -179,19 +184,20 @@ proc consume(self: var ClientContext; size: uint) =
   if left > 0:
     self.rxBufOffset += size
   elif self.rxBuf.next.isNil:
-    debugv(":c0 %d, %d\r\n", size, self.rxBuf.totLen)
+    debugv(":c0 %d, %d\n", size, self.rxBuf.totLen)
+    let head = self.rxBuf
+    self.rxBuf = nil
+    self.rxBufOffset = 0
     withLwipLock:
-      let head = self.rxBuf
-      self.rxBuf = nil
-      self.rxBufOffset = 0
       discard pbufFree(head)
   else:
-    debugv(":c %d, %d, %d\r\n", size, self.rxBuf.len, self.rxBuf.totLen)
+    debugv(":c %d, %d, %d\n", size, self.rxBuf.len, self.rxBuf.totLen)
+    let head = self.rxBuf
+    self.rxBuf = self.rxBuf.next
+    self.rxBufOffset = 0
     withLwipLock:
-      let head = self.rxBuf
-      self.rxBuf = self.rxBuf.next
-      self.rxBufOffset = 0
       pbufRef(self.rxBuf)
+    withLwipLock:
       discard pbufFree(head)
 
   if not self.pcb.isNil:
@@ -201,10 +207,13 @@ proc consume(self: var ClientContext; size: uint) =
 proc isTimeout(self: var ClientContext): bool =
   return millis() - self.opStartTime > self.timeoutMs
 
-proc state*(self: ClientContext): TcpState =
-  result = self.pcb.getTcpState()
-  if result in {CLOSE_WAIT, CLOSING}:
-    result = CLOSED
+# proc state*(self: ClientContext): TcpState =
+#   result = self.pcb.getTcpState()
+#   echo ":state ", result
+#   let ctx = cast[ptr MbedtlsSslContext](altcpTlsContext(self.pcb))
+#   echo ":tlsstate ", ctx.state.MbedtlsSslStates
+#   if result in {CLOSE_WAIT, CLOSING}:
+#     result = CLOSED
 
 proc waitUntilAcked*(self: var ClientContext; maxWaitMs: uint = WIFICLIENT_MAX_FLUSH_WAIT_MS): bool =
   ##  https://github.com/esp8266/Arduino/pull/3967#pullrequestreview-83451496
@@ -234,7 +243,7 @@ proc waitUntilAcked*(self: var ClientContext; maxWaitMs: uint = WIFICLIENT_MAX_F
       prevsndbuf = sndbuf
       ## We just sent a bit, move timeout forward
       lastSent = millis()
-    if (self.state() != ESTABLISHED) or (sndbuf == TCP_SND_BUF):
+    if not self.connected or (sndbuf == TCP_SND_BUF):
       ##  peer has closed or all bytes are sent and acked
       ##  ((TCP_SND_BUF-sndbuf) is the amount of un-acked bytes)
       break
@@ -247,21 +256,21 @@ proc read*(self: var ClientContext): char =
   result = cast[ptr UncheckedArray[char]](self.rxBuf.payload)[self.rxBufOffset]
   self.consume(1)
 
-proc read*(self: var ClientContext; dst_in: ptr char; size_in: uint): uint =
+proc read*(self: var ClientContext; dst_in: ptr byte; size_in: uint): uint =
   if self.rxBuf.isNil or size_in == 0:
     return 0
   let maxSize = self.rxBuf.totLen - self.rxBufOffset
   var size = min(size_in, maxSize)
   var dst = dst_in
-  debugv(":rd %d, %d, %d\r\n", size, self.rxBuf.totLen, self.rxBufOffset)
+  debugv(":rd %d, %d, %d\n", size, self.rxBuf.totLen, self.rxBufOffset)
   var sizeRead = 0
   while size > 0:
     let bufSize = self.rxBuf.len - self.rxBufOffset
     var copySize = min(size, bufSize)
-    debugv(":rdi %d, %d\r\n", bufSize, copySize)
+    debugv(":rdi %d, %d\n", bufSize, copySize)
     withLwipLock:
       copySize = pbufCopyPartial(self.rxBuf, dst, copySize.uint16, self.rxBufOffset.uint16)
-    dst = cast[ptr char](cast[uint](dst) + copySize)
+    dst = cast[ptr byte](cast[uint](dst) + copySize)
     self.consume(copySize)
     dec(size, copySize)
     inc(sizeRead, copySize)
@@ -269,7 +278,7 @@ proc read*(self: var ClientContext; dst_in: ptr char; size_in: uint): uint =
 
 proc read*(self: var ClientContext; dst: var string): uint =
   if dst.len > 0:
-    result = self.read(dst[0].addr, dst.len.uint)
+    result = self.read(cast[ptr byte](dst[0].addr), dst.len.uint)
   dst.setLen(result)
 
 func peek*(self: ClientContext): char =
@@ -277,15 +286,15 @@ func peek*(self: ClientContext): char =
     return 0.char
   return cast[ptr UncheckedArray[char]](self.rxBuf.payload)[self.rxBufOffset]
 
-func peekBytes*(self: ClientContext; dst: ptr char; size_in: uint): uint =
+func peekBytes*(self: ClientContext; dst: ptr byte; size_in: uint): uint =
   if self.rxBuf.isNil:
     return 0
   let maxSize: uint = self.rxBuf.totLen - self.rxBufOffset
   let size = if (size_in < maxSize): size_in else: maxSize
-  debugv(":pd %d, %d, %d\r\n", size, self.rxBuf.totLen, self.rxBufOffset)
+  debugv(":pd %d, %d, %d\n", size, self.rxBuf.totLen, self.rxBufOffset)
   let bufSize: uint = self.rxBuf.len - self.rxBufOffset
   let copySize: uint = if size < bufSize: size else: bufSize
-  debugv(":rpi %d, %d\r\n", bufSize, copySize)
+  debugv(":rpi %d, %d\n", bufSize, copySize)
   copyMem(dst, cast[pointer](cast[uint](self.rxBuf.payload) + self.rxBufOffset), copySize)
   return copySize
 
@@ -305,11 +314,11 @@ proc peekConsume*(self: var ClientContext; consume: uint) =
 proc writeSome(self: var ClientContext): bool =
   if self.datasource.isNil or self.pcb.isNil:
     return false
-  debugv(":wr %d %d\r\n", self.datalen - self.written, self.written)
+  debugv(":wr %d %d\n", self.datalen - self.written, self.written)
   var hasWritten = false
   var scale = 0
   while self.written < self.datalen:
-    if self.state() == CLOSED:
+    if not self.connected:
       return false
     let remaining = self.datalen - self.written
     var nextChunkSize: uint = 0
@@ -322,7 +331,7 @@ proc writeSome(self: var ClientContext): bool =
       nextChunkSize = nextChunkSize shr scale
     if not nextChunkSize.bool:
       break
-    var buf = cast[ptr char](cast[uint](self.datasource) + self.written)
+    var buf = cast[ptr byte](cast[uint](self.datasource) + self.written)
     var flags: uint8 = 0
     if nextChunkSize < remaining:
       flags = flags or TCP_WRITE_FLAG_MORE
@@ -334,7 +343,7 @@ proc writeSome(self: var ClientContext): bool =
     var err: ErrT
     withLwipLock:
       err = altcpWrite(self.pcb, buf, nextChunkSize.uint16, flags)
-    debugv(":wrc %d %d %d\r\n", nextChunkSize, remaining, err)
+    debugv(":wrc %d %d %d\n", nextChunkSize, remaining, err)
     if err == ErrOk.ErrT:
       inc(self.written, nextChunkSize.int)
       hasWritten = true
@@ -360,7 +369,7 @@ proc writeSomeFromCb(self: var ClientContext) =
   if self.sendWaiting:
     self.sendWaiting = false
 
-proc writeFromSource(self: var ClientContext; ds: ptr char; dl: uint): uint =
+proc writeFromSource(self: var ClientContext; ds: ptr byte; dl: uint): uint =
   assert(self.datasource.isNil)
   assert(not self.sendWaiting)
   self.datasource = ds
@@ -370,9 +379,9 @@ proc writeFromSource(self: var ClientContext; ds: ptr char; dl: uint): uint =
   while true:
     if self.writeSome():
       self.opStartTime = millis()
-    if self.written == self.datalen or self.isTimeout() or self.state() == CLOSED:
+    if self.written == self.datalen or self.isTimeout() or not self.connected:
       if self.isTimeout():
-        debugv(":wtmo\r\n")
+        debugv(":wtmo\n")
       self.datasource = nil
       self.datalen = 0
       break
@@ -387,14 +396,14 @@ proc writeFromSource(self: var ClientContext; ds: ptr char; dl: uint): uint =
     discard self.waitUntilAcked()
   return self.written
 
-proc write*(self: var ClientContext; ds: ptr char; dl: uint): uint =
+proc write*(self: var ClientContext; ds: ptr byte; dl: uint): uint =
   if self.pcb.isNil:
     return 0
   return self.writeFromSource(ds, dl)
 
 proc write*(self: var ClientContext; ds: string): uint =
   if ds.len > 0:
-    return self.write(ds[0].unsafeAddr, ds.len.uint)
+    return self.write(cast[ptr byte](ds[0].unsafeAddr), ds.len.uint)
 
 proc keepAlive*(self: var ClientContext;
                idleSec: uint32 = TCP_DEFAULT_KEEPALIVE_IDLE_SEC;
@@ -427,17 +436,18 @@ proc notifyError(self: var ClientContext) =
     ##  resume connect or _write_from_source
     self.sendWaiting = false
     self.connectPending = false
+    self.connected = false
     ## esp_schedule();
 
 proc acked(self: var ClientContext; pcb: ptr AltcpPcb; len: uint16): ErrEnumT =
-  debugv(":ack %d\r\n", len)
+  debugv(":ack %d\n", len)
   self.writeSomeFromCb()
   return ErrOk
 
 proc recv(self: var ClientContext; pcb: ptr AltcpPcb; pb: ptr Pbuf; err: ErrEnumT): ErrEnumT =
   if pb.isNil:
     ##  connection closed by peer
-    debugv(":rcl pb=%p sz=%d\r\n", self.rxBuf, if not self.rxBuf.isNil: self.rxBuf.totLen.int else: -1)
+    debugv(":rcl pb=%p sz=%d\n", self.rxBuf, if not self.rxBuf.isNil: self.rxBuf.totLen.int else: -1)
     self.notifyError()
     if not self.rxBuf.isNil and self.rxBuf.totLen > 0:
       ##  there is still something to read
@@ -449,18 +459,17 @@ proc recv(self: var ClientContext; pcb: ptr AltcpPcb; pb: ptr Pbuf; err: ErrEnum
       discard self.abort()
       return ErrAbrt
   if not self.rxBuf.isNil:
-    debugv(":rch %d, %d\r\n", self.rxBuf.totLen, pb.totLen)
+    debugv(":rch %d, %d\n", self.rxBuf.totLen, pb.totLen)
     withLwipLock:
       pbufCat(self.rxBuf, pb)
   else:
-    debugv(":rn %d\r\n", pb.totLen)
+    debugv(":rn %d\n", pb.totLen)
     self.rxBuf = pb
     self.rxBufOffset = 0
   return ErrOk
 
 proc error(self: var ClientContext; err: ErrT) =
-  debugv(":er %d 0x%08lx\r\n", err, cast[uint32](self.datasource))
-  echo err.ErrEnumT
+  debugv(":er %d 0x%08lx\n", err, cast[uint32](self.datasource))
   withLwipLock:
     altcpArg(self.pcb, nil)
     altcpSent(self.pcb, nil)
@@ -471,13 +480,14 @@ proc error(self: var ClientContext; err: ErrT) =
 
 proc connected(self: var ClientContext; pcb: ptr AltcpPcb; err: ErrEnumT): ErrEnumT =
   assert(pcb == self.pcb)
+  self.connectedErr = err
   if self.connectPending:
     # resume connect
     self.connectPending = false
   return ErrOk
 
 proc poll(self: var ClientContext; pcb: ptr AltcpPcb): ErrEnumT =
-  echo ":poll - timed out"
+  debugv(":poll - timed out\n")
   # self.writeSomeFromCb()
   return self.close()
 
@@ -518,27 +528,35 @@ proc connect*(self: var ClientContext; ipaddr: IpAddrT; port: Port): bool =
     if ip_Is_V6(ipaddr) and ip6AddrLacksZone(ip2Ip6(ipaddr), ip6Unknown):
       ip6AddrAssignZone(ip2Ip6(ipaddr), ip6Unknown, netifDefault)
 
-  var err: ErrT
+  self.connected = false
   withLwipLock:
-    err = altcpConnect(self.pcb, ipaddr.unsafeAddr, port.uint16, sConnected)
-  if err != ErrOk.ErrT:
+    self.connectedErr = altcpConnect(self.pcb, ipaddr.unsafeAddr, port.uint16, sConnected).ErrEnumT
+  if self.connectedErr != ErrOk:
     return false
 
   self.connectPending = true
   self.opStartTime = millis()
   ##  will resume on timeout or when _connected or _notify_error fires
   ##  give scheduled functions a chance to run (e.g. Ethernet uses recurrent)
-  pollDelay(self.timeoutMs, self.connectPending, 1)
+  pollDelay(self.timeoutMs, self.connectPending, 10)
+  let timeout = self.connectPending
   self.connectPending = false
 
   if self.pcb.isNil:
-    debugv(":cabrt\r\n")
+    debugv(":cabrt\n")
     return false
 
-  if self.state() != ESTABLISHED:
-    debugv(":ctmo\r\n")
+  if timeout:
+    debugv(":ctmo\n")
     discard self.abort()
     return false
+
+  if self.connectedErr != ErrOk:
+    debugv(":cerr %d\n", self.connectedErr)
+    discard self.abort()
+    return false
+
+  self.connected = true
 
   return true
 
@@ -556,23 +574,25 @@ proc csAtEnd(s: Stream): bool =
 proc csReadData(s: Stream; buffer: pointer; bufLen: int): int =
   if ClientStream(s).client.isNil:
     return 0
-  return ClientStream(s).client()[].read(cast[ptr char](buffer), uint bufLen).int
+  return ClientStream(s).client()[].read(cast[ptr byte](buffer), uint bufLen).int
 proc csReadDataStr(s: Stream; buffer: var string; slice: Slice[int]): int =
   if ClientStream(s).client.isNil:
     return 0
-  return ClientStream(s).client()[].read(addr buffer[slice.a], uint slice.b + 1 - slice.a).int
+  return ClientStream(s).client()[].read(cast[ptr byte](buffer[slice.a].addr), uint slice.b + 1 - slice.a).int
 proc csWriteData(s: Stream; buffer: pointer; bufLen: int) =
   if ClientStream(s).client.isNil:
     return
-  doAssert ClientStream(s).client()[].write(cast[ptr char](buffer), uint bufLen).int == bufLen
+  doAssert ClientStream(s).client()[].write(cast[ptr byte](buffer), uint bufLen).int == bufLen
 proc csPeekData(s: Stream; buffer: pointer; bufLen: int): int =
   if ClientStream(s).client.isNil:
     return 0
-  return ClientStream(s).client()[].peekBytes(cast[ptr char](buffer), uint bufLen).int
+  return ClientStream(s).client()[].peekBytes(cast[ptr byte](buffer), uint bufLen).int
 proc csReadLine(s: Stream; line: var string): bool =
   if ClientStream(s).client.isNil:
     return false
   let client = ClientStream(s).client()
+  if client[].rxBuf.isNil or client[].getSize() == 0:
+    return false
   var pos = client[].rxBuf.pbufMemfind("\n", client[].rxBufOffset)
   if pos != PBUF_NOT_FOUND:
     pos -= client[].rxBufOffset.uint16
@@ -606,7 +626,7 @@ proc init*(self: var ClientContext; pcb: ptr AltcpPcb#[; discardCb: DiscardCbT =
   # self.discardCbArg = discardCbArg
   # self.refcnt = 0
   # self.next = nil
-  self.timeoutMs = 5_000
+  self.timeoutMs = 10_000
   self.sync = getDefaultPrivateGlobalSyncValue()
 
   withLwipLock:
@@ -650,7 +670,7 @@ proc dnsFoundCb(hostname: cstring; ipaddr: ptr IpAddrT; arg: pointer) {.cdecl.} 
     state.err = true
   state.running = false
 
-proc getHostByName*(hostname: string; ipaddr: var IpAddrT): bool =
+proc getHostByName*(hostname: string; ipaddr: var IpAddrT; timeoutMs: uint = 5000): bool =
   var state = DnsCb(running: true)
   var err: ErrT
   withLwipLock:
@@ -659,10 +679,10 @@ proc getHostByName*(hostname: string; ipaddr: var IpAddrT): bool =
   if err == ERR_OK.ErrT:
     return true
   elif err != ERR_INPROGRESS.ErrT:
-    echo "error initiating DNS resolving, err=", err.ErrEnumT
+    debugv(":dns err=%d\n", err)
     return false
   else:
-    pollDelay(5000, state.running, 10)
+    pollDelay(timeoutMs, state.running, 10)
     if state.err:
       return false
     ipaddr = state.ipaddr
