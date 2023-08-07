@@ -31,11 +31,16 @@ import ../helpers
 
 import futhark
 
+const outputPath = when defined(nimcheck) or defined(futharkgen): futharkGenDir / "futhark_lwip.nim" else: ""
+
 importc:
+  outputPath outputPath
+
   compilerArg "--target=arm-none-eabi"
   compilerArg "-mthumb"
   compilerArg "-mcpu=cortex-m0plus"
   compilerArg "-fsigned-char"
+  compilerArg "-fshort-enums" # needed to get the right enum size
 
   sysPath futhark.getClangIncludePath()
   sysPath armSysrootInclude
@@ -118,19 +123,21 @@ importc:
 
 const PBUF_NOT_FOUND* = uint16.high
 
-proc pbufMemcmp*(p: ptr Pbuf; offset: int|uint16; s2: string): uint16 {.inline.} =
+proc pbufMemcmp*(p: ptr Pbuf; offset: Natural; s2: string): uint16 {.inline.} =
   assert(s2.len > 0)
   var cs2 = s2.cstring
   return p.pbufMemcmp(offset.uint16, cast[pointer](cs2[0].addr), cs2.len.uint16)
 
-proc pbufMemfind*(p: ptr Pbuf; mem: string; startOffset: int|uint16): uint16 {.inline.} =
+proc pbufMemfind*(p: ptr Pbuf; mem: string; startOffset: Natural): uint16 {.inline.} =
   assert(mem.len > 0)
   var cmem = mem.cstring
   return p.pbufMemfind(cast[pointer](cmem[0].addr), cmem.len.uint16, startOffset.uint16)
 
 
-when declared(ip4addrntoa) and declared(ip6addrntoa):
-  discard
+when declared(ip4addrntoa) and declared(ip6addrntoa) and declared(ipaddrntoa):
+  proc `$`*(ip: ptr IpAddrT): string = $cast[cstring](ipaddrntoa(ip))
+
+  proc `$`*(ip: var IpAddrT): string = $cast[cstring](ipaddrntoa(addr(ip)))
 elif declared(ip4addrntoa):
   proc `$`*(ip: ptr IpAddrT): string = $cast[cstring](ip4addrntoa(ip))
 
@@ -156,3 +163,22 @@ template altcpListen*(conn: untyped): untyped = altcpListenWithBacklogAndErr(con
 
 template altcpTcpNew*(): untyped = altcpTcpNewIpType(IpAddrTypeV4.uint8)
 template altcpTcpNewIp6*(): untyped = altcpTcpNewIpType(IpAddrTypeV6.uint8)
+
+proc getTcpState*(conn: ptr AltcpPcb): TcpState =
+  result = CLOSED
+  if conn != nil:
+    let pcb = cast[ptr TcpPcb](conn.state)
+    if pcb != nil:
+      return pcb.state
+
+template ipGetOption*(pcb: untyped; opt: cuint): bool =
+  (pcb.so_options and opt) != 0
+
+var lwipLock {.compileTime.}: int
+template withLwipLock*(body: untyped) =
+  cyw43ArchLwipBegin()
+  {.locks: [lwipLock].}:
+    try:
+      body
+    finally:
+      cyw43ArchLwipEnd()

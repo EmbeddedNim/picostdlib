@@ -55,6 +55,7 @@ file will be located in `build/<project>/`
     (--target, -t) ->    specify the cmake target associated with this binary.
                          By default it will be the program's basename.
     (--compileOnly, -c) -> only compile nim code, don't invoke cmake
+    (--upload, -u) -->   Attempt to upload and execute using picotool.
 """
 
 const embeddedFiles = (proc (): OrderedTable[string, string] =
@@ -158,7 +159,7 @@ proc doSetup(projectIn = ""; sourceDirIn = "."; boardIn = ""; sdk = "") =
   echo ">> " & cmakecmd
   doAssert execCmd(cmakecmd) == 0
 
-proc doBuild(mainProgram: string; projectIn = ""; targetIn = ""; compileOnly: bool = false) =
+proc doBuild(mainProgram: string; projectIn = ""; targetIn = ""; compileOnly: bool = false; upload: bool = false) =
   let projectInfo = getProjectInfo()
   let project = if projectIn != "": projectIn else: projectInfo["name"].str
   buildDir = "build" / project
@@ -202,6 +203,11 @@ proc doBuild(mainProgram: string; projectIn = ""; targetIn = ""; compileOnly: bo
   if fileExists(elf):
     discard execCmd("arm-none-eabi-size -G " & quoteShell(elf))
 
+  let uf2 = buildDir / target & ".uf2"
+  if upload and fileExists(uf2):
+    discard execCmd("picotool info -a " & quoteShell(uf2))
+    discard execCmd("picotool load -x " & quoteShell(uf2) & " -f")
+
 
 proc validateInitInputs(name: string, sdk: string = "", board: string = "", overwrite: bool) =
   ## ensures that provided setup cli parameters will work
@@ -236,6 +242,7 @@ when isMainModule:
       commandant.option(projectInBuild, string, "project", "p")
       commandant.option(targetIn, string, "target", "t")
       flag(compileOnly, "compileOnly", "c")
+      flag(upload, "upload", "u")
 
 
   if init:
@@ -253,6 +260,6 @@ when isMainModule:
   elif setup:
     doSetup(projectInSetup, sourceDirIn, boardIn, setupSdk)
   elif build:
-    doBuild(mainProgram, projectInBuild, targetIn, compileOnly)
+    doBuild(mainProgram, projectInBuild, targetIn, compileOnly, upload)
   else:
     echo helpMessage()

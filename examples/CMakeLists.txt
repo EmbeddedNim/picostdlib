@@ -90,6 +90,7 @@ if(PICO_CYW43_SUPPORTED)
   # wireless examples
   add_example(picow_blink)
   add_example(picow_ntp_client)
+  add_example(picow_tcp_client)
   add_example(picow_tls_client)
   add_example(picow_wifi_scan)
 else()

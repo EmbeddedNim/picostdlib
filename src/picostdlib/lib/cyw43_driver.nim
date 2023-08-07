@@ -40,6 +40,8 @@ export lwip
 import ./cyw43_driver/cyw43_country
 export cyw43_country
 
+const outputPath = when defined(nimcheck) or defined(futharkgen): futharkGenDir / "futhark_cyw43_driver.nim" else: ""
+
 type
   # Declared before futhark importc to be able to use it as its own type
   Cyw43PowersaveMode* = distinct uint32
@@ -52,10 +54,12 @@ const
 
 
 importc:
+  outputPath outputPath
   compilerArg "--target=arm-none-eabi"
   compilerArg "-mthumb"
   compilerArg "-mcpu=cortex-m0plus"
   compilerArg "-fsigned-char"
+  compilerArg "-fshort-enums" # needed to get the right enum size
 
   sysPath futhark.getClangIncludePath()
   sysPath armSysrootInclude

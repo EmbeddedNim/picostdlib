@@ -104,7 +104,7 @@ piconim configure [--project <project-name>] [--source <source-dir>] [--sdk <sdk
   [--board <pico-board>]
 
 # Build a program without Nimble.
-piconim build [--project <project-name>] [--target <target>] [--compileOnly] <program>
+piconim build [--project <project-name>] [--target <target>] [--compileOnly] [--upload] <program>
 
 ```
 

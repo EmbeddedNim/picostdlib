@@ -1,10 +1,13 @@
-import std/os, std/strutils, std/macros
+import std/os, std/strutils, std/macros, std/compilesettings
+
 
 const picoSdkPath* {.strdefine.} = os.getEnv("PICO_SDK_PATH").replace('\\', DirSep)
 const cmakeBinaryDir* {.strdefine.} = os.getEnv("CMAKE_BINARY_DIR").replace('\\', DirSep)
 const cmakeSourceDir* {.strdefine.} = os.getEnv("CMAKE_SOURCE_DIR").replace('\\', DirSep)
 const piconimCsourceDir* {.strdefine.} = getProjectPath().replace('\\', DirSep).parentDir() / "csource"
 const picostdlibFutharkSysroot* {.strdefine.} = ""
+const nimcacheDir* = querySetting(SingleValueSetting.nimcacheDir)
+const futharkGenDir* = currentSourcePath.parentDir / "futharkgen"
 
 const armSysrootInclude* = static:
   when picostdlibFutharkSysroot != "":
