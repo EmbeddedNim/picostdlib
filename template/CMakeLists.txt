@@ -5,7 +5,7 @@ if(NOT DEFINED OUTPUT_NAME)
 endif()
 
 # Set CMake build type. Debug, Release, MinSizeRel, RelWithDebInfo
-set(CMAKE_BUILD_TYPE Debug)
+set(CMAKE_BUILD_TYPE Release)
 
 # Set standards
 set(CMAKE_C_STANDARD 11)
