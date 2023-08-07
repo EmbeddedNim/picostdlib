@@ -1,3 +1,5 @@
+import ./error
+
 {.push header: "pico/stdio.h".}
 
 type
@@ -165,3 +167,17 @@ proc print*(s: cstring) {.inline.} = c_printf(s)
 proc print*(s: string) =
   print(cstring s)
   print(cstring "\n")
+
+proc stdinReadLine*(echoInput: bool = true): string =
+  while true:
+    let res = getcharTimeoutUs(100_000)
+    if res != PicoErrorTimeout.int:
+      let character = res.char
+      if character == '\r':
+        echo ""
+        break
+      else:
+        result.add(character)
+        if echoInput:
+          discard putcharRaw(character.cint)
+          stdioFlush()

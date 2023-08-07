@@ -149,10 +149,21 @@ proc tlsClientExample*() =
 
   cyw43ArchEnableStaMode()
 
-  static:
-    assert(WIFI_SSID != "", "Need to define WIFI_SSID with a value")
+  var ssid = WIFI_SSID
+  if ssid == "":
+    stdout.write("Enter Wifi SSID: ")
+    stdout.flushFile()
+    ssid = stdinReadLine()
 
-  let err = cyw43ArchWifiConnectTimeoutMs(WIFI_SSID, WIFI_PASSWORD, AuthWpa2AesPsk, 30000)
+  var password = WIFI_PASSWORD
+  if password == "":
+    stdout.write("Enter Wifi password: ")
+    stdout.flushFile()
+    password = stdinReadLine()
+
+  echo "Connecting to Wifi ", ssid
+
+  let err = cyw43ArchWifiConnectTimeoutMs(ssid.cstring, password.cstring, AuthWpa2AesPsk, 30000)
   if err != PicoErrorNone:
     echo "Failed to connect! Error: ", $err
   else:
