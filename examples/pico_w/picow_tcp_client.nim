@@ -24,31 +24,18 @@ const HTTP_REQUEST = "GET " & HTTP_PATH & " HTTP/1.1\r\n" &
                      "\r\n"
 
 proc runTcpClientTest() =
-  var client: TcpContext
+  var client = initTcpContext(tls = TCP_USE_TLS, sniHostname = HOSTNAME)
 
-  var ip: IpAddrT
+  # var ip: IpAddrT
   # discard ipaddrAton(TCP_IP, ip.addr)
-  echo "Resolving hostname ", HOSTNAME
-  if not getHostByName(HOSTNAME, ip):
-    echo "unable to resolve dns name ", HOSTNAME
-    return
+  # echo "Resolving hostname ", HOSTNAME
+  # if not getHostByName(HOSTNAME, ip):
+  #   echo "unable to resolve dns name ", HOSTNAME
+  #   return
+  # let connected = client.connect(ip, Port(TCP_PORT))
 
-  var allocator: AltcpAllocatorT
-  allocator.alloc = altcpTcpAlloc
-  allocator.arg = nil
-  var pcb = altcpNewIpType(allocator.addr, IPADDR_TYPE_ANY.ord)
-
-  if TCP_USE_TLS:
-    pcb = altcpTlsWrap(altcpTlsCreateConfigClient(nil, 0), pcb)
-    let sslCtx = cast[ptr MbedtlsSslContext](altcpTlsContext(pcb))
-    ## Set SNI
-    if mbedtlsSslSetHostname(sslCtx, HOSTNAME) != 0:
-      echo "mbedtls set hostname failed!"
-
-  client.init(pcb)
-
-  echo "connecting to ", $ip, ":", TCP_PORT
-  let connected = client.connect(ip, Port(TCP_PORT))
+  echo "connecting to ", HOSTNAME, ":", TCP_PORT
+  let connected = client.connect(HOSTNAME, Port(TCP_PORT))
   if not connected:
     echo "error connecting!!"
     return

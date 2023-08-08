@@ -171,7 +171,14 @@ func getSize*(self: TcpContext): uint =
     return 0
   return self.rxBuf.totLen - self.rxBufOffset
 
-func hasData*(self: TcpContext): bool = not self.rxBuf.isNil
+func available*(self: TcpContext): int =
+  self.getSize().int
+
+func hasData*(self: TcpContext): bool =
+  not self.rxBuf.isNil
+
+proc connected*(self: TcpContext): bool =
+  not self.pcb.isNil and (self.connected or self.available() > 0)
 
 proc consume(self: var TcpContext; size: uint) =
   let left: int = self.rxBuf.len.int - self.rxBufOffset.int - size.int
@@ -530,7 +537,9 @@ proc connect*(self: var TcpContext; ipaddr: IpAddrT; port: Port): bool =
     if ip_Is_V6(ipaddr) and ip6AddrLacksZone(ip2Ip6(ipaddr), ip6Unknown):
       ip6AddrAssignZone(ip2Ip6(ipaddr), ip6Unknown, netifDefault)
 
-  self.connected = false
+  if self.pcb.isNil or self.connected:
+    return false
+
   withLwipLock:
     self.connectedErr = altcpConnect(self.pcb, ipaddr.unsafeAddr, port.uint16, sConnected).ErrEnumT
   if self.connectedErr != ErrOk:
@@ -668,5 +677,20 @@ proc init*(self: var TcpContext; pcb: ptr AltcpPcb; timeoutMs: uint = 10_000#[; 
   # keep-alive not enabled by default
   # self.keepAlive()
 
-proc initClientContext*(pcb: ptr AltcpPcb#[; discardCb: DiscardCbT = nil; discardCbArg: pointer = nil]#): TcpContext =
+proc initTcpContext*(pcb: ptr AltcpPcb#[; discardCb: DiscardCbT = nil; discardCbArg: pointer = nil]#): TcpContext =
   result.init(pcb#[, discardCb, discardCbArg]#)
+
+proc initTcpContext*(tls: bool = false; sniHostname: string = ""): TcpContext =
+  var allocator: AltcpAllocatorT
+  allocator.alloc = altcpTcpAlloc
+  allocator.arg = nil
+  var pcb = altcpNewIpType(allocator.addr, IPADDR_TYPE_ANY.ord)
+
+  if tls:
+    pcb = altcpTlsWrap(altcpTlsCreateConfigClient(nil, 0), pcb)
+    let sslCtx = cast[ptr MbedtlsSslContext](altcpTlsContext(pcb))
+    ## Set SNI
+    if sniHostname != "" and mbedtlsSslSetHostname(sslCtx, sniHostname) != 0:
+      debugv(":mbedtls set hostname failed!\n")
+
+  result.init(pcb)
