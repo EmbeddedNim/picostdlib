@@ -173,12 +173,3 @@ proc getTcpState*(conn: ptr AltcpPcb): TcpState =
 
 template ipGetOption*(pcb: untyped; opt: cuint): bool =
   (pcb.so_options and opt) != 0
-
-var lwipLock {.compileTime.}: int
-template withLwipLock*(body: untyped) =
-  cyw43ArchLwipBegin()
-  {.locks: [lwipLock].}:
-    try:
-      body
-    finally:
-      cyw43ArchLwipEnd()
