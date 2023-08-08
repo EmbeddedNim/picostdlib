@@ -31,6 +31,9 @@ import ../helpers
 
 import futhark
 
+let
+  TCP_SND_BUF* {.importc: "TCP_SND_BUF", header: "lwipopts.h".}: cint
+
 const outputPath = when defined(nimcheck) or defined(futharkgen): futharkGenDir / "futhark_lwip.nim" else: ""
 
 importc:
@@ -154,9 +157,6 @@ when declared(ip4addrAton):
 else:
   template ipaddrAton*(cp, `addr`: untyped): untyped =
     ip6addrAton(cp, `addr`)
-
-let
-  TCP_SND_BUF* {.importc: "TCP_SND_BUF", header: "lwipopts.h".}: cint
 
 template altcpListenWithBacklog*(conn, backlog: untyped): untyped = altcpListenWithBacklogAndErr(conn, backlog, nil)
 template altcpListen*(conn: untyped): untyped = altcpListenWithBacklogAndErr(conn, TcpDefaultListenBacklog, nil)
