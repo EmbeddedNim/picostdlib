@@ -24,7 +24,8 @@ const HTTP_REQUEST = "GET " & HTTP_PATH & " HTTP/1.1\r\n" &
                      "\r\n"
 
 proc runTcpClientTest() =
-  var client = initTcpContext(tls = TCP_USE_TLS, sniHostname = HOSTNAME)
+  var client: TcpContext
+  client.init(tls = TCP_USE_TLS, sniHostname = HOSTNAME)
 
   # var ip: IpAddrT
   # discard ipaddrAton(TCP_IP, ip.addr)

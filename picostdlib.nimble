@@ -73,6 +73,7 @@ task examples, "Builds the examples":
   # ]
   # const examples_picow = [
     "pico_w/picow_blink",
+    "pico_w/picow_http_client",
     "pico_w/picow_ntp_client",
     "pico_w/picow_tcp_client",
     "pico_w/picow_tls_client",

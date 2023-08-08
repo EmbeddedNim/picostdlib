@@ -131,10 +131,11 @@ func availableForWrite*(self: TcpContext): uint =
 proc setNoDelay*(self: var TcpContext; nodelay: bool) =
   if self.pcb.isNil:
     return
-  if nodelay:
-    altcpNagleDisable(self.pcb)
-  else:
-    altcpNagleEnable(self.pcb)
+  withLwipLock:
+    if nodelay:
+      altcpNagleDisable(self.pcb)
+    else:
+      altcpNagleEnable(self.pcb)
 
 func getNoDelay*(self: TcpContext): bool =
   if self.pcb.isNil:
@@ -144,7 +145,8 @@ func getNoDelay*(self: TcpContext): bool =
 proc setTimeout*(self: var TcpContext; timeoutMs: Natural) =
   self.timeoutMs = timeoutMs.uint32
 
-func getTimeout*(self: TcpContext): Natural = self.timeoutMs.Natural
+func getTimeout*(self: TcpContext): Natural =
+  self.timeoutMs.Natural
 
 func getRemoteAddress*(self: TcpContext): ptr IpAddrT =
   if self.pcb.isNil:
@@ -435,7 +437,6 @@ func getKeepAliveInterval*(self: TcpContext): uint32 =
 func getKeepAliveCount*(self: TcpContext): uint32 =
   return if self.isKeepAliveEnabled(): self.getTcpPcb().keepCnt else: 0
 
-
 func getSync*(self: TcpContext): bool = self.sync
 
 proc setSync*(self: var TcpContext; sync: bool) = self.sync = sync
@@ -606,7 +607,8 @@ proc csReadDataStr(s: Stream; buffer: var string; slice: Slice[int]): int =
 proc csWriteData(s: Stream; buffer: pointer; bufLen: int) =
   if ClientStream(s).client.isNil:
     return
-  doAssert ClientStream(s).client()[].write(cast[ptr byte](buffer), uint bufLen).int == bufLen
+  let ok = ClientStream(s).client()[].write(cast[ptr byte](buffer), uint bufLen).int == bufLen
+  discard ok
 proc csPeekData(s: Stream; buffer: pointer; bufLen: int): int =
   if ClientStream(s).client.isNil:
     return 0
@@ -659,7 +661,7 @@ proc init*(self: var TcpContext; pcb: ptr AltcpPcb; timeoutMs: uint = 10_000#[; 
     altcpRecv(self.pcb, sRecv)
     altcpSent(self.pcb, sAcked)
     altcpErr(self.pcb, sError)
-    altcpPoll(self.pcb, sPoll, 10)
+    altcpPoll(self.pcb, sPoll, 20)
 
   new(self.stream)
   self.stream.client = self.addr
@@ -677,10 +679,10 @@ proc init*(self: var TcpContext; pcb: ptr AltcpPcb; timeoutMs: uint = 10_000#[; 
   # keep-alive not enabled by default
   # self.keepAlive()
 
-proc initTcpContext*(pcb: ptr AltcpPcb#[; discardCb: DiscardCbT = nil; discardCbArg: pointer = nil]#): TcpContext =
-  result.init(pcb#[, discardCb, discardCbArg]#)
+# proc initTcpContext*(pcb: ptr AltcpPcb#[; discardCb: DiscardCbT = nil; discardCbArg: pointer = nil]#): owned TcpContext =
+#   result.init(pcb#[, discardCb, discardCbArg]#)
 
-proc initTcpContext*(tls: bool = false; sniHostname: string = ""): TcpContext =
+proc init*(self: var TcpContext; tls: bool = false; sniHostname: string = "") =
   var allocator: AltcpAllocatorT
   allocator.alloc = altcpTcpAlloc
   allocator.arg = nil
@@ -693,4 +695,4 @@ proc initTcpContext*(tls: bool = false; sniHostname: string = ""): TcpContext =
     if sniHostname != "" and mbedtlsSslSetHostname(sslCtx, sniHostname) != 0:
       debugv(":mbedtls set hostname failed!\n")
 
-  result.init(pcb)
+  self.init(pcb)

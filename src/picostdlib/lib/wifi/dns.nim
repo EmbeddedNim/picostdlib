@@ -20,10 +20,10 @@ proc getHostByName*(hostname: string; ipaddr: var IpAddrT; timeoutMs: uint = 500
   withLwipLock:
     err = dnsGethostbyname(hostname, ipaddr.addr, dnsFoundCb, state.addr)
 
-  if err == ERR_OK.ErrT:
+  if err == ErrOk.ErrT:
     return true
-  elif err != ERR_INPROGRESS.ErrT:
-    # debugv(":dns err=%d\n", err)
+  elif err != ErrInprogress.ErrT:
+    # echo ":dns err=", err
     return false
   else:
     pollDelay(timeoutMs, state.running, 10)
