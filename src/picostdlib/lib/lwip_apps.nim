@@ -86,6 +86,6 @@ else:
 
 # Nim helpers
 
-proc sntp_setoperatingmode*(operatingMode: SntpOpmode) =
-  sntp_setoperatingmode(operatingMode.uint8)
+proc sntpSetoperatingmode*(operatingMode: SntpOpmode) =
+  sntpSetoperatingmode(operatingMode.uint8)
 

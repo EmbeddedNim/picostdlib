@@ -31,10 +31,10 @@ proc sntpSetSystemTime(sec: uint32) {.exportc: "__sntp_set_system_time", cdecl.}
 proc runNtpTest() =
   rtcInit()
 
-  sntp_setservername(0, NTP_SERVER.cstring)
+  sntpSetservername(0, NTP_SERVER.cstring)
 
-  sntp_setoperatingmode(SntpOPmodePoll)
-  sntp_init()
+  sntpSetoperatingmode(SntpOPmodePoll)
+  sntpInit()
 
   while not volatileLoad(sntpTimeSynced.addr):
     tightLoopContents()
@@ -47,7 +47,7 @@ proc runNtpTest() =
     echo "No datetime set!"
 
   # we are done
-  sntp_stop()
+  sntpStop()
 
 proc ntpClientExample*() =
   if cyw43ArchInit() != PicoErrorNone:
