@@ -29,18 +29,11 @@
 ##  options please email contact@georgerobotics.com.au.
 ##
 
-import std/os, std/macros
-import ../helpers
-
-import futhark
-
 import ./lwip
 export lwip
 
 import ./cyw43_driver/cyw43_country
 export cyw43_country
-
-const outputPath = when defined(nimcheck) or defined(futharkgen): futharkGenDir / "futhark_cyw43_driver.nim" else: ""
 
 type
   # Declared before futhark importc to be able to use it as its own type
@@ -52,45 +45,54 @@ const
   Cyw43Pm1PowersaveMode* = (1).Cyw43PowersaveMode ##  Powersave mode on specified interface without regard for throughput reduction
   Cyw43Pm2PowersaveMode* = (2).Cyw43PowersaveMode ##  Powersave mode on specified interface with High throughput
 
+when defined(nimcheck):
+  include ../futharkgen/futhark_cyw43_driver
+else:
+  import std/os, std/macros
+  import ../helpers
 
-importc:
-  outputPath outputPath
-  compilerArg "--target=arm-none-eabi"
-  compilerArg "-mthumb"
-  compilerArg "-mcpu=cortex-m0plus"
-  compilerArg "-fsigned-char"
-  compilerArg "-fshort-enums" # needed to get the right enum size
+  import futhark
 
-  sysPath futhark.getClangIncludePath()
-  sysPath armSysrootInclude
-  sysPath armInstallInclude
-  sysPath cmakeBinaryDir / "generated/pico_base"
-  sysPath picoSdkPath / "src/common/pico_base/include"
-  sysPath picoSdkPath / "src/rp2040/hardware_regs/include"
-  sysPath picoSdkPath / "src/rp2040/hardware_structs/include"
-  sysPath picoSdkPath / "src/rp2_common/hardware_base/include"
-  sysPath picoSdkPath / "src/rp2_common/hardware_irq/include"
-  sysPath picoSdkPath / "src/rp2_common/hardware_gpio/include"
-  sysPath picoSdkPath / "src/rp2_common/hardware_timer/include"
-  sysPath picoSdkPath / "src/rp2_common/pico_rand/include"
-  sysPath picoSdkPath / "src/rp2_common/pico_platform/include"
-  sysPath picoSdkPath / "src/common/pico_time/include"
-  sysPath picoSdkPath / "src/rp2_common/pico_cyw43_driver/include"
-  sysPath picoSdkPath / "src/rp2_common/pico_lwip/include"
-  sysPath picoSdkPath / "src/rp2_common/pico_cyw43_arch/include"
-  sysPath picoSdkPath / "lib/lwip/src/include"
-  path picoSdkPath / "lib/cyw43-driver/src"
-  path piconimCsourceDir
-  path getProjectPath()
+  const outputPath = when defined(futharkgen): futharkGenDir / "futhark_cyw43_driver.nim" else: ""
 
-  # TODO: Make this configurable
-  define PICO_CYW43_ARCH_THREADSAFE_BACKGROUND
+  importc:
+    outputPath outputPath
+    compilerArg "--target=arm-none-eabi"
+    compilerArg "-mthumb"
+    compilerArg "-mcpu=cortex-m0plus"
+    compilerArg "-fsigned-char"
+    compilerArg "-fshort-enums" # needed to get the right enum size
 
-  define "MBEDTLS_USER_CONFIG_FILE \"mbedtls_config.h\""
+    sysPath futhark.getClangIncludePath()
+    sysPath armSysrootInclude
+    sysPath armInstallInclude
+    sysPath cmakeBinaryDir / "generated/pico_base"
+    sysPath picoSdkPath / "src/common/pico_base/include"
+    sysPath picoSdkPath / "src/rp2040/hardware_regs/include"
+    sysPath picoSdkPath / "src/rp2040/hardware_structs/include"
+    sysPath picoSdkPath / "src/rp2_common/hardware_base/include"
+    sysPath picoSdkPath / "src/rp2_common/hardware_irq/include"
+    sysPath picoSdkPath / "src/rp2_common/hardware_gpio/include"
+    sysPath picoSdkPath / "src/rp2_common/hardware_timer/include"
+    sysPath picoSdkPath / "src/rp2_common/pico_rand/include"
+    sysPath picoSdkPath / "src/rp2_common/pico_platform/include"
+    sysPath picoSdkPath / "src/common/pico_time/include"
+    sysPath picoSdkPath / "src/rp2_common/pico_cyw43_driver/include"
+    sysPath picoSdkPath / "src/rp2_common/pico_lwip/include"
+    sysPath picoSdkPath / "src/rp2_common/pico_cyw43_arch/include"
+    sysPath picoSdkPath / "lib/lwip/src/include"
+    path picoSdkPath / "lib/cyw43-driver/src"
+    path piconimCsourceDir
+    path getProjectPath()
 
-  renameCallback futharkRenameCallback
+    # TODO: Make this configurable
+    define PICO_CYW43_ARCH_THREADSAFE_BACKGROUND
 
-  "cyw43.h"
+    define "MBEDTLS_USER_CONFIG_FILE \"mbedtls_config.h\""
+
+    renameCallback futharkRenameCallback
+
+    "cyw43.h"
 
 {.emit: "// picostdlib import: pico_cyw43_arch_lwip_threadsafe_background".}
 

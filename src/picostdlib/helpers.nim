@@ -1,9 +1,17 @@
 import std/os, std/strutils, std/macros, std/compilesettings
 
+macro staticInclude(path: static[string]): untyped =
+  newTree(nnkIncludeStmt, newLit(path))
 
-const picoSdkPath* {.strdefine.} = os.getEnv("PICO_SDK_PATH").replace('\\', DirSep)
 const cmakeBinaryDir* {.strdefine.} = os.getEnv("CMAKE_BINARY_DIR").replace('\\', DirSep)
-const cmakeSourceDir* {.strdefine.} = os.getEnv("CMAKE_SOURCE_DIR").replace('\\', DirSep)
+const cmakecachePath = cmakeBinaryDir / "generated" / "cmakecache.nim"
+
+when fileExists(cmakecachePath):
+  # includes PICO_SDK_PATH
+  staticInclude(cmakecachePath)
+
+const picoSdkPath* {.strdefine.} = when declared(PICO_SDK_PATH): PICO_SDK_PATH else: os.getEnv("PICO_SDK_PATH").replace('\\', DirSep)
+
 const piconimCsourceDir* {.strdefine.} = getProjectPath().replace('\\', DirSep).parentDir() / "csource"
 const picostdlibFutharkSysroot* {.strdefine.} = ""
 const nimcacheDir* = querySetting(SingleValueSetting.nimcacheDir)

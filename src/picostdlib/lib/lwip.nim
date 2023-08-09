@@ -26,99 +26,102 @@
 ##
 
 
-import std/os, std/macros
-import ../helpers
-
-import futhark
-
 let
   TCP_SND_BUF* {.importc: "TCP_SND_BUF", header: "lwipopts.h".}: cint
 
-const outputPath = when defined(nimcheck) or defined(futharkgen): futharkGenDir / "futhark_lwip.nim" else: ""
+when defined(nimcheck):
+  include ../futharkgen/futhark_lwip
+else:
+  import std/os, std/macros
+  import ../helpers
 
-importc:
-  outputPath outputPath
+  import futhark
 
-  compilerArg "--target=arm-none-eabi"
-  compilerArg "-mthumb"
-  compilerArg "-mcpu=cortex-m0plus"
-  compilerArg "-fsigned-char"
-  compilerArg "-fshort-enums" # needed to get the right enum size
+  const outputPath = when defined(futharkgen): futharkGenDir / "futhark_lwip.nim" else: ""
 
-  sysPath futhark.getClangIncludePath()
-  sysPath armSysrootInclude
-  sysPath armInstallInclude
-  sysPath picoSdkPath / "src/rp2040/hardware_regs/include"
-  sysPath picoSdkPath / "lib/lwip/contrib/ports/freertos/include"
-  sysPath picoSdkPath / "src/common/pico_base/include"
-  sysPath picoSdkPath / "src/rp2_common/pico_platform/include"
-  sysPath picoSdkPath / "src/rp2_common/pico_rand/include"
-  sysPath picoSdkPath / "src/rp2_common/pico_cyw43_driver/include"
-  sysPath cmakeBinaryDir / "generated/pico_base"
-  path picoSdkPath / "lib/mbedtls/include"
-  path picoSdkPath / "lib/mbedtls/library"
-  path picoSdkPath / "src/rp2_common/pico_lwip/include"
-  path picoSdkPath / "lib/lwip/src/include"
-  path piconimCsourceDir
-  path getProjectPath()
+  importc:
+    outputPath outputPath
 
-  define "MBEDTLS_USER_CONFIG_FILE \"mbedtls_config.h\""
+    compilerArg "--target=arm-none-eabi"
+    compilerArg "-mthumb"
+    compilerArg "-mcpu=cortex-m0plus"
+    compilerArg "-fsigned-char"
+    compilerArg "-fshort-enums" # needed to get the right enum size
 
-  renameCallback futharkRenameCallback
+    sysPath futhark.getClangIncludePath()
+    sysPath armSysrootInclude
+    sysPath armInstallInclude
+    sysPath picoSdkPath / "src/rp2040/hardware_regs/include"
+    sysPath picoSdkPath / "lib/lwip/contrib/ports/freertos/include"
+    sysPath picoSdkPath / "src/common/pico_base/include"
+    sysPath picoSdkPath / "src/rp2_common/pico_platform/include"
+    sysPath picoSdkPath / "src/rp2_common/pico_rand/include"
+    sysPath picoSdkPath / "src/rp2_common/pico_cyw43_driver/include"
+    sysPath cmakeBinaryDir / "generated/pico_base"
+    path picoSdkPath / "lib/mbedtls/include"
+    path picoSdkPath / "lib/mbedtls/library"
+    path picoSdkPath / "src/rp2_common/pico_lwip/include"
+    path picoSdkPath / "lib/lwip/src/include"
+    path piconimCsourceDir
+    path getProjectPath()
 
-  "lwip/acd.h"
-  "lwip/altcp.h"
-  "lwip/altcp_tcp.h"
-  "lwip/altcp_tls.h"
-  "lwip/api.h"
-  "lwip/arch.h"
-  "lwip/autoip.h"
-  "lwip/debug.h"
-  "lwip/def.h"
-  "lwip/dhcp.h"
-  "lwip/dhcp6.h"
-  "lwip/dns.h"
-  "lwip/err.h"
-  "lwip/errno.h"
-  "lwip/etharp.h"
-  "lwip/ethip6.h"
-  "lwip/icmp.h"
-  "lwip/icmp6.h"
-  "lwip/if_api.h"
-  "lwip/igmp.h"
-  "lwip/inet.h"
-  "lwip/inet_chksum.h"
-  "lwip/init.h"
-  "lwip/ip.h"
-  "lwip/ip4.h"
-  "lwip/ip4_addr.h"
-  "lwip/ip4_frag.h"
-  "lwip/ip6.h"
-  "lwip/ip6_addr.h"
-  "lwip/ip6_frag.h"
-  "lwip/ip6_zone.h"
-  "lwip/ip_addr.h"
-  "lwip/mem.h"
-  "lwip/memp.h"
-  "lwip/mld6.h"
-  "lwip/nd6.h"
-  "lwip/netbuf.h"
-  "lwip/netdb.h"
-  "lwip/netif.h"
-  "lwip/netifapi.h"
-  "lwip/opt.h"
-  "lwip/pbuf.h"
-  "lwip/raw.h"
-  "lwip/sio.h"
-  "lwip/snmp.h"
-  "lwip/sockets.h"
-  "lwip/stats.h"
-  "lwip/sys.h"
-  "lwip/tcp.h"
-  "lwip/tcpbase.h"
-  "lwip/tcpip.h"
-  "lwip/timeouts.h"
-  "lwip/udp.h"
+    define "MBEDTLS_USER_CONFIG_FILE \"mbedtls_config.h\""
+
+    renameCallback futharkRenameCallback
+
+    "lwip/acd.h"
+    "lwip/altcp.h"
+    "lwip/altcp_tcp.h"
+    "lwip/altcp_tls.h"
+    "lwip/api.h"
+    "lwip/arch.h"
+    "lwip/autoip.h"
+    "lwip/debug.h"
+    "lwip/def.h"
+    "lwip/dhcp.h"
+    "lwip/dhcp6.h"
+    "lwip/dns.h"
+    "lwip/err.h"
+    "lwip/errno.h"
+    "lwip/etharp.h"
+    "lwip/ethip6.h"
+    "lwip/icmp.h"
+    "lwip/icmp6.h"
+    "lwip/if_api.h"
+    "lwip/igmp.h"
+    "lwip/inet.h"
+    "lwip/inet_chksum.h"
+    "lwip/init.h"
+    "lwip/ip.h"
+    "lwip/ip4.h"
+    "lwip/ip4_addr.h"
+    "lwip/ip4_frag.h"
+    "lwip/ip6.h"
+    "lwip/ip6_addr.h"
+    "lwip/ip6_frag.h"
+    "lwip/ip6_zone.h"
+    "lwip/ip_addr.h"
+    "lwip/mem.h"
+    "lwip/memp.h"
+    "lwip/mld6.h"
+    "lwip/nd6.h"
+    "lwip/netbuf.h"
+    "lwip/netdb.h"
+    "lwip/netif.h"
+    "lwip/netifapi.h"
+    "lwip/opt.h"
+    "lwip/pbuf.h"
+    "lwip/raw.h"
+    "lwip/sio.h"
+    "lwip/snmp.h"
+    "lwip/sockets.h"
+    "lwip/stats.h"
+    "lwip/sys.h"
+    "lwip/tcp.h"
+    "lwip/tcpbase.h"
+    "lwip/tcpip.h"
+    "lwip/timeouts.h"
+    "lwip/udp.h"
 
 {.emit: "// picostdlib import: pico_lwip pico_lwip_mbedtls pico_mbedtls".}
 

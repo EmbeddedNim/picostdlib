@@ -119,11 +119,6 @@ proc createProject(projectPath: string; sdk = ""; board: string = ""; override =
     cmakelistsContent = cmakelistsContent.replace("blink", name)
     if sdk != "":
       cmakelistsContent = cmakelistsContent.replace("# set(PICO_SDK_PATH ENV{PICO_SDK_PATH})", "set(PICO_SDK_PATH \"" & sdk & "\") # Set by piconim")
-      let configPath = projectPath / "src" / "config.nims"
-      var configContent = configPath.readFile()
-      configContent = configContent.replace("# switch(\"d\", \"PICO_SDK_PATH:/path/to/pico-sdk\")", "switch(\"d\", \"" & "PICO_SDK_PATH:" & sdk & "\") # Set by piconim")
-      echo "piconim: updating file ", configContent
-      configPath.writeFile(configContent)
     cmakelistsContent = cmakelistsContent.replace("set(PICO_BOARD pico)", "set(PICO_BOARD " & board & ") # Set by piconim")
     if board == "pico_w":
       cmakelistsContent = cmakelistsContent.replace("# pico_cyw43_arch_lwip_threadsafe_background pico_lwip_mbedtls pico_mbedtls", "pico_cyw43_arch_lwip_threadsafe_background pico_lwip_mbedtls pico_mbedtls")

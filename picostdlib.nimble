@@ -21,11 +21,14 @@ requires "futhark >= 0.9.3" # for bindings to lwip, cyw43_driver, btstack...
 # Tests
 
 task futharkgen, "Generate futhark cache":
-  exec "nimble c -c src/picostdlib/futharkgen"
+  rmDir "src/picostdlib/futharkgen"
+  exec "./piconim configure --project futharkgen --source src/picostdlib/build_utils/futharkgen --board pico_w"
+  exec "./piconim build --project futharkgen src/picostdlib/build_utils/futharkgen/futharkgen --compileOnly"
+  rmDir "build/futharkgen"
 
 before install:
-  rmDir "src/picostdlib/futharkgen"
-  # futharkgenTask() # fails becuase it depends on some file that cmake generates
+  exec "nimble check"
+  futharkgenTask()
 
 task test, "Runs the test suite":
   exec "nimble build"

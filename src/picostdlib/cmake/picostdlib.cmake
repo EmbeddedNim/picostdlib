@@ -13,6 +13,9 @@ execute_process(
 )
 string(JSON NIM_LIB_DIR GET "${NIM_DUMP_JSON}" libpath)
 
+file(TO_CMAKE_PATH "${PICO_SDK_PATH}" CMAKE_PICO_SDK_PATH)
+file(CONFIGURE OUTPUT ${CMAKE_BINARY_DIR}/generated/cmakecache.nim CONTENT "const PICO_SDK_PATH = r\"${CMAKE_PICO_SDK_PATH}\"\n")
+
 function(picostdlib_target target name)
   set(NIMCACHE_DIR "${CMAKE_BINARY_DIR}/${target}/nimcache")
   set(NIMCACHE_JSON_FILE "${NIMCACHE_DIR}/${name}.json")

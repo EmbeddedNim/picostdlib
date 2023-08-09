@@ -27,10 +27,5 @@ switch("d", "nimEmulateOverflowChecks")
 # for futhark to work
 switch("maxLoopIterationsVM", "100000000")
 
-# switch("d", "PICO_SDK_PATH:/path/to/pico-sdk")
 switch("d", "cmakeBinaryDir:" & getCurrentDir() & "/build/" & packageName)
-switch("d", "cmakeSourceDir:" & getCurrentDir())
 switch("d", "piconimCsourceDir:" & getCurrentDir() & "/csource")
-
-# switch("d", "WIFI_SSID:myssid")
-# switch("d", "WIFI_PASSWORD:mypassword")
