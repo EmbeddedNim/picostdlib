@@ -334,7 +334,7 @@ proc acknowledgeIrq*(gpio: Gpio; eventMask: set[GpioIrqLevel]) {.importc: "gpio_
   ## \note For callbacks set with \ref gpio_set_irq_enabled_with_callback, or \ref gpio_set_irq_callback, this function is called automatically.
   ## \param event_mask Bitmask of events to clear. See \ref gpio_irq_level for details.
 
-proc gpioAddRawIrqHandlerWithOrderPriorityMasked*(gpioMask: set[Gpio]; handler: IrqHandler; order_priority: uint8) {.importc: "gpio_add_raw_irq_handler_with_order_priority_masked".}
+proc addRawIrqHandlerWithOrderPriorityMasked*(gpioMask: set[Gpio]; handler: IrqHandler; order_priority: uint8) {.importc: "gpio_add_raw_irq_handler_with_order_priority_masked".}
   ## Adds a raw GPIO IRQ handler for the specified GPIOs on the current core
   ##
   ## In addition to the default mechanism of a single GPIO IRQ event callback per core (see \ref gpio_set_irq_callback),
@@ -392,7 +392,7 @@ proc addRawIrqHandlerWithOrderPriority*(gpio: Gpio; handler: IrqHandler; orderPr
   ## @param handler the handler to add to the list of GPIO IRQ handlers for this core
   ## @param order_priority the priority order to determine the relative position of the handler in the list of GPIO IRQ handlers for this core.
 
-proc gpioAddRawIrqHandlerMasked*(gpioMask: set[Gpio]; handler: IrqHandler) {.importc: "gpio_add_raw_irq_handler_masked".}
+proc addRawIrqHandlerMasked*(gpioMask: set[Gpio]; handler: IrqHandler) {.importc: "gpio_add_raw_irq_handler_masked".}
   ## Adds a raw GPIO IRQ handler for the specified GPIOs on the current core
   ##
   ## In addition to the default mechanism of a single GPIO IRQ event callback per core (see \ref gpio_set_irq_callback),
@@ -444,7 +444,7 @@ proc addRawIrqHandler*(gpio: Gpio; handler: IrqHandler) {.importc: "gpio_add_raw
   ## @param gpio the GPIO number that will no longer be passed to the default callback for this core
   ## @param handler the handler to add to the list of GPIO IRQ handlers for this core
 
-proc gpioRemoveRawIrqHandlerMasked*(gpioMask: set[Gpio]; handler: IrqHandler) {.importc: "gpio_remove_raw_irq_handler_masked".}
+proc removeRawIrqHandlerMasked*(gpioMask: set[Gpio]; handler: IrqHandler) {.importc: "gpio_remove_raw_irq_handler_masked".}
   ## Removes a raw GPIO IRQ handler for the specified GPIOs on the current core
   ##
   ## In addition to the default mechanism of a single GPIO IRQ event callback per core (see \ref gpio_set_irq_callback),
@@ -480,7 +480,7 @@ proc deinit*(gpio: Gpio) {.importc: "gpio_deinit".}
   ##
   ## \param gpio GPIO number
 
-proc gpioInitMask*(gpioMask: set[Gpio]) {.importc: "gpio_init_mask".}
+proc initMask*(gpioMask: set[Gpio]) {.importc: "gpio_init_mask".}
   ## Initialise multiple Gpios (enabled I/O and set func to Gpio_FUNC_SIO).
   ## Clear the output enable (i.e. set to input) Clear any output value.
   ##
@@ -493,7 +493,7 @@ proc get*(gpio: Gpio): Value #[bool]# {.importc: "gpio_get".}
   ## Get state of a single specified Gpio. 
   ##
   ## **Returns:** Current state of the Gpio. Low (0.Value) or High (1.Value)
-  
+
 proc gpioGetAll*(): set[Gpio] {.importc: "gpio_get_all".}
   ## Get raw value of all GPIOs
   ##
