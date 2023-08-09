@@ -25,11 +25,6 @@
 ##  OF SUCH DAMAGE.
 ##
 
-
-import std/os, std/macros
-import ../helpers
-import futhark
-
 import ./lwip
 export lwip
 
@@ -38,42 +33,54 @@ type
     SntpOPmodePoll
     SntpOpmodeListenonly
 
-importc:
-  compilerArg "--target=arm-none-eabi"
-  compilerArg "-mthumb"
-  compilerArg "-mcpu=cortex-m0plus"
-  compilerArg "-fsigned-char"
+when defined(nimcheck):
+  include ../futharkgen/futhark_lwip_apps
+else:
+  import std/os, std/macros
+  import ../helpers
+  import futhark
 
-  sysPath futhark.getClangIncludePath()
-  sysPath armSysrootInclude
-  sysPath armInstallInclude
-  sysPath picoSdkPath / "src/rp2040/hardware_regs/include"
-  sysPath picoSdkPath / "src/common/pico_base/include"
-  sysPath picoSdkPath / "src/rp2_common/pico_platform/include"
-  sysPath picoSdkPath / "src/rp2_common/pico_rand/include"
-  sysPath cmakeBinaryDir / "generated/pico_base"
-  path picoSdkPath / "src/rp2_common/pico_lwip/include"
-  path picoSdkPath / "lib/lwip/src/include"
-  path piconimCsourceDir
-  path getProjectPath()
+  const outputPath = when defined(futharkgen): futharkGenDir / "futhark_lwip_apps.nim" else: ""
 
-  define "MBEDTLS_USER_CONFIG_FILE \"mbedtls_config.h\""
+  importc:
+    outputPath outputPath
 
-  renameCallback futharkRenameCallback
+    compilerArg "--target=arm-none-eabi"
+    compilerArg "-mthumb"
+    compilerArg "-mcpu=cortex-m0plus"
+    compilerArg "-fsigned-char"
+    compilerArg "-fshort-enums" # needed to get the right enum size
 
-  "lwip/apps/altcp_proxyconnect.h"
-  "lwip/apps/http_client.h"
-  "lwip/apps/httpd.h"
-  "lwip/apps/lwiperf.h"
-  "lwip/apps/mdns.h"
-  "lwip/apps/mqtt.h"
-  "lwip/apps/netbiosns.h"
-  "lwip/apps/smtp.h"
-  "lwip/apps/snmp.h"
-  "lwip/apps/snmpv3.h"
-  "lwip/apps/sntp.h"
-  "lwip/apps/tftp_client.h"
-  "lwip/apps/tftp_server.h"
+    sysPath futhark.getClangIncludePath()
+    sysPath armSysrootInclude
+    sysPath armInstallInclude
+    sysPath picoSdkPath / "src/rp2040/hardware_regs/include"
+    sysPath picoSdkPath / "src/common/pico_base/include"
+    sysPath picoSdkPath / "src/rp2_common/pico_platform/include"
+    sysPath picoSdkPath / "src/rp2_common/pico_rand/include"
+    sysPath cmakeBinaryDir / "generated/pico_base"
+    path picoSdkPath / "src/rp2_common/pico_lwip/include"
+    path picoSdkPath / "lib/lwip/src/include"
+    path piconimCsourceDir
+    path getProjectPath()
+
+    define "MBEDTLS_USER_CONFIG_FILE \"mbedtls_config.h\""
+
+    renameCallback futharkRenameCallback
+
+    "lwip/apps/altcp_proxyconnect.h"
+    "lwip/apps/http_client.h"
+    "lwip/apps/httpd.h"
+    "lwip/apps/lwiperf.h"
+    "lwip/apps/mdns.h"
+    "lwip/apps/mqtt.h"
+    "lwip/apps/netbiosns.h"
+    "lwip/apps/smtp.h"
+    "lwip/apps/snmp.h"
+    "lwip/apps/snmpv3.h"
+    "lwip/apps/sntp.h"
+    "lwip/apps/tftp_client.h"
+    "lwip/apps/tftp_server.h"
 
 {.emit: "// picostdlib import: pico_lwip_sntp".}
 

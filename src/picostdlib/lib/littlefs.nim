@@ -27,10 +27,9 @@
 ##
 
 import std/os, std/strutils
-import ../helpers
 import ../pico/[platform, types]
 import ../hardware/[flash, sync]
-import futhark
+
 
 export flash, types
 
@@ -39,19 +38,28 @@ const littlefsInclude = currentSourcePath.replace('\\', DirSep).parentDir / ".."
 {.compile: littlefsInclude / "lfs.c".}
 {.compile: littlefsInclude / "lfs_util.c".}
 
-importc:
-  compilerArg "--target=arm-none-eabi"
-  compilerArg "-mthumb"
-  compilerArg "-mcpu=cortex-m0plus"
-  compilerArg "-fsigned-char"
+when defined(nimcheck):
+  include ../futharkgen/futhark_littlefs
+else:
+  import ../helpers
+  import futhark
 
-  sysPath armSysrootInclude
-  sysPath armInstallInclude
-  path littlefsInclude
+  importc:
+    outputPath futharkGenDir / "futhark_littlefs.nim"
 
-  renameCallback futharkRenameCallback
+    compilerArg "--target=arm-none-eabi"
+    compilerArg "-mthumb"
+    compilerArg "-mcpu=cortex-m0plus"
+    compilerArg "-fsigned-char"
+    compilerArg "-fshort-enums" # needed to get the right enum size
 
-  "lfs.h"
+    sysPath armSysrootInclude
+    sysPath armInstallInclude
+    path littlefsInclude
+
+    renameCallback futharkRenameCallback
+
+    "lfs.h"
 
 
 # Nim helpers
