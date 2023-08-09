@@ -5,9 +5,9 @@ import picostdlib/hardware/pwm
 # the PWM slice's output level each time the counter wraps.
 
 # Tell the LED pin that the PWM is in charge of its value.
-gpioSetFunction(DefaultLedPin, Pwm)
+DefaultLedPin.setFunction(Pwm)
 # Figure out which slice we just connected to the LED pin
-let sliceNum = pwmGpioToSliceNum(DefaultLedPin)
+let sliceNum = DefaultLedPin.toPwmSliceNum()
 
 var fade: int = 0
 var goingUp: bool = true
@@ -35,8 +35,8 @@ proc onPwmWrap() {.cdecl.} =
 # and register our interrupt handler
 pwmClearIrq(sliceNum)
 pwmSetIrqEnabled(sliceNum, true)
-irqSetExclusiveHandler(PwmIrqWrap, onPwmWrap)
-irqSetEnabled(PwmIrqWrap, true)
+PwmIrqWrap.setExclusiveHandler(onPwmWrap)
+PwmIrqWrap.setEnabled(true)
 
 # Get some sensible defaults for the slice configuration. By default, the
 # counter is allowed to wrap over its maximum range (0 to 2**16-1)

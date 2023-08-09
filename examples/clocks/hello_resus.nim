@@ -8,14 +8,15 @@ var seenResus: bool
 
 proc resusCallback {.cdecl.} =
   #  Reconfigure PLL sys back to the default state of 1500 / 6 / 2 = 125MHz
-  PllSys.pllInit(1, 1500 * Mhz, 6, 2)
+  PllSys.init(1, 1500 * Mhz, 6, 2)
 
   # CLK SYS = PLL SYS (125MHz) / 1 = 125MHz
-  discard clockConfigure(ClockIndex.Sys,
+  discard ClockSys.configure(
     CtrlSrcValueClksrcClkSysAux,
     CtrlAuxsrcValueClksrcPllSys,
     125 * Mhz,
-    125 * Mhz)
+    125 * Mhz
+  )
   
   # Reconfigure uart as clocks have changed
   stdioInitAll()
@@ -24,9 +25,9 @@ proc resusCallback {.cdecl.} =
   # Wait for uart output to finish
   uartDefaultTxWaitBlocking()
 
-  gpioInit(DefaultLedPin)
-  gpioSetDir(DefaultLedPin, Out)
-  gpioPut(DefaultLedPin, High)
+  DefaultLedPin.init()
+  DefaultLedPin.setDir(Out)
+  DefaultLedPin.put(High)
 
   volatileStore(seenResus.addr, true)
 
@@ -42,12 +43,12 @@ proc main() =
   clocksEnableResus(resusCallback)
 
   # Break PLL sys
-  pllDeinit(PllSys)
+  PllSys.deinit()
 
   while not volatileLoad(seenResus.addr):
     tightLoopContents()
 
   sleepMs(1000)
-  gpioPut(DefaultLedPin, Low)
+  DefaultLedPin.put(Low)
 
 main()

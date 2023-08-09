@@ -20,7 +20,7 @@ const
 
 proc vregSetVoltage*(voltage: VregVoltage) {.importc: "vreg_set_voltage".}
   ## Set voltage
-  ##   
+  ##
   ## \param voltage  The voltage (from enumeration \ref vreg_voltage) to apply to the voltage regulator
 
 {.pop.}

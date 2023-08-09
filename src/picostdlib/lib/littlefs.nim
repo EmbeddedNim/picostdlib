@@ -26,10 +26,10 @@
 ## SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ##
 
+
 import std/os, std/strutils
 import ../pico/[platform, types]
 import ../hardware/[flash, sync]
-
 
 export flash, types
 
@@ -74,7 +74,7 @@ type
     autoFormat*: bool
     timeCallback*: proc (): Datetime
 
-proc pico_lfs_read(c: ptr LfsConfig; blk: LfsBlockT; off: LfsOffT; buffer: pointer; size: LfsSizeT): cint {.cdecl.} =
+proc picoLfsRead(c: ptr LfsConfig; blk: LfsBlockT; off: LfsOffT; buffer: pointer; size: LfsSizeT): cint {.cdecl.} =
   let me = cast[ptr LittleFS](c.context)
 
   let address = XipBase + me.start + (blk * c.block_size) + off
@@ -82,7 +82,7 @@ proc pico_lfs_read(c: ptr LfsConfig; blk: LfsBlockT; off: LfsOffT; buffer: point
   copyMem(buffer, cast[pointer](address), size)
   return LfsErrOk.ord
 
-proc pico_lfs_prog(c: ptr LfsConfig; blk: LfsBlockT; off: LfsOffT; buffer: pointer; size: LfsSizeT): cint {.cdecl.} =
+proc picoLfsProg(c: ptr LfsConfig; blk: LfsBlockT; off: LfsOffT; buffer: pointer; size: LfsSizeT): cint {.cdecl.} =
   let me = cast[ptr LittleFS](c.context)
 
   let address = me.start + (blk * c.block_size) + off
@@ -94,7 +94,7 @@ proc pico_lfs_prog(c: ptr LfsConfig; blk: LfsBlockT; off: LfsOffT; buffer: point
   restoreInterrupts(ints)
   return LfsErrOk.ord
 
-proc pico_lfs_erase(c: ptr LfsConfig; blk: LfsBlockT): cint {.cdecl.} =
+proc picoLfsErase(c: ptr LfsConfig; blk: LfsBlockT): cint {.cdecl.} =
   let me = cast[ptr LittleFS](c.context)
 
   let address = me.start + (blk * c.block_size)
@@ -106,7 +106,7 @@ proc pico_lfs_erase(c: ptr LfsConfig; blk: LfsBlockT): cint {.cdecl.} =
   restoreInterrupts(ints)
   return LfsErrOk.ord
 
-proc pico_lfs_sync(c: ptr LfsConfig): cint {.cdecl.} =
+proc picoLfsSync(c: ptr LfsConfig): cint {.cdecl.} =
   # NOOP
   discard c
   return LfsErrOk.ord
@@ -122,10 +122,10 @@ proc init*(self: var LittleFS; start, size: uint32) =
   zeroMem(self.lfsConfig.addr, sizeof(LfsConfig))
 
   self.lfsConfig.context = cast[pointer](self.addr)
-  self.lfsConfig.read = pico_lfs_read
-  self.lfsConfig.prog = pico_lfs_prog
-  self.lfsConfig.erase = pico_lfs_erase
-  self.lfsConfig.sync = pico_lfs_sync
+  self.lfsConfig.read = picoLfsRead
+  self.lfsConfig.prog = picoLfsProg
+  self.lfsConfig.erase = picoLfsErase
+  self.lfsConfig.sync = picoLfsSync
   self.lfsConfig.read_size = FlashPageSize
   self.lfsConfig.prog_size = FlashPageSize
   self.lfsConfig.block_size = FlashBlockSize
@@ -247,4 +247,3 @@ proc mkdir*(self: var LittleFS; path: string): bool =
 
 proc rmdir*(self: var LittleFS; path: string): bool =
   self.remove(path) # Same call on LittleFS
-

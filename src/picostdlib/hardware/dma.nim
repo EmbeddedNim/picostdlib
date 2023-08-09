@@ -134,7 +134,7 @@ proc dmaChannelIsClaimed*(channel: cuint): bool {.importc: "dma_channel_is_claim
   ## 
   ## **returns** true if the channel is claimed, false otherwise
 
-proc channelConfigSetReadIncrement*(c: ptr DmaChannelConfig, incr: bool) {.importc: "channel_config_set_read_increment".}
+proc setReadIncrement*(c: ptr DmaChannelConfig, incr: bool) {.importc: "channel_config_set_read_increment".}
   ## Set DMA channel read increment in a channel configuration object
   ## 
   ## **Parameters:**
@@ -145,7 +145,7 @@ proc channelConfigSetReadIncrement*(c: ptr DmaChannelConfig, incr: bool) {.impor
   ##             Usually disabled for peripheral to memory transfers
   ## =========  ====== 
 
-proc channelConfigSetWriteIncrement*(c: ptr DmaChannelConfig, incr: bool) {.importc: "channel_config_set_write_increment".}
+proc setWriteIncrement*(c: ptr DmaChannelConfig, incr: bool) {.importc: "channel_config_set_write_increment".}
   ## Set DMA channel write increment in a channel configuration object
   ## 
   ## **Parameters:**
@@ -157,7 +157,7 @@ proc channelConfigSetWriteIncrement*(c: ptr DmaChannelConfig, incr: bool) {.impo
   ## =========  ====== 
 
 
-proc channelConfigSetDreq*(c: ptr DmaChannelConfig, dreq: cuint) {.importc: "channel_config_set_dreq".}
+proc setDreq*(c: ptr DmaChannelConfig, dreq: cuint) {.importc: "channel_config_set_dreq".}
   ## Select a transfer request signal in a channel configuration object
   ## 
   ## The channel uses the transfer request signal to pace its data transfer rate.
@@ -176,7 +176,7 @@ proc channelConfigSetDreq*(c: ptr DmaChannelConfig, dreq: cuint) {.importc: "cha
   ## **dreq**    Source (see description)
   ## =========  ====== 
 
-proc channelConfigSetChainTo*(c: ptr DmaChannelConfig, chainTo: cuint) {.importc: "channel_config_set_chain_to".}
+proc setChainTo*(c: ptr DmaChannelConfig, chainTo: cuint) {.importc: "channel_config_set_chain_to".}
   ## Set DMA channel chain_to channel in a channel configuration object
   ## 
   ## When this channel completes, it will trigger the channel indicated by chain_to. Disable by
@@ -189,7 +189,7 @@ proc channelConfigSetChainTo*(c: ptr DmaChannelConfig, chainTo: cuint) {.importc
   ## **chainTo**    Channel to trigger when this channel completes.
   ## ============  ====== 
 
-proc channelConfigSetTransferDataSize*(c: ptr DmaChannelConfig, size: DmaChannelTransferSize) {.importc: "channel_config_set_transfer_data_size".}
+proc setTransferDataSize*(c: ptr DmaChannelConfig, size: DmaChannelTransferSize) {.importc: "channel_config_set_transfer_data_size".}
   ## Set the size of each DMA bus transfer in a channel configuration object
   ## 
   ## Set the size of each bus transfer (byte/halfword/word). The read and write addresses
@@ -202,7 +202,7 @@ proc channelConfigSetTransferDataSize*(c: ptr DmaChannelConfig, size: DmaChannel
   ## **size**    See enum for possible values.
   ## =========  ====== 
 
-proc channelConfigSetRing*(c: ptr DmaChannelConfig, write: bool, sizeBits: cuint) {.importc: "channel_config_set_ring".}
+proc setRing*(c: ptr DmaChannelConfig, write: bool, sizeBits: cuint) {.importc: "channel_config_set_ring".}
   ## Set address wrapping parameters in a channel configuration object
   ## 
   ## Size of address wrap region. If 0, don’t wrap. For values n > 0, only the lower n bits of the address
@@ -221,7 +221,7 @@ proc channelConfigSetRing*(c: ptr DmaChannelConfig, write: bool, sizeBits: cuint
   ##                 Effectively wraps the address on a (1 << sizeBits) byte boundary.
   ## =============  ====== 
 
-proc channelConfigSetBswap*(c: ptr DmaChannelConfig, bswap: bool) {.importc: "channel_config_set_bswap".}
+proc setBswap*(c: ptr DmaChannelConfig, bswap: bool) {.importc: "channel_config_set_bswap".}
   ## Set DMA byte swapping config in a channel configuration object
   ## 
   ## No effect for byte data, for halfword data, the two bytes of each halfword are
@@ -234,7 +234,7 @@ proc channelConfigSetBswap*(c: ptr DmaChannelConfig, bswap: bool) {.importc: "ch
   ## **bswap**    True to enable byte swapping
   ## ==========  ====== 
 
-proc channelConfigSetIrqQuiet*(c: ptr DmaChannelConfig; irqQuiet: bool) {.importc: "channel_config_set_irq_quiet".}
+proc setIrqQuiet*(c: ptr DmaChannelConfig; irqQuiet: bool) {.importc: "channel_config_set_irq_quiet".}
   ## Set IRQ quiet mode in a channel configuration object
   ## 
   ## In QUIET mode, the channel does not generate IRQs at the end of every transfer block. Instead,
@@ -248,7 +248,7 @@ proc channelConfigSetIrqQuiet*(c: ptr DmaChannelConfig; irqQuiet: bool) {.import
   ## **irqQuiet**    True to enable quiet mode, false to disable.
   ## =============  ====== 
 
-proc channelConfigSetHighPriority*(c: ptr DmaChannelConfig; highPriority: bool) {.importc: "channel_config_set_high_priority".}
+proc setHighPriority*(c: ptr DmaChannelConfig; highPriority: bool) {.importc: "channel_config_set_high_priority".}
   ## Set the channel priority in a channel configuration object
   ## 
   ## When true, gives a channel preferential treatment in issue scheduling: in each scheduling round,
@@ -265,7 +265,7 @@ proc channelConfigSetHighPriority*(c: ptr DmaChannelConfig; highPriority: bool) 
   ## **highPriority**    True to enable high priority
   ## =================  ====== 
 
-proc channelConfigSetEnable*(c: ptr DmaChannelConfig; enable: bool) {.importc: "channel_config_set_enable".}
+proc setEnable*(c: ptr DmaChannelConfig; enable: bool) {.importc: "channel_config_set_enable".}
   ## Enable/Disable the DMA channel in a channel configuration object
   ## 
   ## When false, the channel will ignore triggers, stop issuing transfers, and pause the current transfer sequence (i.e. BUSY will
@@ -278,7 +278,7 @@ proc channelConfigSetEnable*(c: ptr DmaChannelConfig; enable: bool) {.importc: "
   ## **enable**    True to enable the DMA channel. When enabled, the channel will respond to triggering events, and start transferring data.
   ## ============  ====== 
 
-proc channelConfigSetSniffEnable*(c: ptr DmaChannelConfig; sniffEnable: bool) {.importc: "channel_config_set_sniff_enable".}
+proc setSniffEnable*(c: ptr DmaChannelConfig; sniffEnable: bool) {.importc: "channel_config_set_sniff_enable".}
   ## Enable access to channel by sniff hardware in a channel configuration object
   ## 
   ## Sniff HW must be enabled and have this channel selected.
@@ -326,7 +326,7 @@ proc dmaGetChannelConfig*(channel: cuint): DmaChannelConfig {.importc: "dma_get_
   ## 
   ## **returns** The current configuration as read from the HW register (not cached)
 
-proc channelConfigGetCtrlValue*(config: ptr DmaChannelConfig): uint32 {.importc: "channel_config_get_ctrl_value".}
+proc getCtrlValue*(config: ptr DmaChannelConfig): uint32 {.importc: "channel_config_get_ctrl_value".}
   ## Get the raw configuration register from a channel configuration
   ## 
   ## **Parameters:**
@@ -443,14 +443,14 @@ proc dmaChannelAbort*(channel: cuint) {.importc: "dma_channel_abort".}
   ## in-flight (i.e. an individual read has taken place but the corresponding write has not), the ABORT
   ## status bit will clear prematurely, and subsequently the in-flight
   ## transfers will trigger a completion interrupt once they complete.
-  ##   
+  ##
   ## The effect of this is that you *may* see a spurious completion interrupt
   ## on the channel as a result of calling this method.
-  ##   
+  ##
   ## The calling code should be sure to ignore a completion IRQ as a result of this method. This may
   ## not require any additional work, as aborting a channel which may be about to complete, when you have a completion
   ## IRQ handler registered, is inherently race-prone, and so code is likely needed to disambiguate the two occurrences.
-  ##   
+  ##
   ## If that is not the case, but you do have a channel completion IRQ handler registered, you can simply
   ## disable/re-enable the IRQ around the call to this method as shown by this code fragment (using DMA IRQ0).
   ## 
@@ -779,29 +779,3 @@ proc dmaChannelCleanup*(channel: cuint) {.importc: "dma_channel_cleanup".}
   ## \param channel DMA channel
 
 {.pop.}
-
-
-proc setReadIncrement*(c: var DmaChannelConfig; incr: bool) {.inline.} =
-  channelConfigSetReadIncrement(c.addr, incr)
-proc setWriteIncrement*(c: var DmaChannelConfig; incr: bool) {.inline.} =
-  channelConfigSetWriteIncrement(c.addr, incr)
-proc setDreq*(c: var DmaChannelConfig; dreq: uint) {.inline.} =
-  channelConfigSetDreq(c.addr, dreq.cuint)
-proc setChainTo*(c: var DmaChannelConfig; chainTo: cuint) {.inline.} =
-  channelConfigSetChainTo(c.addr, chainTo)
-proc setTransferDataSize*(c: var DmaChannelConfig; size: DmaChannelTransferSize) {.inline.} =
-  channelConfigSetTransferDataSize(c.addr, size)
-proc setRing*(c: var DmaChannelConfig; write: bool; sizeBits: uint) {.inline.} =
-  channelConfigSetRing(c.addr, write, sizeBits.cuint)
-proc setBswap*(c: var DmaChannelConfig; bswap: bool) {.inline.} =
-  channelConfigSetBswap(c.addr, bswap)
-proc setIrqQuiet*(c: var DmaChannelConfig; irqQuiet: bool) {.inline.} =
-  channelConfigSetIrqQuiet(c.addr, irqQuiet)
-proc setHighPriority*(c: var DmaChannelConfig; highPriority: bool) {.inline.} =
-  channelConfigSetHighPriority(c.addr, highPriority)
-proc setEnable*(c: var DmaChannelConfig; enable: bool) {.inline.} =
-  channelConfigSetEnable(c.addr, enable)
-proc setSniffEnable*(c: var DmaChannelConfig; sniffEnable: bool) {.inline.} =
-  channelConfigSetSniffEnable(c.addr, sniffEnable)
-proc getCtrlValue*(config: var DmaChannelConfig): uint32 {.inline.} =
-  channelConfigGetCtrlValue(config.addr)

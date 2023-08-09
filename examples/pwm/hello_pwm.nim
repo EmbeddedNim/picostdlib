@@ -3,16 +3,16 @@ import picostdlib/hardware/pwm
 
 # Output PWM signals on pins 0 and 1
 
-let
-  pin0 = 0.Gpio
-  pin1 = 1.Gpio
+const
+  pin0 = Gpio(0)
+  pin1 = Gpio(1)
 
 # Tell GPIO 0 and 1 they are allocated to the PWM
-pin0.gpioSetFunction(PWM)
-pin1.gpioSetFunction(PWM)
+pin0.setFunction(PWM)
+pin1.setFunction(PWM)
 
 # Find out which PWM slice is connected to GPIO 0 (it's slice 0)
-let sliceNum = pin0.pwmGpioToSliceNum()
+const sliceNum = pin0.toPwmSliceNum()
 
 # Set period of 4 cycles (0 to 3 inclusive)
 sliceNum.pwmSetWrap(3)

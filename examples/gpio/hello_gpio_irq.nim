@@ -7,6 +7,6 @@ stdioInitAll()
 
 echo "Hello GPIO IRQ"
 
-gpioSetIrqEnabledWithCallback(Gpio(2), {EdgeRise, EdgeFall}, true, callback)
+Gpio(2).setIrqEnabledWithCallback({EdgeRise, EdgeFall}, true, callback)
 
 while true: tightLoopContents()

@@ -1,5 +1,7 @@
-import ./structs/uart, ./gpio, ../pico
-export uart, gpio
+import ./gpio
+import ../pico
+
+export gpio
 export DefaultUart, DefaultUartTxPin, DefaultUartRxPin
 
 ## uart_inst struct does not exist
@@ -9,6 +11,8 @@ export DefaultUart, DefaultUartTxPin, DefaultUartRxPin
 {.push header: "hardware/uart.h".}
 
 type
+  UartHw* {.importc: "uart_hw_t".} = object
+
   UartParity* {.pure, importc: "uart_parity_t".} = enum
     ## UART Parity enumeration
     None, Even, Odd
@@ -17,6 +21,9 @@ type
     ## Currently always a pointer to hw but it might not be in the future
 
 let
+  uart0Hw* {.importc: "uart0_hw".}: ptr UartHw
+  uart1Hw* {.importc: "uart1_hw".}: ptr UartHw
+
   uart0* {.importc: "uart0".}: ptr UartInst
   uart1* {.importc: "uart1".}: ptr UartInst
   uartDefault* {.importc: "uart_default".}: ptr UartInst
@@ -27,7 +34,7 @@ let
   DefaultUartBaudrate* {.importc: "PICO_DEFAULT_UART_BAUD_RATE".}: cuint
 
 
-proc uartGetIndex*(uart: ptr UartInst): cuint {.importc: "uart_get_index".}
+proc getIndex*(uart: ptr UartInst): cuint {.importc: "uart_get_index".}
   ## Convert UART instance to hardware instance number
   ##
   ## \param uart UART instance
@@ -35,7 +42,7 @@ proc uartGetIndex*(uart: ptr UartInst): cuint {.importc: "uart_get_index".}
 
 # Setup
 
-proc uartInit*(uart: ptr UartInst; baudrate: cuint): cuint {.importc: "uart_init".}
+proc init*(uart: ptr UartInst; baudrate: cuint): cuint {.importc: "uart_init".}
   ## Initialise a UART
   ##
   ## Put the UART into a known state, and enable it. Must be called before other
@@ -48,7 +55,7 @@ proc uartInit*(uart: ptr UartInst; baudrate: cuint): cuint {.importc: "uart_init
   ## \param baudrate Baudrate of UART in Hz
   ## \return Actual set baudrate
 
-proc uartDeinit*(uart: ptr UartInst) {.importc: "uart_deinit".}
+proc deinit*(uart: ptr UartInst) {.importc: "uart_deinit".}
   ## DeInitialise a UART
   ##
   ## Disable the UART if it is no longer used. Must be reinitialised before
@@ -56,7 +63,7 @@ proc uartDeinit*(uart: ptr UartInst) {.importc: "uart_deinit".}
   ##
   ## \param uart UART instance. \ref uart0 or \ref uart1
 
-proc uartSetBaudrate*(uart: ptr UartInst; baudrate: cuint): cuint {.importc: "uart_set_baudrate".}
+proc setBaudrate*(uart: ptr UartInst; baudrate: cuint): cuint {.importc: "uart_set_baudrate".}
   ## Set UART baud rate
   ##
   ## Set baud rate as close as possible to requested, and return actual rate selected.
@@ -65,14 +72,14 @@ proc uartSetBaudrate*(uart: ptr UartInst; baudrate: cuint): cuint {.importc: "ua
   ## \param baudrate Baudrate in Hz
   ## \return Actual set baudrate
 
-proc uartSetHwFlow*(uart: ptr UartInst; cts: bool; rts: bool) {.importc: "uart_set_hw_flow".}
+proc setHwFlow*(uart: ptr UartInst; cts: bool; rts: bool) {.importc: "uart_set_hw_flow".}
   ## Set UART flow control CTS/RTS
   ##
   ## \param uart UART instance. \ref uart0 or \ref uart1
   ## \param cts If true enable flow control of TX  by clear-to-send input
   ## \param rts If true enable assertion of request-to-send output by RX flow control
 
-proc uartSetFormat*(uart: ptr UartInst; dataBits: cuint; stopBits: cuint; parity: UartParity) {.importc: "uart_set_format".}
+proc setFormat*(uart: ptr UartInst; dataBits: cuint; stopBits: cuint; parity: UartParity) {.importc: "uart_set_format".}
   ## Set UART data format
   ##
   ## Configure the data format (bits etc() for the UART
@@ -82,7 +89,7 @@ proc uartSetFormat*(uart: ptr UartInst; dataBits: cuint; stopBits: cuint; parity
   ## \param stop_bits Number of stop bits 1..2
   ## \param parity Parity option.
 
-proc uartSetIrqEnables*(uart: ptr UartInst; rxHasData: bool; txNeedsData: bool) {.importc: "uart_set_irq_enables".}
+proc setIrqEnables*(uart: ptr UartInst; rxHasData: bool; txNeedsData: bool) {.importc: "uart_set_irq_enables".}
   ## Setup UART interrupts
   ##
   ## Enable the UART's interrupt output. An interrupt handler will need to be installed prior to calling
@@ -92,36 +99,36 @@ proc uartSetIrqEnables*(uart: ptr UartInst; rxHasData: bool; txNeedsData: bool) 
   ## \param rx_has_data If true an interrupt will be fired when the RX FIFO contains data.
   ## \param tx_needs_data If true an interrupt will be fired when the TX FIFO needs data.
 
-proc uartIsEnabled*(uart: ptr UartInst): bool {.importc: "uart_is_enabled".}
+proc isEnabled*(uart: ptr UartInst): bool {.importc: "uart_is_enabled".}
   ## Test if specific UART is enabled
   ##
   ## \param uart UART instance. \ref uart0 or \ref uart1
   ## \return true if the UART is enabled
 
-proc uartSetFifoEnabled*(uart: ptr UartInst; enabled: bool) {.importc: "uart_set_fifo_enabled".}
+proc setFifoEnabled*(uart: ptr UartInst; enabled: bool) {.importc: "uart_set_fifo_enabled".}
   ## Enable/Disable the FIFOs on specified UART
   ##
   ## \param uart UART instance. \ref uart0 or \ref uart1
   ## \param enabled true to enable FIFO (default), false to disable
 
-proc uartIsWritable*(uart: ptr UartInst): bool {.importc: "uart_is_writable".}
+proc isWritable*(uart: ptr UartInst): bool {.importc: "uart_is_writable".}
   ## Determine if space is available in the TX FIFO
   ##
   ## \param uart UART instance. \ref uart0 or \ref uart1
   ## \return false if no space available, true otherwise
 
-proc uartTxWaitBlocking*(uart: ptr UartInst) {.importc: "uart_tx_wait_blocking".}
+proc txWaitBlocking*(uart: ptr UartInst) {.importc: "uart_tx_wait_blocking".}
   ## Wait for the UART TX fifo to be drained
   ##
   ## \param uart UART instance. \ref uart0 or \ref uart1
 
-proc uartIsReadable*(uart: ptr UartInst): bool {.importc: "uart_is_readable".}
+proc isReadable*(uart: ptr UartInst): bool {.importc: "uart_is_readable".}
   ## Determine whether data is waiting in the RX FIFO
   ##
   ## \param uart UART instance. \ref uart0 or \ref uart1
   ## \return true if the RX FIFO is not empty, otherwise false.
 
-proc uartWriteBlocking*(uart: ptr UartInst; src: ptr uint8; len: cuint) {.importc: "uart_write_blocking".}
+proc writeBlocking*(uart: ptr UartInst; src: ptr uint8; len: cuint) {.importc: "uart_write_blocking".}
   ## Write to the UART for transmission.
   ##
   ## This function will block until all the data has been sent to the UART
@@ -130,7 +137,7 @@ proc uartWriteBlocking*(uart: ptr UartInst; src: ptr uint8; len: cuint) {.import
   ## \param src The bytes to send
   ## \param len The number of bytes to send
 
-proc uartReadBlocking*(uart: ptr UartInst; dst: ptr uint8; len: cuint) {.importc: "uart_read_blocking".}
+proc readBlocking*(uart: ptr UartInst; dst: ptr uint8; len: cuint) {.importc: "uart_read_blocking".}
   ## Read from the UART
   ##
   ## This function blocks until len characters have been read from the UART
@@ -141,7 +148,7 @@ proc uartReadBlocking*(uart: ptr UartInst; dst: ptr uint8; len: cuint) {.importc
 
 # UART-specific operations and aliases
 
-proc uartPutcRaw*(uart: ptr UartInst; c: cchar) {.importc: "uart_putc_raw".}
+proc putcRaw*(uart: ptr UartInst; c: cchar) {.importc: "uart_putc_raw".}
   ## Write single character to UART for transmission.
   ##
   ## This function will block until the entire character has been sent
@@ -149,7 +156,7 @@ proc uartPutcRaw*(uart: ptr UartInst; c: cchar) {.importc: "uart_putc_raw".}
   ## \param uart UART instance. \ref uart0 or \ref uart1
   ## \param c The character  to send
 
-proc uartPutc*(uart: ptr UartInst; c: cchar) {.importc: "uart_putc".}
+proc putc*(uart: ptr UartInst; c: cchar) {.importc: "uart_putc".}
   ## Write single character to UART for transmission, with optional CR/LF conversions
   ##
   ## This function will block until the character has been sent
@@ -157,7 +164,7 @@ proc uartPutc*(uart: ptr UartInst; c: cchar) {.importc: "uart_putc".}
   ## \param uart UART instance. \ref uart0 or \ref uart1
   ## \param c The character  to send
 
-proc uartPuts*(uart: ptr UartInst; s: cstring) {.importc: "uart_puts".}
+proc puts*(uart: ptr UartInst; s: cstring) {.importc: "uart_puts".}
   ## Write string to UART for transmission, doing any CR/LF conversions
   ##
   ## This function will block until the entire string has been sent
@@ -165,7 +172,7 @@ proc uartPuts*(uart: ptr UartInst; s: cstring) {.importc: "uart_puts".}
   ## \param uart UART instance. \ref uart0 or \ref uart1
   ## \param s The null terminated string to send
 
-proc uartGetc*(uart: ptr UartInst): cchar {.importc: "uart_getc".}
+proc getc*(uart: ptr UartInst): cchar {.importc: "uart_getc".}
   ## Read a single character from the UART
   ##
   ## This function will block until a character has been read
@@ -173,13 +180,13 @@ proc uartGetc*(uart: ptr UartInst): cchar {.importc: "uart_getc".}
   ## \param uart UART instance. \ref uart0 or \ref uart1
   ## \return The character read.
 
-proc uartSetBreak*(uart: ptr UartInst; en: bool) {.importc: "uart_set_break".}
+proc setBreak*(uart: ptr UartInst; en: bool) {.importc: "uart_set_break".}
   ## Assert a break condition on the UART transmission.
   ##
   ## \param uart UART instance. \ref uart0 or \ref uart1
   ## \param en Assert break condition (TX held low) if true. Clear break condition if false.
 
-proc uartSetTranslateCrlf*(uart: ptr UartInst; translate: bool) {.importc: "uart_set_translate_crlf".}
+proc setTranslateCrlf*(uart: ptr UartInst; translate: bool) {.importc: "uart_set_translate_crlf".}
   ## Set CR/LF conversion on UART
   ##
   ## \param uart UART instance. \ref uart0 or \ref uart1
@@ -188,14 +195,14 @@ proc uartSetTranslateCrlf*(uart: ptr UartInst; translate: bool) {.importc: "uart
 proc uartDefaultTxWaitBlocking*() {.importc: "uart_default_tx_wait_blocking".}
   ## Wait for the default UART's TX FIFO to be drained
 
-proc uartIsReadableWithinUs*(uart: ptr UartInst; us: uint32): bool {.importc: "uart_is_readable_within_us".}
+proc isReadableWithinUs*(uart: ptr UartInst; us: uint32): bool {.importc: "uart_is_readable_within_us".}
   ## Wait for up to a certain number of microseconds for the RX FIFO to be non empty
   ##
   ## \param uart UART instance. \ref uart0 or \ref uart1
   ## \param us the number of microseconds to wait at most (may be 0 for an instantaneous check)
   ## \return true if the RX FIFO became non empty before the timeout, false otherwise
 
-proc uartGetDreq*(uart: ptr UartInst; isTx: bool): cuint {.importc: "uart_get_dreq".}
+proc getDreq*(uart: ptr UartInst; isTx: bool): cuint {.importc: "uart_get_dreq".}
   ## Return the DREQ to use for pacing transfers to/from a particular UART instance
   ##
   ## \param uart UART instance. \ref uart0 or \ref uart1

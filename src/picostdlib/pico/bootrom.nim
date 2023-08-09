@@ -39,61 +39,58 @@ let
 
 proc romTableCode*(c1: char; c2: char): uint32 {.importc: "rom_table_code".}
   ## Return a bootrom lookup code based on two ASCII characters
-  ##    \ingroup pico_bootrom
-  ##   
-  ##    These codes are uses to lookup data or function addresses in the bootrom
-  ##   
-  ##    \param c1 the first character
-  ##    \param c2 the second character
-  ##    \return the 'code' to use in rom_func_lookup() or rom_data_lookup()
+  ##
+  ## These codes are uses to lookup data or function addresses in the bootrom
+  ##
+  ## \param c1 the first character
+  ## \param c2 the second character
+  ## \return the 'code' to use in rom_func_lookup() or rom_data_lookup()
 
 proc romFuncLookup*(code: uint32): pointer {.importc: "rom_func_lookup".}
   ## Lookup a bootrom function by code
-  ##    \ingroup pico_bootrom
-  ##    \param code the code
-  ##    \return a pointer to the function, or NULL if the code does not match any bootrom function
+  ##
+  ## \param code the code
+  ## \return a pointer to the function, or NULL if the code does not match any bootrom function
 
 proc romDataLookup*(code: uint32): pointer {.importc: "rom_data_lookup".}
   ## Lookup a bootrom address by code
-  ##    \ingroup pico_bootrom
-  ##    \param code the code
-  ##    \return a pointer to the data, or NULL if the code does not match any bootrom function
+  ##
+  ## \param code the code
+  ## \return a pointer to the data, or NULL if the code does not match any bootrom function
 
 proc romFuncsLookup*(table: ptr uint32; count: cuint): bool {.importc: "rom_funcs_lookup".}
   ## Helper function to lookup the addresses of multiple bootrom functions
-  ##    \ingroup pico_bootrom
-  ##   
-  ##    This method looks up the 'codes' in the table, and convert each table entry to the looked up
-  ##    function pointer, if there is a function for that code in the bootrom.
-  ##   
-  ##    \param table an IN/OUT array, elements are codes on input, function pointers on success.
-  ##    \param count the number of elements in the table
-  ##    \return true if all the codes were found, and converted to function pointers, false otherwise
+  ##
+  ## This method looks up the 'codes' in the table, and convert each table entry to the looked up
+  ## function pointer, if there is a function for that code in the bootrom.
+  ##
+  ## \param table an IN/OUT array, elements are codes on input, function pointers on success.
+  ## \param count the number of elements in the table
+  ## \return true if all the codes were found, and converted to function pointers, false otherwise
 
 proc romHwordAsPtr*(romAddress: uint16): pointer {.importc: "rom_hword_as_ptr".}
-  ##   Convert a 16 bit pointer stored at the given rom address into a 32 bit pointer
+  ## Convert a 16 bit pointer stored at the given rom address into a 32 bit pointer
 
 proc romFuncLookupInline*(code: uint32): pointer {.importc: "rom_func_lookup_inline".}
   ## Lookup a bootrom function by code. This method is forceably inlined into the caller for FLASH/RAM sensitive code usage
-  ##    \ingroup pico_bootrom
-  ##    \param code the code
-  ##    \return a pointer to the function, or NULL if the code does not match any bootrom function
+  ##
+  ## \param code the code
+  ## \return a pointer to the function, or NULL if the code does not match any bootrom function
 
 proc resetUsbBoot*(usbActivityGpioPinMask: uint32; disableInterfaceMask: uint32) {.importc: "reset_usb_boot".}
   ## Reboot the device into BOOTSEL mode
-  ##    \ingroup pico_bootrom
-  ##   
-  ##    This function reboots the device into the BOOTSEL mode ('usb boot").
-  ##   
-  ##    Facilities are provided to enable an "activity light" via GPIO attached LED for the USB Mass Storage Device,
-  ##    and to limit the USB interfaces exposed.
-  ##   
-  ##    \param usb_activity_gpio_pin_mask 0 No pins are used as per a cold boot. Otherwise a single bit set indicating which
-  ##                                  GPIO pin should be set to output and raised whenever there is mass storage activity
-  ##                                  from the host.
-  ##    \param disable_interface_mask value to control exposed interfaces
-  ##     - 0 To enable both interfaces (as per a cold boot)
-  ##     - 1 To disable the USB Mass Storage Interface
-  ##     - 2 To disable the USB PICOBOOT Interface
+  ##
+  ## This function reboots the device into the BOOTSEL mode ('usb boot").
+  ##
+  ## Facilities are provided to enable an "activity light" via GPIO attached LED for the USB Mass Storage Device,
+  ## and to limit the USB interfaces exposed.
+  ##
+  ## \param usb_activity_gpio_pin_mask 0 No pins are used as per a cold boot. Otherwise a single bit set indicating which
+  ##                               GPIO pin should be set to output and raised whenever there is mass storage activity
+  ##                               from the host.
+  ## \param disable_interface_mask value to control exposed interfaces
+  ##  - 0 To enable both interfaces (as per a cold boot)
+  ##  - 1 To disable the USB Mass Storage Interface
+  ##  - 2 To disable the USB PICOBOOT Interface
 
 {.pop.}

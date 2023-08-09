@@ -34,30 +34,30 @@ proc stdioFlush*() {.importc: "stdio_flush".}
 
 proc getcharTimeoutUs*(timeoutUs: uint32): cint {.importc: "getchar_timeout_us".}
   ## Return a character from stdin if there is one available within a timeout
-  ##   
+  ##
   ## \param timeout_us the timeout in microseconds, or 0 to not wait for a character if none available.
   ## \return the character from 0-255 or PICO_ERROR_TIMEOUT if timeout occurs
 
 proc stdioSetDriverEnabled*(driver: ptr StdioDriver; enabled: bool) {.importc: "stdio_set_driver_enabled".}
   ## Adds or removes a driver from the list of active drivers used for input/output
-  ##   
+  ##
   ## \note this method should always be called on an initialized driver and is not re-entrant
   ## \param driver the driver
   ## \param enabled true to add, false to remove
 
 proc stdioFilterDriver*(driver: ptr StdioDriver) {.importc: "stdio_filter_driver".}
   ## Control limiting of output to a single driver
-  ##   
+  ##
   ## \note this method should always be called on an initialized driver
-  ##   
+  ##
   ## \param driver if non-null then output only that driver will be used for input/output (assuming it is in the list of enabled drivers).
   ##               if NULL then all enabled drivers will be used
 
 proc stdioSetTranslateCrlf*(driver: ptr StdioDriver; translate: bool) {.importc: "stdio_set_translate_crlf".}
   ## control conversion of line feeds to carriage return on transmissions
-  ##   
+  ##
   ## \note this method should always be called on an initialized driver
-  ##   
+  ##
   ## \param driver the driver
   ## \param translate If true, convert line feeds to carriage return on transmissions
 
@@ -84,7 +84,7 @@ var stdioSemihosting* {.importc: "stdio_semihosting".}: StdioDriver
 
 proc stdioSemihostingInit*() {.importc: "stdio_semihosting_init".}
   ## Explicitly initialize stdout over semihosting and add it to the current set of stdout targets
-  ##   
+  ##
   ## \note this method is automatically called by \ref stdio_init_all() if pico_stdio_semihosting is included in the build
 
 {.pop.}
@@ -101,25 +101,25 @@ var stdioUart* {.importc: "stdio_uart".}: StdioDriver
 
 proc stdioUartInit*() {.importc: "stdio_uart_init".}
   ## Explicitly initialize stdin/stdout over UART and add it to the current set of stdin/stdout drivers
-  ##   
+  ##
   ## This method sets up PICO_DEFAULT_UART_TX_PIN for UART output (if defined), PICO_DEFAULT_UART_RX_PIN for input (if defined)
   ## and configures the baud rate as PICO_DEFAULT_UART_BAUD_RATE.
-  ##   
+  ##
   ## \note this method is automatically called by \ref stdio_init_all() if pico_stdio_uart is included in the build
 
 proc stdoutUartInit*() {.importc: "stdout_uart_init".}
   ## Explicitly initialize stdout only (no stdin) over UART and add it to the current set of stdout drivers
-  ##   
+  ##
   ## This method sets up PICO_DEFAULT_UART_TX_PIN for UART output (if defined) , and configures the baud rate as PICO_DEFAULT_UART_BAUD_RATE
 
 proc stdinUartInit*() {.importc: "stdin_uart_init".}
   ## Explicitly initialize stdin only (no stdout) over UART and add it to the current set of stdin drivers
-  ##   
+  ##
   ## This method sets up PICO_DEFAULT_UART_RX_PIN for UART input (if defined) , and configures the baud rate as PICO_DEFAULT_UART_BAUD_RATE
 
 proc stdioUartInitFull*(uart: ptr UartInst; baudrate: cuint; txPin: cint; rxPin: cint) {.importc: "stdio_uart_init_full".}
   ## Perform custom initialization initialize stdin/stdout over UART and add it to the current set of stdin/stdout drivers
-  ##   
+  ##
   ## \param uart the uart instance to use, \ref uart0 or \ref uart1
   ## \param baud_rate the baud rate in Hz
   ## \param tx_pin the UART pin to use for stdout (or -1 for no stdout)
@@ -147,7 +147,7 @@ proc stdioUsbInit*(): bool {.importc: "stdio_usb_init".}
 
 proc stdioUsbConnected*(): bool {.importc: "stdio_usb_connected".}
   ## Check if there is an active stdio CDC connection to a host
-  ##   
+  ##
   ## \return true if stdio is connected over CDC
 
 {.pop.}

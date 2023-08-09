@@ -42,7 +42,7 @@ let
   # Load the program into the PIO instance's program memory and receive
   # the memory offset of where it was stored. This will be used to start
   # the program.
-  offset = helloPioInst.addProgram(helloProgram)
+  offset = helloPioInst.addProgram(helloProgram.unsafeAddr)
 
   # Find an unused state machine within the PIO instance and return it's
   # ID (0..3). Returns -1 if no SM is free. Also claims the SM as used.
@@ -57,6 +57,6 @@ if smResult >= 0:
   while true:
     # Push some data to the PIO output FIFO to make the LED blink
     helloPioInst.putBlocking(sm, 1)
-    sleepMs 500  
+    sleepMs(500)
     helloPioInst.putBlocking(sm, 0)
-    sleepMs 500  
+    sleepMs(500)

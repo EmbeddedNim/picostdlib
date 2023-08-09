@@ -3,8 +3,8 @@ import picostdlib
 stdioInitAll()
 
 let led = DefaultLedPin
-led.gpioInit()
-led.gpioSetDir(Out)
+led.init()
+led.setDir(Out)
 sleepMs(600)
 
 while true:
@@ -18,12 +18,12 @@ while true:
     if charX != '\255':
       echo "Char put -> " & charX
       if charX == '1': # turn on led if recive 1 (char)
-        led.gpioPut(High)
+        led.put(High)
       elif charX == '0': # turn off led if recive 0 (char)
-        led.gpioPut(Low)
+        led.put(Low)
       else: # blink a led in other case!
         for _ in 0..3:
-          led.gpioPut(High)
+          led.put(High)
           sleepMs(300)
-          led.gpioPut(Low)
+          led.put(Low)
           sleepMs(100)

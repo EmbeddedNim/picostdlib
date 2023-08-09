@@ -11,11 +11,11 @@ proc reservedAddr(address: I2cAddress): bool =
 stdioInitAll()
 
 # This example will use I2C0 on the default SDA and SCL pins (GP4, GP5 on a Pico)
-discard i2cInit(i2cDefault, 100 * 1000)
-gpioSetFunction(DefaultI2cSdaPin, I2c)
-gpioSetFunction(DefaultI2cSclPin, I2c)
-gpioPullUp(DefaultI2cSdaPin)
-gpioPullUp(DefaultI2cSclPin)
+discard i2cDefault.init(100_000)
+DefaultI2cSdaPin.setFunction(I2c)
+DefaultI2cSclPin.setFunction(I2c)
+DefaultI2cSdaPin.pullUp()
+DefaultI2cSclPin.pullUp()
 
 # Make the I2C pins available to picotool
 bi_decl_include()
@@ -39,7 +39,7 @@ for address in 0..<(1 shl 7):
   if reservedAddr(address.I2cAddress):
     ret = PicoErrorGeneric.ord
   else:
-    ret = i2cReadBlocking(i2cDefault, address.I2cAddress, rxdata.addr, 1, false)
+    ret = i2cDefault.readBlocking(address.I2cAddress, rxdata.addr, 1, false)
 
   stdout.write(if ret < 0: '.' else: '@')
   stdout.write(if address mod 16 == 15: "\n" else: "  ")

@@ -1,10 +1,12 @@
-import ./structs/i2c, ./gpio, ../pico/types, ../pico
-export i2c, gpio, types
+import ./gpio, ../pico/types, ../pico
+export gpio, types
 export DefaultI2c, DefaultI2cSdaPin, DefaultI2cSclPin
 
 {.push header: "hardware/i2c.h".}
 
 type
+  I2cHw* {.importc: "i2c_hw_t".} = object
+
   I2cInst* {.importc: "struct i2c_inst".} = object
     hw* {.importc: "hw".}: ptr I2cHw
     restartOnNext* {.importc: "restart_on_next".}: bool
@@ -15,6 +17,9 @@ proc `==`*(a, b: I2cAddress): bool {.borrow.}
 proc `$`*(a: I2cAddress): string {.borrow.}
 
 let
+  i2c0Hw* {.importc: "i2c0_hw".}: ptr I2cHw
+  i2c1Hw* {.importc: "i2c1_hw".}: ptr I2cHw
+
   i2c0Inst* {.importc: "i2c0_inst".}: I2cInst
   i2c1Inst* {.importc: "i2c1_inst".}: I2cInst
   i2c0* {.importc: "i2c0".}: ptr I2cInst
@@ -23,7 +28,7 @@ let
 
 
 
-proc i2cInit*(i2c: ptr I2cInst, baudrate: cuint): cuint {.importc: "i2c_init".}
+proc init*(i2c: ptr I2cInst, baudrate: cuint): cuint {.importc: "i2c_init".}
   ## Initialise the I2C HW block
   ##
   ## Put the I2C hardware into a known state, and enable it. Must be called
@@ -37,7 +42,7 @@ proc i2cInit*(i2c: ptr I2cInst, baudrate: cuint): cuint {.importc: "i2c_init".}
   ## \param baudrate Baudrate in Hz (e.g. 100kHz is 100000)
   ## \return Actual set baudrate
 
-proc i2cDeinit*(i2c: ptr I2cInst) {.importc: "i2c_deinit".}
+proc deinit*(i2c: ptr I2cInst) {.importc: "i2c_deinit".}
   ## Disable the I2C HW block
   ##
   ## \param i2c Either \ref i2c0 or \ref i2c1
@@ -45,7 +50,7 @@ proc i2cDeinit*(i2c: ptr I2cInst) {.importc: "i2c_deinit".}
   ## Disable the I2C again if it is no longer used. Must be reinitialised before
   ## being used again.
 
-proc i2cSetBaudrate*(i2c: ptr I2cInst, baudrate: cuint): cuint {.importc: "i2c_set_baudrate".}
+proc setBaudrate*(i2c: ptr I2cInst, baudrate: cuint): cuint {.importc: "i2c_set_baudrate".}
   ## Set I2C baudrate
   ##
   ## Set I2C bus frequency as close as possible to requested, and return actual
@@ -56,24 +61,24 @@ proc i2cSetBaudrate*(i2c: ptr I2cInst, baudrate: cuint): cuint {.importc: "i2c_s
   ## \param baudrate Baudrate in Hz (e.g. 100kHz is 100000)
   ## \return Actual set baudrate
 
-proc i2cSetSlaveMode*(i2c: ptr I2cInst, slave: bool, address: I2cAddress) {.importc: "i2c_set_slave_mode".}
+proc setSlaveMode*(i2c: ptr I2cInst, slave: bool, address: I2cAddress) {.importc: "i2c_set_slave_mode".}
   ## Set I2C port to slave mode
   ##
   ## \param i2c Either \ref i2c0 or \ref i2c1
   ## \param slave true to use slave mode, false to use master mode
   ## \param addr If \p slave is true, set the slave address to this value
 
-proc i2cHwIndex*(i2c: ptr I2cInst): cuint {.importc: "i2c_hw_index".}
+proc hwIndex*(i2c: ptr I2cInst): cuint {.importc: "i2c_hw_index".}
   ## Convert I2C instance to hardware instance number
   ##
   ## \param i2c I2C instance
   ## \return Number of I2C, 0 or 1.
 
-proc i2cGetHw*(i2c: ptr I2cInst): ptr I2cHw {.importc: "i2c_get_hw".}
+proc getHw*(i2c: ptr I2cInst): ptr I2cHw {.importc: "i2c_get_hw".}
 
 proc i2cGetInstance*(instance: cuint): ptr I2cInst {.importc: "i2c_get_instance".}
 
-proc i2cWriteBlockingUntil*(i2c: ptr I2cInst; address: I2cAddress; src: ptr uint8; len: csize_t; noStop: bool; until: AbsoluteTime): cint {.importc: "i2c_write_blocking_until".}
+proc writeBlockingUntil*(i2c: ptr I2cInst; address: I2cAddress; src: ptr uint8; len: csize_t; noStop: bool; until: AbsoluteTime): cint {.importc: "i2c_write_blocking_until".}
   ## Attempt to write specified number of bytes to address, blocking until the specified absolute time is reached.
   ##
   ## \param i2c Either \ref i2c0 or \ref i2c1
@@ -88,7 +93,7 @@ proc i2cWriteBlockingUntil*(i2c: ptr I2cInst; address: I2cAddress; src: ptr uint
   ##
   ## \return Number of bytes written, or PICO_ERROR_GENERIC if address not acknowledged, no device present, or PICO_ERROR_TIMEOUT if a timeout occurred.
 
-proc i2cReadBlockingUntil*(i2c: ptr I2cInst; address: I2cAddress; dst: ptr uint8; len: csize_t; noStop: bool; until: AbsoluteTime): cint {.importc: "i2c_read_blocking_until".}
+proc readBlockingUntil*(i2c: ptr I2cInst; address: I2cAddress; dst: ptr uint8; len: csize_t; noStop: bool; until: AbsoluteTime): cint {.importc: "i2c_read_blocking_until".}
   ## Attempt to read specified number of bytes from address, blocking until the specified absolute time is reached.
   ##
   ## \param i2c Either \ref i2c0 or \ref i2c1
@@ -100,7 +105,7 @@ proc i2cReadBlockingUntil*(i2c: ptr I2cInst; address: I2cAddress; dst: ptr uint8
   ## \param until The absolute time that the block will wait until the entire transaction is complete.
   ## \return Number of bytes read, or PICO_ERROR_GENERIC if address not acknowledged, no device present, or PICO_ERROR_TIMEOUT if a timeout occurred.
 
-proc i2cWriteTimeoutUs*(i2c: ptr I2cInst; address: I2cAddress; src: ptr uint8; len: csize_t; noStop: bool; timeoutUs: cuint): cint {.importc: "i2c_write_timeout_us".}
+proc writeTimeoutUs*(i2c: ptr I2cInst; address: I2cAddress; src: ptr uint8; len: csize_t; noStop: bool; timeoutUs: cuint): cint {.importc: "i2c_write_timeout_us".}
   ## Attempt to write specified number of bytes to address, with timeout
   ##
   ## \param i2c Either \ref i2c0 or \ref i2c1
@@ -115,7 +120,7 @@ proc i2cWriteTimeoutUs*(i2c: ptr I2cInst; address: I2cAddress; src: ptr uint8; l
   ##
   ## \return Number of bytes written, or PICO_ERROR_GENERIC if address not acknowledged, no device present, or PICO_ERROR_TIMEOUT if a timeout occurred.
 
-proc i2cReadTimeoutUs*(i2c: ptr I2cInst; address: I2cAddress; dst: ptr uint8; len: csize_t; noStop: bool; timeoutUs: cuint): cint {.importc: "i2c_read_timeout_us".}
+proc readTimeoutUs*(i2c: ptr I2cInst; address: I2cAddress; dst: ptr uint8; len: csize_t; noStop: bool; timeoutUs: cuint): cint {.importc: "i2c_read_timeout_us".}
   ## Attempt to read specified number of bytes from address, with timeout
   ##
   ## \param i2c Either \ref i2c0 or \ref i2c1
@@ -127,7 +132,7 @@ proc i2cReadTimeoutUs*(i2c: ptr I2cInst; address: I2cAddress; dst: ptr uint8; le
   ## \param timeout_us The time that the function will wait for the entire transaction to complete
   ## \return Number of bytes read, or PICO_ERROR_GENERIC if address not acknowledged, no device present, or PICO_ERROR_TIMEOUT if a timeout occurred.
 
-proc i2cWriteBlocking*(i2c: ptr I2cInst, address: I2cAddress, data: ptr uint8, len: csize_t, noStop: bool): cint {.importc: "i2c_write_blocking".}
+proc writeBlocking*(i2c: ptr I2cInst, address: I2cAddress, data: ptr uint8, len: csize_t, noStop: bool): cint {.importc: "i2c_write_blocking".}
   ## Attempt to write specified number of bytes to address, blocking
   ##
   ## \param i2c Either \ref i2c0 or \ref i2c1
@@ -138,7 +143,7 @@ proc i2cWriteBlocking*(i2c: ptr I2cInst, address: I2cAddress, data: ptr uint8, l
   ##           and the next transfer will begin with a Restart rather than a Start.
   ## \return Number of bytes written, or PICO_ERROR_GENERIC if address not acknowledged, no device present.
 
-proc i2cReadBlocking*(i2c: ptr I2cInst, address: I2cAddress, dest: ptr uint8, size: csize_t, noStop: bool): cint {.importc: "i2c_read_blocking".}
+proc readBlocking*(i2c: ptr I2cInst, address: I2cAddress, dest: ptr uint8, size: csize_t, noStop: bool): cint {.importc: "i2c_read_blocking".}
   ## Attempt to read specified number of bytes from address, blocking
   ##
   ## \param i2c Either \ref i2c0 or \ref i2c1
@@ -149,21 +154,21 @@ proc i2cReadBlocking*(i2c: ptr I2cInst, address: I2cAddress, dest: ptr uint8, si
   ##           and the next transfer will begin with a Restart rather than a Start.
   ## \return Number of bytes read, or PICO_ERROR_GENERIC if address not acknowledged or no device present.
 
-proc i2cGetWriteAvailable*(i2c: ptr I2cInst): cuint {.importc: "i2c_get_write_available".}
+proc getWriteAvailable*(i2c: ptr I2cInst): cuint {.importc: "i2c_get_write_available".}
   ## Determine non-blocking write space available
   ##
   ## \param i2c Either \ref i2c0 or \ref i2c1
   ## \return 0 if no space is available in the I2C to write more data. If return is nonzero, at
   ## least that many bytes can be written without blocking.
 
-proc i2cGetReadAvailable*(i2c: ptr I2cInst): cuint {.importc: "i2c_get_read_available".}
+proc getReadAvailable*(i2c: ptr I2cInst): cuint {.importc: "i2c_get_read_available".}
   ## Determine number of bytes received
   ##
   ## \param i2c Either \ref i2c0 or \ref i2c1
   ## \return 0 if no data available, if return is nonzero at
   ## least that many bytes can be read without blocking.
 
-proc i2cWriteRawBlocking*(i2c: ptr I2cInst; src: ptr uint8; len: csize_t) {.importc: "i2c_write_raw_blocking".}
+proc writeRawBlocking*(i2c: ptr I2cInst; src: ptr uint8; len: csize_t) {.importc: "i2c_write_raw_blocking".}
   ## Write direct to TX FIFO
   ##
   ## \param i2c Either \ref i2c0 or \ref i2c1
@@ -173,7 +178,7 @@ proc i2cWriteRawBlocking*(i2c: ptr I2cInst; src: ptr uint8; len: csize_t) {.impo
   ## Writes directly to the I2C TX FIFO which is mainly useful for
   ## slave-mode operation.
 
-proc i2cReadRawBlocking*(i2c: ptr I2cInst; dst: ptr uint8; len: csize_t) {.importc: "i2c_read_raw_blocking".}
+proc readRawBlocking*(i2c: ptr I2cInst; dst: ptr uint8; len: csize_t) {.importc: "i2c_read_raw_blocking".}
   ## Read direct from RX FIFO
   ##
   ## \param i2c Either \ref i2c0 or \ref i2c1
@@ -183,7 +188,7 @@ proc i2cReadRawBlocking*(i2c: ptr I2cInst; dst: ptr uint8; len: csize_t) {.impor
   ## Reads directly from the I2C RX FIFO which is mainly useful for
   ## slave-mode operation.
 
-proc i2cReadByteRaw*(i2c: ptr I2cInst): uint8 {.importc: "i2c_read_byte_raw".}
+proc readByteRaw*(i2c: ptr I2cInst): uint8 {.importc: "i2c_read_byte_raw".}
   ## Pop a byte from I2C Rx FIFO.
   ##
   ## This function is non-blocking and assumes the Rx FIFO isn't empty.
@@ -191,7 +196,7 @@ proc i2cReadByteRaw*(i2c: ptr I2cInst): uint8 {.importc: "i2c_read_byte_raw".}
   ## \param i2c I2C instance.
   ## \return uint8_t Byte value.
 
-proc i2cWriteByteRaw*(i2c: ptr I2cInst; value: uint8) {.importc: "i2c_write_byte_raw".}
+proc writeByteRaw*(i2c: ptr I2cInst; value: uint8) {.importc: "i2c_write_byte_raw".}
   ## Push a byte into I2C Tx FIFO.
   ##
   ## This function is non-blocking and assumes the Tx FIFO isn't full.
@@ -199,7 +204,7 @@ proc i2cWriteByteRaw*(i2c: ptr I2cInst; value: uint8) {.importc: "i2c_write_byte
   ## \param i2c I2C instance.
   ## \param value Byte value.
 
-proc i2cGetDreq*(i2c: ptr I2cInst; isTx: bool): cuint {.importc: "i2c_get_dreq".}
+proc getDreq*(i2c: ptr I2cInst; isTx: bool): cuint {.importc: "i2c_get_dreq".}
   ## Return the DREQ to use for pacing transfers to/from a particular I2C instance
   ##
   ## \param i2c Either \ref i2c0 or \ref i2c1
@@ -236,7 +241,7 @@ proc i2cWriteBlockingNim*(
   ## Write bytes to I2C bus.
   ## If `noStop` is `true`, master retains control of the bus at the end of
   ## the transfer.
-  result = i2cWriteBlocking(i2c, address, data[0].addr, data.len.uint, noStop)
+  result = i2c.writeBlocking(address, data[0].addr, data.len.uint, noStop)
 
 proc i2cReadBlockingNim*(
     i2c: ptr I2cInst,
@@ -249,7 +254,7 @@ proc i2cReadBlockingNim*(
   ## `true`, master retains control of the bus at the end of the transfer.
 
   result.setLen(numBytes)
-  let n = i2cReadBlocking(i2c, address, result[0].addr, numBytes.uint, noStop)
+  let n = i2c.readBlocking(address, result[0].addr, numBytes.uint, noStop)
   result.setLen(max(0, n))
 
 proc i2cReadBlockingNim*[N: Natural](
@@ -263,5 +268,4 @@ proc i2cReadBlockingNim*[N: Natural](
   ## to Pico SDK documentation). In case of error return a 0-length seq. If
   ## `noStop` is `true`, master retains control of the bus at the end of the
   ## transfer.
-  result = i2cReadBlocking(i2c, address, dest[0].addr, N.uint, noStop)
-
+  result = i2c.readBlocking(address, dest[0].addr, N.uint, noStop)

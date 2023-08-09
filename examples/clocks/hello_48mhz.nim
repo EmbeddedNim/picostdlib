@@ -31,21 +31,23 @@ measureFreqs()
 
 # Change clk_sys to be 48MHz. The simplest way is to take this from PLL_USB
 # which has a source frequency of 48MHz
-discard clockConfigure(ClockIndex.Sys,
+discard ClockSys.configure(
   CtrlSrcValueClkSrcClkSysAux,
   ClocksClkGpoutCtrlAuxSrc.ClksrcPllUsb.uint32,
   48u32 * Mhz,
-  48u32 * Mhz)
+  48u32 * Mhz
+)
 
 # Turn off PLL sys for good measure
-pllDeinit(PllSys)
+PllSys.deinit()
 
 # CLK peri is clocked from clk_sys so need to change clk_peri's freq
-discard clockConfigure(ClockIndex.Peri,
+discard ClockPeri.configure(
   0,
   ClocksClkSysCtrlAuxSrc.ClksrcPllUsb.uint32,
   48 * Mhz,
-  48 * Mhz)
+  48 * Mhz
+)
 
 # Re init uart now that clk_peri has changed
 stdioInitAll()

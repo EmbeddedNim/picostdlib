@@ -27,7 +27,7 @@ type
     ##
     ## All exception handlers should be of this type, and follow normal ARM EABI register saving conventions
 
-proc exceptionSetExclusiveHandler*(num: ExceptionNumber; handler: ExceptionHandler): ExceptionHandler {.importc: "exception_set_exclusive_handler".}
+proc setExclusiveHandler*(num: ExceptionNumber; handler: ExceptionHandler): ExceptionHandler {.importc: "exception_set_exclusive_handler".}
   ## Set the exception handler for an exception on the executing core.
   ##
   ## This method will assert if an exception handler has been set for this exception number on this core via
@@ -40,7 +40,7 @@ proc exceptionSetExclusiveHandler*(num: ExceptionNumber; handler: ExceptionHandl
   ## \param handler The handler to set
   ## \see exception_number
 
-proc exceptionRestoreHandler*(num: ExceptionNumber; originalHandler: ExceptionHandler) {.importc: "exception_restore_handler".}
+proc restoreHandler*(num: ExceptionNumber; originalHandler: ExceptionHandler) {.importc: "exception_restore_handler".}
   ## Restore the original exception handler for an exception on this core
   ##
   ## This method may be used to restore the exception handler for an exception on this core to the state
@@ -51,7 +51,7 @@ proc exceptionRestoreHandler*(num: ExceptionNumber; originalHandler: ExceptionHa
   ## \param original_handler The original handler returned from \ref exception_set_exclusive_handler
   ## \see exception_set_exclusive_handler()
 
-proc exceptionGetVtableHandler*(num: ExceptionNumber): ExceptionHandler {.importc: "exception_get_vtable_handler".}
+proc getVtableHandler*(num: ExceptionNumber): ExceptionHandler {.importc: "exception_get_vtable_handler".}
   ## Get the current exception handler for the specified exception from the currently installed vector table
   ## of the execution core
   ##

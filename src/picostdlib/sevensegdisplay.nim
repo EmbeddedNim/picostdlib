@@ -59,18 +59,18 @@ proc draw*(s: CharacterName, drawMissing = true) =
     let val = 
       if drawMissing: c notin DisplayChars[s]
       else: c in DisplayChars[s]
-    SevenSegPins[c].gpioPut(val.Value)
+    SevenSegPins[c].put(val.Value)
 
 proc drawAll*() = 
   for c in SevenSeg:
-    SevenSegPins[c].gpioPut(High)
+    SevenSegPins[c].put(High)
   for c in SevenSeg:
-    SevenSegPins[c].gpioPut(Low)
+    SevenSegPins[c].put(Low)
     sleepMs(100)
-    SevenSegPins[c].gpioPut(High)
+    SevenSegPins[c].put(High)
 
 proc initPins*() =
   for x in SevenSeg:
-    SevenSegPins[x].gpioInit()
-    SevenSegPins[x].gpioSetDir(Out)
-    SevenSegPins[x].gpioPut(High)
+    SevenSegPins[x].init()
+    SevenSegPins[x].setDir(Out)
+    SevenSegPins[x].put(High)

@@ -3,28 +3,21 @@
 # stdlib
 import picostdlib
 
-import picostdlib/hardware/regs/clocks as hardware_regs_clocks
-import picostdlib/hardware/regs/intctrl as hardware_regs_intctrl
-import picostdlib/hardware/regs/resets as hardware_regs_resets
-import picostdlib/hardware/regs/spi as hardware_regs_spi
+import picostdlib/hardware/regs/intctrl
 
-import picostdlib/hardware/structs/clocks as hardware_structs_clocks
-import picostdlib/hardware/structs/i2c as hardware_structs_i2c
-import picostdlib/hardware/structs/rosc as hardware_structs_rosc
-import picostdlib/hardware/structs/spi as hardware_structs_spi
-import picostdlib/hardware/structs/uart as hardware_structs_uart
+import picostdlib/hardware/structs/rosc
 
 import picostdlib/hardware/adc
 import picostdlib/hardware/base
 import picostdlib/hardware/claim
-import picostdlib/hardware/clocks as hardware_clocks
+import picostdlib/hardware/clocks
 block:
-  discard clockGetHz(Sys)
+  discard ClockSys.getHz()
 import picostdlib/hardware/divider as hardware_divider
 import picostdlib/hardware/dma
 import picostdlib/hardware/exception
 block:
-  exceptionRestoreHandler(SVCallException, exceptionSetExclusiveHandler(SVCallException, proc() {.cdecl.} = discard))
+  SVCallException.restoreHandler(SVCallException.setExclusiveHandler(proc() {.cdecl.} = discard))
 import picostdlib/hardware/flash
 import picostdlib/hardware/gpio
 import picostdlib/hardware/i2c
