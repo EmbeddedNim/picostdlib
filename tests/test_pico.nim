@@ -10,7 +10,6 @@ import picostdlib/hardware/regs/spi as hardware_regs_spi
 
 import picostdlib/hardware/structs/clocks as hardware_structs_clocks
 import picostdlib/hardware/structs/i2c as hardware_structs_i2c
-import picostdlib/hardware/structs/interp as hardware_structs_interp
 import picostdlib/hardware/structs/rosc as hardware_structs_rosc
 import picostdlib/hardware/structs/spi as hardware_structs_spi
 import picostdlib/hardware/structs/uart as hardware_structs_uart
