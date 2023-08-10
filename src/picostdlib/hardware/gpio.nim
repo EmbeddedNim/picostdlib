@@ -59,6 +59,8 @@ type
     EdgeFall
     EdgeRise
 
+  GpioIrqCallback* {.importc: "gpio_irq_callback_t".} = proc (gpio: Gpio; eventMask: set[GpioIrqLevel]) {.cdecl.}
+
   GpioOverride* {.pure, importc: "gpio_override".} = enum
     OverrideNormal  # peripheral signal selected via \ref gpio_set_function
     OverrideInvert  # invert peripheral signal selected via \ref gpio_set_function
@@ -80,7 +82,6 @@ type
     DriveStrength8mA  # 2 mA nominal drive strength
     DriveStrength12mA  # 12 mA nominal drive strength
 
-  GpioIrqCallback* {.importc: "gpio_irq_callback_t".} = proc (gpio: Gpio; eventMask: set[GpioIrqLevel]) {.cdecl.}
 
 
 proc setFunction*(gpio: Gpio, fn: GpioFunction) {.importc: "gpio_set_function".}
@@ -575,3 +576,30 @@ proc getDir*(gpio: Gpio): uint {.importc: "gpio_get_dir".}
   ## \return 1 for out, 0 for in
 
 {.pop.}
+
+# Nim helpers
+
+template setupGpio*(name: untyped; pin: static[range[0 .. 29]]; dir: Direction) =
+  # Makes a `const 'name' = pin; init(name); name.setDir(dir)
+  # usage: setupGpio(myPinName, 5, Out)
+  const name = Gpio(pin)
+  init(name)
+  setDir(name, dir)
+
+proc init*(_ : typedesc[Gpio]; pin: static[range[0 .. 29]]; dir: Direction = Out): Gpio =
+  ## perform the typical assignment, init(), and setDir() steps all in one proc.
+  ## usage: let myPin = Gpio.init(5, In)
+  ##
+  ## **parameters**
+  ## **pin** : *int* (between 0 and 35) - the pin number corresponding the the Gpio pin
+  ## **dir** : *bool* [optional, defaults to Out] - *Out* or *In*
+  result = static(Gpio(pin))
+  result.init()
+  result.setDir(dir)
+
+when defined(runtests):
+  setupGpio(myPinName, 5, Out)
+  static:
+    doAssert myPinName.ord == 5
+
+  let myPin = Gpio.init(5, In)
