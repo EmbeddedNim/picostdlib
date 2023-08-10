@@ -574,7 +574,7 @@ proc handleHeaderResponse*(self: var HttpClient): int =
         return self.returnCode
 
     else:
-      if absoluteTimeDiffUs(lastDataTime, getAbsoluteTime()) > self.tcpTimeout.int64 * 1000:
+      if diffUs(lastDataTime, getAbsoluteTime()) > self.tcpTimeout.int64 * 1000:
         return self.returnError(ErrReadTimeout)
 
   return self.returnError(ErrConnectionLost)

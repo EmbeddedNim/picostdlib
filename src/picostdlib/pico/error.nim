@@ -14,4 +14,4 @@ type
     PicoErrorNone = 0
 
 const
-  PicoErrorOk* = PicoErrorNone
+  PicoOk* = PicoErrorNone

@@ -16,15 +16,15 @@ var syncedTimeAt = nilTime
 
 proc sntpSetSystemTime(sec: uint32) {.exportc: "__sntp_set_system_time", cdecl.} =
   syncedTimeAt = getAbsoluteTime()
-  var dt: types.Datetime
+  var dt = createDatetime()
   let t = fromUnix(sec.int64).utc()
   dt.year = t.year.int16
   dt.month = t.month.int8
   dt.day = t.monthday.int8
   dt.dotw = int8(getDayOfWeek(t.monthday, t.month, t.year).ord + 1) mod 7
-  dt.hour = t.hour
-  dt.min = t.minute
-  dt.sec = t.second
+  dt.hour = t.hour.int8
+  dt.min = t.minute.int8
+  dt.sec = t.second.int8
   if rtcSetDatetime(dt.addr):
     volatileStore(sntpTimeSynced.addr, true)
 
@@ -40,7 +40,7 @@ proc runNtpTest() =
     tightLoopContents()
     sleepMs(10)
 
-  var dt: types.Datetime
+  var dt = createDatetime()
   if rtcGetDatetime(dt.addr):
     echo "Current RTC time: ", dt
   else:
@@ -56,7 +56,7 @@ proc ntpClientExample*() =
 
   echo "Wifi init successful!"
 
-  cyw43ArchGpioPut(Cyw43WlGpioLedPin, High)
+  Cyw43WlGpioLedPin.put(High)
 
   cyw43ArchEnableStaMode()
 
@@ -80,7 +80,7 @@ proc ntpClientExample*() =
   else:
     echo "Connected"
 
-  cyw43ArchGpioPut(Cyw43WlGpioLedPin, Low)
+  Cyw43WlGpioLedPin.put(Low)
 
   echo "ip: ", cyw43State.netif[0].ipAddr, " mask: ", cyw43State.netif[0].netmask, " gateway: ", cyw43State.netif[0].gw
   echo "hostname: ", cast[cstring](cyw43State.netif[0].hostname)

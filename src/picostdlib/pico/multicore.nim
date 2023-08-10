@@ -1,7 +1,7 @@
 {.push header: "pico/multicore.h".}
 
 type
-  MulticoreThreadFunc* = proc() {.cdecl.}
+  MulticoreEntryPoint* = proc() {.cdecl.}
 
 proc multicoreResetCore1*() {.importc: "multicore_reset_core1".}
   ## Reset core 1
@@ -10,7 +10,7 @@ proc multicoreResetCore1*() {.importc: "multicore_reset_core1".}
   ##
   ## \note this function should only be called from core 0
 
-proc multicoreLaunchCore1*(entry: MulticoreThreadFunc) {.importc: "multicore_launch_core1".}
+proc multicoreLaunchCore1*(entry: MulticoreEntryPoint) {.importc: "multicore_launch_core1".}
   ## Run code on core 1
   ##
   ## Wake up (a previously reset) core 1 and enter the given function on core 1 using the default core 1 stack (below core 0 stack).
@@ -22,7 +22,7 @@ proc multicoreLaunchCore1*(entry: MulticoreThreadFunc) {.importc: "multicore_lau
   ## \param entry Function entry point
   ## \see multicore_reset_core1
 
-proc multicoreLaunchCore1WithStack*(entry: MulticoreThreadFunc; stackBottom: ptr uint32; stackSizeBytes: csize_t) {.importc: "multicore_launch_core1_with_stack".}
+proc multicoreLaunchCore1WithStack*(entry: MulticoreEntryPoint; stackBottom: ptr uint32; stackSizeBytes: csize_t) {.importc: "multicore_launch_core1_with_stack".}
   ## Launch code on core 1 with stack
   ##
   ## Wake up (a previously reset) core 1 and enter the given function on core 1 using the passed stack for core 1
@@ -36,7 +36,7 @@ proc multicoreLaunchCore1WithStack*(entry: MulticoreThreadFunc; stackBottom: ptr
   ## \param stack_size_bytes The size of the stack in bytes (must be a multiple of 4)
   ## \see multicore_reset_core1
 
-proc multicoreLaunchCore1Raw*(entry: MulticoreThreadFunc; sp: ptr uint32; vectorTable: uint32) {.importc: "multicore_launch_core1_raw".}
+proc multicoreLaunchCore1Raw*(entry: MulticoreEntryPoint; sp: ptr uint32; vectorTable: uint32) {.importc: "multicore_launch_core1_raw".}
   ## Launch code on core 1 with no stack protection
   ##
   ## Wake up (a previously reset) core 1 and start it executing with a specific entry point, stack pointer
@@ -52,7 +52,6 @@ proc multicoreLaunchCore1Raw*(entry: MulticoreThreadFunc; sp: ptr uint32; vector
   ## \see multicore_reset_core1
 
 ## \defgroup multicore_fifo fifo
-## \ingroup pico_multicore
 ## Functions for the inter-core FIFOs
 ##
 ## The RP2040 contains two FIFOs for passing data, messages or ordered events between the two cores. Each FIFO is 32 bits
@@ -152,7 +151,6 @@ proc multicoreFifoGetStatus*(): uint32 {.importc: "multicore_fifo_get_status".}
   ## See the note in the \ref multicore_fifo section for considerations regarding use of the inter-core FIFOs
 
 ## \defgroup multicore_lockout lockout
-## \ingroup pico_multicore
 ## Functions to enable one core to force the other core to pause execution in a known state.
 ##   
 ## Sometimes it is useful to enter a critical section on both cores at once. On a single
@@ -194,7 +192,6 @@ proc multicoreLockoutVictimIsInitialized*(coreNum: cuint): bool {.importc: "mult
 
 proc multicoreLockoutStartBlocking*() {.importc: "multicore_lockout_start_blocking".}
   ## Request the other core to pause in a known state and wait for it to do so
-  ## \ingroup multicore_lockout
   ##
   ## The other (victim) core must have previously executed \ref multicore_lockout_victim_init()
   ##
@@ -203,7 +200,6 @@ proc multicoreLockoutStartBlocking*() {.importc: "multicore_lockout_start_blocki
 
 proc multicoreLockoutStartTimeoutUs*(timeoutUs: uint64): bool {.importc: "multicore_lockout_start_timeout_us".}
   ## Request the other core to pause in a known state and wait up to a time limit for it to do so
-  ## \ingroup multicore_lockout
   ##
   ## The other core must have previously executed \ref multicore_lockout_victim_init()
   ##
@@ -215,14 +211,12 @@ proc multicoreLockoutStartTimeoutUs*(timeoutUs: uint64): bool {.importc: "multic
 
 proc multicoreLockoutEndBlocking*() {.importc: "multicore_lockout_end_blocking".}
   ## Release the other core from a locked out state amd wait for it to acknowledge
-  ## \ingroup multicore_lockout
   ##
   ## \note The other core must previously have been "locked out" by calling a multicore_lockout_start_ function
   ## from this core
 
 proc multicoreLockoutEndTimeoutUs*(timeoutUs: uint64): bool {.importc: "multicore_lockout_end_timeout_us".}
   ## Release the other core from a locked out state amd wait up to a time limit for it to acknowledge
-  ## \ingroup multicore_lockout
   ##
   ## The other core must previously have been "locked out" by calling a `multicore_lockout_start_` function
   ## from this core

@@ -1,13 +1,14 @@
 import ./error
+export error
 
 {.push header: "pico/stdio.h".}
 
 type
   StdioDriver* {.bycopy, importc: "struct stdio_driver".} = object
-    out_chars*: proc (buf: cstring; len: cint) {.cdecl.}
-    out_flush*: proc () {.cdecl.}
-    in_chars*: proc (buf: cstring; len: cint): cint {.cdecl.}
-    next*: ptr StdioDriver
+    out_chars* {.importc: "out_chars".}: proc (buf: cstring; len: cint) {.cdecl.}
+    out_flush* {.importc: "out_flush".}: proc () {.cdecl.}
+    in_chars* {.importc: "in_chars".}: proc (buf: cstring; len: cint): cint {.cdecl.}
+    next* {.importc: "next".}: ptr StdioDriver
 
 let
   StdoutMutex* {.importc: "PICO_STDOUT_MUTEX".}: bool
@@ -38,14 +39,14 @@ proc getcharTimeoutUs*(timeoutUs: uint32): cint {.importc: "getchar_timeout_us".
   ## \param timeout_us the timeout in microseconds, or 0 to not wait for a character if none available.
   ## \return the character from 0-255 or PICO_ERROR_TIMEOUT if timeout occurs
 
-proc stdioSetDriverEnabled*(driver: ptr StdioDriver; enabled: bool) {.importc: "stdio_set_driver_enabled".}
+proc setEnabled*(driver: ptr StdioDriver; enabled: bool) {.importc: "stdio_set_driver_enabled".}
   ## Adds or removes a driver from the list of active drivers used for input/output
   ##
   ## \note this method should always be called on an initialized driver and is not re-entrant
   ## \param driver the driver
   ## \param enabled true to add, false to remove
 
-proc stdioFilterDriver*(driver: ptr StdioDriver) {.importc: "stdio_filter_driver".}
+proc filter*(driver: ptr StdioDriver) {.importc: "stdio_filter_driver".}
   ## Control limiting of output to a single driver
   ##
   ## \note this method should always be called on an initialized driver
@@ -53,7 +54,7 @@ proc stdioFilterDriver*(driver: ptr StdioDriver) {.importc: "stdio_filter_driver
   ## \param driver if non-null then output only that driver will be used for input/output (assuming it is in the list of enabled drivers).
   ##               if NULL then all enabled drivers will be used
 
-proc stdioSetTranslateCrlf*(driver: ptr StdioDriver; translate: bool) {.importc: "stdio_set_translate_crlf".}
+proc setTranslateCrlf*(driver: ptr StdioDriver; translate: bool) {.importc: "stdio_set_translate_crlf".}
   ## control conversion of line feeds to carriage return on transmissions
   ##
   ## \note this method should always be called on an initialized driver

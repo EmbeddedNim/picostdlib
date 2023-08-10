@@ -1,28 +1,30 @@
-import types
-import lock_core
+import ./types
+import ./lock_core
+
+export types, lock_core
 
 {.push header: "pico/sem.h".}
 
 type
   Semaphore* {.bycopy, importc: "semaphore_t".} = object
-    core* {.importc.}: LockCore
-    permits* {.importc.}: int16
-    max_permits* {.importc.}: int16
+    core* {.importc: "core".}: LockCore
+    permits* {.importc: "permits".}: int16
+    maxPermits* {.importc: "max_permits".}: int16
 
-proc semInit*(sem: ptr Semaphore; initialPermits: int16; maxPermits: int16) {.importc: "sem_init".}
+proc init*(sem: ptr Semaphore; initialPermits: int16; maxPermits: int16) {.importc: "sem_init".}
   ## Initialise a semaphore structure
   ##
   ## \param sem Pointer to semaphore structure
   ## \param initial_permits How many permits are initially acquired
   ## \param max_permits  Total number of permits allowed for this semaphore
 
-proc semAvailable*(sem: ptr Semaphore): cint {.importc: "sem_available".}
+proc available*(sem: ptr Semaphore): cint {.importc: "sem_available".}
   ## Return number of available permits on the semaphore
   ##
   ## \param sem Pointer to semaphore structure
   ## \return The number of permits available on the semaphore.
 
-proc semRelease*(sem: ptr Semaphore): bool {.importc: "sem_release".}
+proc release*(sem: ptr Semaphore): bool {.importc: "sem_release".}
   ## Release a permit on a semaphore
   ##
   ## Increases the number of permits by one (unless the number of permits is already at the maximum).
@@ -31,7 +33,7 @@ proc semRelease*(sem: ptr Semaphore): bool {.importc: "sem_release".}
   ## \param sem Pointer to semaphore structure
   ## \return true if the number of permits available was increased.
 
-proc semReset*(sem: ptr Semaphore; permits: int16) {.importc: "sem_reset".}
+proc reset*(sem: ptr Semaphore; permits: int16) {.importc: "sem_reset".}
   ## Reset semaphore to a specific number of available permits
   ##
   ## Reset value should be from 0 to the max_permits specified in the init function
@@ -39,14 +41,14 @@ proc semReset*(sem: ptr Semaphore; permits: int16) {.importc: "sem_reset".}
   ## \param sem Pointer to semaphore structure
   ## \param permits the new number of available permits
 
-proc semAcquireBlocking*(sem: ptr Semaphore) {.importc: "sem_acquire_blocking".}
+proc acquireBlocking*(sem: ptr Semaphore) {.importc: "sem_acquire_blocking".}
   ## Acquire a permit from the semaphore
   ##
   ## This function will block and wait if no permits are available.
   ##
   ## \param sem Pointer to semaphore structure
 
-proc semAcquireTimeoutMs*(sem: ptr Semaphore; timeoutMs: uint32): bool {.importc: "sem_acquire_timeout_ms".}
+proc acquireTimeoutMs*(sem: ptr Semaphore; timeoutMs: uint32): bool {.importc: "sem_acquire_timeout_ms".}
   ## Acquire a permit from a semaphore, with timeout
   ##
   ## This function will block and wait if no permits are available, until the
@@ -57,7 +59,7 @@ proc semAcquireTimeoutMs*(sem: ptr Semaphore; timeoutMs: uint32): bool {.importc
   ## \param timeout_ms Time to wait to acquire the semaphore, in milliseconds.
   ## \return false if timeout reached, true if permit was acquired.
 
-proc semAcquireTimeoutUs*(sem: ptr Semaphore; timeoutUs: uint32): bool {.importc: "sem_acquire_timeout_us".}
+proc acquireTimeoutUs*(sem: ptr Semaphore; timeoutUs: uint32): bool {.importc: "sem_acquire_timeout_us".}
   ## Acquire a permit from a semaphore, with timeout
   ##
   ## This function will block and wait if no permits are available, until the
@@ -68,7 +70,7 @@ proc semAcquireTimeoutUs*(sem: ptr Semaphore; timeoutUs: uint32): bool {.importc
   ## \param timeout_us Time to wait to acquire the semaphore, in microseconds.
   ## \return false if timeout reached, true if permit was acquired.
 
-proc semAcquireBlockUntil*(sem: ptr Semaphore; until: AbsoluteTime): bool {.importc: "sem_acquire_block_until".}
+proc acquireBlockUntil*(sem: ptr Semaphore; until: AbsoluteTime): bool {.importc: "sem_acquire_block_until".}
   ## Wait to acquire a permit from a semaphore until a specific time
   ##
   ## This function will block and wait if no permits are available, until the
@@ -80,7 +82,7 @@ proc semAcquireBlockUntil*(sem: ptr Semaphore; until: AbsoluteTime): bool {.impo
   ## \return true if permit was acquired, false if the until time was reached before
   ## acquiring.
 
-proc semTryAcquire*(sem: ptr Semaphore): bool {.importc: "sem_try_acquire".}
+proc tryAcquire*(sem: ptr Semaphore): bool {.importc: "sem_try_acquire".}
   ## Attempt to acquire a permit from a semaphore without blocking
   ##
   ## This function will return false without blocking if no permits are

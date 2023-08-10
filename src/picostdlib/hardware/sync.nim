@@ -31,23 +31,23 @@ proc spinLockInstance*(lockNum: cuint): ptr SpinLock {.importc: "spin_lock_insta
   ## \param lock_num Spinlock ID
   ## \return The spinlock instance
 
-proc spinLockGetNum*(lock: ptr SpinLock): cuint {.importc: "spin_lock_get_num".}
+proc getNum*(lock: ptr SpinLock): cuint {.importc: "spin_lock_get_num".}
   ## Get HW Spinlock number from instance
   ##
   ## \param lock The Spinlock instance
   ## \return The Spinlock ID
 
-proc spinLockUnsafeBlocking*(lock: ptr SpinLock) {.importc: "spin_lock_unsafe_blocking".}
+proc lockUnsafeBlocking*(lock: ptr SpinLock) {.importc: "spin_lock_unsafe_blocking".}
   ## Acquire a spin lock without disabling interrupts (hence unsafe)
   ##
   ## \param lock Spinlock instance
 
-proc spinUnlockUnsafe*(lock: ptr SpinLock) {.importc: "spin_unlock_unsafe".}
+proc unlockUnsafe*(lock: ptr SpinLock) {.importc: "spin_unlock_unsafe".}
   ## Release a spin lock without re-enabling interrupts
   ##
   ## \param lock Spinlock instance
 
-proc spinLockBlocking*(lock: ptr SpinLock): uint32 {.importc: "spin_lock_blocking".}
+proc lockBlocking*(lock: ptr SpinLock): uint32 {.importc: "spin_lock_blocking".}
   ## Acquire a spin lock safely
   ##
   ## This function will disable interrupts prior to acquiring the spinlock
@@ -60,7 +60,7 @@ proc isSpinLocked*(lock: ptr SpinLock): bool {.importc: "is_spin_locked".}
   ##
   ## \param lock Spinlock instance
 
-proc spinUnlock*(lock: ptr SpinLock, savedIrq: uint32) {.importc: "spin_unlock".}
+proc unlock*(lock: ptr SpinLock, savedIrq: uint32) {.importc: "spin_unlock".}
   ## Release a spin lock safely
   ##
   ## This function will re-enable interrupts according to the parameters.
@@ -106,7 +106,7 @@ proc spinLockClaim*(lockNum: cuint) {.importc: "spin_lock_claim".}
   ##
   ## \param lock_num the spin lock number
 
-proc spinLockClaimMask*(lock_num_mask: uint32) {.importc: "spin_lock_claim_mask".}
+proc spinLockClaimMask*(lockNumMask: uint32) {.importc: "spin_lock_claim_mask".}
   ## Mark multiple spin locks as used
   ##
   ## Method for cooperative claiming of hardware. Will cause a panic if any of the spin locks

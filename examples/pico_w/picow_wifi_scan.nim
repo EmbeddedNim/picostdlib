@@ -24,7 +24,7 @@ proc wifiScanExample*() =
 
   echo "Wifi init successful!"
 
-  cyw43ArchGpioPut(Cyw43WlGpioLedPin, High)
+  Cyw43WlGpioLedPin.put(High)
 
   cyw43ArchEnableStaMode()
 
@@ -40,7 +40,7 @@ proc wifiScanExample*() =
 
   echo "Finished scan!"
 
-  cyw43ArchGpioPut(Cyw43WlGpioLedPin, Low)
+  Cyw43WlGpioLedPin.put(Low)
 
   cyw43ArchDeinit()
 

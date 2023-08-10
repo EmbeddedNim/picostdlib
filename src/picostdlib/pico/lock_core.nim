@@ -10,10 +10,10 @@ type
     ## Base implementation for locking primitives protected by a spin lock. The spin lock is only used to protect
     ## access to the remaining lock state (in primitives using lock_core); it is never left locked outside
     ## of the function implementations
-    spin_lock* {.importc.}: ptr SpinLock
+    spin_lock* {.importc: "spin_lock".}: ptr SpinLock
       ## spin lock protecting this lock's state
 
-proc lockInit*(core: ptr LockCore; lockNum: cuint) {.importc: "lock_init".}
+proc init*(core: ptr LockCore; lockNum: cuint) {.importc: "lock_init".}
   ## Initialise a lock structure
   ##
   ## Inititalize a lock structure, providing the spin lock number to use for protecting internal state.

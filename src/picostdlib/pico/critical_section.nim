@@ -1,13 +1,14 @@
 import ../hardware/sync
+export sync
 
 {.push header: "pico/critical_section.h".}
 
 type
   CriticalSection* {.importc: "critical_section_t".} = object
     spinLock* {.importc: "spin_lock".}: ptr SpinLock
-    save* {.importc.}: uint32
+    save* {.importc: "save".}: uint32
 
-proc criticalSectionInit*(critSec: ptr CriticalSection) {.importc: "critical_section_init".}
+proc init*(critSec: ptr CriticalSection) {.importc: "critical_section_init".}
   ## Initialise a critical_section structure allowing the system to assign a spin lock number
   ##
   ## The critical section is initialized ready for use, and will use a (possibly shared) spin lock
@@ -17,12 +18,13 @@ proc criticalSectionInit*(critSec: ptr CriticalSection) {.importc: "critical_sec
   ##
   ## \param crit_sec Pointer to critical_section structure
 
-proc criticalSectionInitWithLockNum*(critSec: ptr CriticalSection; lockNum: cuint) {.importc: "critical_section_init_with_lock_num".}
+proc initWithLockNum*(critSec: ptr CriticalSection; lockNum: cuint) {.importc: "critical_section_init_with_lock_num".}
   ## Initialise a critical_section structure assigning a specific spin lock number
+  ##
   ## \param crit_sec Pointer to critical_section structure
   ## \param lock_num the specific spin lock number to use
 
-proc criticalSectionEnterBlocking*(critSec: ptr CriticalSection) {.importc: "critical_section_enter_blocking".}
+proc enterBlocking*(critSec: ptr CriticalSection) {.importc: "critical_section_enter_blocking".}
   ## Enter a critical_section
   ##
   ## If the spin lock associated with this critical section is in use, then this
@@ -30,12 +32,12 @@ proc criticalSectionEnterBlocking*(critSec: ptr CriticalSection) {.importc: "cri
   ##
   ## \param crit_sec Pointer to critical_section structure
 
-proc criticalSectionExit*(critSec: ptr CriticalSection) {.importc: "critical_section_exit".}
+proc exit*(critSec: ptr CriticalSection) {.importc: "critical_section_exit".}
   ## Release a critical_section
   ##
   ## \param crit_sec Pointer to critical_section structure
 
-proc criticalSectionDeinit*(critSec: ptr CriticalSection) {.importc: "critical_section_deinit".}
+proc deinit*(critSec: ptr CriticalSection) {.importc: "critical_section_deinit".}
   ## De-Initialise a critical_section created by the critical_section_init method
   ##
   ## This method is only used to free the associated spin lock allocated via

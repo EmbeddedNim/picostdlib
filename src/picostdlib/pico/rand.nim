@@ -7,7 +7,6 @@ type
 
 proc getRand128*(rand128: var Rng128) {.importc: "get_rand_128".}
   ## Get 128-bit random number
-  ##  \ingroup pico_rand
   ##
   ## This method may be safely called from either core or from an IRQ, but be careful in the latter case as
   ## the call may block for a number of microseconds waiting on more entropy.
@@ -16,7 +15,6 @@ proc getRand128*(rand128: var Rng128) {.importc: "get_rand_128".}
 
 proc getRand64*(): uint64 {.importc: "get_rand_64".}
   ## Get 64-bit random number
-  ##  \ingroup pico_rand
   ##
   ## This method may be safely called from either core or from an IRQ, but be careful in the latter case as
   ## the call may block for a number of microseconds waiting on more entropy.
@@ -25,7 +23,6 @@ proc getRand64*(): uint64 {.importc: "get_rand_64".}
 
 proc getRand32*(): uint32 {.importc: "get_rand_32".}
   ## Get 32-bit random number
-  ##  \ingroup pico_rand
   ##
   ## This method may be safely called from either core or from an IRQ, but be careful in the latter case as
   ## the call may block for a number of microseconds waiting on more entropy.

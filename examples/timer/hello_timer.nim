@@ -35,7 +35,7 @@ proc main() =
   var timer: RepeatingTimer
   discard addRepeatingTimerMs(500, repeatingTimerCallback, nil, timer.addr)
   sleepMs(3000)
-  var cancelled = cancelRepeatingTimer(timer.addr)
+  var cancelled = addr(timer).cancel()
   echo "cancelled... " & $cancelled
   sleepMs(2000)
 
@@ -43,7 +43,7 @@ proc main() =
   # 500ms later regardless of how long the callback took to execute
   discard addRepeatingTimerMs(-500, repeatingTimerCallback, nil, timer.addr)
   sleepMs(3000)
-  cancelled = cancelRepeatingTimer(timer.addr)
+  cancelled = addr(timer).cancel()
   echo "cancelled... " & $cancelled
   sleepMs(2000)
 

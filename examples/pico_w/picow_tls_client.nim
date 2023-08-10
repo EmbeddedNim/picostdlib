@@ -145,7 +145,7 @@ proc tlsClientExample*() =
 
   echo "Wifi init successful!"
 
-  cyw43ArchGpioPut(Cyw43WlGpioLedPin, High)
+  Cyw43WlGpioLedPin.put(High)
 
   cyw43ArchEnableStaMode()
 
@@ -169,7 +169,7 @@ proc tlsClientExample*() =
   else:
     echo "Connected"
 
-  cyw43ArchGpioPut(Cyw43WlGpioLedPin, Low)
+  Cyw43WlGpioLedPin.put(Low)
 
   echo "ip: ", cyw43State.netif[0].ipAddr, " mask: ", cyw43State.netif[0].netmask, " gateway: ", cyw43State.netif[0].gw
   echo "hostname: ", cast[cstring](cyw43State.netif[0].hostname)

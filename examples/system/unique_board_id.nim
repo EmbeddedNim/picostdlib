@@ -14,7 +14,7 @@ import picostdlib/pico/unique_id
 stdioInitAll()
 
 var boardId: UniqueBoardId
-picoGetUniqueBoardId(boardId.addr)
+addr(boardId).get()
 
 echo "Unique identifier:"
 

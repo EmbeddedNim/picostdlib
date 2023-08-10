@@ -5,7 +5,7 @@ import picostdlib/hardware/rtc
 var fired = false
 
 proc alarmCallback() {.cdecl.} =
-  var t: Datetime
+  var t = createDatetime()
   discard rtcGetDatetime(t.addr)
   echo "Alarm fired at " & datetimeToStr(t)
   stdioFlush()

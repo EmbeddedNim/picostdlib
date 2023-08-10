@@ -47,23 +47,23 @@ proc phCreate*(maxNodes: cuint; comparator: PheapComparator; userData: pointer):
   ## \param user_data a user data pointer associated with the heap that is provided in callbacks
   ## \return a newly allocated and initialized heap
 
-proc phClear*(heap: ptr Pheap) {.importc: "ph_clear".}
+proc clear*(heap: ptr Pheap) {.importc: "ph_clear".}
   ## Removes all nodes from the pairing heap
   ## \param heap the heap
 
-proc phDestroy*(heap: ptr Pheap) {.importc: "ph_destroy".}
+proc destroy*(heap: ptr Pheap) {.importc: "ph_destroy".}
   ## De-allocates a pairing heap
   ##
   ## Note this method must *ONLY* be called on heaps created by ph_create()
   ## \param heap the heap
 
-proc phNewNode*(heap: ptr Pheap): PheapNodeId {.importc: "ph_new_node".}
+proc newNode*(heap: ptr Pheap): PheapNodeId {.importc: "ph_new_node".}
   ## Allocate a new node from the unused space in the heap
   ##
   ## \param heap the heap
   ## \return an identifier for the node, or 0 if the heap is full
 
-proc phInsertNode*(heap: ptr Pheap; id: PheapNodeId): PheapNodeId {.importc: "ph_insert_node".}
+proc insertNode*(heap: ptr Pheap; id: PheapNodeId): PheapNodeId {.importc: "ph_insert_node".}
   ## Inserts a node into the heap.
   ##
   ## This method inserts a node (previously allocated by ph_new_node())
@@ -74,14 +74,14 @@ proc phInsertNode*(heap: ptr Pheap; id: PheapNodeId): PheapNodeId {.importc: "ph
   ## \param id the id of the node to insert
   ## \return the id of the new head of the pairing heap (i.e. node that compares first)
 
-proc phPeekHead*(heap: ptr Pheap): PheapNodeId {.importc: "ph_peek_head".}
+proc peekHead*(heap: ptr Pheap): PheapNodeId {.importc: "ph_peek_head".}
   ## Returns the head node in the heap, i.e. the node
   ## which compares first, but without removing it from the heap.
   ##
   ## \param heap the heap
   ## \return the current head node id
 
-proc phRemoveHead*(heap: ptr Pheap; free: bool): PheapNodeId {.importc: "ph_remove_head".}
+proc removeHead*(heap: ptr Pheap; free: bool): PheapNodeId {.importc: "ph_remove_head".}
   ## Remove the head node from the pairing heap. This head node is
   ## the node which compares first in the logical ordering provided
   ## by the comparator.
@@ -96,7 +96,7 @@ proc phRemoveHead*(heap: ptr Pheap; free: bool): PheapNodeId {.importc: "ph_remo
   ##        may wish to re-insert an item with the same id)
   ## @return the old head node id.
 
-proc phRemoveAndFreeHead*(heap: ptr Pheap): PheapNodeId {.importc: "ph_remove_and_free_head".}
+proc removeAndFreeHead*(heap: ptr Pheap): PheapNodeId {.importc: "ph_remove_and_free_head".}
   ## Remove the head node from the pairing heap. This head node is
   ## the node which compares first in the logical ordering provided
   ## by the comparator.
@@ -108,7 +108,7 @@ proc phRemoveAndFreeHead*(heap: ptr Pheap): PheapNodeId {.importc: "ph_remove_an
   ## @param heap the heap
   ## @return the old head node id.
 
-proc phRemoveAndFreeNode*(heap: ptr Pheap; id: PheapNodeId): bool {.importc: "ph_remove_and_free_node".}
+proc removeAndFreeNode*(heap: ptr Pheap; id: PheapNodeId): bool {.importc: "ph_remove_and_free_node".}
   ## Remove and free an arbitrary node from the pairing heap. This is a more
   ## costly operation than removing the head via ph_remove_and_free_head()
   ##
@@ -116,7 +116,7 @@ proc phRemoveAndFreeNode*(heap: ptr Pheap; id: PheapNodeId): bool {.importc: "ph
   ## @param id the id of the node to free
   ## @return true if the the node was in the heap, false otherwise
 
-proc phContainsNode*(heap: ptr Pheap; id: PheapNodeId): bool {.importc: "ph_contains_node".}
+proc containsNode*(heap: ptr Pheap; id: PheapNodeId): bool {.importc: "ph_contains_node".}
   ## Determine if the heap contains a given node. Note containment refers
   ## to whether the node is inserted (ph_insert_node()) vs allocated (ph_new_node())
   ##
@@ -124,20 +124,20 @@ proc phContainsNode*(heap: ptr Pheap; id: PheapNodeId): bool {.importc: "ph_cont
   ## @param id the id of the node
   ## @return true if the heap contains a node with the given id, false otherwise.
 
-proc phFreeNode*(heap: ptr Pheap; id: PheapNodeId) {.importc: "ph_free_node".}
+proc freeNode*(heap: ptr Pheap; id: PheapNodeId) {.importc: "ph_free_node".}
   ## Free a node that is not currently in the heap, but has been allocated
   ##
   ## @param heap the heap
   ## @param id the id of the node
 
-proc phDump*(heap: ptr Pheap; dumpKey: proc (id: PheapNodeId; userData: pointer) {.cdecl.}, userData: pointer) {.importc: "ph_dump".}
+proc dump*(heap: ptr Pheap; dumpKey: proc (id: PheapNodeId; userData: pointer) {.cdecl.}, userData: pointer) {.importc: "ph_dump".}
   ## Print a representation of the heap for debugging
   ##
   ## @param heap the heap
   ## @param dump_key a method to print a node value
   ## @param user_data the user data to pass to the dump_key method
 
-proc phPostAllocInit*(heap: ptr Pheap; maxNodes: cuint; comparator: PheapComparator; userData: pointer) {.importc: "ph_post_alloc_init".}
+proc postAllocInit*(heap: ptr Pheap; maxNodes: cuint; comparator: PheapComparator; userData: pointer) {.importc: "ph_post_alloc_init".}
   ## Initialize a statically allocated heap (ph_create() using the C heap).
   ## The heap member `nodes` must be allocated of size max_nodes.
   ##

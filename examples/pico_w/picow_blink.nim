@@ -2,7 +2,7 @@ import picostdlib, picostdlib/pico/cyw43_arch
 
 if cyw43ArchInit() == PicoErrorNone:
   while true:
-    cyw43ArchGpioPut(Cyw43WlGpioLedPin, High)
+    Cyw43WlGpioLedPin.put(High)
     sleepMs(250)
-    cyw43ArchGpioPut(Cyw43WlGpioLedPin, Low)
+    Cyw43WlGpioLedPin.put(Low)
     sleepMs(250)

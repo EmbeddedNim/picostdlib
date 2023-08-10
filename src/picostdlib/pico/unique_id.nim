@@ -12,7 +12,7 @@ type
     ## PICO_UNIQUE_BOARD_ID_SIZE_BYTES identifier bytes.
     id*: array[UniqueBoardIdSizeBytes, uint8]
 
-proc picoGetUniqueBoardId*(idOut: ptr UniqueBoardId) {.importc: "pico_get_unique_board_id".}
+proc get*(idOut: ptr UniqueBoardId) {.importc: "pico_get_unique_board_id".}
   ## Get unique ID
   ##
   ## Get the unique 64-bit device identifier which was retrieved from the
@@ -22,7 +22,7 @@ proc picoGetUniqueBoardId*(idOut: ptr UniqueBoardId) {.importc: "pico_get_unique
   ##
   ## \param id_out a pointer to a pico_unique_board_id_t struct, to which the identifier will be written
 
-proc picoGetUniqueBoardIdString*(idOut: ptr cchar; len: cuint) {.importc: "pico_get_unique_board_id_string".}
+proc picoGetUniqueBoardIdString*(idOut: ptr char; len: cuint) {.importc: "pico_get_unique_board_id_string".}
   ## Get unique ID in string format
   ##
   ## Get the unique 64-bit device identifier which was retrieved from the
@@ -40,5 +40,5 @@ proc picoGetUniqueBoardIdString*(idOut: ptr cchar; len: cuint) {.importc: "pico_
 
 proc picoGetUniqueBoardIdString*(): string =
   ## Returns the entire board id as a Nim string
-  result.setLen(16)
+  result = newString(16)
   picoGetUniqueBoardIdString(result[0].addr, (result.len + 1).cuint)
