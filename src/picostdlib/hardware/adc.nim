@@ -37,10 +37,10 @@ const ThreePointThreeConv* = 3.3f / (1 shl 12)
 
 {.push header: "hardware/adc.h".}
 
-proc adcInit* {.importc:"adc_init".}
+proc adcInit*() {.importc:"adc_init".}
   ## Initialise the ADC HW
 
-proc adcGpioInit*(gpio: Gpio) {.importc: "adc_gpio_init".}
+proc initAdc*(gpio: Gpio) {.importc: "adc_gpio_init".}
   ## Initialise the gpio for use as an ADC pin
   ##
   ## Prepare a GPIO for use with ADC, by disabling all digital functions.
@@ -51,7 +51,7 @@ proc adcGpioInit*(gpio: Gpio) {.importc: "adc_gpio_init".}
   ## **gpio**    The GPIO number to use. Allowable GPIO numbers are 26 to 29 inclusive.
   ## =========  ====== 
 
-proc adcSelectInput*(input: AdcInput) {.importc: "adc_select_input".}
+proc selectInput*(input: AdcInput) {.importc: "adc_select_input".}
   ## ADC input select
   ##
   ## Select an ADC input. 0...3 are GPIOs 26...29 respectively.
@@ -89,7 +89,7 @@ proc adcSetTempSensorEnabled*(enable: bool) {.importc: "adc_set_temp_sensor_enab
   ## **enable**    Set true to power on the onboard temperature sensor, false to power off.
   ## ===========  ====== 
 
-proc adcRead*: uint16 {.importc:"adc_read".}
+proc adcRead*(): uint16 {.importc:"adc_read".}
   ## Perform a single conversion
   ##
   ## Performs an ADC conversion, waits for the result, and then returns it.
@@ -167,3 +167,8 @@ proc adcIrqSetEnabled*(enabled: bool) {.importc: "adc_irq_set_enabled".}
   ## ============  ====== 
 
 {.pop.}
+
+# Nim helpers
+
+proc toAdcInput*(gpio: static[range[26.Gpio .. 29.Gpio]]): static[AdcInput] =
+  AdcInput(gpio.int - 26)

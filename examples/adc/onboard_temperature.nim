@@ -24,7 +24,7 @@ DefaultLedPin.setDir(Out)
 
 adcInit()
 adcSetTempSensorEnabled(true)
-adcSelectInput(AdcTemp)
+AdcTemp.selectInput()
 
 while true:
   let temperature = readOnboardTemperature(tempUnit)
