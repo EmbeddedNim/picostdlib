@@ -33,7 +33,7 @@ type
     `div`* {.importc.}: uint32
     top* {.importc.}: uint32
 
-proc pwmGpioToSliceNum*(gpio: Gpio): PwmSliceNum {.importc: "pwm_gpio_to_slice_num".}
+proc toPwmSliceNum*(gpio: Gpio): PwmSliceNum {.importc: "pwm_gpio_to_slice_num".}
   ## Determine the PWM slice that is attached to the specified GPIO. 
   ##
   ## **Parameters:**
@@ -44,7 +44,7 @@ proc pwmGpioToSliceNum*(gpio: Gpio): PwmSliceNum {.importc: "pwm_gpio_to_slice_n
   ##
   ## **Returns** The PWM slice number that controls the specified GPIO. 
 
-proc pwmGpioToChannel*(gpio: Gpio): cuint {.importc: "pwm_gpio_to_channel".}
+proc pwmToChannel*(gpio: Gpio): cuint {.importc: "pwm_gpio_to_channel".}
   ## Determine the PWM channel that is attached to the specified GPIO.
   ##
   ## Each slice 0 to 7 has two channels, A and B.
@@ -209,7 +209,7 @@ proc pwmSetBothLevels*(sliceNum: PwmSliceNum, levelA, levelB: uint16) {.importc:
   ## **levelB**       Value to set compare B to. When the counter reaches this value the B output is deasserted 
   ## ==============  ====== 
 
-proc pwmSetGpioLevel*(gpio: Gpio, level: uint16) {.importc: "pwm_set_gpio_level".}
+proc pwmSetLevel*(gpio: Gpio, level: uint16) {.importc: "pwm_set_gpio_level".}
   ## Helper procedure to set the PWM level for the slice and channel associated with a GPIO. 
   ##
   ## Look up the correct slice (0 to 7) and channel (A or B) for a given GPIO, 
@@ -408,5 +408,5 @@ proc pwmGetDreq*(sliceNum: PwmSliceNum): cuint {.importc: "pwm_get_dreq".}
 
 # Nim helpers
 
-func toPwmSliceNum*(gpio: Gpio): PwmSliceNum =
-  return PwmSliceNum((gpio.uint shr 1) and 7)
+func toPwmSliceNum*(gpio: static[Gpio]): static[PwmSliceNum] =
+  PwmSliceNum((gpio.uint shr 1) and 7)

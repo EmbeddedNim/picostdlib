@@ -1,5 +1,6 @@
+import std/setutils
 import ./irq
-export irq
+export setutils, irq
 
 type
   Gpio* = distinct range[0.cuint .. 29.cuint] # NUM_BANK0_GPIOS = 30
@@ -489,7 +490,7 @@ proc toggle*(mask: set[Gpio]) {.importc: "gpio_xor_mask".}
   ##
   ## \param mask Bitmask of GPIO values to toggle, as bits 0-29
 
-proc putMasked*(mask: set[Gpio]; value: uint32) {.importc: "gpio_put_masked".}
+proc putMasked*(mask: set[Gpio]; value: set[Gpio]) {.importc: "gpio_put_masked".}
   ## Drive GPIO high/low depending on parameters
   ##
   ## \param mask Bitmask of GPIO values to change, as bits 0-29
@@ -539,7 +540,7 @@ proc setDirIn*(mask: set[Gpio]) {.importc: "gpio_set_dir_in_masked".}
   ##
   ## \param mask Bitmask of GPIO to set to input, as bits 0-29
 
-proc setDirMasked*(mask: set[Gpio]; value: uint32) {.importc: "gpio_set_dir_masked".}
+proc setDirMasked*(mask: set[Gpio]; value: set[Gpio]) {.importc: "gpio_set_dir_masked".}
   ## Set multiple GPIO directions
   ##
   ## \param mask Bitmask of GPIO to set to input, as bits 0-29
@@ -550,7 +551,7 @@ proc setDirMasked*(mask: set[Gpio]; value: uint32) {.importc: "gpio_set_dir_mask
   ## E.g. gpio_set_dir_masked(0x3, 0x2); -> set pin 0 to input, pin 1 to output,
   ## simultaneously.
 
-proc gpioSetDirAllBits*(values: uint32) {.importc: "gpio_set_dir_all_bits".}
+proc gpioSetDirAllBits*(values: set[Gpio]) {.importc: "gpio_set_dir_all_bits".}
   ## Set direction of all pins simultaneously.
   ##
   ## \param values individual settings for each gpio; for GPIO N, bit N is 1 for out, 0 for in

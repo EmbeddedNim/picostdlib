@@ -8,8 +8,8 @@ const
   pin1 = Gpio(1)
 
 # Tell GPIO 0 and 1 they are allocated to the PWM
-pin0.setFunction(PWM)
-pin1.setFunction(PWM)
+pin0.setFunction(Pwm)
+pin1.setFunction(Pwm)
 
 # Find out which PWM slice is connected to GPIO 0 (it's slice 0)
 const sliceNum = pin0.toPwmSliceNum()
@@ -26,5 +26,5 @@ sliceNum.pwmSetChanLevel(B, 3)
 # Set the PWM running
 sliceNum.pwmSetEnabled(true)
 
-# Note we could also use pwmSetGpioLevel(gpio, x) which looks up the
+# Note we could also use gpio.pwmSetLevel(x) which looks up the
 # correct slice and channel for a given GPIO.

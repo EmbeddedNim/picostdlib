@@ -170,5 +170,5 @@ proc adcIrqSetEnabled*(enabled: bool) {.importc: "adc_irq_set_enabled".}
 
 # Nim helpers
 
-proc toAdcInput*(gpio: static[range[26.Gpio .. 29.Gpio]]): static[AdcInput] =
+func toAdcInput*(gpio: static[range[26.Gpio .. 29.Gpio]]): static[AdcInput] =
   AdcInput(gpio.int - 26)
