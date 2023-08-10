@@ -15,16 +15,16 @@ pin1.setFunction(Pwm)
 const sliceNum = pin0.toPwmSliceNum()
 
 # Set period of 4 cycles (0 to 3 inclusive)
-sliceNum.pwmSetWrap(3)
+sliceNum.setWrap(3)
 
 # Set channel A output high for one cycle before dropping
-sliceNum.pwmSetChanLevel(A, 1)
+sliceNum.setChanLevel(ChanA, 1)
 
 # Set initial B output high for three cycles before dropping
-sliceNum.pwmSetChanLevel(B, 3)
+sliceNum.setChanLevel(ChanB, 3)
 
 # Set the PWM running
-sliceNum.pwmSetEnabled(true)
+sliceNum.setEnabled(true)
 
-# Note we could also use gpio.pwmSetLevel(x) which looks up the
+# Note we could also use gpio.setLevel(x) which looks up the
 # correct slice and channel for a given GPIO.
