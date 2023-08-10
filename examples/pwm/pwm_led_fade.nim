@@ -28,7 +28,7 @@ proc onPwmWrap() {.cdecl.} =
   
   # Square the fade value to make the LED's brightness appear more linear
   # Note this range matches with the wrap value
-  DefaultLedPin.setLevel(uint16 fade * fade)
+  DefaultLedPin.setPwmLevel(uint16 fade * fade)
 
 
 # Mask our slice's IRQ output into the PWM block's single interrupt line,

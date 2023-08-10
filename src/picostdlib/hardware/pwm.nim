@@ -207,7 +207,7 @@ proc setBothLevels*(sliceNum: PwmSliceNum, levelA, levelB: uint16) {.importc: "p
   ## **levelB**       Value to set compare B to. When the counter reaches this value the B output is deasserted
   ## ==============  ======
 
-proc setLevel*(gpio: Gpio, level: uint16) {.importc: "pwm_set_gpio_level".}
+proc setPwmLevel*(gpio: Gpio, level: uint16) {.importc: "pwm_set_gpio_level".}
   ## Helper procedure to set the PWM level for the slice and channel associated with a GPIO.
   ##
   ## Look up the correct slice (0 to 7) and channel (A or B) for a given GPIO,
