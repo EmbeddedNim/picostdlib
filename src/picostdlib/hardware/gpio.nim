@@ -70,38 +70,29 @@ type
     ## Slew rate limiting increases the minimum rise/fall time when a GPIO output
     ## is lightly loaded, which can help to reduce electromagnetic emissions.
     ## \sa gpio_set_slew_rate
-    Slow  # Slew rate limiting enabled
-    Fast   # Slew rate limiting disabled
+    SlewRateSlow  # Slew rate limiting enabled
+    SlewRateFast   # Slew rate limiting disabled
   
   GpioDriveStrength* {.pure, importc: "enum gpio_drive_strength".} = enum
-    mA_2  # 2 mA nominal drive strength
-    mA_4  # 4 mA nominal drive strength
-    mA_8  # 2 mA nominal drive strength
-    mA_12  # 12 mA nominal drive strength
+    DriveStrength2mA  # 2 mA nominal drive strength
+    DriveStrength4mA  # 4 mA nominal drive strength
+    DriveStrength8mA  # 2 mA nominal drive strength
+    DriveStrength12mA  # 12 mA nominal drive strength
 
   GpioIrqCallback* {.importc: "gpio_irq_callback_t".} = proc (gpio: Gpio; eventMask: set[GpioIrqLevel]) {.cdecl.}
 
 
 proc setFunction*(gpio: Gpio, fn: GpioFunction) {.importc: "gpio_set_function".}
-  ## Select GPIO function. 
+  ## Select GPIO function
   ##
-  ## **Parameters:**
-  ##
-  ## =========  ====== 
-  ## **gpio**    Gpio number
-  ## **fn**      GpioFunction: XIP, SPI, UART, I2C, PWM, SIO, PIO0, PIO1, GPCK, USB, NULL
+  ## \param gpio GPIO number
+  ## \param fn Which GPIO function select to use from list \ref gpio_function
 
 proc getFunction*(gpio: Gpio): GpioFunction {.importc: "gpio_get_function".}
-  ## Returns a Gpio function
+  ## Determine current GPIO function
   ##
-  ## **Parameters:**
-  ##
-  ## =========   ====== 
-  ## **gpio**    Gpio number
-  ## =========   ======
-  ##
-  ## **Returns:** GpioFunction: XIP, SPI, UART, I2C, PWM, SIO, PIO0, PIO1, GPCK, USB, NULL
-  ##
+  ## \param gpio GPIO number
+  ## \return Which GPIO function is currently selected from list \ref gpio_function
 
 proc setPulls*(gpio: Gpio; up: bool; down: bool) {.importc: "gpio_set_pulls".}
   ## Select up and down pulls on specific GPIO
@@ -114,12 +105,9 @@ proc setPulls*(gpio: Gpio; up: bool; down: bool) {.importc: "gpio_set_pulls".}
   ## i.e. a weak pull to whatever is current high/low state of GPIO.
 
 proc pullUp*(gpio: Gpio) {.importc: "gpio_pull_up".}
-  ## Set specified Gpio to be pulled up. 
+  ## Set specified GPIO to be pulled up.
   ##
-  ## **Parameters:**
-  ##
-  ## =========  ====== 
-  ## **gpio**    Gpio number
+  ## \param gpio GPIO number
 
 proc isPulledUp*(gpio: Gpio): bool {.importc: "gpio_is_pulled_up".}
   ## Determine if the specified GPIO is pulled up.
@@ -128,12 +116,9 @@ proc isPulledUp*(gpio: Gpio): bool {.importc: "gpio_is_pulled_up".}
   ## \return true if the GPIO is pulled up
 
 proc pullDown*(gpio: Gpio) {.importc: "gpio_pull_down".}
-  ## Set specified Gpio to be pulled down. 
+  ## Set specified GPIO to be pulled down.
   ##
-  ## **Parameters:**
-  ##
-  ## =========   ====== 
-  ## **gpio**    Gpio number
+  ## \param gpio GPIO number
 
 proc isPulledDown*(gpio: Gpio): bool {.importc: "gpio_is_pulled_down".}
   ## Determine if the specified GPIO is pulled down.
@@ -144,10 +129,7 @@ proc isPulledDown*(gpio: Gpio): bool {.importc: "gpio_is_pulled_down".}
 proc disablePulls*(gpio: Gpio) {.importc: "gpio_disable_pulls".}
   ## Disable pulls on specified GPIO
   ##
-  ## **Parameters:**
-  ##
-  ## =========  ====== 
-  ## **gpio**    Gpio number
+  ## \param gpio GPIO number
 
 proc setIrqover*(gpio: Gpio; value: GpioOverride) {.importc: "gpio_set_irqover".}
   ## Set GPIO IRQ override
@@ -231,31 +213,26 @@ proc setIrqEnabled*(gpio: Gpio; eventMask: set[GpioIrqLevel]; enabled: bool) {.i
   ## Enable or disable specific interrupt events for specified GPIO
   ##
   ## This function sets which GPIO events cause a GPIO interrupt on the calling core. See
-  ## gpioSetIrqCallback_, gpioSetIrqEnabledWithCallback_ and
-  ## gpioAddRawIrqHandler_ to set up a GPIO interrupt handler to handle the events.
+  ## \ref gpio_set_irq_callback, \ref gpio_set_irq_enabled_with_callback and
+  ## \ref gpio_add_raw_irq_handler to set up a GPIO interrupt handler to handle the events.
   ##
-  ## *Note: The IO IRQs are independent per-processor. This configures the interrupt events for
-  ## the processor that calls the function.*
+  ## \note The IO IRQs are independent per-processor. This configures the interrupt events for
+  ## the processor that calls the function.
   ##
-  ## **Paramters**
-  ## =============  =====
-  ## **gpio**        GPIO number
-  ## **eventMask**   Which events will cause an interrupt
-  ## **enabled**     Enable or disable flag
-  ## =============  =====
+  ## \param gpio GPIO number
+  ## \param event_mask Which events will cause an interrupt
+  ## \param enabled Enable or disable flag
   ##
-  ## Events is a bitmask of the following GpioIrqLevel_ values:
+  ## Events is a bitmask of the following \ref gpio_irq_level values:
   ##
-  ## =====  ====================  ===================================
-  ##  bit    value              interrupt
-  ## =====  ====================  ===================================
-  ##    0    LevelLow              Continuously while level is low
-  ##    1    LevelHigh             Continuously while level is high
-  ##    2    EdgeFall              On each transition from high to low
-  ##    3    EdgeRise              On each transition from low to high
-  ## =====  ====================  ===================================
+  ## bit | constant            | interrupt
+  ## ----|----------------------------------------------------------
+  ##   0 | GPIO_IRQ_LEVEL_LOW  | Continuously while level is low
+  ##   1 | GPIO_IRQ_LEVEL_HIGH | Continuously while level is high
+  ##   2 | GPIO_IRQ_EDGE_FALL  | On each transition from high to low
+  ##   3 | GPIO_IRQ_EDGE_RISE  | On each transition from low to high
   ##
-  ## which are specified in GpioIrqLevel_
+  ## which are specified in \ref gpio_irq_level
 
 proc gpioSetIrqCallback*(callback: GpioIrqCallback) {.importc: "gpio_set_irq_callback".}
   ## Set the generic callback used for GPIO IRQ events for the current core
@@ -334,7 +311,7 @@ proc acknowledgeIrq*(gpio: Gpio; eventMask: set[GpioIrqLevel]) {.importc: "gpio_
   ## \note For callbacks set with \ref gpio_set_irq_enabled_with_callback, or \ref gpio_set_irq_callback, this function is called automatically.
   ## \param event_mask Bitmask of events to clear. See \ref gpio_irq_level for details.
 
-proc addRawIrqHandlerWithOrderPriorityMasked*(gpioMask: set[Gpio]; handler: IrqHandler; order_priority: uint8) {.importc: "gpio_add_raw_irq_handler_with_order_priority_masked".}
+proc addRawIrqHandlerWithOrderPriority*(gpioMask: set[Gpio]; handler: IrqHandler; order_priority: uint8) {.importc: "gpio_add_raw_irq_handler_with_order_priority_masked".}
   ## Adds a raw GPIO IRQ handler for the specified GPIOs on the current core
   ##
   ## In addition to the default mechanism of a single GPIO IRQ event callback per core (see \ref gpio_set_irq_callback),
@@ -392,7 +369,7 @@ proc addRawIrqHandlerWithOrderPriority*(gpio: Gpio; handler: IrqHandler; orderPr
   ## @param handler the handler to add to the list of GPIO IRQ handlers for this core
   ## @param order_priority the priority order to determine the relative position of the handler in the list of GPIO IRQ handlers for this core.
 
-proc addRawIrqHandlerMasked*(gpioMask: set[Gpio]; handler: IrqHandler) {.importc: "gpio_add_raw_irq_handler_masked".}
+proc addRawIrqHandler*(gpioMask: set[Gpio]; handler: IrqHandler) {.importc: "gpio_add_raw_irq_handler_masked".}
   ## Adds a raw GPIO IRQ handler for the specified GPIOs on the current core
   ##
   ## In addition to the default mechanism of a single GPIO IRQ event callback per core (see \ref gpio_set_irq_callback),
@@ -444,7 +421,7 @@ proc addRawIrqHandler*(gpio: Gpio; handler: IrqHandler) {.importc: "gpio_add_raw
   ## @param gpio the GPIO number that will no longer be passed to the default callback for this core
   ## @param handler the handler to add to the list of GPIO IRQ handlers for this core
 
-proc removeRawIrqHandlerMasked*(gpioMask: set[Gpio]; handler: IrqHandler) {.importc: "gpio_remove_raw_irq_handler_masked".}
+proc removeRawIrqHandler*(gpioMask: set[Gpio]; handler: IrqHandler) {.importc: "gpio_remove_raw_irq_handler_masked".}
   ## Removes a raw GPIO IRQ handler for the specified GPIOs on the current core
   ##
   ## In addition to the default mechanism of a single GPIO IRQ event callback per core (see \ref gpio_set_irq_callback),
@@ -467,27 +444,25 @@ proc removeRawIrqHandler*(gpio: Gpio; handler: IrqHandler) {.importc: "gpio_remo
   ## @param handler the handler to remove from the list of GPIO IRQ handlers for this core
 
 proc init*(gpio: Gpio) {.importc: "gpio_init".}
-  ## Initialise a Gpio for (enabled I/O and set func to Gpio_FUNC_SIO) 
-  ## Clear the output enable (i.e. set to input) Clear any output value.
+  ## Initialise a GPIO for (enabled I/O and set func to GPIO_FUNC_SIO)
   ##
-  ## **Parameters:**
+  ## Clear the output enable (i.e. set to input).
+  ## Clear any output value.
   ##
-  ## =========  ====== 
-  ## **gpio**    Gpio number
+  ## \param gpio GPIO number
 
 proc deinit*(gpio: Gpio) {.importc: "gpio_deinit".}
   ## Resets a GPIO back to the NULL function, i.e. disables it.
   ##
   ## \param gpio GPIO number
 
-proc initMask*(gpioMask: set[Gpio]) {.importc: "gpio_init_mask".}
-  ## Initialise multiple Gpios (enabled I/O and set func to Gpio_FUNC_SIO).
-  ## Clear the output enable (i.e. set to input) Clear any output value.
+proc init*(gpioMask: set[Gpio]) {.importc: "gpio_init_mask".}
+  ## Initialise multiple GPIOs (enabled I/O and set func to GPIO_FUNC_SIO)
   ##
-  ## **Parameters:**
+  ## Clear the output enable (i.e. set to input).
+  ## Clear any output value.
   ##
-  ## ================  ====== 
-  ## **gpioMask**      Mask with 1 bit per Gpio number to initialize 
+  ## \param gpio_mask Mask with 1 bit per GPIO number to initialize
 
 proc get*(gpio: Gpio): Value #[bool]# {.importc: "gpio_get".}
   ## Get state of a single specified Gpio. 
@@ -499,17 +474,17 @@ proc gpioGetAll*(): set[Gpio] {.importc: "gpio_get_all".}
   ##
   ## \return Bitmask of raw GPIO values, as bits 0-29
 
-proc setMask*(mask: set[Gpio]) {.importc: "gpio_set_mask".}
+proc set*(mask: set[Gpio]) {.importc: "gpio_set_mask".}
   ## Drive high every GPIO appearing in mask
   ##
   ## \param mask Bitmask of GPIO values to set, as bits 0-29
 
-proc clrMask*(mask: set[Gpio]) {.importc: "gpio_clr_mask".}
+proc clear*(mask: set[Gpio]) {.importc: "gpio_clr_mask".}
   ## Drive low every GPIO appearing in mask
   ##
   ## \param mask Bitmask of GPIO values to clear, as bits 0-29
 
-proc xorMask*(mask: set[Gpio]) {.importc: "gpio_xor_mask".}
+proc toggle*(mask: set[Gpio]) {.importc: "gpio_xor_mask".}
   ## Toggle every GPIO appearing in mask
   ##
   ## \param mask Bitmask of GPIO values to toggle, as bits 0-29
@@ -525,19 +500,16 @@ proc putMasked*(mask: set[Gpio]; value: uint32) {.importc: "gpio_put_masked".}
   ## Since this uses the TOGL alias, it is concurrency-safe with e.g. an IRQ
   ## bashing different pins from the same core.
 
-proc gpioPutAll*(value: uint32) {.importc: "gpio_put_all".}
+proc putAll*(value: set[Gpio]) {.importc: "gpio_put_all".}
   ## Drive all pins simultaneously
   ##
   ## \param value Bitmask of GPIO values to change, as bits 0-29
 
-proc put*(gpio: Gpio, value: Value #[bool]#) {.importc: "gpio_put".}
-  ## Drive a single Gpio high/low. 
+proc put*(gpio: Gpio, value: Value) {.importc: "gpio_put".}
+  ## Drive a single GPIO high/low
   ##
-  ## **Parameters:**
-  ##
-  ## =======================================  ====== 
-  ## **gpio**                                 Gpio number
-  ## **High**, **Low**, **true**, **false**   High or true sets output, otherwise clears Gpio
+  ## \param gpio GPIO number
+  ## \param value If false clear the GPIO, otherwise set it.
 
 proc getOutLevel*(gpio: Gpio): bool {.importc: "gpio_get_out_level".}
   ## Determine whether a GPIO is currently driven high or low
@@ -555,19 +527,19 @@ proc getOutLevel*(gpio: Gpio): bool {.importc: "gpio_get_out_level".}
   ## \param gpio GPIO number
   ## \return true if the GPIO output level is high, false if low.
 
-proc setDirOutMasked*(mask: set[Gpio]) {.importc: "gpio_set_dir_out_masked".}
+proc setDirOut*(mask: set[Gpio]) {.importc: "gpio_set_dir_out_masked".}
   ## Set a number of GPIOs to output
   ##
   ## Switch all GPIOs in "mask" to output
   ##
   ## \param mask Bitmask of GPIO to set to output, as bits 0-29
 
-proc setDirInMasked*(mask: set[Gpio]) {.importc: "gpio_set_dir_in_masked".}
+proc setDirIn*(mask: set[Gpio]) {.importc: "gpio_set_dir_in_masked".}
   ## Set a number of GPIOs to input
   ##
   ## \param mask Bitmask of GPIO to set to input, as bits 0-29
 
-proc setDirMasked*(mask: set[Gpio]; value: set[Gpio]) {.importc: "gpio_set_dir_masked".}
+proc setDirMasked*(mask: set[Gpio]; value: uint32) {.importc: "gpio_set_dir_masked".}
   ## Set multiple GPIO directions
   ##
   ## \param mask Bitmask of GPIO to set to input, as bits 0-29
@@ -578,19 +550,16 @@ proc setDirMasked*(mask: set[Gpio]; value: set[Gpio]) {.importc: "gpio_set_dir_m
   ## E.g. gpio_set_dir_masked(0x3, 0x2); -> set pin 0 to input, pin 1 to output,
   ## simultaneously.
 
-proc setDirAllBits*(values: set[Gpio]) {.importc: "gpio_set_dir_all_bits".}
+proc gpioSetDirAllBits*(values: uint32) {.importc: "gpio_set_dir_all_bits".}
   ## Set direction of all pins simultaneously.
   ##
   ## \param values individual settings for each gpio; for GPIO N, bit N is 1 for out, 0 for in
 
 proc setDir*(gpio: Gpio, `out`: Direction) {.importc: "gpio_set_dir".}
-  ## Set a single Gpio direction. 
+  ## Set a single GPIO direction
   ##
-  ## **Parameters:**
-  ##
-  ## =====================================  ====== 
-  ## **gpio**                               Gpio number
-  ## **In**, **Out**, **true**, **false**   true or Output for output; In or false for input
+  ## \param gpio GPIO number
+  ## \param out true for out, false for in
 
 proc isDirOut*(gpio: Gpio): Direction {.importc: "gpio_is_dir_out".}
   ## Check if a specific GPIO direction is OUT
