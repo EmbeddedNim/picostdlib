@@ -7,7 +7,7 @@ const cmakeBinaryDir* {.strdefine.} = os.getEnv("CMAKE_BINARY_DIR").replace('\\'
 const cmakecachePath = cmakeBinaryDir / "generated" / "cmakecache.nim"
 
 when fileExists(cmakecachePath):
-  # includes PICO_SDK_PATH
+  # exports PICO_SDK_PATH, PICO_BOARD, CMAKE_BUILD_TYPE
   staticInclude(cmakecachePath)
 
 const picoSdkPath* {.strdefine.} = when declared(PICO_SDK_PATH): PICO_SDK_PATH else: os.getEnv("PICO_SDK_PATH").replace('\\', DirSep)

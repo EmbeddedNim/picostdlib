@@ -5,7 +5,7 @@ if(NOT DEFINED OUTPUT_NAME)
 endif()
 
 # Set CMake build type. Debug, Release, MinSizeRel, RelWithDebInfo
-set(CMAKE_BUILD_TYPE Release)
+set(CMAKE_BUILD_TYPE Debug)
 
 # Set standards
 set(CMAKE_C_STANDARD 11)
@@ -26,7 +26,6 @@ set(PICO_CXX_ENABLE_EXCEPTIONS 1)
 
 # Uncomment to disable picotool binary info
 # set(PICO_NO_BINARY_INFO 1)
-
 
 execute_process(
   COMMAND nimble path picostdlib
@@ -67,10 +66,8 @@ target_include_directories(${OUTPUT_NAME} PRIVATE
   ${CMAKE_SOURCE_DIR}/csource
 )
 
-# Additional libraries
 target_link_libraries(${OUTPUT_NAME}
-  # For wifi and tls/https
-  # pico_cyw43_arch_lwip_threadsafe_background pico_lwip_mbedtls pico_mbedtls
+  # Additional libraries
 )
 # haven't got sockets to work with freertos yet...
 # pico_cyw43_arch_lwip_sys_freertos FreeRTOS-Kernel-Heap3

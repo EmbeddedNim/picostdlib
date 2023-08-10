@@ -1,18 +1,29 @@
-import std/os
+import std/os, std/macros
+
+# switch("define", "release")
+const releaseFollowsCmake = true
+
+# used by futhark to find .h config files
+switch("define", "piconimCsourceDir:" & getCurrentDir() / "csource")
+
+
+#:: INTERNALS ::#
+
+macro staticInclude(path: static[string]): untyped =
+  newTree(nnkIncludeStmt, newLit(path))
+
 const packageName = getCurrentDir().splitPath().tail
+const cmakeBinaryDir {.strdefine.} = getCurrentDir() / "build" / packageName
 
 switch("cpu", "arm")
 switch("os", "freertos")
-
-switch("define", "release")
-switch("define", "NDEBUG") # uncomment when in release mode
 # switch("opt", "size") # doesnt do anything since cmake does the compilation
-switch("mm", "orc") # use "arc", "orc" or "none"
+switch("mm", "orc")
 switch("deepcopy", "on")
 switch("threads", "off")
 
 switch("compileOnly", "on")
-switch("nimcache", "build/" & packageName & "/" & projectName() & "/nimcache")
+switch("nimcache", cmakeBinaryDir / projectName() / "nimcache")
 
 switch("define", "checkAbi")
 switch("define", "nimMemAlignTiny")
@@ -22,10 +33,20 @@ switch("define", "useMalloc")
 
 # when using cpp backend
 # see for similar issue: https://github.com/nim-lang/Nim/issues/17040
-switch("d", "nimEmulateOverflowChecks")
+switch("define", "nimEmulateOverflowChecks")
 
 # for futhark to work
 switch("maxLoopIterationsVM", "100000000")
 
-switch("d", "cmakeBinaryDir:" & getCurrentDir() & "/build/" & packageName)
-switch("d", "piconimCsourceDir:" & getCurrentDir() & "/csource")
+# redefine in case strdefine was empty
+switch("define", "cmakeBinaryDir:" & cmakeBinaryDir)
+
+# import some cmake config
+const cmakecachePath = cmakeBinaryDir / "generated" / "cmakecache.nim"
+when fileExists(cmakecachePath):
+  staticInclude(cmakecachePath)
+
+  when CMAKE_BUILD_TYPE in ["Release", "MinSizeRel", "RelWithDebInfo"]:
+    switch("define", "NDEBUG")
+    when releaseFollowsCmake:
+      switch("define", "release")

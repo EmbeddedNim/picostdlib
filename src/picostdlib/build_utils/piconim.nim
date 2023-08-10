@@ -172,7 +172,7 @@ proc doBuild(mainProgram: string; projectIn = ""; targetIn = ""; compileOnly: bo
     removeFile(jsonFile)
 
   # compile the nim program to .c files
-  let nimcmd = "nim " & quoteShellCommand([backend, "-c", "--hints:off", "--nimcache:" & "build" / project / target / "nimcache", mainProgram])
+  let nimcmd = "nim " & quoteShellCommand([backend, "-c", "-d:cmakeBinaryDir:" & absolutePath(buildDir), "-d:cmakeTarget:" & target, "--hints:off", "--nimcache:" & "build" / project / target / "nimcache", mainProgram])
   echo ">> " & nimcmd
   if execCmd(nimcmd) != 0:
     removeFile(jsonFile.changeFileExt(".cached.json"))
