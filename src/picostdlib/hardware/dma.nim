@@ -780,3 +780,7 @@ proc printDmaCtrl*(channel: ptr DmaChannelHw) {.importc: "print_dma_ctrl".}
   ## Only available in debug
 
 {.pop.}
+
+# Nim helpers
+
+template chHw*(chan: DmaChannel): DmaChannelHw = dmaHw.ch[chan.ord]
