@@ -27,7 +27,7 @@ task futharkgen, "Generate futhark cache":
   rmDir "build/futharkgen"
 
 before install:
-  exec "nimble check"
+  exec "nimble build"
   futharkgenTask()
 
 task test, "Runs the test suite":
