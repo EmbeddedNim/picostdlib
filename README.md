@@ -14,7 +14,22 @@ SDK](https://github.com/raspberrypi/pico-sdk). Here are some of the feature high
 * Wrapper for Pico SDK functions but with Nim flavour, with strict types for safety
 * Wireless support for Pico W (Wifi, Bluetooth, HTTPS)
 
-See the [examples](examples) folder for examples on how to use the SDK using Nim.
+Blink example (works on Pico W too!)
+
+```nim
+import picostdlib
+
+DefaultLedPin.init()
+DefaultLedPin.setDir(Out)
+
+while true:
+  DefaultLedPin.put(High)
+  sleepMs(250)
+  DefaultLedPin.put(Low)
+  sleepMs(250)
+```
+
+See the [examples](examples) folder for more examples on how to use the SDK using Nim.
 
 
 ## Setup
