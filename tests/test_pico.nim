@@ -69,6 +69,7 @@ import picostdlib/pico/version
 
 # misc
 import picostdlib/memoryinfo
+import picostdlib/power
 import picostdlib/sevensegdisplay
 
 # futhark stuff

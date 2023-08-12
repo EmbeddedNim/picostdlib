@@ -184,3 +184,8 @@ template withAdcRunLock*(body: untyped) =
       body
     finally:
       adcRun(false)
+
+proc adcReadTemp*(): float32 =
+  if not adcInitialized(): return 0.0
+  adcSetTempSensorEnabled(true)
+  return 27.0f - (AdcTemp.read().float32 * ThreePointThreeConv - 0.706f) / 0.001721f
