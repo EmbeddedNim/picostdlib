@@ -11,8 +11,8 @@ SDK](https://github.com/raspberrypi/pico-sdk). Here are some of the feature high
 * Setup, build and upload your project using Nimble, automatically runs CMake
   (use piconim for advanced building)
 * Standard SDK library features such as GPIO, time, ADC, PWM and many more
-* 1:1 wrapper for Pico SDK functions, with strict types for safety
-* Wireless support for Pico W (Wifi, Bluetooth, TLS)
+* Wrapper for Pico SDK functions but with Nim flavour, with strict types for safety
+* Wireless support for Pico W (Wifi, Bluetooth, HTTPS)
 
 See the [examples](examples) folder for examples on how to use the SDK using Nim.
 
