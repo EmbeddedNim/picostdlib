@@ -50,7 +50,10 @@ task test, "Runs the test suite":
 
 task examples, "Builds the examples":
   const examples = [
+    "blink",
     "adc/hello_adc",
+    "adc/read_vsys",
+    "adc/onboard_temperature",
     "clocks/hello_48mhz",
     "clocks/hello_gpout",
     "dma/hello_dma",
@@ -73,9 +76,7 @@ task examples, "Builds the examples":
     "uart/hello_uart",
     "watchdog/hello_watchdog",
     # "ws2812_pio/ws2812_pio",
-    "blink",
     "hello_stdio",
-    "adc/onboard_temperature",
     "clocks/hello_resus",
   ]
   const examples_pico = [

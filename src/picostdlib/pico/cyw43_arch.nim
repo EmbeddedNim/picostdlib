@@ -6,8 +6,8 @@ import ../lib/cyw43_driver
 
 export pico, error, types, async_context, cyw43_driver
 
-proc cyw43ThreadEnter() {.importc: "cyw43_thread_enter".}
-proc cyw43ThreadExit() {.importc: "cyw43_thread_exit".}
+proc cyw43ThreadEnter*() {.importc: "cyw43_thread_enter".}
+proc cyw43ThreadExit*() {.importc: "cyw43_thread_exit".}
 
 # {.push header: "pico/cyw43_arch.h".}
 

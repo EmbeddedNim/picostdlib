@@ -163,8 +163,8 @@ proc adcIrqSetEnabled*(enabled: bool) {.importc: "adc_irq_set_enabled".}
 
 # Nim helpers
 
-func toAdcInput*(gpio: static[range[26.Gpio .. 29.Gpio]]): static[AdcInput] =
-  AdcInput(gpio.int - 26)
+func toAdcInput*(gpio: range[26.Gpio .. 29.Gpio]): AdcInput =
+  AdcInput(gpio.ord - 26)
 
 proc adcInitialized*(): bool =
   return (adcHw.cs and ADC_CS_EN_BITS) != 0
@@ -173,5 +173,14 @@ func read*(adc: AdcInput): uint16 =
   adc.selectInput()
   adcRead()
 
-func read*(gpio: static[Gpio]): uint16 =
+func read*(gpio: Gpio): uint16 =
   gpio.toAdcInput().read()
+
+var adcRunLock {.compileTime.}: int
+template withAdcRunLock*(body: untyped) =
+  adcRun(true)
+  {.locks: [adcRunLock].}:
+    try:
+      body
+    finally:
+      adcRun(false)

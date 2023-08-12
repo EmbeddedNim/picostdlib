@@ -78,6 +78,7 @@ import picostdlib/lib/littlefs
 import "../examples/blink"
 import "../examples/adc/hello_adc"
 import "../examples/adc/onboard_temperature"
+import "../examples/adc/read_vsys"
 import "../examples/clocks/hello_48mhz"
 import "../examples/clocks/hello_gpout"
 import "../examples/clocks/hello_resus"
