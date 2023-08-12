@@ -7,7 +7,7 @@ programs for RP2040-based devices (such as the Raspberry Pi Pico) in the
 The libary provides a complete wrapper for the original [Raspberry Pi Pico
 SDK](https://github.com/raspberrypi/pico-sdk). Here are some of the feature highlights:
 
-* Project generator using the `piconim` tool
+* Project generator and building using the `piconim` tool
 * Setup, build and upload your project using Nimble, automatically runs CMake
   (use piconim for advanced building)
 * Standard SDK library features such as GPIO, time, ADC, PWM and many more
