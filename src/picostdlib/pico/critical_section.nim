@@ -18,7 +18,7 @@ proc init*(critSec: ptr CriticalSection) {.importc: "critical_section_init".}
   ##
   ## \param crit_sec Pointer to critical_section structure
 
-proc initWithLockNum*(critSec: ptr CriticalSection; lockNum: cuint) {.importc: "critical_section_init_with_lock_num".}
+proc initWithLockNum*(critSec: ptr CriticalSection; lockNum: LockNum) {.importc: "critical_section_init_with_lock_num".}
   ## Initialise a critical_section structure assigning a specific spin lock number
   ##
   ## \param crit_sec Pointer to critical_section structure

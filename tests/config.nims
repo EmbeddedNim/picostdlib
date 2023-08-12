@@ -5,6 +5,7 @@ include "../template/src/config.nims"
 
 switch("d", "cmakeBinaryDir:" & getCurrentDir() & "/build/tests")
 switch("d", "piconimCsourceDir:" & getCurrentDir() & "/template/csource")
+switch("d", "futharkgen")
 
 switch("d", "runtests")
 switch("d", "WIFI_SSID:myssid")

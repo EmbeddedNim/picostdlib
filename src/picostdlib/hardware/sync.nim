@@ -1,9 +1,5 @@
 {.push header: "hardware/sync.h".}
 
-type
-  SpinLock* {.importc: "spin_lock_t".} = uint32
-    ## A spin lock identifier
-
 const
   SpinlockIdIrq* = 9
   SpinlockIdTimer* = 10
@@ -15,6 +11,16 @@ const
   SpinlockIdClaimFreeFirst* = 24
   SpinlockIdClaimFreeLast* = 31
 
+type
+  LockNum* = distinct cuint
+
+  SpinLock* {.importc: "spin_lock_t".} = uint32
+    ## A spin lock identifier
+
+proc `==`*(a, b: LockNum): bool {.borrow.}
+proc `$`*(a: LockNum): string {.borrow.}
+
+
 proc saveAndDisableInterrupts*(): uint32 {.importc: "save_and_disable_interrupts".}
   ## Save and disable interrupts
   ##
@@ -25,13 +31,13 @@ proc restoreInterrupts*(status: uint32) {.importc: "restore_interrupts".}
   ##
   ## \param status Previous interrupt status from save_and_disable_interrupts()
 
-proc spinLockInstance*(lockNum: cuint): ptr SpinLock {.importc: "spin_lock_instance".}
+proc spinLockInstance*(lockNum: LockNum): ptr SpinLock {.importc: "spin_lock_instance".}
   ## Get HW Spinlock instance from number
   ##
   ## \param lock_num Spinlock ID
   ## \return The spinlock instance
 
-proc getNum*(lock: ptr SpinLock): cuint {.importc: "spin_lock_get_num".}
+proc getNum*(lock: ptr SpinLock): LockNum {.importc: "spin_lock_get_num".}
   ## Get HW Spinlock number from instance
   ##
   ## \param lock The Spinlock instance
@@ -71,7 +77,7 @@ proc unlock*(lock: ptr SpinLock, savedIrq: uint32) {.importc: "spin_unlock".}
   ##
   ## \sa spin_lock_blocking()
 
-proc spinLockInit*(lockNum: cuint): ptr SpinLock {.importc: "spin_lock_init".}
+proc spinLockInit*(lockNum: LockNum): ptr SpinLock {.importc: "spin_lock_init".}
   ## Initialise a spin lock
   ##
   ## The spin lock is initially unlocked
@@ -97,7 +103,7 @@ proc nextStripedSpinLockNum*(): uint {.importc: "next_striped_spin_lock_num".}
   ## \see PICO_SPINLOCK_ID_STRIPED_FIRST
   ## \see PICO_SPINLOCK_ID_STRIPED_LAST
 
-proc spinLockClaim*(lockNum: cuint) {.importc: "spin_lock_claim".}
+proc spinLockClaim*(lockNum: LockNum) {.importc: "spin_lock_claim".}
   ## Mark a spin lock as used
   ##
   ## Method for cooperative claiming of hardware. Will cause a panic if the spin lock
@@ -115,7 +121,7 @@ proc spinLockClaimMask*(lockNumMask: uint32) {.importc: "spin_lock_claim_mask".}
   ##
   ## \param lock_num_mask Bitfield of all required spin locks to claim (bit 0 == spin lock 0, bit 1 == spin lock 1 etc)
 
-proc spinLockUnclaim*(lockNum: cuint) {.importc: "spin_lock_unclaim".}
+proc spinLockUnclaim*(lockNum: LockNum) {.importc: "spin_lock_unclaim".}
   ## Mark a spin lock as no longer used
   ##
   ## Method for cooperative claiming of hardware.
@@ -128,7 +134,7 @@ proc spinLockClaimUnused*(required: bool): cint {.importc: "spin_lock_claim_unus
   ## \param required if true the function will panic if none are available
   ## \return the spin lock number or -1 if required was false, and none were free
 
-proc spinLockIsClaimed*(lockNum: cuint): bool {.importc: "spin_lock_is_claimed".}
+proc spinLockIsClaimed*(lockNum: LockNum): bool {.importc: "spin_lock_is_claimed".}
   ## Determine if a spin lock is claimed
   ##
   ## \param lock_num the spin lock number

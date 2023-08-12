@@ -50,3 +50,6 @@ when fileExists(cmakecachePath):
     switch("define", "NDEBUG")
     when releaseFollowsCmake:
       switch("define", "release")
+
+  when PICO_CYW43_SUPPORTED:
+    switch("define", "picoCyw43Supported")

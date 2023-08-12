@@ -79,7 +79,8 @@ proc setHwFlow*(uart: ptr UartInst; cts: bool; rts: bool) {.importc: "uart_set_h
   ## \param cts If true enable flow control of TX  by clear-to-send input
   ## \param rts If true enable assertion of request-to-send output by RX flow control
 
-proc setFormat*(uart: ptr UartInst; dataBits: cuint; stopBits: cuint; parity: UartParity) {.importc: "uart_set_format".}
+proc setFormat*(uart: ptr UartInst; dataBits: range[5.cuint .. 8.cuint]; stopBits: range[1.cuint .. 2.cuint]; parity: UartParity)
+  {.importc: "uart_set_format".}
   ## Set UART data format
   ##
   ## Configure the data format (bits etc() for the UART

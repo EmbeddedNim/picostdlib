@@ -1,7 +1,17 @@
 import ./hardware/gpio
 export gpio
 
+when defined(picoCyw43Supported):
+  import ./pico/cyw43_arch
+  export cyw43_arch
+
 {.push header: "pico.h".}
+
+# Led
+when not defined(picoCyw43Supported):
+  let DefaultLedPin* {.importc: "PICO_DEFAULT_LED_PIN".}: Gpio
+else:
+  let DefaultLedPin* {.importc: "CYW43_WL_GPIO_LED_PIN".}: Cyw43WlGpio
 
 let
   # Uart
@@ -9,8 +19,7 @@ let
   DefaultUartTxPin* {.importc: "PICO_DEFAULT_UART_TX_PIN".}: Gpio
   DefaultUartRxPin* {.importc: "PICO_DEFAULT_UART_RX_PIN".}: Gpio
 
-  # Led
-  DefaultLedPin* {.importc: "PICO_DEFAULT_LED_PIN".}: Gpio
+  # Neopixel
   DefaultWs2812Pin* {.importc: "PICO_DEFAULT_WS2812_PIN".}: Gpio
 
   # I2c

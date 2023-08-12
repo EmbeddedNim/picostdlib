@@ -71,10 +71,7 @@ type
     client: pointer # pointer to TcpContext, Altcpfunctions causes compile error if type is ptr TcpContext
 
 proc `==`*(a, b: Port): bool {.borrow.}
-  ## `==` for ports.
-
 proc `$`*(p: Port): string {.borrow.}
-  ## Returns the port number as a string
 
 func getPcb*(self: TcpContext): ptr AltcpPcb = self.pcb
 

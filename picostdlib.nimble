@@ -32,6 +32,7 @@ before install:
 
 task test, "Runs the test suite":
   exec "nimble build"
+
   exec "./piconim configure --project tests --source tests --board pico"
   exec "./piconim build --project tests tests/test_pico"
 
@@ -72,16 +73,16 @@ task examples, "Builds the examples":
     "uart/hello_uart",
     "watchdog/hello_watchdog",
     # "ws2812_pio/ws2812_pio",
-  # ]
-  # const examples_pico = [
     "blink",
     "hello_stdio",
     "adc/onboard_temperature",
     "clocks/hello_resus",
+  ]
+  const examples_pico = [
     "pio/hello_pio",
     "pwm/pwm_led_fade",
-  # ]
-  # const examples_picow = [
+  ]
+  const examples_picow = [
     "pico_w/picow_blink",
     "pico_w/picow_http_client",
     "pico_w/picow_ntp_client",
@@ -91,11 +92,21 @@ task examples, "Builds the examples":
   ]
 
   exec "nimble build"
-  exec "./piconim configure --project examples --source examples --board pico"
+
+  exec "./piconim configure --project examples_pico --source examples --board pico"
   for ex in examples:
     let base = ex.split("/")[^1]
-    exec "./piconim build --project examples examples/" & ex & " --target " & base & " --compileOnly"
-  exec "cmake --build build/examples -- -j4"
+    exec "./piconim build --project examples_pico examples/" & ex & " --target " & base & " --compileOnly"
+  for ex in examples_pico:
+    let base = ex.split("/")[^1]
+    exec "./piconim build --project examples_pico examples/" & ex & " --target " & base & " --compileOnly"
+  exec "cmake --build build/examples_pico -- -j4"
 
-  exec "./piconim configure --project examples --source examples --board pico_w"
-  exec "cmake --build build/examples -- -j4"
+  exec "./piconim configure --project examples_picow --source examples --board pico_w"
+  for ex in examples:
+    let base = ex.split("/")[^1]
+    exec "./piconim build --project examples_picow examples/" & ex & " --target " & base & " --compileOnly"
+  for ex in examples_picow:
+    let base = ex.split("/")[^1]
+    exec "./piconim build --project examples_picow examples/" & ex & " --target " & base & " --compileOnly"
+  exec "cmake --build build/examples_picow -- -j4"

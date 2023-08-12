@@ -466,7 +466,7 @@ proc init*(gpioMask: set[Gpio]) {.importc: "gpio_init_mask".}
   ##
   ## \param gpio_mask Mask with 1 bit per GPIO number to initialize
 
-proc get*(gpio: Gpio): Value #[bool]# {.importc: "gpio_get".}
+proc get*(gpio: Gpio): Value {.importc: "gpio_get".}
   ## Get state of a single specified Gpio. 
   ##
   ## **Returns:** Current state of the Gpio. Low (0.Value) or High (1.Value)
@@ -563,13 +563,13 @@ proc setDir*(gpio: Gpio, `out`: Direction) {.importc: "gpio_set_dir".}
   ## \param gpio GPIO number
   ## \param out true for out, false for in
 
-proc isDirOut*(gpio: Gpio): Direction {.importc: "gpio_is_dir_out".}
+proc isDirOut*(gpio: Gpio): bool {.importc: "gpio_is_dir_out".}
   ## Check if a specific GPIO direction is OUT
   ##
   ## \param gpio GPIO number
   ## \return true if the direction for the pin is OUT
 
-proc getDir*(gpio: Gpio): uint {.importc: "gpio_get_dir".}
+proc getDir*(gpio: Gpio): Direction {.importc: "gpio_get_dir".}
   ## Get a specific GPIO direction
   ##
   ## \param gpio GPIO number

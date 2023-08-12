@@ -865,5 +865,4 @@ proc errorToString*(error: int): string = $HttpClientError(error)
 #   return tls().loadPrivateKey(stream, size)
 
 
-proc writeToStreamDataBlock*(self: var HttpClient; stream: ptr Stream; len: cint): cint = discard
-
+# proc writeToStreamDataBlock*(self: var HttpClient; stream: ptr Stream; len: cint): cint = discard

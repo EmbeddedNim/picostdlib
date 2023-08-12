@@ -23,10 +23,7 @@ type
   Lane* = distinct range[0.cuint .. 1.cuint]
 
 proc `==`*(a, b: Lane): bool {.borrow.}
-  ## `==` for Lanes.
-
 proc `$`*(p: Lane): string {.borrow.}
-  ## Returns the lane number as a string
 
 
 proc claimLane*(interp: ptr InterpHw; lane: Lane) {.importc: "interp_claim_lane".}
@@ -39,7 +36,7 @@ proc claimLane*(interp: ptr InterpHw; lane: Lane) {.importc: "interp_claim_lane"
   ## \param interp Interpolator on which to claim a lane. interp0 or interp1
   ## \param lane The lane number, 0 or 1.
 
-proc claimLaneMask*(interp: ptr InterpHw; laneMask: cuint) {.importc: "interp_claim_lane_mask".}
+proc claimLaneMask*(interp: ptr InterpHw; laneMask: set[Lane]) {.importc: "interp_claim_lane_mask".}
   ## Claim the interpolator lanes specified in the mask
   ##
   ## \param interp Interpolator on which to claim lanes. interp0 or interp1
@@ -60,7 +57,7 @@ proc laneIsClaimed*(interp: ptr InterpHw; lane: Lane): bool {.importc: "interp_l
   ## \see interp_claim_lane
   ## \see interp_claim_lane_mask
 
-proc unclaimLaneMask*(interp: ptr InterpHw; laneMask: cuint) {.importc: "interp_unclaim_lane_mask".}
+proc unclaimLaneMask*(interp: ptr InterpHw; laneMask: set[Lane]) {.importc: "interp_unclaim_lane_mask".}
   ## Release previously claimed interpolator lanes \see interp_claim_lane_mask
   ##
   ## \param interp Interpolator on which to release lanes. interp0 or interp1

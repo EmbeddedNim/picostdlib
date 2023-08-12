@@ -22,7 +22,7 @@ bi_decl_include()
 bi_decl(bi_2pins_with_func(DefaultI2cSdaPin, DefaultI2cSclPin, I2c))
 
 echo "I2C Bus Scan"
-echo "   0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F"
+echo " 0     1     2     3     4     5     6     7     8     9     A     B     C     D     E     F"
 
 var ret: int
 var rxdata: uint8

@@ -3,6 +3,8 @@
 type
   HwClaimToken* = distinct uint32
 
+proc `==`*(a, b: HwClaimToken): bool {.borrow.}
+proc `$`*(a: HwClaimToken): string {.borrow.}
 
 proc hwClaimOrAssert*(bits: UncheckedArray[uint8], bitIndex: cuint, message: cstring) {.importc:"hw_claim_or_assert".}
   ## Atomically claim a resource, panicking if it is already in use

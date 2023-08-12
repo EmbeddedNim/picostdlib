@@ -10,16 +10,15 @@ var dst = newString(src.len)
 stdioInitAll()
 
 # Get a free channel, panic() if there are none
-let chan = dmaClaimUnusedChannel(true).cuint
+let chan = dmaClaimUnusedChannel(true).DmaChannel
 
 # 8 bit transfers. Both read and write address increment after each
 # transfer (each pointing to a location in src or dst respectively).
 # No DREQ is selected, so the DMA transfers as fast as it can.
 
-var c = dmaChannelGetDefaultConfig(chan)
+var c = chan.getDefaultConfig()
 
-dmaChannelConfigure(
-  chan.cuint,        # Channel to be configured
+chan.configure(
   c.addr,            # The configuration we just created
   dst[0].addr,       # The initial write address
   src[0].unsafeAddr, # The initial read address
@@ -30,7 +29,7 @@ dmaChannelConfigure(
 # We could choose to go and do something else whilst the DMA is doing its
 # thing. In this case the processor has nothing else to do, so we just
 # wait for the DMA to finish.
-dmaChannelWaitForFinishBlocking(chan.cuint)
+chan.waitForFinishBlocking()
 
 # The DMA has now copied our text from the transmit buffer (src) to the
 # receive buffer (dst), so we can print it out from there.

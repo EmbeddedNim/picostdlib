@@ -281,3 +281,7 @@ proc pollDelay*(timeoutMs: uint; blocked: var bool; intvlMs: uint) =
     # sysCheckTimeouts()
     cyw43ArchPoll()
     sleepMs(intvlMs.uint32)
+
+# helper functions to support code using DefaultLedPin
+proc init*(wlGpio: Cyw43WlGpio) = assert cyw43ArchInit() == PicoOk
+proc setDir*(wlGpio: Cyw43WlGpio; direction: Direction) = discard

@@ -5,6 +5,7 @@ include "../template/src/config.nims"
 
 switch("d", "cmakeBinaryDir:" & getCurrentDir() & "/build/examples")
 switch("d", "piconimCsourceDir:" & getCurrentDir() & "/template/csource")
+switch("d", "futharkgen")
 
 when fileExists("secret.nims"):
   import "../secret.nims"

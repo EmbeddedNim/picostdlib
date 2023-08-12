@@ -42,6 +42,8 @@
 type
   Cyw43Country* = distinct uint32
 
+proc `==`*(a, b: Cyw43Country): bool {.borrow.}
+proc `$`*(a: Cyw43Country): string {.borrow.}
 
 template cyw43Country*(a, b: char; rev: int): Cyw43Country =
   ##  create a country code from the two character country and revision number

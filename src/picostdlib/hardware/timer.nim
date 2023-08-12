@@ -4,8 +4,12 @@ export types
 {.push header: "hardware/timer.h".}
 
 type
-  HardwareAlarmCallback* {.importc: "hardware_alarm_callback_t".} = proc (alarmNum: cuint) {.cdecl.}
+  HardwareAlarmNum* = distinct cuint
 
+  HardwareAlarmCallback* {.importc: "hardware_alarm_callback_t".} = proc (alarmNum: HardwareAlarmNum) {.cdecl.}
+
+proc `==`*(a, b: HardwareAlarmNum): bool {.borrow.}
+proc `$`*(a: HardwareAlarmNum): string {.borrow.}
 
 proc timeUs32*(): uint32 {.importc: "time_us_32".}
   ## Return a 32 bit timestamp value in microseconds
@@ -50,7 +54,7 @@ proc timeReached*(t: AbsoluteTime): bool {.importc: "time_reached".}
   ## \param t Absolute time to compare against current time
   ## \return true if it is now after the specified timestamp
 
-proc hardwareAlarmClaim*(alarmNum: cuint) {.importc: "hardware_alarm_claim".}
+proc claim*(alarmNum: HardwareAlarmNum) {.importc: "hardware_alarm_claim".}
   ## cooperatively claim the use of this hardware alarm_num
   ##
   ## This method hard asserts if the hardware alarm is currently claimed.
@@ -63,23 +67,23 @@ proc hardwareAlarmClaimUnused*(required: bool): cint {.importc: "hardware_alarm_
   ##
   ## This method attempts to claim an unused hardware alarm
   ##
-  ## \return alarm_num the hardware alarm claimed or -1 if requires was false, and none are available
+  ## \return alarm_num the hardware alarm claimed or -1 if required was false, and none are available
   ## \sa hardware_claiming
 
-proc hardwareAlarmUnclaim*(alarmNum: cuint) {.importc: "hardware_alarm_unclaim".}
+proc unclaim*(alarmNum: HardwareAlarmNum) {.importc: "hardware_alarm_unclaim".}
   ## cooperatively release the claim on use of this hardware alarm_num
   ##
   ## \param alarm_num the hardware alarm to unclaim
   ## \sa hardware_claiming
 
-proc hardwareAlarmIsClaimed*(alarmNum: cuint): bool {.importc: "hardware_alarm_is_claimed".}
+proc isClaimed*(alarmNum: HardwareAlarmNum): bool {.importc: "hardware_alarm_is_claimed".}
   ## Determine if a hardware alarm has been claimed
   ##
   ## \param alarm_num the hardware alarm number
   ## \return true if claimed, false otherwise
   ## \see hardware_alarm_claim
 
-proc hardwareAlarmSetCallback*(alarmNum: cuint; callback: HardwareAlarmCallback) {.importc: "hardware_alarm_set_callback".}
+proc setCallback*(alarmNum: HardwareAlarmNum; callback: HardwareAlarmCallback) {.importc: "hardware_alarm_set_callback".}
   ## Enable/Disable a callback for a hardware timer on this core
   ##
   ## This method enables/disables the alarm IRQ for the specified hardware alarm on the
@@ -95,7 +99,7 @@ proc hardwareAlarmSetCallback*(alarmNum: cuint; callback: HardwareAlarmCallback)
   ##
   ## \sa hardware_alarm_set_target()
 
-proc hardwareAlarmSetTarget*(alarmNum: cuint; t: AbsoluteTime): bool {.importc: "hardware_alarm_set_target".}
+proc setTarget*(alarmNum: HardwareAlarmNum; t: AbsoluteTime): bool {.importc: "hardware_alarm_set_target".}
   ## Set the current target for the specified hardware alarm
   ##
   ## This will replace any existing target
@@ -104,12 +108,12 @@ proc hardwareAlarmSetTarget*(alarmNum: cuint; t: AbsoluteTime): bool {.importc: 
   ## @param t the target timestamp
   ## @return true if the target was "missed"; i.e. it was in the past, or occurred before a future hardware timeout could be set
 
-proc hardwareAlarmCancel*(alarmNum: cuint) {.importc: "hardware_alarm_cancel".}
+proc cancel*(alarmNum: HardwareAlarmNum) {.importc: "hardware_alarm_cancel".}
   ## Cancel an existing target (if any) for a given hardware_alarm
   ##
   ## @param alarm_num the hardware alarm number
 
-proc hardwareAlarmForceIrq*(alarmNum: cuint) {.importc: "hardware_alarm_force_irq".}
+proc forceIrq*(alarmNum: HardwareAlarmNum) {.importc: "hardware_alarm_force_irq".}
   ## Force and IRQ for a specific hardware alarm
   ##
   ## This method will forcibly make sure the current alarm callback (if present) for the hardware
@@ -122,7 +126,10 @@ proc hardwareAlarmForceIrq*(alarmNum: cuint) {.importc: "hardware_alarm_force_ir
 
 {.pop.}
 
-# For Posix support
+# Nim helpers
+
+
+# For FreeRTOS/Posix support
 
 when defined(freertos):
   import std/posix

@@ -1,5 +1,8 @@
 {.warning[UnusedImport]:off.}
 
+# include everything in pico test
+include ./test_pico
+
 # stdlib
 import picostdlib/pico/cyw43_arch
 import picostdlib/pico/cyw43_driver as pico_cyw43_driver

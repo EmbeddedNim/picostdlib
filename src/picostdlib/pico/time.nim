@@ -1,5 +1,6 @@
 import ./types
-export types
+import ../hardware/timer
+export types, timer
 
 {.push header: "pico/time.h".}
 
@@ -205,7 +206,7 @@ proc alarmPoolGetDefault*(): ptr AlarmPool {.importc: "alarm_pool_get_default".}
   ##
   ## \sa #PICO_TIME_DEFAULT_ALARM_POOL_HARDWARE_ALARM_NUM
 
-proc alarmPoolCreate*(hardwareAlarmNum: cuint; maxTimers: cuint): ptr AlarmPool {.importc: "alarm_pool_create".}
+proc alarmPoolCreate*(hardwareAlarmNum: HardwareAlarmNum; maxTimers: cuint): ptr AlarmPool {.importc: "alarm_pool_create".}
   ## Create an alarm pool
   ##
   ## The alarm pool will call callbacks from an alarm IRQ Handler on the core of this function is called from.
@@ -238,7 +239,7 @@ proc alarmPoolCreateWithUnusedHardwareAlarm*(maxTimers: cuint): ptr AlarmPool {.
   ## \sa alarm_pool_get_default()
   ## \sa hardware_claiming
 
-proc hardwareAlarmNum*(pool: ptr AlarmPool): cuint {.importc: "alarm_pool_hardware_alarm_num".}
+proc hardwareAlarmNum*(pool: ptr AlarmPool): HardwareAlarmNum {.importc: "alarm_pool_hardware_alarm_num".}
   ## Return the hardware alarm used by an alarm pool
   ## \param pool the pool
   ## \return the hardware alarm used by the pool

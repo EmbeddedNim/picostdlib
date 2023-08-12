@@ -1,14 +1,19 @@
 import ./base
 import ./gpio
 
-{.push header: "hardware/regs/adc.h".}
+export base, gpio
+
+type AdcInput* {.pure, size: sizeof(cuint).} = enum
+  ## ADC input. 0...3 are GPIOs 26...29 respectively. Input 4 is the onboard temperature sensor.
+  Adc26 = 0, Adc27 = 1, Adc28 = 2, Adc29 = 3, AdcTemp = 4
+
+const ThreePointThreeConv* = 3.3f / (1 shl 12)
+  ## Useful for reading inputs from a 3.3v source
+
+{.push header: "hardware/adc.h".}
 
 let
   ADC_CS_EN_BITS* {.importc: "ADC_CS_EN_BITS".}: uint
-
-{.pop.}
-
-{.push header: "hardware/structs/adc.h".}
 
 type
   AdcHw* {.importc: "adc_hw_t".} = object
@@ -25,22 +30,10 @@ type
 let
   adcHw* {.importc: "adc_hw".}: ptr AdcHw
 
-{.pop.}
-
-type AdcInput* {.pure, size: sizeof(cuint).} = enum
-  ## Aliases for selectInput() procedure 
-  ## ADC input. 0...3 are GPIOs 26...29 respectively. Input 4 is the onboard temperature sensor.
-  Adc26 = 0, Adc27 = 1, Adc28 = 2, Adc29 = 3, AdcTemp = 4
-
-const ThreePointThreeConv* = 3.3f / (1 shl 12)
-  ## Useful for reading inputs from a 3.3v source
-
-{.push header: "hardware/adc.h".}
-
 proc adcInit*() {.importc:"adc_init".}
   ## Initialise the ADC HW
 
-proc initAdc*(gpio: Gpio) {.importc: "adc_gpio_init".}
+proc initAdc*(gpio: range[Gpio(26) .. Gpio(29)]) {.importc: "adc_gpio_init".}
   ## Initialise the gpio for use as an ADC pin
   ##
   ## Prepare a GPIO for use with ADC, by disabling all digital functions.
@@ -68,7 +61,7 @@ proc adcGetSelectedInput*(): AdcInput {.importc: "adc_get_selected_input".}
   ##
   ## **Returns:** The currently selected input channel. 0...3 are GPIOs 26...29 respectively. Input 4 is the onboard temperature sensor.
 
-proc adcSetRoundRobin*(inputMask: cuint) {.importc: "adc_set_round_robin".}
+proc setRoundRobin*(inputMask: set[AdcInput]) {.importc: "adc_set_round_robin".}
   ## Round Robin sampling selector
   ##
   ## This function sets which inputs are to be run through in round robin mode.
@@ -172,3 +165,13 @@ proc adcIrqSetEnabled*(enabled: bool) {.importc: "adc_irq_set_enabled".}
 
 func toAdcInput*(gpio: static[range[26.Gpio .. 29.Gpio]]): static[AdcInput] =
   AdcInput(gpio.int - 26)
+
+proc adcInitialized*(): bool =
+  return (adcHw.cs and ADC_CS_EN_BITS) != 0
+
+func read*(adc: AdcInput): uint16 =
+  adc.selectInput()
+  adcRead()
+
+func read*(gpio: static[Gpio]): uint16 =
+  gpio.toAdcInput().read()

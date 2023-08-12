@@ -4,17 +4,23 @@ import picostdlib/hardware/adc
 
 type
   TempUnit = enum
-    C, F
+    TempUnitC, TempUnitF
 
-const tempUnit = C
+proc unitStr(unit: TempUnit): string =
+  if unit == TempUnitC:
+    "°C"
+  else:
+    "°F"
 
-proc readOnboardTemperature(unit: TempUnit): float =
-  let adc = adcRead().float * ThreePointThreeConv
-  let tempC = 27.0 - (adc - 0.706) / 0.001721
+const tempUnit = TempUnitC
+
+proc readOnboardTemperature(unit: TempUnit): float32 =
+  let adc = adcRead().float32 * ThreePointThreeConv
+  let tempC = 27.0f - (adc - 0.706f) / 0.001721f
   case unit:
-  of C:
+  of TempUnitC:
     return tempC
-  of F:
+  of TempUnitF:
     return tempC * 9 / 5 + 32
 
 stdioInitAll()
@@ -28,7 +34,7 @@ AdcTemp.selectInput()
 
 while true:
   let temperature = readOnboardTemperature(tempUnit)
-  echo &"Onboard temperature = {temperature:.2f} {tempUnit}"
+  echo &"Onboard temperature = {temperature:.2f} {unitStr(tempUnit)}"
   DefaultLedPin.put(High)
   sleepMs(10)
   DefaultLedPin.put(Low)

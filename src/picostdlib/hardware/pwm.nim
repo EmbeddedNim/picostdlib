@@ -1,4 +1,6 @@
+import ./platform_defs
 import ./gpio
+
 export gpio
 
 type
@@ -7,7 +9,10 @@ type
     ## Alias for channel parameter in the setChanLevel() procedure
     ChanA, ChanB
 
-  PwmSliceNum* = distinct cuint
+  PwmSliceNum* = distinct range[0.cuint .. NUM_PWM_SLICES.cuint]
+
+proc `==`*(a, b: PwmSliceNum): bool {.borrow.}
+proc `$`*(a: PwmSliceNum): string {.borrow.}
 
 {.push header: "hardware/pwm.h".}
 
