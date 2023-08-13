@@ -1,4 +1,3 @@
-import std/math
 import std/strformat
 
 import picostdlib

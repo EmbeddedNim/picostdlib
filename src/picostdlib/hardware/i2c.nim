@@ -222,15 +222,15 @@ template i2cSetupNim*(blokk: ptr I2cInst, pSda, pScl: Gpio, freq: uint, pull = t
   #freq = is the working frequency of the i2c device (see device manual; ex: 100000)
   #pull = use or not to use pullup (default = true)
   var i2cx = blokk
-  i2cx.i2cInit(freq)
-  pSda.gpioSetFunction(GpioFunction.I2C)
-  pScl.gpioSetFunction(GpioFunction.I2C)
+  discard i2cx.init(freq)
+  pSda.setFunction(GpioFunction.I2C)
+  pScl.setFunction(GpioFunction.I2C)
   if pull:
-    pSda.gpioPullUp()
-    pScl.gpioPullUp()
+    pSda.pullUp()
+    pScl.pullUp()
   else:
-    pSda.gpioPullDown()
-    pScl.gpioPullDown()
+    pSda.pullDown()
+    pScl.pullDown()
 
 proc i2cWriteBlockingNim*(
     i2c: ptr I2cInst,
@@ -269,3 +269,6 @@ proc i2cReadBlockingNim*[N: Natural](
   ## `noStop` is `true`, master retains control of the bus at the end of the
   ## transfer.
   result = i2c.readBlocking(address, dest[0].addr, N.uint, noStop)
+
+when defined(runtests):
+  i2cSetupNim(DefaultI2c.i2cGetInstance(), DefaultI2cSdaPin, DefaultI2cSclPin, 1000)
