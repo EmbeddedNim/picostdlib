@@ -3,6 +3,7 @@ import ./pico
 
 when defined(picoCyw43Supported):
   import picostdlib/pico/cyw43_arch
+  export cyw43_arch
 
 let VsysAdcInput = VsysPin.toAdcInput()
 
