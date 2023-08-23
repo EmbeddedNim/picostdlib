@@ -8,7 +8,7 @@ proc reservedAddr(address: I2cAddress): bool =
   return (address.ord and 0x78) == 0 or (address.ord and 0x78) == 0x78
 
 
-stdioInitAll()
+discard stdioInitAll()
 
 # This example will use I2C0 on the default SDA and SCL pins (GP4, GP5 on a Pico)
 discard i2cDefault.init(100_000)
