@@ -91,8 +91,7 @@ proc ntpClientExample*() =
 
 
 when isMainModule:
-  discard stdioUsbInit()
-  blockUntilUsbConnected()
+  discard stdioInitAll()
 
   ntpClientExample()
 

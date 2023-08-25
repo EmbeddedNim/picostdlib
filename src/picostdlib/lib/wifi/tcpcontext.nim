@@ -500,29 +500,29 @@ proc poll(self: var TcpContext; pcb: ptr AltcpPcb): ErrEnumT =
 
 proc sRecv(arg: pointer; tpcb: ptr AltcpPcb; pb: ptr Pbuf; err: ErrT): ErrT {.cdecl.} =
   if not arg.isNil:
-    return cast[var TcpContext](arg).recv(tpcb, pb, err.ErrEnumT).ErrT
+    return cast[ptr TcpContext](arg)[].recv(tpcb, pb, err.ErrEnumT).ErrT
   else:
     return ErrOk.ErrT
 
 proc sError(arg: pointer; err: ErrT) {.cdecl.} =
   if not arg.isNil:
-    cast[var TcpContext](arg).error(err)
+    cast[ptr TcpContext](arg)[].error(err)
 
 proc sPoll(arg: pointer; tpcb: ptr AltcpPcb): ErrT {.cdecl.} =
   if not arg.isNil:
-    return cast[var TcpContext](arg).poll(tpcb).ErrT
+    return cast[ptr TcpContext](arg)[].poll(tpcb).ErrT
   else:
     return ErrOk.ErrT
 
 proc sAcked(arg: pointer; tpcb: ptr AltcpPcb; len: uint16): ErrT {.cdecl.} =
   if not arg.isNil:
-    return cast[var TcpContext](arg).acked(tpcb, len).ErrT
+    return cast[ptr TcpContext](arg)[].acked(tpcb, len).ErrT
   else:
     return ErrOk.ErrT
 
 proc sConnected(arg: pointer; pcb: ptr AltcpPcb; err: ErrT): ErrT {.cdecl.} =
   if not arg.isNil:
-    return cast[var TcpContext](arg).connected(pcb, err.ErrEnumT).ErrT
+    return cast[ptr TcpContext](arg)[].connected(pcb, err.ErrEnumT).ErrT
   else:
     return ErrOk.ErrT
 

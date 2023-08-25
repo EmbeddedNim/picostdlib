@@ -1,6 +1,7 @@
 import picostdlib
 
-proc callback(pin: Gpio, events: set[GpioIrqLevel]) {.cdecl.} =
+proc callback(pin: Gpio, eventMask: culong) {.cdecl.} =
+  let events = cast[set[GpioIrqLevel]](eventMask)
   echo $pin & ": " & $events
 
 stdioInitAll()

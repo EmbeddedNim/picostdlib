@@ -56,6 +56,7 @@ task examples, "Builds the examples":
     "adc/onboard_temperature",
     "clocks/hello_48mhz",
     "clocks/hello_gpout",
+    "clocks/hello_resus",
     "dma/hello_dma",
     "flash/hello_littlefs",
     "gpio/hello_7segment",
@@ -70,14 +71,13 @@ task examples, "Builds the examples":
     "reset/hello_reset",
     "rtc/hello_rtc",
     "rtc/rtc_alarm",
+    "hello_stdio",
     "system/unique_board_id",
     "timer/hello_timer",
     # "tinyusb/tinyusb",
     "uart/hello_uart",
     "watchdog/hello_watchdog",
     # "ws2812_pio/ws2812_pio",
-    "hello_stdio",
-    "clocks/hello_resus",
   ]
   const examples_pico = [
     "pio/hello_pio",

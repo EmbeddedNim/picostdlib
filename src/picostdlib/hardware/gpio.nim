@@ -59,7 +59,7 @@ type
     EdgeFall
     EdgeRise
 
-  GpioIrqCallback* {.importc: "gpio_irq_callback_t".} = proc (gpio: Gpio; eventMask: set[GpioIrqLevel]) {.cdecl.}
+  GpioIrqCallback* {.importc: "gpio_irq_callback_t".} = proc (gpio: Gpio; eventMask: culong) {.cdecl.}
 
   GpioOverride* {.pure, importc: "gpio_override".} = enum
     OverrideNormal  # peripheral signal selected via \ref gpio_set_function

@@ -45,8 +45,7 @@ proc wifiScanExample*() =
   cyw43ArchDeinit()
 
 when isMainModule:
-  discard stdioUsbInit()
-  blockUntilUsbConnected()
+  discard stdioInitAll()
 
   wifiScanExample()
 

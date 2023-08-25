@@ -128,8 +128,7 @@ proc tcpClientExample*() =
 
 
 when isMainModule:
-  discard stdioUsbInit()
-  blockUntilUsbConnected()
+  discard stdioInitAll()
 
   tcpClientExample()
 

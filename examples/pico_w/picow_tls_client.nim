@@ -197,8 +197,7 @@ proc tlsClientExample*() =
 
 
 when isMainModule:
-  discard stdioUsbInit()
-  blockUntilUsbConnected()
+  discard stdioInitAll()
 
   tlsClientExample()
 
