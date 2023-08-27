@@ -71,6 +71,7 @@ task examples, "Builds the examples":
     "reset/hello_reset",
     "rtc/hello_rtc",
     "rtc/rtc_alarm",
+    "sleep/hello_sleep",
     "hello_stdio",
     "system/unique_board_id",
     "timer/hello_timer",

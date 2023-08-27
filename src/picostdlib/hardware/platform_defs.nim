@@ -23,6 +23,7 @@ const
 
 let
   XOSC_KHZ* {.importc: "XOSC_KHZ".}: uint
+  XOSC_MHZ* {.importc: "XOSC_MHZ".}: uint
   SYS_CLK_KHZ* {.importc: "SYS_CLK_KHZ".}: uint
   USB_CLK_KHZ* {.importc: "USB_CLK_KHZ".}: uint
 

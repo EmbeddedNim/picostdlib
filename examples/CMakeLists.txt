@@ -122,6 +122,7 @@ add_example(hello_reset)
 add_example(hello_rtc)
 add_example(rtc_alarm)
 add_example(unique_board_id)
+add_example(hello_sleep)
 add_example(hello_timer)
 # "tinyusb"
 add_example(hello_uart)

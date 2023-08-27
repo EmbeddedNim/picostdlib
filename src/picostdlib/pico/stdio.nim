@@ -16,6 +16,7 @@ let
   StdioDefaultCrlf* {.importc: "PICO_STDIO_DEFAULT_CRLF".}: bool
   StdioStackBufferSize* {.importc: "PICO_STDIO_STACK_BUFFER_SIZE".}: cuint
   StdioDeadlockTimeoutMs* {.importc: "PICO_STDIO_DEADLOCK_TIMEOUT_MS".}: cuint
+  LIB_PICO_STDIO_USB* {.importc: "LIB_PICO_STDIO_USB".}: bool
 
 
 proc stdioInitAll*(): bool {.discardable, importc: "stdio_init_all".}

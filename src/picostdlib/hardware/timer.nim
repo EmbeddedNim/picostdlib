@@ -1,7 +1,16 @@
-import ../pico/types
-export types
+import ./platform_defs, ./base, ../pico/types
+export base, types
 
 {.push header: "hardware/timer.h".}
+
+type
+  TimerHw* {.importc: "timer_hw_t".} = object
+    # incomplete
+    alarm*: array[NUM_TIMERS, IoRw32]
+    timerawh*: IoRo32
+    timerawl*: IoRo32
+
+let timerHw* {.importc: "timer_hw".}: ptr TimerHw
 
 type
   HardwareAlarmNum* = distinct cuint
@@ -131,11 +140,11 @@ proc forceIrq*(alarmNum: HardwareAlarmNum) {.importc: "hardware_alarm_force_irq"
 
 # For FreeRTOS/Posix support
 
-when defined(freertos):
-  import std/posix
+# when defined(freertos):
+#   import std/posix
 
-  proc clock_gettime(clkId: ClockId; tp: var Timespec): cint {.exportc: "clock_gettime".} =
-    let m = timeUs64()
-    tp.tv_sec = Time(m div 1000000)
-    tp.tv_nsec = clong((m mod 1000000) * 1000)
-    return 0
+#   proc clock_gettime(clkId: ClockId; tp: var Timespec): cint {.exportc: "clock_gettime".} =
+#     let m = timeUs64()
+#     tp.tv_sec = Time(m div 1000000)
+#     tp.tv_nsec = clong((m mod 1000000) * 1000)
+#     return 0

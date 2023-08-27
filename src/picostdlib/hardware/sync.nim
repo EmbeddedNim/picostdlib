@@ -20,6 +20,10 @@ type
 proc `==`*(a, b: LockNum): bool {.borrow.}
 proc `$`*(a: LockNum): string {.borrow.}
 
+proc sev*() {.importc: "__sev".}
+proc wev*() {.importc: "__wev".}
+proc wfi*() {.importc: "__wfi".}
+proc wfe*() {.importc: "__wfe".}
 
 proc saveAndDisableInterrupts*(): uint32 {.importc: "save_and_disable_interrupts".}
   ## Save and disable interrupts

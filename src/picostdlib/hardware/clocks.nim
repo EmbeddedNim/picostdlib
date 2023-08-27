@@ -1,7 +1,8 @@
-import ./gpio
+import ./base, ./gpio
+export base, gpio
 
 type
-  ClocksFc0Src* {.pure.} = enum
+  ClocksFc0Src* {.pure, size: sizeof(uint32).} = enum
     ## Clock sent to frequency counter, set to 0 when not required.
     ## Writing to this register initiates the frequency count
     Null
@@ -19,7 +20,7 @@ type
     ClkAdc
     ClkRtc
 
-  ClocksClkGpoutCtrlAuxSrc* {.pure.} = enum
+  ClocksClkGpoutCtrlAuxSrc* {.pure, size: sizeof(uint32).} = enum
     ## Selects the auxiliary clock source, will glitch when switching
     ClksrcPllSys
     ClksrcGpin0
@@ -33,7 +34,7 @@ type
     ClkRtc
     ClkRef
 
-  ClocksClkSysCtrlAuxSrc* {.pure.} = enum
+  ClocksClkSysCtrlAuxSrc* {.pure, size: sizeof(uint32).} = enum
     ## Selects the auxiliary clock source, will glitch when switching
     ClksrcPllSys
     ClksrcPllUsb
@@ -41,6 +42,37 @@ type
     XoscClksrc
     ClksrcGpin0
     ClksrcGpin1
+
+  ClocksClkRefCtrlSrc* {.pure, size: sizeof(uint32).} = enum
+    ## Selects the clock source glitchlessly, can be changed on-the-fly
+    RoscClksrcPh
+    ClksrcClkRefAux
+    XoscClksrc
+
+  ClocksClkSysCtrlSrc* {.pure, size: sizeof(uint32).} = enum
+    ## Selects the clock source glitchlessly, can be changed on-the-fly
+    ClkRef
+    ClksrcClkSysAux
+
+  ClocksClkRtcCtrlAuxsrc* {.pure, size: sizeof(uint32).} = enum
+    ## Selects the auxiliary clock source, will glitch when switching
+    ClksrcPllUsb
+    ClksrcPllSys
+    RoscClksrcPh
+    XoscClksrc
+    ClksrcGpin0
+    ClksrcGpin1
+
+  ClocksClkPeriCtrlAuxsrc* {.pure, size: sizeof(uint32).} = enum
+    ## Selects the auxiliary clock source, will glitch when switching
+    ClkSys
+    ClksrcPllSys
+    ClksrcPllUsb
+    RoscClksrcPh
+    XoscClksrc
+    ClksrcGpin0
+    ClksrcGpin1
+
 
 {.push header: "hardware/clocks.h".}
 
@@ -68,6 +100,14 @@ const
   CtrlSrcValueClkRef* = 0'u32
   CtrlSrcValueClksrcClkSysAux* = 1'u32
 
+let
+  ClocksSleepEn0ClkRtcRtcBits* {.importc: "CLOCKS_SLEEP_EN0_CLK_RTC_RTC_BITS".}: uint32
+  ClocksSleepEn0ClkSysPllUsbBits* {.importc: "CLOCKS_SLEEP_EN0_CLK_SYS_PLL_USB_BITS".}: uint32
+  ClocksSleepEn1ClkUsbUsbctrlBits* {.importc: "CLOCKS_SLEEP_EN1_CLK_USB_USBCTRL_BITS".}: uint32
+  ClocksSleepEn1ClkSysUsbctrlBits* {.importc: "CLOCKS_SLEEP_EN1_CLK_SYS_USBCTRL_BITS".}: uint32
+  ClocksSleepEn1ClkSysTimerBits* {.importc: "CLOCKS_SLEEP_EN1_CLK_SYS_TIMER_BITS".}: uint32
+
+
 type
   ClockIndex* {.pure, importc: "enum clock_index".} = enum
     ## Enumeration identifying a hardware clock
@@ -83,18 +123,25 @@ type
     ClockRtc     ## Real Time Clock
     ClockCount
 
+  ClocksHw* {.importc: "clocks_hw_t".} = object
+    sleep_en0*: IoRw32
+    sleep_en1*: IoRw32
+
+
   ResusCallback* {.importc: "resus_callback_t".} = proc () {.cdecl.}
 
+let clocksHw* {.importc: "clocks_hw".}: ptr ClocksHw
+
 const
-  KHz* = 1000
-  MHz* = 1000000
+  KHz* = 1_000
+  MHz* = 1_000_000
 
 proc clocksInit*() {.importc: "clocks_init".}
   ## Initialise the clock hardware
   ##
   ## Must be called before any other clock function.
 
-proc configure*(clkInd: ClockIndex, src, auxSrc, srcFreq, freq: uint32): bool {.importc: "clock_configure".}
+proc configure*(clkInd: ClockIndex; src, auxSrc, srcFreq, freq: uint32): bool {.importc: "clock_configure".}
   ## Configure the specified clock. 
   ##
   ## See the tables in the description for details on the possible values for clock sources.

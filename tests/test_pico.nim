@@ -5,8 +5,6 @@ import picostdlib
 
 import picostdlib/hardware/regs/intctrl
 
-import picostdlib/hardware/structs/rosc
-
 import picostdlib/hardware/adc
 import picostdlib/hardware/base
 import picostdlib/hardware/claim
@@ -27,6 +25,7 @@ import picostdlib/hardware/pio
 import picostdlib/hardware/pll
 import picostdlib/hardware/pwm
 import picostdlib/hardware/resets
+import picostdlib/hardware/rosc
 import picostdlib/hardware/rtc
 import picostdlib/hardware/spi
 import picostdlib/hardware/sync as hardware_sync
@@ -60,6 +59,7 @@ import picostdlib/pico/mutex
 import picostdlib/pico/platform
 import picostdlib/pico/rand
 import picostdlib/pico/sem
+import picostdlib/pico/sleep
 import picostdlib/pico/stdio
 import picostdlib/pico/sync
 import picostdlib/pico/time
@@ -100,6 +100,7 @@ import "../examples/timer/hello_timer"
 import "../examples/uart/hello_uart"
 import "../examples/watchdog/hello_watchdog"
 import "../examples/hello_serial"
+import "../examples/sleep/hello_sleep"
 import "../examples/hello_stdio"
 import "../examples/hello_timestart"
 
