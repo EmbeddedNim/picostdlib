@@ -5,7 +5,7 @@ stdioInitAll()
 echo "Hello RTC!"
 
 # Start on Friday 5th of June 2020 15:45:00
-var t = Datetime(
+var t = DatetimeT(
   year: 2020,
   month: 06,
   day: 05,

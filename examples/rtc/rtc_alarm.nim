@@ -18,7 +18,7 @@ proc main() =
   echo "RTC Alarm!"
 
   # Start on Wednesday 13th January 2021 11:20:00
-  var t = Datetime(
+  var t = DatetimeT(
     year: 2020,
     month: 01,
     day: 13,
@@ -33,7 +33,7 @@ proc main() =
   if not rtcSetDatetime(t.addr):
     echo "Setting RTC failed."
   else:
-    var alarm = Datetime(
+    var alarm = DatetimeT(
       year: 2020,
       month: 01,
       day: 13,

@@ -9,7 +9,7 @@ type
 proc rtcInit*() {.importc: "rtc_init".}
   ## Initialise the RTC system
 
-proc rtcSetDatetime*(t: ptr Datetime): bool {.importc: "rtc_set_datetime".}
+proc rtcSetDatetime*(t: ptr DatetimeT): bool {.importc: "rtc_set_datetime".}
   ## Set the RTC to the specified time
   ##
   ## \note Note that after setting the RTC date and time, a subsequent read of the values (e.g. via rtc_get_datetime()) may not
@@ -19,7 +19,7 @@ proc rtcSetDatetime*(t: ptr Datetime): bool {.importc: "rtc_set_datetime".}
   ## \param t Pointer to a \ref datetime_t structure contains time to set
   ## \return true if set, false if the passed in datetime was invalid.
 
-proc rtcGetDatetime*(t: ptr Datetime): bool {.importc: "rtc_get_datetime".}
+proc rtcGetDatetime*(t: ptr DatetimeT): bool {.importc: "rtc_get_datetime".}
   ## Get the current time from the RTC
   ##
   ## \param t Pointer to a \ref datetime_t structure to receive the current RTC time
@@ -28,7 +28,7 @@ proc rtcGetDatetime*(t: ptr Datetime): bool {.importc: "rtc_get_datetime".}
 proc rtcRunning*(): bool {.importc: "rtc_running".}
   ## Is the RTC running?
 
-proc rtcSetAlarm*(t: ptr Datetime; userCallback: RtcCallback) {.importc: "rtc_set_alarm".}
+proc rtcSetAlarm*(t: ptr DatetimeT; userCallback: RtcCallback) {.importc: "rtc_set_alarm".}
   ## Set a time in the future for the RTC to call a user provided callback
   ##
   ## \param t Pointer to a \ref datetime_t structure containing a time in the future to fire the alarm. Any values set to -1 will not be matched on.

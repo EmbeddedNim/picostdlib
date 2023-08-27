@@ -3,7 +3,7 @@ export types
 
 {.push header: "pico/util/datetime.h".}
 
-proc datetimeToStr*(buf: ptr char; bufSize: cuint; t: ptr Datetime) {.importc: "datetime_to_str".}
+proc datetimeToStr*(buf: ptr char; bufSize: cuint; t: ptr DatetimeT) {.importc: "datetime_to_str".}
   ## Convert a datetime_t structure to a string
   ##
   ## \param buf character buffer to accept generated string
@@ -14,7 +14,7 @@ proc datetimeToStr*(buf: ptr char; bufSize: cuint; t: ptr Datetime) {.importc: "
 
 # Nim helpers
 
-proc datetimeToStr*(t: var Datetime): string =
+proc datetimeToStr*(t: var DatetimeT): string =
   var buffer: array[256, char]
   datetimeToStr(buffer[0].addr, buffer.len.cuint, t.addr)
   return $cast[cstring](buffer[0].addr)

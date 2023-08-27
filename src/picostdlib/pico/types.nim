@@ -10,7 +10,7 @@ else:
       time*{.importc: "_private_us_since_boot".}: uint64
 
 type
-  Datetime* {.importc: "datetime_t".} = object
+  DatetimeT* {.importc: "datetime_t".} = object
     # Structure containing date and time information
     # When setting an RTC alarm, set a field to -1 tells
     # the RTC to not match on this field
@@ -52,12 +52,13 @@ proc fromUsSinceBoot*(usSinceBoot: uint64): AbsoluteTime {.importc: "from_us_sin
 ## Nim helpers
 
 import std/times
+export times
 
-func createDatetime*(): Datetime =
+func createDatetime*(): DatetimeT =
   # nonzero range requires initialization
-  Datetime(month: 1, day: 1)
+  DatetimeT(month: 1, day: 1)
 
-proc toNimDateTime*(dt: Datetime; zone: Timezone = utc()): times.DateTime =
+proc toNimDateTime*(dt: DatetimeT; zone: Timezone = utc()): DateTime =
   return dateTime(
     year = int dt.year,
     month = Month dt.month,
@@ -68,7 +69,7 @@ proc toNimDateTime*(dt: Datetime; zone: Timezone = utc()): times.DateTime =
     zone = zone
   )
 
-proc fromNimDateTime*(dt: times.DateTime): Datetime =
+proc fromNimDateTime*(dt: DateTime): DatetimeT =
   let ndt = dt.utc()
   result = createDatetime()
   result.year = ndt.year.int16
