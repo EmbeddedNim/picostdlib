@@ -158,8 +158,7 @@ proc doBuild(mainProgram: string; projectIn = ""; targetIn = ""; compileOnly: bo
   let projectInfo = getProjectInfo()
   let project = if projectIn != "": projectIn else: projectInfo["name"].str
   buildDir = "build" / project
-
-  let program = mainProgram.split(DirSep)[^1]
+  let program = mainProgram.lastPathPart()
   let target = if targetIn != "": targetIn else: program
   let backend = if projectInfo["backend"].str != "": projectInfo["backend"].str else: "c"
 

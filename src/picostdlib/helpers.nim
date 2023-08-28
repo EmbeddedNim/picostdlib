@@ -15,7 +15,7 @@ const picoSdkPath* {.strdefine.} = when declared(PICO_SDK_PATH): PICO_SDK_PATH e
 const piconimCsourceDir* {.strdefine.} = getProjectPath().replace('\\', DirSep).parentDir() / "csource"
 const picostdlibFutharkSysroot* {.strdefine.} = ""
 const nimcacheDir* = querySetting(SingleValueSetting.nimcacheDir)
-const futharkGenDir* = currentSourcePath.parentDir / "futharkgen"
+const futharkGenDir* = currentSourcePath.replace('\\', DirSep).parentDir / "futharkgen"
 
 const armSysrootInclude* = static:
   when picostdlibFutharkSysroot != "":
