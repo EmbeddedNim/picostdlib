@@ -7,8 +7,8 @@ const releaseFollowsCmake = true
 when not defined(piconimCsourceDir):
   switch("define", "piconimCsourceDir:" & getCurrentDir() / "csource")
 
-when not defined(cyw43ArchBackend):
-  switch("define", "cyw43ArchBackend:threadsafe_background")
+# when not defined(cyw43ArchBackend):
+#   switch("define", "cyw43ArchBackend:threadsafe_background")
 
 when not defined(freertosKernelHeap):
   # https://www.freertos.org/a00111.html
