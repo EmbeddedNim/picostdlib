@@ -34,14 +34,13 @@ project(futharkgen C CXX ASM)
 # initialize the Raspberry Pi Pico SDK
 pico_sdk_init()
 
-# # fetch and initialize FreeRTOS-Kernel
-# include(FetchContent)
-# FetchContent_Declare( freertos_kernel
-#   GIT_REPOSITORY https://github.com/FreeRTOS/FreeRTOS-Kernel.git
-#   GIT_TAG        V10.5.1
-# )
-# FetchContent_Populate(freertos_kernel)
-# set(FREERTOS_KERNEL_PATH ${freertos_kernel_SOURCE_DIR})
-# include(${FREERTOS_KERNEL_PATH}/portable/ThirdParty/GCC/RP2040/FreeRTOS_Kernel_import.cmake)
+# fetch and initialize FreeRTOS-Kernel
+include(FetchContent)
+FetchContent_Declare( freertos_kernel
+  GIT_REPOSITORY https://github.com/FreeRTOS/FreeRTOS-Kernel.git
+  GIT_TAG        V10.6.1
+)
+FetchContent_Populate(freertos_kernel)
+include(${freertos_kernel_SOURCE_DIR}/portable/ThirdParty/GCC/RP2040/FreeRTOS_Kernel_import.cmake)
 
 include(${PICOSTDLIB_DIR}/picostdlib/cmake/picostdlib.cmake)

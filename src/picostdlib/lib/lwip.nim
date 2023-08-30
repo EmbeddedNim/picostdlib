@@ -63,12 +63,14 @@ else:
     path picoSdkPath / "src/rp2_common/pico_lwip/include"
     path picoSdkPath / "lib/lwip/src/include"
     path piconimCsourceDir
+    path nimcacheDir
     path getProjectPath()
 
     define "MBEDTLS_USER_CONFIG_FILE \"mbedtls_config.h\""
 
     renameCallback futharkRenameCallback
 
+    "cyw43_arch_config.h" # defines what type (background, poll, freertos, none)
     "lwip/acd.h"
     "lwip/altcp.h"
     "lwip/altcp_tcp.h"
@@ -176,3 +178,6 @@ proc getTcpState*(conn: ptr AltcpPcb): TcpState =
 
 template ipGetOption*(pcb: untyped; opt: cuint): bool =
   (pcb.so_options and opt) != 0
+
+when LWIP_NETCONN == 1:
+  template netconnNew*(t: NetconnType): ptr Netconn = netconnNewWithProtoAndCallback(t, 0, nil)

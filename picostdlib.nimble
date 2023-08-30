@@ -79,6 +79,7 @@ task examples, "Builds the examples":
     "uart/hello_uart",
     "watchdog/hello_watchdog",
     # "ws2812_pio/ws2812_pio",
+    "freertos_blink",
   ]
   const examples_pico = [
     "pio/hello_pio",

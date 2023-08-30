@@ -11,11 +11,17 @@ when fileExists(cmakecachePath):
   staticInclude(cmakecachePath)
 
 const picoSdkPath* {.strdefine.} = when declared(PICO_SDK_PATH): PICO_SDK_PATH else: os.getEnv("PICO_SDK_PATH").replace('\\', DirSep)
+const freertosKernelPath* {.strdefine.} = when declared(FREERTOS_KERNEL_PATH): FREERTOS_KERNEL_PATH else: ""
 
 const piconimCsourceDir* {.strdefine.} = getProjectPath().replace('\\', DirSep).parentDir() / "csource"
 const picostdlibFutharkSysroot* {.strdefine.} = ""
 const nimcacheDir* = querySetting(SingleValueSetting.nimcacheDir)
 const futharkGenDir* = currentSourcePath.replace('\\', DirSep).parentDir / "futharkgen"
+when defined(nimcheck):
+  const cyw43ArchBackend* = "threadsafe_background"
+else:
+  const cyw43ArchBackend* {.strdefine.} = "none" # threadsafe_background, freertos, poll, none
+const freertosKernelHeap* {.strdefine.} = ""
 
 const armSysrootInclude* = static:
   when picostdlibFutharkSysroot != "":

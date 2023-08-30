@@ -29,8 +29,8 @@
 ##  options please email contact@georgerobotics.com.au.
 ##
 
-import ./lwip
-export lwip
+import std/os
+import ../helpers
 
 import ./cyw43_driver/cyw43_country
 export cyw43_country
@@ -45,12 +45,34 @@ const
   Cyw43Pm1PowersaveMode* = (1).Cyw43PowersaveMode ##  Powersave mode on specified interface without regard for throughput reduction
   Cyw43Pm2PowersaveMode* = (2).Cyw43PowersaveMode ##  Powersave mode on specified interface with High throughput
 
+const (cyw43ArchDefine, cyw43ArchLib, importLwip) = when cyw43ArchBackend == "threadsafe_background":
+  ("PICO_CYW43_ARCH_THREADSAFE_BACKGROUND", "pico_cyw43_arch_lwip_threadsafe_background", true)
+elif cyw43ArchBackend == "poll":
+  ("PICO_CYW43_ARCH_POLL", "pico_cyw43_arch_lwip_poll", true)
+elif cyw43ArchBackend == "freertos":
+  ("PICO_CYW43_ARCH_FREERTOS", "pico_cyw43_arch_lwip_sys_freertos", true)
+elif cyw43ArchBackend == "none":
+  ("PICO_CYW43_ARCH_NONE", "pico_cyw43_arch_none", false)
+else:
+  {.error: "cyw43ArchBackend was set to an invalid value: " & cyw43ArchBackend.}
+  ("PICO_CYW43_ARCH_NONE", "pico_cyw43_arch_none", false)
+
+static:
+  createDir(nimcacheDir)
+  writeFile(nimcacheDir / "cyw43_arch_config.h", "#define " & cyw43ArchDefine & " (1)")
+
+when cyw43ArchBackend == "freertos":
+  import ./freertos
+  export freertos
+
+when importLwip:
+  import ./lwip
+  export lwip
+
 when defined(nimcheck):
   include ../futharkgen/futhark_cyw43_driver
 else:
-  import std/os, std/macros
-  import ../helpers
-
+  import std/macros
   import futhark
 
   const outputPath = when defined(futharkgen): futharkGenDir / "futhark_cyw43_driver.nim" else: ""
@@ -83,18 +105,17 @@ else:
     sysPath picoSdkPath / "lib/lwip/src/include"
     path picoSdkPath / "lib/cyw43-driver/src"
     path piconimCsourceDir
+    path nimcacheDir
     path getProjectPath()
-
-    # TODO: Make this configurable
-    define PICO_CYW43_ARCH_THREADSAFE_BACKGROUND
 
     define "MBEDTLS_USER_CONFIG_FILE \"mbedtls_config.h\""
 
     renameCallback futharkRenameCallback
 
+    "cyw43_arch_config.h" # defines what type (background, poll, freertos, none)
     "cyw43.h"
 
-{.emit: "// picostdlib import: pico_cyw43_arch_lwip_threadsafe_background".}
+{.emit: ["// picostdlib import: ", cyw43ArchLib].}
 
 type
   Cyw43TraceFlag* {.pure.} = enum

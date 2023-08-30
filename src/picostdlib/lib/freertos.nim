@@ -25,34 +25,48 @@
 ## https://github.com/FreeRTOS
 ##
 
-import std/os, std/macros
-import ../private
-
-import futhark
-
 import ../hardware/timer # for clock_gettime
+export timer
 
-importc:
-  compilerArg "--target=arm-none-eabi"
-  compilerArg "-mthumb"
-  compilerArg "-mcpu=cortex-m0plus"
-  compilerArg "-fsigned-char"
+import ../helpers
 
-  sysPath armSysrootInclude
-  sysPath armInstallInclude
-  sysPath cmakeBinaryDir / "generated/pico_base"
-  sysPath picoSdkPath / "src/common/pico_base/include"
-  sysPath picoSdkPath / "src/rp2_common/pico_platform/include"
-  sysPath picoSdkPath / "src/rp2040/hardware_regs/include"
-  sysPath cmakeBinaryDir / "_deps/freertos_kernel-src/portable/ThirdParty/GCC/RP2040/include"
-  sysPath cmakeBinaryDir / "_deps/freertos_kernel-src/include"
-  path piconimCsourceDir
-  path getProjectPath()
+when defined(nimcheck):
+  include ../futharkgen/futhark_freertos
+else:
+  import std/os, std/macros
 
-  renameCallback futharkRenameCallback
+  import futhark
 
-  "FreeRTOS.h"
-  "task.h"
+  const outputPath = when defined(futharkgen): futharkGenDir / "futhark_freertos.nim" else: ""
+
+  importc:
+    outputPath outputPath
+
+    compilerArg "--target=arm-none-eabi"
+    compilerArg "-mthumb"
+    compilerArg "-mcpu=cortex-m0plus"
+    compilerArg "-fsigned-char"
+    compilerArg "-fshort-enums" # needed to get the right enum size
+
+    sysPath futhark.getClangIncludePath()
+    sysPath armSysrootInclude
+    sysPath armInstallInclude
+    sysPath cmakeBinaryDir / "generated/pico_base"
+    sysPath picoSdkPath / "src/common/pico_base/include"
+    sysPath picoSdkPath / "src/rp2_common/pico_platform/include"
+    sysPath picoSdkPath / "src/rp2040/hardware_regs/include"
+    sysPath freertosKernelPath / "portable/ThirdParty/GCC/RP2040/include"
+    sysPath freertosKernelPath / "include"
+    path piconimCsourceDir
+    path getProjectPath()
+
+    renameCallback futharkRenameCallback
+
+    "FreeRTOS.h"
+    "task.h"
+
+when freertosKernelHeap != "":
+  {.emit: ["// picostdlib import: ", freertosKernelHeap].}
 
 const
   tskIDLE_PRIORITY*: UBaseTypeT = 0

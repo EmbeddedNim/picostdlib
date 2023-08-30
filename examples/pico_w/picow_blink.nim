@@ -1,4 +1,5 @@
-import picostdlib, picostdlib/pico/cyw43_arch
+import picostdlib
+import picostdlib/pico/cyw43_arch
 
 if cyw43ArchInit() == PicoErrorNone:
   while true:

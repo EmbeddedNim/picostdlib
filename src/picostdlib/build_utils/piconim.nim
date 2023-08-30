@@ -154,7 +154,7 @@ proc doSetup(projectIn = ""; sourceDirIn = "."; boardIn = ""; sdk = "") =
   echo ">> " & cmakecmd
   doAssert execCmd(cmakecmd) == 0
 
-proc doBuild(mainProgram: string; projectIn = ""; targetIn = ""; compileOnly: bool = false; upload: bool = false) =
+proc doBuild(mainProgram: string; projectIn = ""; targetIn = ""; compileOnly: bool = false; upload: bool = false; sourceDirIn: string = "."; buildBoardIn: string = "") =
   let projectInfo = getProjectInfo()
   let project = if projectIn != "": projectIn else: projectInfo["name"].str
   buildDir = "build" / project
@@ -163,7 +163,7 @@ proc doBuild(mainProgram: string; projectIn = ""; targetIn = ""; compileOnly: bo
   let backend = if projectInfo["backend"].str != "": projectInfo["backend"].str else: "c"
 
   if not fileExists(buildDir / "CMakeCache.txt"):
-    doSetup(project)
+    doSetup(project, sourceDirIn, buildBoardIn)
 
   echo "Building " & program & " in " & buildDir
   let jsonFile = nimcache(target) / program & ".json"
@@ -237,6 +237,8 @@ when isMainModule:
       commandant.option(targetIn, string, "target", "t")
       flag(compileOnly, "compileOnly", "c")
       flag(upload, "upload", "u")
+      commandant.option(buildSourceDirIn, string, "source", "S", ".")
+      commandant.option(buildBoardIn, string, "board", "b")
 
 
   if init:
@@ -254,6 +256,6 @@ when isMainModule:
   elif setup:
     doSetup(projectInSetup, sourceDirIn, boardIn, setupSdk)
   elif build:
-    doBuild(mainProgram, projectInBuild, targetIn, compileOnly, upload)
+    doBuild(mainProgram, projectInBuild, targetIn, compileOnly, upload, buildSourceDirIn, buildBoardIn)
   else:
     echo helpMessage()

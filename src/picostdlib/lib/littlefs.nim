@@ -53,6 +53,7 @@ else:
     compilerArg "-fsigned-char"
     compilerArg "-fshort-enums" # needed to get the right enum size
 
+    sysPath futhark.getClangIncludePath()
     sysPath armSysrootInclude
     sysPath armInstallInclude
     path littlefsInclude

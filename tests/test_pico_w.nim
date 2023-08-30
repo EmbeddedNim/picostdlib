@@ -20,7 +20,6 @@ import picostdlib/lib/btstack_ble
 import picostdlib/lib/btstack_classic
 import picostdlib/lib/btstack_mesh
 import picostdlib/lib/btstack_le_audio
-# import picostdlib/lib/freertos
 
 # examples
 import "../examples/pico_w/picow_tls_client"

@@ -61,28 +61,34 @@ else:
     sysPath cmakeBinaryDir / "generated/pico_base"
     path picoSdkPath / "src/rp2_common/pico_lwip/include"
     path picoSdkPath / "lib/lwip/src/include"
+    path picoSdkPath / "lib/lwip/src/include/lwip/apps"
+    path picoSdkPath / "lib/lwip/contrib/apps"
     path piconimCsourceDir
+    path nimcacheDir
     path getProjectPath()
 
     define "MBEDTLS_USER_CONFIG_FILE \"mbedtls_config.h\""
 
     renameCallback futharkRenameCallback
 
-    "lwip/apps/altcp_proxyconnect.h"
-    "lwip/apps/http_client.h"
-    "lwip/apps/httpd.h"
-    "lwip/apps/lwiperf.h"
-    "lwip/apps/mdns.h"
-    "lwip/apps/mqtt.h"
-    "lwip/apps/netbiosns.h"
-    "lwip/apps/smtp.h"
-    "lwip/apps/snmp.h"
-    "lwip/apps/snmpv3.h"
-    "lwip/apps/sntp.h"
-    "lwip/apps/tftp_client.h"
-    "lwip/apps/tftp_server.h"
+    "cyw43_arch_config.h" # defines what type (background, poll, freertos, none)
+    "altcp_proxyconnect.h"
+    "http_client.h"
+    "httpd.h"
+    "lwiperf.h"
+    "mdns.h"
+    "mqtt.h"
+    "netbiosns.h"
+    "smtp.h"
+    "snmp.h"
+    "snmpv3.h"
+    "sntp.h"
+    "tftp_client.h"
+    "tftp_server.h"
+    "ping/ping.h"
 
 {.emit: "// picostdlib import: pico_lwip_sntp".}
+
 
 # Nim helpers
 

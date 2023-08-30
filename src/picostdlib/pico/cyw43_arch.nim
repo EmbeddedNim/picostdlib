@@ -285,3 +285,4 @@ proc pollDelay*(timeoutMs: uint; blocked: var bool; intvlMs: uint) =
 # helper functions to support code using DefaultLedPin
 proc init*(wlGpio: Cyw43WlGpio) = assert cyw43ArchInit() == PicoOk
 proc setDir*(wlGpio: Cyw43WlGpio; direction: Direction) = discard
+proc deinit*(wlGpio: Cyw43WlGpio) = cyw43ArchDeinit()

@@ -6,11 +6,16 @@
 // Common settings used in most of the pico_w examples
 // (see https://www.nongnu.org/lwip/2_1_x/group__lwip__opts.html for details)
 
-// allow override in some examples
+#ifdef PICO_CYW43_ARCH_FREERTOS
+#define NO_SYS 0
+#define LWIP_SOCKET 1
+#endif
+
+// allow override
 #ifndef NO_SYS
 #define NO_SYS                      1
 #endif
-// allow override in some examples
+// allow override
 #ifndef LWIP_SOCKET
 #define LWIP_SOCKET                 0
 #endif
@@ -112,7 +117,6 @@
 // #define HTTPC_DEBUG 1
 
 
-// #define LWIP_DEBUG 1
 // #define ALTCP_MBEDTLS_DEBUG  LWIP_DBG_ON
 
 // SNTP

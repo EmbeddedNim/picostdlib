@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.13)
 
 # Set CMake build type. Debug, Release, MinSizeRel, RelWithDebInfo
-set(CMAKE_BUILD_TYPE Release)
+set(CMAKE_BUILD_TYPE Debug)
 
 # Set standards
 set(CMAKE_C_STANDARD 11)
@@ -34,15 +34,14 @@ project(examples C CXX ASM)
 # initialize the Raspberry Pi Pico SDK
 pico_sdk_init()
 
-# # fetch and initialize FreeRTOS-Kernel
-# include(FetchContent)
-# FetchContent_Declare( freertos_kernel
-#   GIT_REPOSITORY https://github.com/FreeRTOS/FreeRTOS-Kernel.git
-#   GIT_TAG        V10.5.1
-# )
-# FetchContent_Populate(freertos_kernel)
-# set(FREERTOS_KERNEL_PATH ${freertos_kernel_SOURCE_DIR})
-# include(${FREERTOS_KERNEL_PATH}/portable/ThirdParty/GCC/RP2040/FreeRTOS_Kernel_import.cmake)
+# fetch and initialize FreeRTOS-Kernel
+include(FetchContent)
+FetchContent_Declare( freertos_kernel
+  GIT_REPOSITORY https://github.com/FreeRTOS/FreeRTOS-Kernel.git
+  GIT_TAG        V10.6.1
+)
+FetchContent_Populate(freertos_kernel)
+include(${freertos_kernel_SOURCE_DIR}/portable/ThirdParty/GCC/RP2040/FreeRTOS_Kernel_import.cmake)
 
 include(${PICOSTDLIB_DIR}/picostdlib/cmake/picostdlib.cmake)
 
@@ -58,15 +57,12 @@ function(add_example name)
   target_include_directories(${target} PRIVATE
     ${CMAKE_SOURCE_DIR}
     ${CMAKE_SOURCE_DIR}/../template/csource
+    # ${PICO_SDK_PATH}/lib/lwip/src/include/compat/posix
   )
 
-  # Additional libraries
   target_link_libraries(${target}
-    # For wifi and tls/https
-    # pico_cyw43_arch_lwip_threadsafe_background pico_lwip_mbedtls pico_mbedtls
+    # Additional libraries
   )
-  # havent gotten sockets to work with freertos yet...
-  # pico_cyw43_arch_lwip_sys_freertos FreeRTOS-Kernel-Heap3
 
   target_compile_definitions(${target} PRIVATE
     # CYW43_HOST_NAME="PicoW"
@@ -128,3 +124,4 @@ add_example(hello_timer)
 add_example(hello_uart)
 add_example(hello_watchdog)
 # "ws2812_pio"
+add_example(freertos_blink)

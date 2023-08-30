@@ -1,6 +1,3 @@
-import std/uri
-import std/json
-import std/strutils
 import picostdlib
 import picostdlib/[
   pico/cyw43_arch,
