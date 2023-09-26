@@ -1,4 +1,5 @@
 switch("define", "release")
+switch("threads", "off")
 switch("mm", "arc") # use "arc", "orc" or "none"
 switch("define", "checkAbi")
 switch("define", "useMalloc")
