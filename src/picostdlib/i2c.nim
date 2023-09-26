@@ -34,7 +34,7 @@ proc setBaudrate*(i2c: var I2cInst, baudRate: cuint): cuint {.importc: "i2c_set_
 proc setSlaveMode*(i2c: var I2cInst, slave: bool, address: uint8) {.importc: "i2c_set_slave_mode".}
 
 proc writeBlocking*(i2c: var I2cInst, address: uint8, data: pointer, len: csize_t,
-    noStop: bool){.importc: "i2c_write_blocking".}
+    noStop: bool): cint {.importc: "i2c_write_blocking", discardable.}
 
 proc readBlocking*(i2c: var I2cInst, address: uint8, dest: pointer, size: csize_t,
     noStop: bool): cint {.importC: "i2c_read_blocking".}
