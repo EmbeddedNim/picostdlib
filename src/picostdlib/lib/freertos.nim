@@ -69,5 +69,5 @@ when freertosKernelHeap != "":
   {.emit: ["// picostdlib import: ", freertosKernelHeap].}
 
 const
-  tskIDLE_PRIORITY*: UBaseTypeT = 0
+  tskIDLE_PRIORITY*: cuint = 0
   configMINIMAL_STACK_SIZE*: uint32 = 256

@@ -58,6 +58,7 @@ else:
   ("PICO_CYW43_ARCH_NONE", "pico_cyw43_arch_none", false)
 
 static:
+  # echo (cyw43ArchDefine, cyw43ArchLib, importLwip)
   createDir(nimcacheDir)
   writeFile(nimcacheDir / "cyw43_arch_config.h", "#define " & cyw43ArchDefine & " (1)")
 
