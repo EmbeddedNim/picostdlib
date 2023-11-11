@@ -96,7 +96,7 @@ proc div_s32s32_unsafe*(a: int32; b: int32): int32 {.importc: "div_s32s32_unsafe
   ##   these "unsafe" functions are slightly faster, but do not save the divider state,
   ##   so are not generally safe to be called from interrupts
   ##   -----------------------------------------------------------------------
-  ##  
+  ##
   ## Unsafe integer divide of two signed 32-bit values
   ##
   ## \param a Dividend

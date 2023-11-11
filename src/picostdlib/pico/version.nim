@@ -1,6 +1,6 @@
 {.push header: "pico/version.h".}
 
-let 
+let
   PicoSdkVersionMajor* {.importc: "PICO_SDK_VERSION_MAJOR".}: cuint
   PicoSdkVersionMinor* {.importc: "PICO_SDK_VERSION_MINOR"}: cuint
   PicoSdkVersionRevision* {.importc: "PICO_SDK_VERSION_REVISION"}: cuint

@@ -59,7 +59,7 @@ You can also provide the following options to the subcommand:
       ex.  `--sdk:/home/user/pico-sdk`.
     - (--board, -b) -> specify the board type (`pico` or `pico_w` are accepted),
       choosing pico_w includes a pico_w blink example
-    - (--overwrite, -O) -> a flag to specify overwriting an exisiting directory 
+    - (--overwrite, -O) -> a flag to specify overwriting an exisiting directory
       with the `<project-name>` already created. Be careful with this.
       ex. `piconim myProject --overwrite` will replace a folder named `myProject`
 

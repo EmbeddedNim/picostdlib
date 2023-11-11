@@ -73,7 +73,7 @@ type
   binary_info_core_t* {.importc: "binary_info_core_t".} = object
     `type`*: uint16
     tag*: uint16
-  
+
   binary_info_raw_data_t* {.importc: "binary_info_raw_data_t".} = object
     core*: binary_info_core_t
     bytes*: array[1, uint8]
@@ -82,16 +82,16 @@ type
     core*: binary_info_core_t
     length*: uint32
     bytes*: array[1, uint8]
-  
+
   binary_info_list_zero_terminated_t* {.importc: "binary_info_list_zero_terminated_t".} = object
     core*: binary_info_core_t
     list*: ptr BinaryInfo
-  
+
   binary_info_id_and_int_t* {.importc: "binary_info_id_and_int_t".} = object
     core*: binary_info_core_t
     id*: uint32
     value*: int32
-  
+
   binary_info_id_and_string_t* {.importc: "binary_info_id_and_string_t".} = object
     core*: binary_info_core_t
     id*: uint32
@@ -104,16 +104,16 @@ type
     size*: uint32
     extra*: ptr BinaryInfo
     flags*: uint16
-  
+
   binary_info_pins_with_func_t* {.importc: "binary_info_pins_with_func_t".} = object
     core*: binary_info_core_t
     pin_encoding*: uint32
-  
+
   binary_info_pins_with_name_t* {.importc: "binary_info_pins_with_name_t".} = object
     core*: binary_info_core_t
     pin_mask*: uint32
     label*: cstring
-  
+
   binary_info_named_group_t* {.importc: "binary_info_named_group_t".} = object
     core*: binary_info_core_t
     parent_id*: uint32
@@ -121,7 +121,7 @@ type
     group_tag*: uint16
     group_id*: uint32
     label*: cstring
-  
+
   BinaryInfoBlockDevFlag* {.pure.} = enum
     Read = 1 shl 0
     Write = 1 shl 1

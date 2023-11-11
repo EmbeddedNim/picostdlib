@@ -56,8 +56,8 @@ type
   PioInterruptNum* = range[0'u .. 7'u]
 
 let
-  pio0* {.importc: "pio0", nodecl.}: PioInstance 
-  pio1* {.importc: "pio1", nodecl.}: PioInstance 
+  pio0* {.importc: "pio0", nodecl.}: PioInstance
+  pio1* {.importc: "pio1", nodecl.}: PioInstance
 
 
 # PIO State Machine Config
@@ -860,7 +860,7 @@ template setClkDiv*(c: var PioSmConfig, divisor: static[1.0 .. 65536.0]) =
     divInt = divisor.uint16
     divFrac: uint8 = ((divisor - divInt.float32) * 256).toInt.uint8
   c.setClkdivIntFrac(divInt, divFrac)
-  
+
 # Main PIO API
 
 proc canAddProgram*(pio: PioInstance; program: ptr PioProgram; offset: cuint): bool =

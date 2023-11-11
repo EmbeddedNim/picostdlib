@@ -217,7 +217,7 @@ type
   ##
 
   NetifInputFn* = proc (p: ptr Pbuf; inp: ptr Netif): ErrT {.cdecl.}
-    
+
   ## * Function prototype for netif->output_ip6 functions. Called by lwIP when a packet
   ##  shall be sent. For ethernet netif, set this to 'ethip6_output' and set
   ##  'linkoutput'.
@@ -292,7 +292,7 @@ type
     when defined(lwip_Netif_Remove_Callback):
       ## * This function is called when the netif has been removed
       removeCallback* {.importc: "remove_callback".}: NetifStatusCallbackFn
-    
+
     state* {.importc: "state".}: pointer
       ## * This field can be set by the device driver and could point
       ##   to state information for the device.
@@ -304,7 +304,7 @@ type
       hostname* {.importc: "hostname".}: cstring
     when defined(lwip_Checksum_Ctrl_Per_Netif):
       chksumFlags* {.importc: "chksum_flags".}: uint16
-    
+
     mtu* {.importc: "mtu".}: uint16
       ## * maximum transfer unit (in bytes)
     when defined(lwipIpv6) and defined(lwip_Nd6Allow_Ra_Updates):

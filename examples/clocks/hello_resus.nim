@@ -17,7 +17,7 @@ proc resusCallback {.cdecl.} =
     125 * Mhz,
     125 * Mhz
   )
-  
+
   # Reconfigure uart as clocks have changed
   stdioInitAll()
   echo "Resus event fired"

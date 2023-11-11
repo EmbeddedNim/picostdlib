@@ -152,27 +152,27 @@ proc multicoreFifoGetStatus*(): uint32 {.importc: "multicore_fifo_get_status".}
 
 ## \defgroup multicore_lockout lockout
 ## Functions to enable one core to force the other core to pause execution in a known state.
-##   
+##
 ## Sometimes it is useful to enter a critical section on both cores at once. On a single
 ## core system a critical section can trivially be entered by disabling interrupts, however on a multi-core
 ## system that is not sufficient, and unless the other core is polling in some way, then it will need to be interrupted
 ## in order to cooperatively enter a blocked state.
-##   
+##
 ## These "lockout" functions use the inter core FIFOs to cause an interrupt on one core from the other, and manage
 ## waiting for the other core to enter the "locked out" state.
-##   
+##
 ## The usage is that the "victim" core ... i.e the core that can be "locked out" by the other core calls
 ## \ref multicore_lockout_victim_init to hook the FIFO interrupt. Note that either or both cores may do this.
-##   
+##
 ## \note When "locked out" the victim core is paused (it is actually executing a tight loop with code in RAM) and has interrupts disabled.
 ## This makes the lockout functions suitable for use by code that wants to write to flash (at which point no code may be executing
 ## from flash)
-##   
+##
 ## The core which wishes to lockout the other core calls \ref multicore_lockout_start_blocking or
 ## \ref multicore_lockout_start_timeout_us to interrupt the other "victim" core and wait for it to be in a
 ## "locked out" state. Once the lockout is no longer needed it calls \ref multicore_lockout_end_blocking or
 ## \ref multicore_lockout_end_timeout_us to release the lockout and wait for confirmation.
-##   
+##
 ## \note Because multicore lockout uses the intercore FIFOs, the FIFOs <b>cannot</b> be used for any other purpose
 
 proc multicoreLockoutVictimInit*() {.importc: "multicore_lockout_victim_init".}

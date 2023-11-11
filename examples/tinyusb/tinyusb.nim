@@ -126,7 +126,7 @@ proc setup() =
 
   DefaultLedPin.init()
   DefaultLedPin.setDir(Out)
-  
+
   # TinyUSB initialization
   discard usbInit()
   boardInit()

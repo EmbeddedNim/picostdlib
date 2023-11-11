@@ -26,9 +26,9 @@ let ws2812Pio = pio0
 proc ws2812_program_get_default_config(offset: uint): PioSmConfig {.importc.}
 
 let
-  ws2812_T1 {.importc.}: int 
-  ws2812_T2 {.importc.}: int 
-  ws2812_T3 {.importc.}: int 
+  ws2812_T1 {.importc.}: int
+  ws2812_T2 {.importc.}: int
+  ws2812_T3 {.importc.}: int
 
   ws2812_program* {.importc.}: PioProgram
 {.pop.}

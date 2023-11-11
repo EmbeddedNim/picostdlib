@@ -56,12 +56,12 @@ proc getCharacter*(c: char): (CharacterName, bool)=
 
 proc draw*(s: CharacterName, drawMissing = true) =
   for c in SevenSeg:
-    let val = 
+    let val =
       if drawMissing: c notin DisplayChars[s]
       else: c in DisplayChars[s]
     SevenSegPins[c].put(val.Value)
 
-proc drawAll*() = 
+proc drawAll*() =
   for c in SevenSeg:
     SevenSegPins[c].put(High)
   for c in SevenSeg:

@@ -142,37 +142,37 @@ proc clocksInit*() {.importc: "clocks_init".}
   ## Must be called before any other clock function.
 
 proc configure*(clkInd: ClockIndex; src, auxSrc, srcFreq, freq: uint32): bool {.importc: "clock_configure".}
-  ## Configure the specified clock. 
+  ## Configure the specified clock.
   ##
   ## See the tables in the description for details on the possible values for clock sources.
   ##
   ## **Parameters:**
   ##
-  ## =============  ====== 
+  ## =============  ======
   ## **clkInd**     The clock to configure
   ## **src**        The main clock source, can be 0.
   ## **auxSrc**     The auxiliary clock source, which depends on which clock is being set. Can be 0
   ## **srcFreq**    Frequency of the input clock source
   ## **freq**       Requested frequency
-  ## =============  ====== 
+  ## =============  ======
 
 proc stop*(clkInd: ClockIndex) {.importc: "clock_stop".}
   ## Stop the specified clock
   ##
   ## **Parameters:**
   ##
-  ## ===========  ====== 
+  ## ===========  ======
   ## **clkInd**    The clock to stop
-  ## ===========  ====== 
+  ## ===========  ======
 
 proc getHz*(clkInd: ClockIndex): uint32 {.importc: "clock_get_hz".}
   ## Get the current frequency of the specified clock
   ##
   ## **Parameters:**
   ##
-  ## ===========  ====== 
+  ## ===========  ======
   ## **clkInd**    Clock
-  ## ===========  ====== 
+  ## ===========  ======
   ##
   ## **Returns:** Clock frequency in Hz
 
@@ -187,10 +187,10 @@ proc setReportedHz*(clkInd: ClockIndex, hz: cuint) {.importc: "clock_set_reporte
   ##
   ## **Parameters:**
   ##
-  ## ===========  ====== 
+  ## ===========  ======
   ## **clkInd**    Clock
   ## **hz**        frequency in hz to set the new reporting value of the clock
-  ## ===========  ====== 
+  ## ===========  ======
 
 proc clocksEnableResus*(resusCallback: ResusCallback) {.importc: "clocks_enable_resus".}
   ## Enable the resus function. Restarts clk_sys if it is accidentally stopped.
@@ -200,7 +200,7 @@ proc clocksEnableResus*(resusCallback: ResusCallback) {.importc: "clocks_enable_
   ##
   ## **Parameters:**
   ##
-  ## ==================  ====== 
+  ## ==================  ======
   ## **resusCallback**    a function pointer provided by the user to call if a resus event happens.
   ## ==================  ======
 
@@ -217,22 +217,22 @@ proc initClock*(gpio: Gpio; src: ClocksClkGpoutCtrlAuxSrc; `div`: cfloat) {.impo
   ##
   ## **Parameters:**
   ##
-  ## =========  ====== 
+  ## =========  ======
   ## **gpio**    The GPIO pin to output the clock to. Valid GPIOs are: 21, 23, 24, 25. These GPIOs are connected to the GPOUT0-3 clock generators.
   ## **src**     The source clock. See the register field CLOCKS_CLK_GPOUT0_CTRL_AUXSRC for a full list. The list is the same for each GPOUT clock generator.
   ## **div**     The amount to divide the source clock by. This is useful to not overwhelm the GPIO pin with a fast clock.
-  ## =========  ====== 
+  ## =========  ======
 
 proc configureGpin*(clkInd: ClockIndex, gpio: Gpio, srcFreq, freq: uint32): bool {.importc: "clock_configure_gpin".}
   ## Configure a clock to come from a gpio input
   ##
   ## **Parameters:**
   ##
-  ## ============  ====== 
+  ## ============  ======
   ## **clkInd**     The clock to configure
   ## **gpio**       The GPIO pin to run the clock from. Valid GPIOs are: 20 and 22.
   ## **srcFreq**    Frequency of the input clock source
   ## **freq**       Requested frequency
-  ## ============  ====== 
+  ## ============  ======
 
 {.pop.}

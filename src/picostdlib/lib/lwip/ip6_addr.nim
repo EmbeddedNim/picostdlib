@@ -56,7 +56,7 @@ when defined(lwipIpv6):
   import
     ./ip6_zone
 
-  
+
   ## * Set an IPv6 partial address given by byte-parts
   template ip6Addr_Part*(ip6addr, index, a, b, c, d: untyped): untyped =
     (ip6addr).`addr`[index] = pp_Htonl(lwip_Makeu32(a, b, c, d))

@@ -736,7 +736,7 @@ when defined(lwipIpv4):
   ## Use @ref IP4_ADDR_ANY or @ref IP6_ADDR_ANY when the IP
   ##  type matters.
   ##
-    
+
   ## *
   ##  @ingroup ip4addr
   ## Can be used as a fixed/const ip_addr_t

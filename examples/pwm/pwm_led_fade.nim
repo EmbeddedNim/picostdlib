@@ -25,7 +25,7 @@ proc onPwmWrap() {.cdecl.} =
     if fade < 0:
       fade = 0
       goingUp = true
-  
+
   # Square the fade value to make the LED's brightness appear more linear
   # Note this range matches with the wrap value
   DefaultLedPin.setPwmLevel(uint16 fade * fade)

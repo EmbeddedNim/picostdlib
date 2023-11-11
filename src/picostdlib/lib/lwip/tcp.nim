@@ -48,10 +48,10 @@ when defined(lwipTcp):
 
   const
     LWIP_TCP_PCB_NUM_EXT_ARG_ID_INVALID* = 0xFF
-  
+
   const
     TCP_ALLFLAGS* = 0xffff
-  
+
   const
     TF_ACK_DELAY* = 0x01
     TF_ACK_NOW* = 0x02
@@ -83,13 +83,13 @@ when defined(lwipTcp):
     TcpAcceptFn* = proc (arg: pointer; newpcb: ptr TcpPcb; err: ErrT): ErrT {.cdecl.}
       ## Function prototype for tcp accept callback functions. Called when a new
       ##  connection can be accepted on a listening pcb.
-      ## 
+      ##
       ##  @param arg Additional argument to pass to the callback function (@see tcp_arg())
       ##  @param newpcb The new connection pcb
       ##  @param err An error code if there has been an error accepting.
       ##             Only return ERR_ABRT if you have called tcp_abort from within the
       ##             callback function!
-      ## 
+      ##
 
     TcpRecvFn* = proc (arg: pointer; tpcb: ptr TcpPcb; p: ptr Pbuf; err: ErrT): ErrT {.cdecl.}
       ## * Function prototype for tcp receive callback functions. Called when data has
@@ -171,7 +171,7 @@ when defined(lwipTcp):
       template tcpwnd16*(x: untyped): untyped = (x)
 
       template tcp_Wnd_Max*(pcb: untyped): untyped = tcp_Wnd
-    
+
 
     ## Increments a tcpwnd_size_t and holds at max value rather than rollover
     template tcp_Wnd_Inc*(wnd, inc: untyped): void =
@@ -251,7 +251,7 @@ when defined(lwipTcp):
       ##  @param cpcb the newly allocated connection pcb
       ##  @return ERR_OK if OK, any error if connection should be dropped
       ##
-  
+
     TcpExtArgCallbacks* {.importc: "struct tcp_ext_arg_callbacks", header: "lwip/tcp.h", bycopy.} = object
       ## * A table of callback functions that is invoked for ext arguments
       destroy* {.importc: "destroy".}: TcpExtargCallbackPcbDestroyedFn ## * @ref
@@ -259,7 +259,7 @@ when defined(lwipTcp):
       ## * @ref tcp_extarg_callback_passive_open_fn
       passiveOpen* {.importc: "passive_open".}: TcpExtargCallbackPassiveOpenFn
 
-  
+
       ##when defined(lwipTcpPcbNumExtArgs):
       ## This is the structure for ext args in tcp pcbs (used as array)
 

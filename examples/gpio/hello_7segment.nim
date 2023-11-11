@@ -9,7 +9,7 @@ proc setupPins =
   for x in SevenSeg:
     SevenSegPins[x] = i.Gpio
     inc i
-  let 
+  let
     gPin = SevenSegPins[f]
   SevenSegPins[f] = SevenSegPins[g]
   SevenSegPins[g] = gPin

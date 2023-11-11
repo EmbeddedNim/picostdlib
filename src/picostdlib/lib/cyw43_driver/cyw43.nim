@@ -120,7 +120,7 @@ type
 
     # mac from otp (or from cyw43_hal_generate_laa_mac if not set)
     mac* {.importc: "mac".}: array[6, uint8]
-  
+
   Cyw43WifiScanResultCb* = proc (env: pointer; res: ptr Cyw43EvScanResultT): cint {.cdecl.}
 
 var cyw43State* {.importc: "cyw43_state".}: Cyw43T

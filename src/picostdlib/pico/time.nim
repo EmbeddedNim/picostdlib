@@ -4,7 +4,7 @@ export types, timer
 
 {.push header: "pico/time.h".}
 
-type 
+type
   AlarmId* {.importc: "alarm_id_t".} = distinct int32
     ## The identifier for an alarm
     ##
@@ -60,7 +60,7 @@ proc `$`*(a: AlarmId): string {.borrow.}
 proc getAbsoluteTime*(): AbsoluteTime {.importc: "get_absolute_time".}
   ## Return a representation of the current time.
   ##
-  ## Returns an opaque high fidelity representation of the current time 
+  ## Returns an opaque high fidelity representation of the current time
   ## sampled during the call.
   ##
   ## **Returns:** the absolute time (now) of the hardware timer
@@ -142,24 +142,24 @@ proc sleepUntil*(target: AbsoluteTime) {.importc: "sleep_until".}
   ## \sa busy_wait_until()
 
 proc sleepUs*(us: uint64) {.importc: "sleep_us".}
-  ## Wait for the given number of microseconds before returning. 
+  ## Wait for the given number of microseconds before returning.
   ##
   ## Note: This procedure attempts to perform a lower power sleep (using WFE) as much as possible.
   ##
   ## **Parameters:**
   ##
-  ## =========  ====== 
-  ## **us**     the number of microseconds to sleep 
+  ## =========  ======
+  ## **us**     the number of microseconds to sleep
 
 proc sleepMs*(ms: uint32) {.importc: "sleep_ms".}
-  ## Wait for the given number of milliseconds before returning. 
+  ## Wait for the given number of milliseconds before returning.
   ##
   ## Note: This procedure attempts to perform a lower power sleep (using WFE) as much as possible.
   ##
   ## **Parameters:**
   ##
-  ## =========  ====== 
-  ## **ms**     the number of milliseconds to sleep 
+  ## =========  ======
+  ## **ms**     the number of milliseconds to sleep
 
 proc bestEffortWfeOrTimeout*(timeoutTimestamp: AbsoluteTime): bool {.importc: "best_effort_wfe_or_timeout".}
   ## Helper method for blocking on a timeout
@@ -185,7 +185,7 @@ proc bestEffortWfeOrTimeout*(timeoutTimestamp: AbsoluteTime): bool {.importc: "b
   ##             // do something
   ##             return true;
   ##         }
-  ##         // will try to sleep until timeout or the next processor event 
+  ##         // will try to sleep until timeout or the next processor event
   ##     } while (!best_effort_wfe_or_timeout(timeout_time));
   ##     return false; // timed out
   ## }
@@ -263,7 +263,7 @@ proc addAlarmAt*(pool: ptr AlarmPool; time: AbsoluteTime; callback: AlarmCallbac
   ## @param callback the callback function
   ## @param user_data user data to pass to the callback function
   ## @param fire_if_past if true, and the alarm time falls before or during this call before the alarm can be set,
-  ##                     then the callback should be called during (by) this function instead 
+  ##                     then the callback should be called during (by) this function instead
   ## @return >0 the alarm id for an active (at the time of return) alarm
   ## @return 0 if the alarm time passed before or during the call AND there is no active alarm to return the id of.
   ##           The latter can either happen because fire_if_past was false (i.e. no timer was ever created),
@@ -302,7 +302,7 @@ proc addAlarmInUs*(pool: ptr AlarmPool; us: uint64; callback: AlarmCallback; use
   ## @param callback the callback function
   ## @param user_data user data to pass to the callback function
   ## @param fire_if_past if true, and the alarm time falls during this call before the alarm can be set,
-  ##                     then the callback should be called during (by) this function instead 
+  ##                     then the callback should be called during (by) this function instead
   ## @return >0 the alarm id
   ## @return 0 if the alarm time passed before or during the call AND there is no active alarm to return the id of.
   ##           The latter can either happen because fire_if_past was false (i.e. no timer was ever created),
@@ -324,7 +324,7 @@ proc addAlarmInMs*(pool: ptr AlarmPool; ms: uint32; callback: AlarmCallback; use
   ## @param callback the callback function
   ## @param user_data user data to pass to the callback function
   ## @param fire_if_past if true, and the alarm time falls before or during this call before the alarm can be set,
-  ##                     then the callback should be called during (by) this function instead 
+  ##                     then the callback should be called during (by) this function instead
   ## @return >0 the alarm id
   ## @return 0 if the alarm time passed before or during the call AND there is no active alarm to return the id of.
   ##           The latter can either happen because fire_if_past was false (i.e. no timer was ever created),
@@ -353,7 +353,7 @@ proc addAlarmAt*(time: AbsoluteTime; callback: AlarmCallback; userData: pointer;
   ## @param callback the callback function
   ## @param user_data user data to pass to the callback function
   ## @param fire_if_past if true, and the alarm time falls before or during this call before the alarm can be set,
-  ##                     then the callback should be called during (by) this function instead 
+  ##                     then the callback should be called during (by) this function instead
   ## @return >0 the alarm id
   ## @return 0 if the alarm time passed before or during the call AND there is no active alarm to return the id of.
   ##           The latter can either happen because fire_if_past was false (i.e. no timer was ever created),
@@ -374,7 +374,7 @@ proc addAlarmInUs*(us: uint64; callback: AlarmCallback; userData: pointer; fire_
   ## @param callback the callback function
   ## @param user_data user data to pass to the callback function
   ## @param fire_if_past if true, and the alarm time falls during this call before the alarm can be set,
-  ##                     then the callback should be called during (by) this function instead 
+  ##                     then the callback should be called during (by) this function instead
   ## @return >0 the alarm id
   ## @return 0 if the alarm time passed before or during the call AND there is no active alarm to return the id of.
   ##           The latter can either happen because fire_if_past was false (i.e. no timer was ever created),
@@ -395,7 +395,7 @@ proc addAlarmInMs*(ms: uint32; callback: AlarmCallback; userData: pointer; fireI
   ## @param callback the callback function
   ## @param user_data user data to pass to the callback function
   ## @param fire_if_past if true, and the alarm time falls during this call before the alarm can be set,
-  ##                     then the callback should be called during (by) this function instead 
+  ##                     then the callback should be called during (by) this function instead
   ## @return >0 the alarm id
   ## @return 0 if the alarm time passed before or during the call AND there is no active alarm to return the id of.
   ##           The latter can either happen because fire_if_past was false (i.e. no timer was ever created),

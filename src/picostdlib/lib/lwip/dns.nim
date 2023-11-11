@@ -95,7 +95,7 @@ when defined(lwipDns):
   proc dnsGetserver*(numdns: uint8): ptr IpAddrT {.importc: "dns_getserver", header: "lwip/dns.h".}
   proc dnsGethostbyname*(hostname: cstring; `addr`: ptr IpAddrT; found: DnsFoundCallback; callbackArg: pointer): ErrT {.importc: "dns_gethostbyname", header: "lwip/dns.h".}
   proc dnsGethostbynameAddrtype*(hostname: cstring; `addr`: ptr IpAddrT; found: DnsFoundCallback; callbackArg: pointer; dnsAddrtype: uint8): ErrT {.importc: "dns_gethostbyname_addrtype", header: "lwip/dns.h".}
-  
+
   when defined(dns_Local_Hostlist):
     proc dnsLocalIterate*(iteratorFn: DnsFoundCallback; iteratorArg: pointer): csize_t {.
         importc: "dns_local_iterate", header: "lwip/dns.h".}

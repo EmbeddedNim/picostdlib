@@ -33,10 +33,10 @@ proc `$`*(a: Cyw43WlGpio): string {.borrow.}
 
 type
   GpioFunction* {.pure, importc: "enum gpio_function".} = enum
-    ## GPIO function definitions for use with function select. 
-    ## Each GPIO can have one function selected at a time. Likewise, 
-    ## each peripheral input (e.g. UART0 RX) should only be selected on one 
-    ## GPIO at a time. If the same peripheral input is connected to multiple 
+    ## GPIO function definitions for use with function select.
+    ## Each GPIO can have one function selected at a time. Likewise,
+    ## each peripheral input (e.g. UART0 RX) should only be selected on one
+    ## GPIO at a time. If the same peripheral input is connected to multiple
     ## GPIOs, the peripheral sees the logical OR of these GPIO inputs.
     Xip, Spi, Uart, I2c, Pwm, Sio, Pio0, Pio1, Gpck, Usb,
     Null = 0x1F
@@ -75,7 +75,7 @@ type
     ## \sa gpio_set_slew_rate
     SlewRateSlow  # Slew rate limiting enabled
     SlewRateFast   # Slew rate limiting disabled
-  
+
   GpioDriveStrength* {.pure, importc: "enum gpio_drive_strength".} = enum
     DriveStrength2mA  # 2 mA nominal drive strength
     DriveStrength4mA  # 4 mA nominal drive strength
@@ -467,7 +467,7 @@ proc init*(gpioMask: set[Gpio]) {.importc: "gpio_init_mask".}
   ## \param gpio_mask Mask with 1 bit per GPIO number to initialize
 
 proc get*(gpio: Gpio): Value {.importc: "gpio_get".}
-  ## Get state of a single specified Gpio. 
+  ## Get state of a single specified Gpio.
   ##
   ## **Returns:** Current state of the Gpio. Low (0.Value) or High (1.Value)
 

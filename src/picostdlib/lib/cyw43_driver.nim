@@ -249,7 +249,7 @@ type
     ## Network interface types
     ItfSta = Cyw43itfsta         ## Client interface STA mode
     ItfAp = Cyw43itfap           ## Access point (AP) interface mode
-  
+
 
 template cyw43WifiPm*(self: ptr Cyw43T; pm: Cyw43PowersaveMode): cint = cyw43WifiPm(self, pm.uint32)
 

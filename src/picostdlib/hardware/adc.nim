@@ -40,9 +40,9 @@ proc initAdc*(gpio: range[Gpio(26) .. Gpio(29)]) {.importc: "adc_gpio_init".}
   ##
   ## **Parameters:**
   ##
-  ## =========  ====== 
+  ## =========  ======
   ## **gpio**    The GPIO number to use. Allowable GPIO numbers are 26 to 29 inclusive.
-  ## =========  ====== 
+  ## =========  ======
 
 proc selectInput*(input: AdcInput) {.importc: "adc_select_input".}
   ## ADC input select
@@ -52,9 +52,9 @@ proc selectInput*(input: AdcInput) {.importc: "adc_select_input".}
   ##
   ## **Parameters:**
   ##
-  ## =========  ====== 
+  ## =========  ======
   ## **input**   Input to select.
-  ## =========  ====== 
+  ## =========  ======
 
 proc adcGetSelectedInput*(): AdcInput {.importc: "adc_get_selected_input".}
   ## Get the currently selected ADC input channel
@@ -69,18 +69,18 @@ proc setRoundRobin*(inputMask: set[AdcInput]) {.importc: "adc_set_round_robin".}
   ##
   ## **Parameters:**
   ##
-  ## =============  ====== 
+  ## =============  ======
   ## **inputMask**   A bit pattern indicating which of the 5 inputs are to be sampled. Write a value of 0 to disable round robin sampling.
-  ## =============  ====== 
+  ## =============  ======
 
 proc adcSetTempSensorEnabled*(enable: bool) {.importc: "adc_set_temp_sensor_enabled".}
   ## Enable the onboard temperature sensor
   ##
   ## **Parameters:**
   ##
-  ## ===========  ====== 
+  ## ===========  ======
   ## **enable**    Set true to power on the onboard temperature sensor, false to power off.
-  ## ===========  ====== 
+  ## ===========  ======
 
 proc adcRead*(): uint16 {.importc:"adc_read".}
   ## Perform a single conversion
@@ -94,9 +94,9 @@ proc adcRun*(run: bool) {.importc: "adc_run".}
   ##
   ## **Parameters:**
   ##
-  ## ========  ====== 
+  ## ========  ======
   ## **run**    false to disable, true to enable free running conversion mode.
-  ## ========  ====== 
+  ## ========  ======
 
 proc adcSetClkdiv*(clkdiv: cfloat) {.importc: "adc_set_clkdiv".}
   ## Set the ADC Clock divisor
@@ -106,9 +106,9 @@ proc adcSetClkdiv*(clkdiv: cfloat) {.importc: "adc_set_clkdiv".}
   ##
   ## **Parameters:**
   ##
-  ## ===========  ====== 
+  ## ===========  ======
   ## **clkdiv**    If non-zero, conversion will be started at intervals rather than back to back.
-  ## ===========  ====== 
+  ## ===========  ======
 
 proc adcFifoSetup*(en: bool, dreqEn: bool, dreqThresh: uint16, errInFifo: bool, byteShift: bool) {.importc: "adc_fifo_setup".}
   ## Setup the ADC FIFO
@@ -117,13 +117,13 @@ proc adcFifoSetup*(en: bool, dreqEn: bool, dreqThresh: uint16, errInFifo: bool, 
   ##
   ## **Parameters:**
   ##
-  ## ===============  ====== 
+  ## ===============  ======
   ## **en**            Enables write each conversion result to the FIFO
   ## **dreqEn**        Enable DMA requests when FIFO contains data
   ## **dreqThresh**    Threshold for DMA requests/FIFO IRQ if enabled.
   ## **errInFifo**     If enabled, bit 15 of the FIFO contains error flag for each sample
   ## **byteShift**     Shift FIFO contents to be one byte in size (for byte DMA) - enables DMA to byte buffers.
-  ## ===============  ====== 
+  ## ===============  ======
 
 proc adcFifoIsEmpty*(): bool {.importc: "adc_fifo_is_empty".}
   ## Check FIFO empty state
@@ -155,9 +155,9 @@ proc adcIrqSetEnabled*(enabled: bool) {.importc: "adc_irq_set_enabled".}
   ##
   ## **Parameters:**
   ##
-  ## ============  ====== 
+  ## ============  ======
   ## **enabled**    Set to true to enable the ADC interrupts, false to disable
-  ## ============  ====== 
+  ## ============  ======
 
 {.pop.}
 

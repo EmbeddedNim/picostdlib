@@ -12,7 +12,7 @@ proc coreOneActv() {.cdecl.} = #this function works on core1 (you must use pragm
     sleepMs(600)
   multicoreFifoPushBlocking(value) # push the value of "value" on the FIFO (core1-->core0).
   while true: tightLoopContents()
-  
+
 var counter: uint32 = 0 #counting variable.
 var step: uint32 = 0 #step variable.
 

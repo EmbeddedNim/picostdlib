@@ -399,7 +399,7 @@ proc forceIrq*(sliceNum: PwmSliceNum) {.importc: "pwm_force_irq".}
   ##
   ## =============  ======
   ## **sliceNum**    PWM slice number
-  ## =============  ====== 
+  ## =============  ======
 
 proc getDreq*(sliceNum: PwmSliceNum): cuint {.importc: "pwm_get_dreq".}
   ## Return the DREQ to use for pacing transfers to a particular PWM slice

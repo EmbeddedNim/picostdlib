@@ -45,7 +45,7 @@ proc main() =
     echo &"Power source: {batteryStatus.PowerSource}, {voltage:.3f} V{percent_str}, temp {tempC:.2f} °C"
 
     sleepMs(1000)
-  
+
   when defined(picoCyw43Supported):
     cyw43ArchDeinit()
 

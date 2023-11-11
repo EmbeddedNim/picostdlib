@@ -54,7 +54,7 @@ type
       ## Connection reset.
     ERR_ABRT       = -13
       ## Connection aborted.
-    
+
     ERR_IF         = -12
       ## Low-level netif error
     ERR_CONN       = -11

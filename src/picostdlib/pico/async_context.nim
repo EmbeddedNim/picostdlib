@@ -6,7 +6,7 @@ export types
 type
   AsyncContext* {.importc: "async_context_t".} = object
     ## Base structure type of all async_contexts. For details about its use, see \ref pico_async_context.
-    ## 
+    ##
     ## Individual async_context_types with additional state, should contain this structure at the start.
     `type`* {.importc: "type".}: ptr AsyncContextType
     whenPendingList* {.importc: "when_pending_list".}: ptr AsyncWhenPendingWorker
@@ -86,7 +86,7 @@ proc acquireLockBlocking*(context: ptr AsyncContext) {.importc: "async_context_a
   ##
   ## \note the async_context lock is nestable by the same caller, so an internal count is maintained
   ##
-  ## \note for async_contexts that provide locking (not async_context_poll), this method is threadsafe. and may be called from within any 
+  ## \note for async_contexts that provide locking (not async_context_poll), this method is threadsafe. and may be called from within any
   ## worker method called by the async_context or from any other non-IRQ context.
   ##
   ## \param context the async_context
@@ -100,7 +100,7 @@ proc releaseLock*(context: ptr AsyncContext) {.importc: "async_context_release_l
   ## release, When the outermost lock is released, a check is made for work which might have been skipped while the lock was held,
   ## and any such work may be performed during this call IF the call is made from the same core that the async_context belongs to.
   ##
-  ## \note for async_contexts that provide locking (not async_context_poll), this method is threadsafe. and may be called from within any 
+  ## \note for async_contexts that provide locking (not async_context_poll), this method is threadsafe. and may be called from within any
   ## worker method called by the async_context or from any other non-IRQ context.
   ##
   ## \param context the async_context
@@ -134,7 +134,7 @@ proc addAtTimeWorker*(context: ptr AsyncContext; worker: ptr AsyncAtTimeWorker):
   ##
   ## The time to fire is specified in the next_time field of the worker.
   ##
-  ## \note for async_contexts that provide locking (not async_context_poll), this method is threadsafe. and may be called from within any 
+  ## \note for async_contexts that provide locking (not async_context_poll), this method is threadsafe. and may be called from within any
   ## worker method called by the async_context or from any other non-IRQ context.
   ##
   ## \param context the async_context
@@ -148,7 +148,7 @@ proc addAtTimeWorkerAt*(context: ptr AsyncContext; worker: ptr AsyncAtTimeWorker
   ##
   ## The time to fire is specified by the at parameter.
   ##
-  ## \note for async_contexts that provide locking (not async_context_poll), this method is threadsafe. and may be called from within any 
+  ## \note for async_contexts that provide locking (not async_context_poll), this method is threadsafe. and may be called from within any
   ## worker method called by the async_context or from any other non-IRQ context.
   ##
   ## \param context the async_context
@@ -161,9 +161,9 @@ proc addAtTimeWorkerInMs*(context: ptr AsyncContext; worker: ptr AsyncAtTimeWork
   ##
   ## An "at time" worker will run at or after a specific point in time, and is automatically when (just before) it runs.
   ##
-  ## The time to fire is specified by a delay via the ms parameter 
+  ## The time to fire is specified by a delay via the ms parameter
   ##
-  ## \note for async_contexts that provide locking (not async_context_poll), this method is threadsafe. and may be called from within any 
+  ## \note for async_contexts that provide locking (not async_context_poll), this method is threadsafe. and may be called from within any
   ## worker method called by the async_context or from any other non-IRQ context.
   ##
   ## \param context the async_context
@@ -174,7 +174,7 @@ proc addAtTimeWorkerInMs*(context: ptr AsyncContext; worker: ptr AsyncAtTimeWork
 proc removeAtTimeWorker*(context: ptr AsyncContext; worker: ptr AsyncAtTimeWorker): bool {.importc: "async_context_remove_at_time_worker".}
   ## Remove an "at time" worker from a context
   ##
-  ## \note for async_contexts that provide locking (not async_context_poll), this method is threadsafe. and may be called from within any 
+  ## \note for async_contexts that provide locking (not async_context_poll), this method is threadsafe. and may be called from within any
   ## worker method called by the async_context or from any other non-IRQ context.
   ##
   ## \param context the async_context
@@ -189,7 +189,7 @@ proc addWhenPendingWorker*(context: ptr AsyncContext; worker: ptr AsyncWhenPendi
   ##
   ## The time to fire is specified by a delay via the ms parameter
   ##
-  ## \note for async_contexts that provide locking (not async_context_poll), this method is threadsafe. and may be called from within any 
+  ## \note for async_contexts that provide locking (not async_context_poll), this method is threadsafe. and may be called from within any
   ## worker method called by the async_context or from any other non-IRQ context.
   ##
   ## \param context the async_context
@@ -199,7 +199,7 @@ proc addWhenPendingWorker*(context: ptr AsyncContext; worker: ptr AsyncWhenPendi
 proc removeWhenPendingWorker*(context: ptr AsyncContext; worker: ptr AsyncWhenPendingWorker): bool {.importc: "async_context_remove_when_pending_worker".}
   ## Remove a "when pending" worker from a context
   ##
-  ## \note for async_contexts that provide locking (not async_context_poll), this method is threadsafe. and may be called from within any 
+  ## \note for async_contexts that provide locking (not async_context_poll), this method is threadsafe. and may be called from within any
   ## worker method called by the async_context or from any other non-IRQ context.
   ##
   ## \param context the async_context
