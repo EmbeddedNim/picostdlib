@@ -31,17 +31,39 @@ include(${PICOSTDLIB_DIR}/picostdlib/cmake/pico_sdk_import.cmake)
 
 project(examples C CXX ASM)
 
-# initialize the Raspberry Pi Pico SDK
-pico_sdk_init()
 
-# fetch and initialize FreeRTOS-Kernel
 include(FetchContent)
-FetchContent_Declare( freertos_kernel
+
+FetchContent_Declare(mbedtls
+  GIT_REPOSITORY https://github.com/Mbed-TLS/mbedtls.git
+  GIT_TAG        v2.28.6
+)
+
+FetchContent_Declare(lwip
+  GIT_REPOSITORY https://git.savannah.gnu.org/git/lwip.git
+  GIT_TAG        STABLE-2_2_0_RELEASE
+)
+
+FetchContent_Declare(freertos_kernel
   GIT_REPOSITORY https://github.com/FreeRTOS/FreeRTOS-Kernel.git
   GIT_TAG        V10.6.1
 )
+
+# fetch and use alternative mbedtls version
+#FetchContent_Populate(mbedtls)
+#set(PICO_MBEDTLS_PATH ${mbedtls_SOURCE_DIR})
+
+# fetch and use alternative lwip version
+#FetchContent_Populate(lwip)
+#set(PICO_LWIP_PATH ${lwip_SOURCE_DIR})
+
+# fetch and initialize FreeRTOS-Kernel
 FetchContent_Populate(freertos_kernel)
 include(${freertos_kernel_SOURCE_DIR}/portable/ThirdParty/GCC/RP2040/FreeRTOS_Kernel_import.cmake)
+
+
+# initialize the Raspberry Pi Pico SDK
+pico_sdk_init()
 
 include(${PICOSTDLIB_DIR}/picostdlib/cmake/picostdlib.cmake)
 
