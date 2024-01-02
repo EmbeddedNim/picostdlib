@@ -62,9 +62,9 @@ else:
     sysPath picoSdkPath / "src/rp2_common/pico_rand/include"
     sysPath cmakeBinaryDir / "generated/pico_base"
     path picoSdkPath / "src/rp2_common/pico_lwip/include"
-    path picoSdkPath / "lib/lwip/src/include"
-    path picoSdkPath / "lib/lwip/src/include/lwip/apps"
-    path picoSdkPath / "lib/lwip/contrib/apps"
+    path picoLwipPath / "src/include"
+    path picoLwipPath / "src/include/lwip/apps"
+    path picoLwipPath / "contrib/apps"
     path piconimCsourceDir
     path nimcacheDir
     path getProjectPath()

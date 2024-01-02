@@ -12,6 +12,9 @@ when fileExists(cmakecachePath):
 
 const picoSdkPath* {.strdefine.} = when declared(PICO_SDK_PATH): PICO_SDK_PATH else: os.getEnv("PICO_SDK_PATH").replace('\\', DirSep)
 const freertosKernelPath* {.strdefine.} = when declared(FREERTOS_KERNEL_PATH): FREERTOS_KERNEL_PATH else: ""
+const picoMbedtlsPath* {.strdefine.} = when declared(PICO_MBEDTLS_PATH): PICO_MBEDTLS_PATH else: picoSdkPath / "lib" / "mbedtls"
+const picoLwipPath* {.strdefine.} = when declared(PICO_LWIP_PATH): PICO_LWIP_PATH else: picoSdkPath / "lib" / "lwip"
+
 
 const piconimCsourceDir* {.strdefine.} = getProjectPath().replace('\\', DirSep).parentDir() / "csource"
 const picostdlibFutharkSysroot* {.strdefine.} = ""
