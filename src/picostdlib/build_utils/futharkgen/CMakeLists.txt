@@ -25,6 +25,7 @@ set(PICO_CXX_ENABLE_EXCEPTIONS 1)
 
 
 set(PICOSTDLIB_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../..")
+set(pico_generate_pio_header_OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/generated")
 
 # note: this must happen before project()
 include(${PICOSTDLIB_DIR}/picostdlib/cmake/pico_sdk_import.cmake)
@@ -46,7 +47,7 @@ FetchContent_Declare(lwip
 
 FetchContent_Declare(freertos_kernel
   GIT_REPOSITORY https://github.com/FreeRTOS/FreeRTOS-Kernel.git
-  GIT_TAG        V10.6.1
+  GIT_TAG        V11.0.1
 )
 
 # fetch and use alternative mbedtls version
@@ -64,5 +65,6 @@ include(${freertos_kernel_SOURCE_DIR}/portable/ThirdParty/GCC/RP2040/FreeRTOS_Ke
 
 # initialize the Raspberry Pi Pico SDK
 pico_sdk_init()
+
 
 include(${PICOSTDLIB_DIR}/picostdlib/cmake/picostdlib.cmake)

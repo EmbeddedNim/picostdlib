@@ -25,6 +25,7 @@
 ## https://github.com/FreeRTOS
 ##
 {.hint[XDeclaredButNotUsed]: off.}
+{.hint[User]: off.}
 
 import ../hardware/timer # for clock_gettime
 export timer
@@ -54,8 +55,10 @@ else:
     sysPath armInstallInclude
     sysPath cmakeBinaryDir / "generated/pico_base"
     sysPath picoSdkPath / "src/common/pico_base/include"
-    sysPath picoSdkPath / "src/rp2_common/pico_platform/include"
     sysPath picoSdkPath / "src/rp2040/hardware_regs/include"
+    sysPath picoSdkPath / "src/rp2_common/hardware_base/include"
+    sysPath picoSdkPath / "src/rp2_common/hardware_sync/include"
+    sysPath picoSdkPath / "src/rp2_common/pico_platform/include"
     sysPath freertosKernelPath / "portable/ThirdParty/GCC/RP2040/include"
     sysPath freertosKernelPath / "include"
     path piconimCsourceDir
@@ -70,5 +73,5 @@ when freertosKernelHeap != "":
   {.emit: ["// picostdlib import: ", freertosKernelHeap].}
 
 const
-  tskIDLE_PRIORITY*: cuint = 0
-  configMINIMAL_STACK_SIZE*: uint32 = 256
+  tskIDLE_PRIORITY*: UBaseTypeT = 0
+  tskNO_AFFINITY*: UBaseTypeT = -1

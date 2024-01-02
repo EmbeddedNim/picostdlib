@@ -47,7 +47,7 @@ FetchContent_Declare(lwip
 
 FetchContent_Declare(freertos_kernel
   GIT_REPOSITORY https://github.com/FreeRTOS/FreeRTOS-Kernel.git
-  GIT_TAG        V10.6.1
+  GIT_TAG        V11.0.1
 )
 
 # fetch and use alternative mbedtls version
