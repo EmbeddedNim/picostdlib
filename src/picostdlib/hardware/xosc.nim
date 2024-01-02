@@ -1,3 +1,5 @@
+import ../helpers
+{.passC: "-I" & picoSdkPath & "/src/rp2_common/hardware_xosc/include".}
 {.push header: "hardware/xosc.h".}
 
 proc xoscInit*() {.importc: "xosc_init".}

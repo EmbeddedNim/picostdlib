@@ -1,3 +1,5 @@
+import ../helpers
+{.passC: "-I" & picoSdkPath & "/src/rp2_common/pico_float/include".}
 {.push header: "pico/float.h".}
 
 proc fix2float*(m: int32; e: cint): cfloat {.importc: "fix2float".}

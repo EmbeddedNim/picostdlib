@@ -24,6 +24,7 @@
 ## https://www.FreeRTOS.org
 ## https://github.com/FreeRTOS
 ##
+{.hint[XDeclaredButNotUsed]: off.}
 
 import ../hardware/timer # for clock_gettime
 export timer

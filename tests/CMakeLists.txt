@@ -25,6 +25,7 @@ set(PICO_CXX_ENABLE_EXCEPTIONS 1)
 
 
 set(PICOSTDLIB_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../src")
+set(pico_generate_pio_header_OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/generated")
 
 # note: this must happen before project()
 include(${PICOSTDLIB_DIR}/picostdlib/cmake/pico_sdk_import.cmake)

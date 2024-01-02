@@ -100,7 +100,7 @@ type
 ## / size for the stream handling
 
 const
-  HTTP_TCP_BUFFER_SIZE = (1460)
+  HTTP_TCP_BUFFER_SIZE* = (1460)
 
 ## / HTTP codes see RFC7231
 

@@ -1,6 +1,9 @@
 import ./base, ./gpio
 export base, gpio
 
+import ../helpers
+{.passC: "-I" & picoSdkPath & "/src/rp2_common/hardware_clocks/include".}
+
 type
   ClocksFc0Src* {.pure, size: sizeof(uint32).} = enum
     ## Clock sent to frequency counter, set to 0 when not required.

@@ -1,6 +1,8 @@
 import ../base, ../regs/m0plus
 export base, m0plus
 
+import ../../helpers
+{.passC: "-I" & picoSdkPath & "/src/rp2040/hardware_structs/include".}
 {.push header: "hardware/structs/scb.h".}
 
 type

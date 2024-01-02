@@ -28,6 +28,8 @@
 ##  terms, as set out in the top level LICENSE file.  For commercial licensing
 ##  options please email contact@georgerobotics.com.au.
 ##
+{.hint[XDeclaredButNotUsed]: off.}
+{.hint[User]: off.}
 
 import std/os
 import ../helpers

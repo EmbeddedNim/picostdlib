@@ -1,3 +1,5 @@
+import ../helpers
+{.passC: "-I" & picoSdkPath & "/src/rp2_common/pico_bootrom/include".}
 {.push header: "pico/bootrom.h".}
 
 type

@@ -1,10 +1,14 @@
+import ./pico/version
+import ./pico/platform
 import ./hardware/gpio
-export gpio
+export version, platform, gpio
 
 when defined(picoCyw43Supported):
   import ./pico/cyw43_arch
   export cyw43_arch
 
+import ./helpers
+{.passC: "-I" & picoSdkPath & "/src/common/pico_base/include".}
 {.push header: "pico.h".}
 
 # Led

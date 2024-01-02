@@ -1,5 +1,7 @@
 import ../hardware/i2c
 
+import ../helpers
+{.passC: "-I" & picoSdkPath & "/src/rp2_common/pico_i2c_slave/include".}
 {.push header: "pico/i2c_slave.h".}
 
 type

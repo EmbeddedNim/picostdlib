@@ -1,3 +1,5 @@
+import ../helpers
+{.passC: "-I" & picoSdkPath & "/src/rp2040/hardware_regs/include".}
 {.push header: "hardware/platform_defs.h".}
 
 const

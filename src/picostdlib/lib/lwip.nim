@@ -24,7 +24,12 @@
 ##  IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
 ##  OF SUCH DAMAGE.
 ##
+{.hint[XDeclaredButNotUsed]: off.}
+{.hint[User]: off.}
 
+import ../helpers
+
+{.passC: "-I" & piconimCsourceDir.}
 
 let
   TCP_SND_BUF* {.importc: "TCP_SND_BUF", header: "lwipopts.h".}: cint
@@ -33,7 +38,6 @@ when defined(nimcheck):
   include ../futharkgen/futhark_lwip
 else:
   import std/os, std/macros
-  import ../helpers
 
   import futhark
 

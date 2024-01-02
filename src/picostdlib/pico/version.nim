@@ -1,3 +1,5 @@
+import ../helpers
+{.passC: "-I" & cmakeBinaryDir & "/generated/pico_base".}
 {.push header: "pico/version.h".}
 
 let

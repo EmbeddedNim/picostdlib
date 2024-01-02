@@ -44,14 +44,16 @@ function(picostdlib_target target name)
     string(JSON cfilelength LENGTH "${NIMCACHE_JSON_DATA}" compile)
     math(EXPR cfilelength "${cfilelength} - 1")
     foreach(IDX RANGE ${cfilelength})
-        string(JSON CUR_FILE GET "${NIMCACHE_JSON_DATA}" compile ${IDX} 0)
-        string(REPLACE "\\" "/" CUR_FILE "${CUR_FILE}")
-        list(APPEND NIM_SOURCES ${CUR_FILE})
+      string(JSON CUR_FILE GET "${NIMCACHE_JSON_DATA}" compile ${IDX} 0)
+      string(REPLACE "\\" "/" CUR_FILE "${CUR_FILE}")
+      list(APPEND NIM_SOURCES ${CUR_FILE})
     endforeach()
     # Suppress gcc warnings for nim-generated files
-    set_source_files_properties(${NIM_SOURCES} PROPERTIES COMPILE_OPTIONS "-w")
     target_sources(${target} PRIVATE ${NIM_SOURCES})
+    set_property(SOURCE ${NIM_SOURCES} APPEND PROPERTY COMPILE_OPTIONS "-flto -Wno-discarded-qualifiers -Wno-unused-but-set-variable -Wno-parentheses -Wno-unused-label -Wno-stringop-overflow")
   endif()
+  # experimental linking
+  # target_link_libraries(${target} "${NIMCACHE_DIR}/${name}.a")
 
   target_include_directories(${target} PRIVATE ${NIM_LIB_DIR})
 

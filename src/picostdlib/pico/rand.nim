@@ -1,3 +1,5 @@
+import ../helpers
+{.passC: "-I" & picoSdkPath & "/src/rp2_common/pico_rand/include".}
 {.push header: "pico/rand.h".}
 
 type

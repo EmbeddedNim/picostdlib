@@ -3,7 +3,10 @@ import ./gpio
 
 export base, gpio
 
-type AdcInput* {.pure, size: sizeof(cuint).} = enum
+import ../helpers
+{.passC: "-I" & picoSdkPath & "/src/rp2_common/hardware_adc/include".}
+
+type AdcInput* {.pure, size: sizeof(byte).} = enum
   ## ADC input. 0...3 are GPIOs 26...29 respectively. Input 4 is the onboard temperature sensor.
   Adc26 = 0, Adc27 = 1, Adc28 = 2, Adc29 = 3, AdcTemp = 4
 

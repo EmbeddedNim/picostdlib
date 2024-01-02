@@ -1,6 +1,8 @@
 import ../hardware/sync
 export sync
 
+import ../helpers
+{.passC: "-I" & picoSdkPath & "/src/common/pico_sync/include".}
 {.push header: "pico/lock_core.h".}
 
 type

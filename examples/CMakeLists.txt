@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.13)
 
 # Set CMake build type. Debug, Release, MinSizeRel, RelWithDebInfo
-set(CMAKE_BUILD_TYPE Debug)
+set(CMAKE_BUILD_TYPE Release)
 
 # Set standards
 set(CMAKE_C_STANDARD 11)
@@ -25,6 +25,7 @@ set(PICO_CXX_ENABLE_EXCEPTIONS 1)
 
 
 set(PICOSTDLIB_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../src")
+set(pico_generate_pio_header_OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/generated")
 
 # note: this must happen before project()
 include(${PICOSTDLIB_DIR}/picostdlib/cmake/pico_sdk_import.cmake)

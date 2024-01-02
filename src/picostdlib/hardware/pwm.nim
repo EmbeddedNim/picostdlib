@@ -3,8 +3,10 @@ import ./gpio
 
 export gpio
 
-type
+import ../helpers
+{.passC: "-I" & picoSdkPath & "/src/rp2_common/hardware_pwm/include".}
 
+type
   PwmChannel* {.pure.} = enum
     ## Alias for channel parameter in the setChanLevel() procedure
     ChanA, ChanB

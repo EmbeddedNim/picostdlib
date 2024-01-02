@@ -2,6 +2,8 @@ import ./base
 import ./platform_defs
 import ./gpio
 
+import ../helpers
+{.passC: "-I" & picoSdkPath & "/src/rp2_common/hardware_pio/include".}
 {.push header: "hardware/pio.h".}
 
 type
@@ -901,5 +903,16 @@ proc disable*(pio: PioInstance; sm: set[PioStateMachine]) {.inline.} =
 proc putBlocking*(pio: PioInstance; sm: PioStateMachine; data: uint32) {.inline.} =
   pio.smPutBlocking(sm, data)
 
+
 template pioInclude*(path: static[string]) =
+  # experimental:
+  # static:
+  #   when not fileExists(cmakeBinaryDir / "pioasm" / "pioasm"):
+  #     const compileCmd = "cmake --build " & quoteShell(cmakeBinaryDir) & " --target PioasmBuild"
+  #     echo compileCmd
+  #     doAssert gorgeEx(compileCmd).exitCode == 0
+  #   const pioasmCmd = cmakeBinaryDir / "pioasm" / "pioasm" & " " & quoteShell(path) & " " & quoteShell(cmakeBinaryDir / "generated" / lastPathPart(path) & ".h")
+  #   echo pioasmCmd
+  #   doAssert gorgeEx(pioasmCmd).exitCode == 0
+  # {.passC: "-I" & cmakeBinaryDir & "/generated ".}
   {.emit: "// picostdlib generate pio: " & path.}

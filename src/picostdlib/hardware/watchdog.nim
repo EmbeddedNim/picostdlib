@@ -1,3 +1,5 @@
+import ../helpers
+{.passC: "-I" & picoSdkPath & "/src/rp2_common/hardware_watchdog/include".}
 {.push header: "hardware/watchdog.h".}
 
 proc watchdogReboot*(pc: uint32; sp: uint32; delayMs: uint32) {.importc: "watchdog_reboot".}

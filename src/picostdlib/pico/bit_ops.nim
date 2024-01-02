@@ -1,3 +1,5 @@
+import ../helpers
+{.passC: "-I" & picoSdkPath & "/src/common/pico_bit_ops/include".}
 {.push header: "pico/bit_ops.h".}
 
 proc rev*(bits: uint32): uint32 {.importc: "__rev".}

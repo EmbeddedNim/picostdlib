@@ -1,3 +1,5 @@
+import ../helpers
+{.passC: "-I" & picoSdkPath & "/src/rp2_common/hardware_exception/include".}
 {.push header: "hardware/exception.h".}
 
 type

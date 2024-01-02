@@ -2,6 +2,9 @@ import ./gpio, ../pico/types, ../pico
 export gpio, types
 export DefaultI2c, DefaultI2cSdaPin, DefaultI2cSclPin
 
+import ../helpers
+{.passC: "-I" & picoSdkPath & "/src/rp2_common/hardware_i2c/include".}
+
 {.push header: "hardware/i2c.h".}
 
 type

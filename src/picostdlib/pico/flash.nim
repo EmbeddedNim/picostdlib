@@ -1,4 +1,5 @@
-
+import ../helpers
+{.passC: "-I" & picoSdkPath & "/src/rp2_common/pico_flash/include".}
 {.push header: "pico/flash.h".}
 
 type

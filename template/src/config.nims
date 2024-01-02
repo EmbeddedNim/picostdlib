@@ -24,14 +24,44 @@ macro staticInclude(path: static[string]): untyped =
 const packageName = getCurrentDir().splitPath().tail
 const cmakeBinaryDir {.strdefine.} = getCurrentDir() / "build" / packageName
 
+# import cmake config
+const cmakecachePath = cmakeBinaryDir / "generated" / "cmakecache.nim"
+when fileExists(cmakecachePath):
+  staticInclude(cmakecachePath)
+
+  when CMAKE_BUILD_TYPE in ["Release", "MinSizeRel", "RelWithDebInfo"]:
+    switch("define", "NDEBUG")
+    switch("passC", "-DNDEBUG")
+    when releaseFollowsCmake:
+      switch("define", "release")
+
+  when CMAKE_BUILD_TYPE == "MinSizeRel":
+    switch("opt", "size") # needs to be after (define:release)
+
+  when PICO_CYW43_SUPPORTED:
+    switch("define", "picoCyw43Supported")
+
 switch("cpu", "arm")
 switch("os", "freertos")
-# switch("opt", "size") # doesnt do anything since cmake does the compilation
-switch("mm", "orc")
+switch("mm", "arc")
 switch("deepcopy", "on")
 switch("threads", "off")
+# switch("hints", "off")
 
-switch("compileOnly", "on")
+when false:
+  # experimental, let Nim call the C compiler
+  # cmake does the linking
+  switch("app", "staticlib")
+  switch("noMain", "off")
+  switch("gcc.exe", "arm-none-eabi-gcc")
+  switch("passC", "-mcpu=cortex-m0plus")
+  switch("passC", "-mthumb")
+  switch("out", "$nimcache/$projectName.a")
+  switch("passC", "-flto")
+else:
+  # default is to genereate C files
+  switch("compileOnly", "on")
+
 switch("nimcache", cmakeBinaryDir / projectName() / "nimcache")
 
 switch("define", "checkAbi")
@@ -49,16 +79,3 @@ switch("maxLoopIterationsVM", "100000000")
 
 # redefine in case strdefine was empty
 switch("define", "cmakeBinaryDir:" & cmakeBinaryDir)
-
-# import some cmake config
-const cmakecachePath = cmakeBinaryDir / "generated" / "cmakecache.nim"
-when fileExists(cmakecachePath):
-  staticInclude(cmakecachePath)
-
-  when CMAKE_BUILD_TYPE in ["Release", "MinSizeRel", "RelWithDebInfo"]:
-    switch("define", "NDEBUG")
-    when releaseFollowsCmake:
-      switch("define", "release")
-
-  when PICO_CYW43_SUPPORTED:
-    switch("define", "picoCyw43Supported")

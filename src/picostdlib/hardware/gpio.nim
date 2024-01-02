@@ -2,6 +2,10 @@ import std/setutils
 import ./irq
 export setutils, irq
 
+import ../helpers
+{.passC: "-I" & picoSdkPath & "/src/rp2040/hardware_structs/include".}
+{.passC: "-I" & picoSdkPath & "/src/rp2_common/hardware_gpio/include".}
+
 type
   Gpio* = distinct range[0.cuint .. 29.cuint] # NUM_BANK0_GPIOS = 30
     ## Gpio pins available to the RP2040. Not all pins may be available on some
@@ -29,19 +33,8 @@ proc `$`*(a: GpioOptional): string {.borrow.}
 proc `==`*(a, b: Cyw43WlGpio): bool {.borrow.}
 proc `$`*(a: Cyw43WlGpio): string {.borrow.}
 
-{.push header: "hardware/gpio.h".}
-
 type
-  GpioFunction* {.pure, importc: "enum gpio_function".} = enum
-    ## GPIO function definitions for use with function select.
-    ## Each GPIO can have one function selected at a time. Likewise,
-    ## each peripheral input (e.g. UART0 RX) should only be selected on one
-    ## GPIO at a time. If the same peripheral input is connected to multiple
-    ## GPIOs, the peripheral sees the logical OR of these GPIO inputs.
-    Xip, Spi, Uart, I2c, Pwm, Sio, Pio0, Pio1, Gpck, Usb,
-    Null = 0x1F
-
-  GpioIrqLevel* {.pure, importc: "enum gpio_irq_level".} = enum
+  GpioIrqLevel* {.pure, size: sizeof(byte).} = enum
     ## GPIO Interrupt level definitions (GPIO events)
     ##
     ## An interrupt can be generated for every GPIO pin in 4 scenarios:
@@ -59,6 +52,18 @@ type
     EdgeFall
     EdgeRise
 
+{.push header: "hardware/gpio.h".}
+
+type
+  GpioFunction* {.pure, importc: "enum gpio_function", size: sizeof(byte).} = enum
+    ## GPIO function definitions for use with function select.
+    ## Each GPIO can have one function selected at a time. Likewise,
+    ## each peripheral input (e.g. UART0 RX) should only be selected on one
+    ## GPIO at a time. If the same peripheral input is connected to multiple
+    ## GPIOs, the peripheral sees the logical OR of these GPIO inputs.
+    Xip, Spi, Uart, I2c, Pwm, Sio, Pio0, Pio1, Gpck, Usb,
+    Null = 0x1F
+
   GpioIrqCallback* {.importc: "gpio_irq_callback_t".} = proc (gpio: Gpio; eventMask: culong) {.cdecl.}
 
   GpioOverride* {.pure, importc: "gpio_override".} = enum
@@ -67,7 +72,7 @@ type
     OverrideLow     # drive low/disable output
     OverrideHigh    # drive high/enable output
 
-  GpioSlewRate* {.pure, importc: "enum gpio_slew_rate".} = enum
+  GpioSlewRate* {.pure, importc: "enum gpio_slew_rate", size: sizeof(byte).} = enum
     ## Slew rate limiting levels for GPIO outputs
     ##
     ## Slew rate limiting increases the minimum rise/fall time when a GPIO output
@@ -76,12 +81,11 @@ type
     SlewRateSlow  # Slew rate limiting enabled
     SlewRateFast   # Slew rate limiting disabled
 
-  GpioDriveStrength* {.pure, importc: "enum gpio_drive_strength".} = enum
+  GpioDriveStrength* {.pure, importc: "enum gpio_drive_strength", size: sizeof(byte).} = enum
     DriveStrength2mA  # 2 mA nominal drive strength
     DriveStrength4mA  # 4 mA nominal drive strength
     DriveStrength8mA  # 2 mA nominal drive strength
     DriveStrength12mA  # 12 mA nominal drive strength
-
 
 
 proc setFunction*(gpio: Gpio, fn: GpioFunction) {.importc: "gpio_set_function".}
@@ -603,3 +607,4 @@ when defined(runtests):
     doAssert myPinName.ord == 5
 
   let myPin = Gpio.init(5, In)
+  discard myPin

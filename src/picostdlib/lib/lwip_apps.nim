@@ -24,6 +24,8 @@
 ##  IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
 ##  OF SUCH DAMAGE.
 ##
+{.hint[XDeclaredButNotUsed]: off.}
+{.hint[User]: off.}
 
 import ./lwip
 export lwip

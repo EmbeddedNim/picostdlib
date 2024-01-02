@@ -33,6 +33,8 @@ execute_process(
   OUTPUT_STRIP_TRAILING_WHITESPACE
 )
 
+set(pico_generate_pio_header_OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/generated")
+
 # note: this must happen before project()
 include(${PICOSTDLIB_DIR}/picostdlib/cmake/pico_sdk_import.cmake)
 

@@ -1,8 +1,12 @@
-import ./gpio
 import ../pico
+import ./base
+import ./gpio
 
-export gpio
+export gpio, base
 export DefaultUart, DefaultUartTxPin, DefaultUartRxPin
+
+import ../helpers
+{.passC: "-I" & picoSdkPath & "/src/rp2_common/hardware_uart/include".}
 
 ## uart_inst struct does not exist
 ## cpp backend needs this to be defined

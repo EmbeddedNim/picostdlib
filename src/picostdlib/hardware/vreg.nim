@@ -1,3 +1,5 @@
+import ../helpers
+{.passC: "-I" & picoSdkPath & "/src/rp2_common/hardware_vreg/include".}
 {.push header: "hardware/vreg.h".}
 
 type

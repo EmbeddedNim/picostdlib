@@ -1,6 +1,8 @@
 import ./base
 import ./platform_defs
 
+import ../helpers
+{.passC: "-I" & picoSdkPath & "/src/rp2_common/hardware_dma/include".}
 {.push header: "hardware/dma.h".}
 
 let
