@@ -74,4 +74,3 @@ when freertosKernelHeap != "":
 
 const
   tskIDLE_PRIORITY*: UBaseTypeT = 0
-  tskNO_AFFINITY*: UBaseTypeT = -1
