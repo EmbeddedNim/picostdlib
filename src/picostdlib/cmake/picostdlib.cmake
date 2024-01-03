@@ -48,7 +48,9 @@ function(picostdlib_target target name)
     foreach(IDX RANGE ${cfilelength})
       string(JSON CUR_FILE GET "${NIMCACHE_JSON_DATA}" compile ${IDX} 0)
       string(REPLACE "\\" "/" CUR_FILE "${CUR_FILE}")
-      list(APPEND NIM_SOURCES ${CUR_FILE})
+      if(EXISTS ${CUR_FILE})
+        list(APPEND NIM_SOURCES ${CUR_FILE})
+      endif()
     endforeach()
     # Suppress gcc warnings for nim-generated files
     target_sources(${target} PRIVATE ${NIM_SOURCES})
@@ -66,6 +68,9 @@ function(picostdlib_target target name)
   endif()
 
   target_link_libraries(${target} hardware_claim) # fallback to something
+
+  # print info about flash and memory usage when linking
+  target_link_options(${target} PUBLIC -Wl,--print-memory-usage)
 
   include(${PICOSTDLIB_IMPORTS_PATH}) # Include our generated file
 
