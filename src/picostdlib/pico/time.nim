@@ -362,7 +362,7 @@ proc addAlarmAt*(time: AbsoluteTime; callback: AlarmCallback; userData: pointer;
   ##           or if the callback <i>was</i> called during this method but the callback cancelled itself by returning 0
   ## @return -1 if there were no alarm slots available
 
-proc addAlarmInUs*(us: uint64; callback: AlarmCallback; userData: pointer; fire_if_past: bool): AlarmId {.importc: "add_alarm_in_us".}
+proc addAlarmInUs*(us: uint64; callback: AlarmCallback; userData: pointer; fireIfPast: bool): AlarmId {.importc: "add_alarm_in_us".}
   ## Add an alarm callback to be called after a delay specified in microseconds
   ##
   ## Generally the callback is called as soon as possible after the time specified from an IRQ handler

@@ -4,14 +4,14 @@ import picostdlib/[hardware/pll, hardware/clocks]
 
 proc measureFreqs() =
   let
-    pllSys = frequencyCountKhz(ClocksFc0Src.PllSysClksrcPrimary)
-    pllUsb = frequencyCountKhz(ClocksFc0Src.PllUsbClksrcPrimary)
-    rosc = frequencyCountKhz(ClocksFc0Src.RoscClksrc)
-    clkSys = frequencyCountKhz(ClocksFc0Src.ClkSys)
-    clkPeri = frequencyCountKhz(ClocksFc0Src.ClkPeri)
-    clkUsb = frequencyCountKhz(ClocksFc0Src.ClkUsb)
-    clkAdc = frequencyCountKhz(ClocksFc0Src.ClkAdc)
-    clkRtc = frequencyCountKhz(ClocksFc0Src.ClkRtc)
+    pllSys = frequencyCountKHz(ClocksFc0Src.PllSysClksrcPrimary)
+    pllUsb = frequencyCountKHz(ClocksFc0Src.PllUsbClksrcPrimary)
+    rosc = frequencyCountKHz(ClocksFc0Src.RoscClksrc)
+    clkSys = frequencyCountKHz(ClocksFc0Src.ClkSys)
+    clkPeri = frequencyCountKHz(ClocksFc0Src.ClkPeri)
+    clkUsb = frequencyCountKHz(ClocksFc0Src.ClkUsb)
+    clkAdc = frequencyCountKHz(ClocksFc0Src.ClkAdc)
+    clkRtc = frequencyCountKHz(ClocksFc0Src.ClkRtc)
 
   echo &"pll_sys = {pllSys}kHz"
   echo &"pll_usb = {pllUsb}kHz"
@@ -32,10 +32,10 @@ measureFreqs()
 # Change clk_sys to be 48MHz. The simplest way is to take this from PLL_USB
 # which has a source frequency of 48MHz
 discard ClockSys.configure(
-  CtrlSrcValueClkSrcClkSysAux,
+  CtrlSrcValueClksrcClkSysAux,
   ClocksClkGpoutCtrlAuxSrc.ClksrcPllUsb.uint32,
-  48u32 * Mhz,
-  48u32 * Mhz
+  48u32 * MHz,
+  48u32 * MHz
 )
 
 # Turn off PLL sys for good measure

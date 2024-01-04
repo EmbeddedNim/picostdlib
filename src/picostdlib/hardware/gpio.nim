@@ -317,7 +317,7 @@ proc acknowledgeIrq*(gpio: Gpio; eventMask: set[GpioIrqLevel]) {.importc: "gpio_
   ## \note For callbacks set with \ref gpio_set_irq_enabled_with_callback, or \ref gpio_set_irq_callback, this function is called automatically.
   ## \param event_mask Bitmask of events to clear. See \ref gpio_irq_level for details.
 
-proc addRawIrqHandlerWithOrderPriority*(gpioMask: set[Gpio]; handler: IrqHandler; order_priority: uint8) {.importc: "gpio_add_raw_irq_handler_with_order_priority_masked".}
+proc addRawIrqHandlerWithOrderPriority*(gpioMask: set[Gpio]; handler: IrqHandler; orderPriority: uint8) {.importc: "gpio_add_raw_irq_handler_with_order_priority_masked".}
   ## Adds a raw GPIO IRQ handler for the specified GPIOs on the current core
   ##
   ## In addition to the default mechanism of a single GPIO IRQ event callback per core (see \ref gpio_set_irq_callback),

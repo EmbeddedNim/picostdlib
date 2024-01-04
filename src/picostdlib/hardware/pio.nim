@@ -42,18 +42,18 @@ type
 
   PioInterruptSource* {.importc: "enum pio_interrupt_source".} = enum
     ## PIO interrupt source numbers for pio related IRQs
-    pis_sm0_rx_fifo_not_empty = 0 # PIO_INTR_SM0_RXNEMPTY_LSB
-    pis_sm1_rx_fifo_not_empty = 1 # PIO_INTR_SM1_RXNEMPTY_LSB
-    pis_sm2_rx_fifo_not_empty = 2 # PIO_INTR_SM2_RXNEMPTY_LSB
-    pis_sm3_rx_fifo_not_empty = 3 # PIO_INTR_SM3_RXNEMPTY_LSB
-    pis_sm0_tx_fifo_not_full = 4 # PIO_INTR_SM0_TXNFULL_LSB
-    pis_sm1_tx_fifo_not_full = 5 # PIO_INTR_SM1_TXNFULL_LSB
-    pis_sm2_tx_fifo_not_full = 6 # PIO_INTR_SM2_TXNFULL_LSB
-    pis_sm3_tx_fifo_not_full = 7 # PIO_INTR_SM3_TXNFULL_LSB
-    pis_interrupt0 = 8 # PIO_INTR_SM0_LSB
-    pis_interrupt1 = 9 # PIO_INTR_SM1_LSB
-    pis_interrupt2 = 10 # PIO_INTR_SM2_LSB
-    pis_interrupt3 = 11 # PIO_INTR_SM3_LSB
+    pisSm0RxFifoNotEmpty = 0 # PIO_INTR_SM0_RXNEMPTY_LSB
+    pisSm1RxFifoNotEmpty = 1 # PIO_INTR_SM1_RXNEMPTY_LSB
+    pisSm2RxFifoNotEmpty = 2 # PIO_INTR_SM2_RXNEMPTY_LSB
+    pisSm3RxFifoNotEmpty = 3 # PIO_INTR_SM3_RXNEMPTY_LSB
+    pisSm0TxFifoNotFull = 4 # PIO_INTR_SM0_TXNFULL_LSB
+    pisSm1TxFifoNotFull = 5 # PIO_INTR_SM1_TXNFULL_LSB
+    pisSm2TxFifoNotFull = 6 # PIO_INTR_SM2_TXNFULL_LSB
+    pisSm3TxFifoNotFull = 7 # PIO_INTR_SM3_TXNFULL_LSB
+    pisInterrupt0 = 8 # PIO_INTR_SM0_LSB
+    pisInterrupt1 = 9 # PIO_INTR_SM1_LSB
+    pisInterrupt2 = 10 # PIO_INTR_SM2_LSB
+    pisInterrupt3 = 11 # PIO_INTR_SM3_LSB
 
   PioInterruptNum* = range[0'u .. 7'u]
 

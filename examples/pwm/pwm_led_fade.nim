@@ -42,7 +42,7 @@ PwmIrqWrap.setEnabled(true)
 # counter is allowed to wrap over its maximum range (0 to 2**16-1)
 var config = pwmGetDefaultConfig()
 # Set divider, reduces counter clock to sysclock/this value
-addr(config).setClkdiv(4.0)
+addr(config).setClkDiv(4.0)
 # Load the configuration into our PWM slice, and set it running.
 sliceNum.init(config.addr, true)
 

@@ -31,18 +31,18 @@ proc main() =
     let batteryStatus = powerSourceBattery()
     var voltage = powerSourceVoltage()
 
-    var percent_str = ""
+    var percentStr = ""
     if batteryStatus:
-      const min_battery_volts = 3.0f
-      const max_battery_volts = 4.2f
-      let percent_val = int ((voltage - min_battery_volts) / (max_battery_volts - min_battery_volts)) * 100
-      percent_str = &", {percent_val} %"
+      const minBatteryVolts = 3.0f
+      const maxBatteryVolts = 4.2f
+      let percentVal = int ((voltage - minBatteryVolts) / (maxBatteryVolts - minBatteryVolts)) * 100
+      percentStr = &", {percentVal} %"
 
     let tempC = adcReadTemp()
 
     DefaultLedPin.put(Low)
 
-    echo &"Power source: {batteryStatus.PowerSource}, {voltage:.3f} V{percent_str}, temp {tempC:.2f} °C"
+    echo &"Power source: {batteryStatus.PowerSource}, {voltage:.3f} V{percentStr}, temp {tempC:.2f} °C"
 
     sleepMs(1000)
 

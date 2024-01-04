@@ -110,7 +110,7 @@ proc roscSetDormant*() =
   # WARNING: This stops the rosc until woken up by an irq
   roscWrite(roscHw.dormant, ROSC_DORMANT_VALUE_DORMANT)
   # Wait for it to become stable once woken up
-  while (rosc_hw.status and ROSC_STATUS_STABLE_BITS) == 0: discard
+  while (roscHw.status and ROSC_STATUS_STABLE_BITS) == 0: discard
 
 proc nextRoscCode*(code: uint32): uint32 =
   ## Given a ROSC delay stage code, return the next-numerically-higher code.

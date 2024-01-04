@@ -39,17 +39,17 @@ proc timeUs64*(): uint64 {.importc: "time_us_64".}
   ##
   ## \return the 64 bit timestamp
 
-proc busyWaitUs32*(delay_us: uint32) {.importc: "busy_wait_us_32".}
+proc busyWaitUs32*(delayUs: uint32) {.importc: "busy_wait_us_32".}
   ## Busy wait wasting cycles for the given (32 bit) number of microseconds
   ##
   ## \param delay_us delay amount in microseconds
 
-proc busyWaitUs*(delay_us: uint64) {.importc: "busy_wait_us".}
+proc busyWaitUs*(delayUs: uint64) {.importc: "busy_wait_us".}
   ## Busy wait wasting cycles for the given (64 bit) number of microseconds
   ##
   ## \param delay_us delay amount in microseconds
 
-proc busyWaitMs*(delay_ms: uint32) {.importc: "busy_wait_ms".}
+proc busyWaitMs*(delayMs: uint32) {.importc: "busy_wait_ms".}
   ## Busy wait wasting cycles for the given number of milliseconds
   ##
   ## \param delay_ms delay amount in milliseconds

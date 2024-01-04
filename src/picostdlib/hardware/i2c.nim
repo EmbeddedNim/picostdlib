@@ -226,8 +226,8 @@ template i2cSetupNim*(blokk: ptr I2cInst, pSda, pScl: Gpio, freq: uint, pull = t
   #pull = use or not to use pullup (default = true)
   var i2cx = blokk
   discard i2cx.init(freq)
-  pSda.setFunction(GpioFunction.I2C)
-  pScl.setFunction(GpioFunction.I2C)
+  pSda.setFunction(GpioFunction.I2c)
+  pScl.setFunction(GpioFunction.I2c)
   if pull:
     pSda.pullUp()
     pScl.pullUp()

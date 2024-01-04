@@ -114,8 +114,8 @@ proc sleepRunFromRosc*() {.inline.} =
 proc sleepGotoSleepDelay*(delayMs: uint32) =
   if dormantSourceCache.isNone: return
 
-  let sleep_en0 = clocksHw.sleep_en0
-  let sleep_en1 = clocksHw.sleep_en1
+  let sleepEn0 = clocksHw.sleep_en0
+  let sleepEn1 = clocksHw.sleep_en1
 
   clocksHw.sleep_en0 = ClocksSleepEn0ClkRtcRtcBits
 
@@ -130,8 +130,8 @@ proc sleepGotoSleepDelay*(delayMs: uint32) =
   wfi()
 
   scbHw.scr = scbHw.scr and (not M0PLUS_SCR_SLEEPDEEP_BITS)
-  clocksHw.sleep_en0 = sleep_en0
-  clocksHw.sleep_en1 = sleep_en1
+  clocksHw.sleep_en0 = sleepEn0
+  clocksHw.sleep_en1 = sleepEn1
 
   case dormantSourceCache.get():
   of SrcXosc: roscEnable()
@@ -152,8 +152,8 @@ proc sleepGotoSleepUntil*(t: ptr DatetimeT; callback: RtcCallback) =
   #  We should have already called the sleepRunFromDormantSource function
   if dormantSourceCache.isNone: return
 
-  let sleep_en0 = clocksHw.sleep_en0
-  let sleep_en1 = clocksHw.sleep_en1
+  let sleepEn0 = clocksHw.sleep_en0
+  let sleepEn1 = clocksHw.sleep_en1
 
   clocksHw.sleep_en0 = ClocksSleepEn0ClkRtcRtcBits
 
@@ -169,8 +169,8 @@ proc sleepGotoSleepUntil*(t: ptr DatetimeT; callback: RtcCallback) =
   wfi()
 
   scbHw.scr = scbHw.scr and (not M0PLUS_SCR_SLEEPDEEP_BITS)
-  clocksHw.sleep_en0 = sleep_en0
-  clocksHw.sleep_en1 = sleep_en1
+  clocksHw.sleep_en0 = sleepEn0
+  clocksHw.sleep_en1 = sleepEn1
 
   case dormantSourceCache.get():
   of SrcXosc: roscEnable()

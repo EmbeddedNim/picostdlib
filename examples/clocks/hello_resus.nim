@@ -8,14 +8,14 @@ var seenResus: bool
 
 proc resusCallback {.cdecl.} =
   #  Reconfigure PLL sys back to the default state of 1500 / 6 / 2 = 125MHz
-  PllSys.init(1, 1500 * Mhz, 6, 2)
+  PllSys.init(1, 1500 * MHz, 6, 2)
 
   # CLK SYS = PLL SYS (125MHz) / 1 = 125MHz
   discard ClockSys.configure(
     CtrlSrcValueClksrcClkSysAux,
     CtrlAuxsrcValueClksrcPllSys,
-    125 * Mhz,
-    125 * Mhz
+    125 * MHz,
+    125 * MHz
   )
 
   # Reconfigure uart as clocks have changed
