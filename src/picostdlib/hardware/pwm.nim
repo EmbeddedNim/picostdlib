@@ -4,7 +4,7 @@ import ./gpio
 export gpio
 
 import ../helpers
-{.passC: "-I" & picoSdkPath & "/src/rp2_common/hardware_pwm/include".}
+{.localPassC: "-I" & picoSdkPath & "/src/rp2_common/hardware_pwm/include".}
 
 type
   PwmChannel* {.pure.} = enum

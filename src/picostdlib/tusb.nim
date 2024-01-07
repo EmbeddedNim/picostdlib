@@ -1,7 +1,7 @@
 # USB Device API
 
 import ./helpers
-{.passC: "-I" & picoSdkPath & "/lib/tinyusb/src".}
+{.localPassC: "-I" & picoSdkPath & "/lib/tinyusb/src".}
 {.push header: "tusb.h".}
 type UsbSpeed* {.pure, importc: "tusb_speed_t".} = enum Full, Low, High
 

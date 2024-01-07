@@ -1,5 +1,5 @@
 import ../helpers
-{.passC: "-I" & picoSdkPath & "/src/rp2_common/hardware_sync/include".}
+{.localPassC: "-I" & picoSdkPath & "/src/rp2_common/hardware_sync/include".}
 {.push header: "hardware/sync.h".}
 
 const

@@ -2,7 +2,7 @@ import ./regs/intctrl
 export intctrl
 
 import ../helpers
-{.passC: "-I" & picoSdkPath & "/src/rp2_common/hardware_irq/include".}
+{.localPassC: "-I" & picoSdkPath & "/src/rp2_common/hardware_irq/include".}
 {.push header: "hardware/irq.h".}
 
 const

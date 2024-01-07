@@ -1,5 +1,5 @@
 import ../helpers
-{.passC: "-I" & picoSdkPath & "/src/rp2_common/pico_double/include".}
+{.localPassC: "-I" & picoSdkPath & "/src/rp2_common/pico_double/include".}
 {.push header: "pico/double.h".}
 
 proc fix2double*(m: int32; e: cint): cdouble {.importc: "fix2double".}

@@ -2,7 +2,7 @@ import ../types
 export types
 
 import ../../helpers
-{.passC: "-I" & picoSdkPath & "/src/common/pico_util/include".}
+{.localPassC: "-I" & picoSdkPath & "/src/common/pico_util/include".}
 {.push header: "pico/util/datetime.h".}
 
 proc datetimeToStr*(buf: ptr char; bufSize: cuint; t: ptr DatetimeT) {.importc: "datetime_to_str".}

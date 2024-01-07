@@ -1,5 +1,5 @@
 import ../helpers
-{.passC: "-I" & picoSdkPath & "/src/rp2_common/hardware_divider/include".}
+{.localPassC: "-I" & picoSdkPath & "/src/rp2_common/hardware_divider/include".}
 {.push header: "hardware/divider.h".}
 
 type

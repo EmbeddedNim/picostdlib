@@ -29,7 +29,7 @@
 
 import ../helpers
 
-{.passC: "-I" & piconimCsourceDir.}
+{.localPassC: "-I" & piconimCsourceDir.}
 
 let
   TCP_SND_BUF* {.importc: "TCP_SND_BUF", header: "lwipopts.h".}: cint

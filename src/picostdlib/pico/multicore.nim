@@ -2,7 +2,7 @@ import ./sync
 export sync
 
 import ../helpers
-{.passC: "-I" & picoSdkPath & "/src/rp2_common/pico_multicore/include".}
+{.localPassC: "-I" & picoSdkPath & "/src/rp2_common/pico_multicore/include".}
 {.push header: "pico/multicore.h".}
 
 type

@@ -3,8 +3,8 @@ import ./irq
 export setutils, irq
 
 import ../helpers
-{.passC: "-I" & picoSdkPath & "/src/rp2040/hardware_structs/include".}
-{.passC: "-I" & picoSdkPath & "/src/rp2_common/hardware_gpio/include".}
+{.localPassC: "-I" & picoSdkPath & "/src/rp2040/hardware_structs/include".}
+{.localPassC: "-I" & picoSdkPath & "/src/rp2_common/hardware_gpio/include".}
 
 type
   Gpio* = distinct range[0.cuint .. 29.cuint] # NUM_BANK0_GPIOS = 30

@@ -1,5 +1,5 @@
 import ../helpers
-{.passC: "-I" & picoSdkPath & "/src/rp2_common/hardware_base/include".}
+{.localPassC: "-I" & picoSdkPath & "/src/rp2_common/hardware_base/include".}
 {.push header: "hardware/address_mapped.h".}
 
 type

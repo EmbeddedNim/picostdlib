@@ -13,7 +13,7 @@ import ./base, ./clocks
 export base, clocks
 
 import ../helpers
-{.passC: "-I" & picoSdkPath & "/src/rp2040/hardware_regs/include".}
+{.localPassC: "-I" & picoSdkPath & "/src/rp2040/hardware_regs/include".}
 {.push header: "hardware/regs/rosc.h".}
 
 let
@@ -32,7 +32,7 @@ let
 
 {.pop.}
 
-{.passC: "-I" & picoSdkPath & "/src/rp2040/hardware_structs/include".}
+{.localPassC: "-I" & picoSdkPath & "/src/rp2040/hardware_structs/include".}
 {.push header: "hardware/structs/rosc.h".}
 
 type

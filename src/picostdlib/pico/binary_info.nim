@@ -1,7 +1,7 @@
 import std/macros
 
 import ../helpers
-{.passC: "-I" & picoSdkPath & "/src/common/pico_binary_info/include".}
+{.localPassC: "-I" & picoSdkPath & "/src/common/pico_binary_info/include".}
 
 type
   BinaryInfoBlockDevConfigFlag* = enum

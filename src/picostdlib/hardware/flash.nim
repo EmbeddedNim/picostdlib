@@ -4,7 +4,7 @@ template FlashBinaryStart*: untyped = cast[cuint](tFlashBinaryStart.unsafeAddr)
 template FlashBinaryEnd*: untyped = cast[cuint](tFlashBinaryEnd.unsafeAddr)
 
 import ../helpers
-{.passC: "-I" & picoSdkPath & "/src/rp2_common/hardware_flash/include".}
+{.localPassC: "-I" & picoSdkPath & "/src/rp2_common/hardware_flash/include".}
 {.push header: "hardware/flash.h".}
 
 let

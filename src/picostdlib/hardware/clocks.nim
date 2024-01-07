@@ -2,7 +2,7 @@ import ./base, ./gpio
 export base, gpio
 
 import ../helpers
-{.passC: "-I" & picoSdkPath & "/src/rp2_common/hardware_clocks/include".}
+{.localPassC: "-I" & picoSdkPath & "/src/rp2_common/hardware_clocks/include".}
 
 type
   ClocksFc0Src* {.pure, size: sizeof(uint32).} = enum

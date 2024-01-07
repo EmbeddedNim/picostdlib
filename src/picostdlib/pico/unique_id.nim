@@ -1,5 +1,5 @@
 import ../helpers
-{.passC: "-I" & picoSdkPath & "/src/rp2_common/pico_unique_id/include".}
+{.localPassC: "-I" & picoSdkPath & "/src/rp2_common/pico_unique_id/include".}
 {.push header: "pico/unique_id.h".}
 
 const

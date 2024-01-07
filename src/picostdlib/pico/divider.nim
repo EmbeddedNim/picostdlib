@@ -2,7 +2,7 @@ import ../hardware/divider
 export divider
 
 import ../helpers
-{.passC: "-I" & picoSdkPath & "/src/common/pico_divider/include".}
+{.localPassC: "-I" & picoSdkPath & "/src/common/pico_divider/include".}
 {.push header: "pico/divider.h".}
 
 proc div_s32s32*(a: int32; b: int32): int32 {.importc: "div_s32s32".}

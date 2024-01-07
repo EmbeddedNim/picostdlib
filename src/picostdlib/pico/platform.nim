@@ -1,6 +1,6 @@
 import ../helpers
-{.passC: "-I" & picoSdkPath & "/src/rp2040/hardware_regs/include".}
-{.passC: "-I" & picoSdkPath & "/src/rp2_common/pico_platform/include".}
+{.localPassC: "-I" & picoSdkPath & "/src/rp2040/hardware_regs/include".}
+{.localPassC: "-I" & picoSdkPath & "/src/rp2_common/pico_platform/include".}
 {.push header: "pico/platform.h".}
 
 let

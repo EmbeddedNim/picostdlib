@@ -2,7 +2,7 @@ import ../pico/types
 export types
 
 import ../helpers
-{.passC: "-I" & picoSdkPath & "/src/rp2_common/hardware_rtc/include".}
+{.localPassC: "-I" & picoSdkPath & "/src/rp2_common/hardware_rtc/include".}
 {.push header: "hardware/rtc.h".}
 
 type

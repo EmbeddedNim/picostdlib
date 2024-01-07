@@ -3,7 +3,7 @@ import ../hardware/timer
 export types, timer
 
 import ../helpers
-{.passC: "-I" & picoSdkPath & "/src/common/pico_time/include".}
+{.localPassC: "-I" & picoSdkPath & "/src/common/pico_time/include".}
 {.push header: "pico/time.h".}
 
 type

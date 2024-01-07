@@ -4,7 +4,7 @@ import ./lock_core
 export types, lock_core
 
 import ../helpers
-{.passC: "-I" & picoSdkPath & "/src/common/pico_sync/include".}
+{.localPassC: "-I" & picoSdkPath & "/src/common/pico_sync/include".}
 {.push header: "pico/mutex.h".}
 
 type

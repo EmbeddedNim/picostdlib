@@ -2,7 +2,7 @@ import ./types
 export types
 
 import ../helpers
-{.passC: "-I" & picoSdkPath & "/src/rp2_common/pico_async_context/include".}
+{.localPassC: "-I" & picoSdkPath & "/src/rp2_common/pico_async_context/include".}
 {.push header: "pico/async_context.h".}
 
 type

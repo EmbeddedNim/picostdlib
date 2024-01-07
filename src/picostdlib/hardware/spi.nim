@@ -6,7 +6,7 @@ export gpio
 export DefaultSpi, DefaultSpiSckPin, DefaultSpiTxPin, DefaultSpiRxPin, DefaultSpiCsnPin
 
 import ../helpers
-{.passC: "-I" & picoSdkPath & "/src/rp2_common/hardware_spi/include".}
+{.localPassC: "-I" & picoSdkPath & "/src/rp2_common/hardware_spi/include".}
 
 ## spi_inst struct does not exist
 ## cpp backend needs this to be defined

@@ -2,7 +2,7 @@ import ./platform_defs, ./base, ../pico/types
 export base, types
 
 import ../helpers
-{.passC: "-I" & picoSdkPath & "/src/rp2_common/hardware_timer/include".}
+{.localPassC: "-I" & picoSdkPath & "/src/rp2_common/hardware_timer/include".}
 {.push header: "hardware/timer.h".}
 
 type

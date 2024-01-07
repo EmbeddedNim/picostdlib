@@ -3,7 +3,7 @@ import ./platform_defs
 import ./gpio
 
 import ../helpers
-{.passC: "-I" & picoSdkPath & "/src/rp2_common/hardware_pio/include".}
+{.localPassC: "-I" & picoSdkPath & "/src/rp2_common/hardware_pio/include".}
 {.push header: "hardware/pio.h".}
 
 type

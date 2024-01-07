@@ -2,7 +2,7 @@ import ../hardware/sync
 export sync
 
 import ../helpers
-{.passC: "-I" & picoSdkPath & "/src/common/pico_sync/include".}
+{.localPassC: "-I" & picoSdkPath & "/src/common/pico_sync/include".}
 {.push header: "pico/critical_section.h".}
 
 type

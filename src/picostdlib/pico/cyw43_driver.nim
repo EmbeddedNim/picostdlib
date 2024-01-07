@@ -2,7 +2,7 @@ import ./async_context
 export async_context
 
 import ../helpers
-{.passC: "-I" & picoSdkPath & "/src/rp2_common/pico_cyw43_driver/include".}
+{.localPassC: "-I" & picoSdkPath & "/src/rp2_common/pico_cyw43_driver/include".}
 {.push header: "pico/cyw43_driver.h".}
 
 proc cyw43DriverInit*(context: ptr AsyncContext): bool {.importc: "cyw43_driver_init".}

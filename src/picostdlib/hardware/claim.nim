@@ -1,5 +1,5 @@
 import ../helpers
-{.passC: "-I" & picoSdkPath & "/src/rp2_common/hardware_claim/include".}
+{.localPassC: "-I" & picoSdkPath & "/src/rp2_common/hardware_claim/include".}
 {.push header: "hardware/claim.h".}
 
 type

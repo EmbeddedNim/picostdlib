@@ -1,7 +1,7 @@
 import ./base
 
 import ../helpers
-{.passC: "-I" & picoSdkPath & "/src/rp2_common/hardware_interp/include".}
+{.localPassC: "-I" & picoSdkPath & "/src/rp2_common/hardware_interp/include".}
 {.push header: "hardware/interp.h".}
 
 type

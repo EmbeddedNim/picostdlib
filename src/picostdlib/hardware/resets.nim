@@ -1,5 +1,5 @@
 import ../helpers
-{.passC: "-I" & picoSdkPath & "/src/rp2_common/hardware_resets/include".}
+{.localPassC: "-I" & picoSdkPath & "/src/rp2_common/hardware_resets/include".}
 {.push header: "hardware/resets.h".}
 
 let
