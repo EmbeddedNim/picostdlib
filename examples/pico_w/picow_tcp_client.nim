@@ -119,7 +119,7 @@ proc tcpClientExample*() =
 
   Cyw43WlGpioLedPin.put(Low)
 
-  echo "ip: ", cyw43State.netif[0].ipAddr, " mask: ", cyw43State.netif[0].netmask, " gateway: ", cyw43State.netif[0].gw
+  echo "ip: ", cyw43State.netif[0].ip_addr, " mask: ", cyw43State.netif[0].netmask, " gateway: ", cyw43State.netif[0].gw
   echo "hostname: ", cast[cstring](cyw43State.netif[0].hostname)
 
   runTcpClientTest()

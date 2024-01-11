@@ -68,9 +68,17 @@ else:
 
     "FreeRTOS.h"
     "task.h"
+    "queue.h"
+    "timers.h"
+    "semphr.h"
 
 when freertosKernelHeap != "":
   {.emit: ["// picostdlib import: ", freertosKernelHeap].}
 
-const
-  tskIDLE_PRIORITY*: UBaseTypeT = 0
+let tskIDLE_PRIORITY* = UBaseTypeT(0)
+
+{.push header: "FreeRTOSConfig.h".}
+
+let configMINIMAL_STACK_SIZE* {.importc: "configMINIMAL_STACK_SIZE".}: cuint
+
+{.pop.}

@@ -21,32 +21,30 @@ when not defined(freertosKernelHeap):
 macro staticInclude(path: static[string]): untyped =
   newTree(nnkIncludeStmt, newLit(path))
 
-const packageName = getCurrentDir().splitPath().tail
-const cmakeBinaryDir {.strdefine.} = getCurrentDir() / "build" / packageName
+# find picostdlib package path
+const picostdlibPath = static:
+  when dirExists(getCurrentDir() / "src" / "picostdlib"):
+    getCurrentDir() / "src" / "picostdlib"
+  else:
+    const (path, code) = gorgeEx("piconim path")
+    when code != 0:
+      ""
+    else:
+      path
 
-# import cmake config
-const cmakecachePath = cmakeBinaryDir / "generated" / "cmakecache.nim"
-when fileExists(cmakecachePath):
-  staticInclude(cmakecachePath)
-
-  when CMAKE_BUILD_TYPE in ["Release", "MinSizeRel", "RelWithDebInfo"]:
-    switch("define", "NDEBUG")
-    switch("passC", "-DNDEBUG")
-    when releaseFollowsCmake:
-      switch("define", "release")
-
-  when CMAKE_BUILD_TYPE == "MinSizeRel":
-    switch("opt", "size") # needs to be after (define:release)
-
-  when PICO_CYW43_SUPPORTED:
-    switch("define", "picoCyw43Supported")
+when picostdlibPath != "":
+  echo picostdlibPath
+  staticInclude(picostdlibPath / "build_utils" / "include.nims")
 
 switch("cpu", "arm")
-switch("os", "freertos")
+# switch("os", "freertos")
+switch("os", "any")
+switch("define", "posix") # workaround for os=any
 switch("mm", "arc")
 switch("deepcopy", "on")
 switch("threads", "off")
 # switch("hints", "off")
+# switch("debugger", "native")
 
 when false:
   # experimental, let Nim call the C compiler

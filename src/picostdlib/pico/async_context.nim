@@ -1,11 +1,16 @@
-import ./types
-export types
+import ./time
+export time
 
 import ../helpers
 {.localPassC: "-I" & picoSdkPath & "/src/rp2_common/pico_async_context/include".}
 {.push header: "pico/async_context.h".}
 
 type
+  AsyncContextFlags* {.size: sizeof(uint16).} = enum
+    ASYNC_CONTEXT_FLAG_CALLBACK_FROM_NON_IRQ
+    ASYNC_CONTEXT_FLAG_CALLBACK_FROM_IRQ
+    ASYNC_CONTEXT_FLAG_POLLED
+
   AsyncContext* {.importc: "async_context_t".} = object
     ## Base structure type of all async_contexts. For details about its use, see \ref pico_async_context.
     ##
@@ -14,7 +19,7 @@ type
     whenPendingList* {.importc: "when_pending_list".}: ptr AsyncWhenPendingWorker
     atTimeList* {.importc: "async_at_time_worker_t".}: ptr AsyncAtTimeWorker
     nextTime* {.importc: "next_time".}: AbsoluteTime
-    flags* {.importc: "flags".}: uint16
+    flags* {.importc: "flags".}: set[AsyncContextFlags]
     coreNum* {.importc: "core_num".}: uint8
 
   AsyncAtTimeWorker* {.importc: "async_at_time_worker_t".} = object
@@ -271,3 +276,135 @@ proc deinit*(context: ptr AsyncContext) {.importc: "async_context_deinit".}
   ## \param context the async_context
 
 {.pop.}
+
+import ./mutex
+import ./sem
+
+{.push header: "pico/async_context_threadsafe_background.h".}
+
+type
+  AsyncContextThreadsafeBackgroundConfig* {.importc: "async_context_threadsafe_background_config_t".} = object
+    ## Configuration object for async_context_threadsafe_background instances.
+    low_priority_irq_handler_priority*: uint8
+      ## the priority of the low priority IRQ
+    custom_alarm_pool*: ptr AlarmPool
+
+  AsyncContextThreadsafeBackground* {.importc: "async_context_threadsafe_background_t".} = object
+    core*: AsyncContext
+    alarm_pool*: ptr AlarmPool # this must be on the same core as core_num
+    last_set_alarm_time*: AbsoluteTime
+    lock_mutex*: RecursiveMutex
+    work_needed_sem*: Semaphore
+    alarm_id*: AlarmId
+
+    # #if ASYNC_CONTEXT_THREADSAFE_BACKGROUND_MULTI_CORE
+    force_alarm_id*: AlarmId
+    alarm_pool_owned*: bool
+    # #endif
+
+    low_priority_irq_num*: uint8
+    alarm_pending*: bool
+
+proc init*(self: ptr AsyncContextThreadsafeBackground; config: ptr AsyncContextThreadsafeBackgroundConfig): bool {.importc: "async_context_threadsafe_background_init".}
+  ## Initialize an async_context_threadsafe_background instance using the specified configuration
+  ##
+  ## If this method succeeds (returns true), then the async_context is available for use
+  ## and can be de-initialized by calling async_context_deinit().
+  ##
+  ## \param self a pointer to async_context_threadsafe_background structure to initialize
+  ## \param config the configuration object specifying characteristics for the async_context
+  ## \return true if initialization is successful, false otherwise
+
+proc asyncContextThreadsafeBackgroundDefaultConfig*(): AsyncContextThreadsafeBackgroundConfig {.importc: "async_context_threadsafe_background_default_config".}
+  ## Return a copy of the default configuration object used by \ref async_context_threadsafe_background_init_with_defaults()
+  ##
+  ## The caller can then modify just the settings it cares about, and call \ref async_context_threadsafe_background_init()
+  ## \return the default configuration object
+
+proc initWithDefaults*(self: ptr AsyncContextThreadsafeBackground): bool {.importc: "async_context_threadsafe_background_init_with_defaults".}
+  ## Initialize an async_context_threadsafe_background instance with default values
+  ##
+  ## If this method succeeds (returns true), then the async_context is available for use
+  ## and can be de-initialized by calling async_context_deinit().
+  ##
+  ## \param self a pointer to async_context_threadsafe_background structure to initialize
+  ## \return true if initialization is successful, false otherwise
+
+{.pop.}
+
+
+{.push header: "pico/async_context_poll.h".}
+
+type
+  AsyncContextPoll* {.importc: "async_context_poll_t".} = object
+    core*: AsyncContext
+    sem*: Semaphore
+
+proc initWithDefaults*(self: ptr AsyncContextPoll): bool {.importc: "async_context_poll_init_with_defaults".}
+  ## Initialize an async_context_poll instance with default values
+  ##
+  ## If this method succeeds (returns true), then the async_context is available for use
+  ## and can be de-initialized by calling async_context_deinit().
+  ##
+  ## \param self a pointer to async_context_poll structure to initialize
+  ## \return true if initialization is successful, false otherwise
+
+{.pop.}
+
+when defined(freertos):
+  import ../lib/freertos
+
+  {.push header: "async_context_freertos.h".}
+
+  let
+    ASYNC_CONTEXT_DEFAULT_FREERTOS_TASK_PRIORITY* {.importc: "ASYNC_CONTEXT_DEFAULT_FREERTOS_TASK_PRIORITY".}: clong
+    ASYNC_CONTEXT_DEFAULT_FREERTOS_TASK_STACK_SIZE* {.importc: "ASYNC_CONTEXT_DEFAULT_FREERTOS_TASK_STACK_SIZE".}: cuint
+
+  type
+    AsyncContextFreertosConfig* {.importc: "async_context_freertos_config_t".} = object
+      task_priority*: UBaseTypeT
+        ## Task priority for the async_context task
+      task_stack_size*: csize_t
+        ## Stack size for the async_context task
+
+      # #if configUSE_CORE_AFFINITY && configNUM_CORES > 1
+      task_core_id*: UBaseTypeT
+        ## the core ID (see \ref portGET_CORE_ID()) to pin the task to.
+        ## This is only relevant in SMP mode.
+
+    AsyncContextFreertos* {.importc: "async_context_freertos_t".} = object
+      core*: AsyncContext
+      lock_mutex*: SemaphoreHandleT
+      work_needed_sem*: SemaphoreHandleT
+      timer_handle*: TimerHandleT
+      task_handle*: TaskHandleT
+      nesting*: uint8
+      task_should_exit*: bool
+
+  proc init*(self: ptr AsyncContextFreertos; config: ptr AsyncContextFreertosConfig): bool {.importc: "async_context_freertos_init".}
+    ## Initialize an async_context_freertos instance using the specified configuration
+    ##
+    ## If this method succeeds (returns true), then the async_context is available for use
+    ## and can be de-initialized by calling async_context_deinit().
+    ##
+    ## \param self a pointer to async_context_freertos structure to initialize
+    ## \param config the configuration object specifying characteristics for the async_context
+    ## \return true if initialization is successful, false otherwise
+
+  proc asyncContextFreertosDefaultConfig*(): AsyncContextFreertosConfig {.importc: "async_context_freertos_default_config".}
+    ## Return a copy of the default configuration object used by \ref async_context_freertos_init_with_defaults() 
+    ##
+    ## The caller can then modify just the settings it cares about, and call \ref async_context_freertos_init()
+    ## \return the default configuration object
+
+  proc initWithDefaults*(self: AsyncContextFreertos): bool {.importc: "async_context_freertos_init_with_defaults".}
+    ## Initialize an async_context_freertos instance with default values
+    ## \ingroup async_context_freertos
+    ##
+    ## If this method succeeds (returns true), then the async_context is available for use
+    ## and can be de-initialized by calling async_context_deinit().
+    ##
+    ## \param self a pointer to async_context_freertos structure to initialize
+    ## \return true if initialization is successful, false otherwise
+
+  {.pop.}

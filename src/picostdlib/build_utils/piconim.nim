@@ -19,6 +19,7 @@ Subcommands:
   init
   configure
   build
+  path
 
 Run piconim init <project-name> to create a new project directory from a
 template. This will create a new folder, so make sure you are in the parent
@@ -217,6 +218,14 @@ proc validateInitInputs(name: string, sdk: string = "", board: string = "", over
   if sdk != "":
     validateSdkPath sdk
 
+proc doPath() =
+  let appDir = os.getAppDir()
+  if dirExists(appDir / "src" / "picostdlib"):
+    echo appDir / "src" / "picostdlib" # development
+  elif dirExists(appDir / "picostdlib"):
+    echo appDir / "picostdlib" # installed
+  else:
+    echo appDir # fallback
 
 # --- MAIN PROGRAM ---
 when isMainModule:
@@ -226,7 +235,7 @@ when isMainModule:
       commandant.option(board, string, "board", "b", "pico")
       commandant.option(sdk, string, "sdk", "s")
       flag(overwriteTemplate, "overwrite", "O")
-    subcommand(setup, "configure"):
+    subcommand(setup, "configure", "c"):
       commandant.option(projectInSetup, string, "project", "p")
       commandant.option(sourceDirIn, string, "source", "S", ".")
       commandant.option(setupSdk, string, "sdk", "s")
@@ -239,6 +248,8 @@ when isMainModule:
       flag(upload, "upload", "u")
       commandant.option(buildSourceDirIn, string, "source", "S", ".")
       commandant.option(buildBoardIn, string, "board", "b")
+    subcommand(path, "path"):
+      discard
 
 
   if init:
@@ -257,5 +268,7 @@ when isMainModule:
     doSetup(projectInSetup, sourceDirIn, boardIn, setupSdk)
   elif build:
     doBuild(mainProgram, projectInBuild, targetIn, compileOnly, upload, buildSourceDirIn, buildBoardIn)
+  elif path:
+    doPath()
   else:
     echo helpMessage()

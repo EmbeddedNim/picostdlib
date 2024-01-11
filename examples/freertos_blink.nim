@@ -3,8 +3,8 @@ import picostdlib/lib/freertos
 
 let led = DefaultLedPin
 
-const mainTaskPriority = tskIDLE_PRIORITY + 2
-const blinkTaskPriority = tskIDLE_PRIORITY + 1
+let mainTaskPriority = tskIDLE_PRIORITY + 2
+let blinkTaskPriority = tskIDLE_PRIORITY + 1
 
 proc blinkTask(params: pointer) {.cdecl.} =
   let blinkDelay = cast[ptr uint32](params)[]

@@ -19,10 +19,9 @@ proc powerSourceVoltage*(sampleCount: int = 10): float32 =
     return 0.0
 
   when defined(picoCyw43Supported):
-    cyw43ThreadEnter()
-    defer: cyw43ThreadExit()
     # Make sure cyw43 is awake
-    discard Cyw43WlGpioVbusPin.get()
+    withLwipLock:
+      discard Cyw43WlGpioVbusPin.get()
 
   VsysPin.initAdc()
   VsysAdcInput.selectInput()
