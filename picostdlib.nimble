@@ -7,7 +7,7 @@ license       = "BSD-3-Clause"
 srcDir        = "src"
 backend       = "c"
 namedBin["picostdlib/build_utils/piconim"] = "piconim"
-installExt    = @["nim", "h", "c", "cmake", "txt", "md"]
+installExt    = @["nim", "nims", "h", "c", "cmake", "txt", "md"]
 
 
 # Dependencies
@@ -27,7 +27,7 @@ task futharkgen, "Generate futhark cache":
   rmDir "build/futharkgen"
 
 before install:
-  exec "nimble build"
+  exec "nimble build piconim"
   futharkgenTask()
 
 task test, "Runs the test suite":
