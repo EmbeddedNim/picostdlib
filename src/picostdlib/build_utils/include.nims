@@ -20,4 +20,8 @@ when fileExists(cmakecachePath):
 
 switch("define", "picosdk")
 
+switch("cpu", "arm")
+# switch("os", "any")
+switch("define", "posix") # workaround for os=any
+
 patchFile("stdlib", "monotimes", picostdlibPath / "patches" / "monotimes")

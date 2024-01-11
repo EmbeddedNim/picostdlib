@@ -1,9 +1,10 @@
 switch("path", "$projectDir/../src")
 switch("path", getCurrentDir() & "/src")
 
-include "../template/src/config.nims"
+switch("os", "freertos")
+switch("define", "freertosKernelHeap:FreeRTOS-Kernel-Heap3")
 
-switch("define", "cyw43ArchBackend:threadsafe_background")
+include "../template/src/config.nims"
 
 switch("d", "cmakeBinaryDir:" & getCurrentDir() & "/build/tests")
 switch("d", "piconimCsourceDir:" & getCurrentDir() & "/template/csource")

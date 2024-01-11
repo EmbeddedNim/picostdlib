@@ -1,19 +1,17 @@
 import std/os, std/macros
 
-# switch("define", "release")
 const releaseFollowsCmake = true
 
 # used by futhark to find .h config files
 when not defined(piconimCsourceDir):
   switch("define", "piconimCsourceDir:" & getCurrentDir() / "csource")
 
-# when not defined(cyw43ArchBackend):
-#   switch("define", "cyw43ArchBackend:threadsafe_background")
+switch("define", "cyw43ArchBackend:threadsafe_background")
 
-when not defined(freertosKernelHeap):
-  # https://www.freertos.org/a00111.html
-  # Default to heap 3 - wraps the standard malloc() and free() for thread safety.
-  switch("define", "freertosKernelHeap:FreeRTOS-Kernel-Heap3")
+## https://www.freertos.org/a00111.html
+## Default to heap 3 - wraps the standard malloc() and free() for thread safety.
+# switch("os", "freertos")
+# switch("define", "freertosKernelHeap:FreeRTOS-Kernel-Heap3")
 
 
 #:: INTERNALS ::#
@@ -36,10 +34,6 @@ when picostdlibPath != "":
   echo picostdlibPath
   staticInclude(picostdlibPath / "build_utils" / "include.nims")
 
-switch("cpu", "arm")
-# switch("os", "freertos")
-switch("os", "any")
-switch("define", "posix") # workaround for os=any
 switch("mm", "arc")
 switch("deepcopy", "on")
 switch("threads", "off")
