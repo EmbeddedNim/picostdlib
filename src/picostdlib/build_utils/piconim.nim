@@ -61,7 +61,7 @@ file will be located in `build/<project>/`
 
 const embeddedFiles = (proc (): OrderedTable[string, string] =
   const root = getProjectPath() / ".." / ".." / ".." / "template"
-  for item in os.walkDirRec(root, relative=true, checkDir=true):
+  for item in os.walkDirRec(root, relative = true, checkDir = true):
     result[item] = staticRead(root / item)
 )()
 
@@ -81,8 +81,8 @@ proc createProject(projectPath: string; sdk = ""; board: string = ""; override =
 
   let nimbleProc = startProcess(
     "nimble",
-    args=["init", name],
-    options={poEchoCmd, poUsePath, poParentStreams}
+    args = ["init", name],
+    options = {poEchoCmd, poUsePath, poParentStreams}
   )
   let nimbleExit = nimbleProc.waitForExit()
   if nimbleExit != 0:
@@ -204,7 +204,7 @@ proc doBuild(mainProgram: string; projectIn = ""; targetIn = ""; compileOnly: bo
     discard execCmd("picotool load -x " & quoteShell(uf2) & " -f")
 
 
-proc validateInitInputs(name: string, sdk: string = "", board: string = "", overwrite: bool) =
+proc validateInitInputs(name: string; sdk: string = ""; board: string = ""; overwrite: bool) =
   ## ensures that provided setup cli parameters will work
 
   # check if name is valid filename
@@ -261,7 +261,7 @@ when isMainModule:
       printError(e.msg)
       if not dirDidExist:
         try:
-         removeDir(name) # We failed remove file
+          removeDir(name) # We failed remove file
         except IOError:
           discard
   elif setup:

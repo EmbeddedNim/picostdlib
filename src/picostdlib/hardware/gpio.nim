@@ -67,10 +67,10 @@ type
   GpioIrqCallback* {.importc: "gpio_irq_callback_t".} = proc (gpio: Gpio; eventMask: culong) {.cdecl.}
 
   GpioOverride* {.pure, importc: "gpio_override".} = enum
-    OverrideNormal  # peripheral signal selected via \ref gpio_set_function
-    OverrideInvert  # invert peripheral signal selected via \ref gpio_set_function
-    OverrideLow     # drive low/disable output
-    OverrideHigh    # drive high/enable output
+    OverrideNormal # peripheral signal selected via \ref gpio_set_function
+    OverrideInvert # invert peripheral signal selected via \ref gpio_set_function
+    OverrideLow    # drive low/disable output
+    OverrideHigh   # drive high/enable output
 
   GpioSlewRate* {.pure, importc: "enum gpio_slew_rate", size: sizeof(byte).} = enum
     ## Slew rate limiting levels for GPIO outputs
@@ -78,17 +78,17 @@ type
     ## Slew rate limiting increases the minimum rise/fall time when a GPIO output
     ## is lightly loaded, which can help to reduce electromagnetic emissions.
     ## \sa gpio_set_slew_rate
-    SlewRateSlow  # Slew rate limiting enabled
-    SlewRateFast   # Slew rate limiting disabled
+    SlewRateSlow # Slew rate limiting enabled
+    SlewRateFast # Slew rate limiting disabled
 
   GpioDriveStrength* {.pure, importc: "enum gpio_drive_strength", size: sizeof(byte).} = enum
     DriveStrength2mA  # 2 mA nominal drive strength
     DriveStrength4mA  # 4 mA nominal drive strength
     DriveStrength8mA  # 2 mA nominal drive strength
-    DriveStrength12mA  # 12 mA nominal drive strength
+    DriveStrength12mA # 12 mA nominal drive strength
 
 
-proc setFunction*(gpio: Gpio, fn: GpioFunction) {.importc: "gpio_set_function".}
+proc setFunction*(gpio: Gpio; fn: GpioFunction) {.importc: "gpio_set_function".}
   ## Select GPIO function
   ##
   ## \param gpio GPIO number
@@ -145,19 +145,19 @@ proc setIrqover*(gpio: Gpio; value: GpioOverride) {.importc: "gpio_set_irqover".
   ## \param gpio GPIO number
   ## \param value See \ref gpio_override
 
-proc setOutover*(gpio: Gpio, value: GpioOverride) {.importc: "gpio_set_outover".}
+proc setOutover*(gpio: Gpio; value: GpioOverride) {.importc: "gpio_set_outover".}
   ## Set GPIO output override
   ##
   ## \param gpio GPIO number
   ## \param value See \ref gpio_override
 
-proc setInover*(gpio: Gpio, value: GpioOverride) {.importc: "gpio_set_inover".}
+proc setInover*(gpio: Gpio; value: GpioOverride) {.importc: "gpio_set_inover".}
   ## Select GPIO input override
   ##
   ## \param gpio GPIO number
   ## \param value See \ref gpio_override
 
-proc setOeover*(gpio: Gpio, value: GpioOverride) {.importc: "gpio_set_oeover".}
+proc setOeover*(gpio: Gpio; value: GpioOverride) {.importc: "gpio_set_oeover".}
   ## Select GPIO output enable override
   ##
   ## \param gpio GPIO number
@@ -511,7 +511,7 @@ proc putAll*(value: set[Gpio]) {.importc: "gpio_put_all".}
   ##
   ## \param value Bitmask of GPIO values to change, as bits 0-29
 
-proc put*(gpio: Gpio, value: Value) {.importc: "gpio_put".}
+proc put*(gpio: Gpio; value: Value) {.importc: "gpio_put".}
   ## Drive a single GPIO high/low
   ##
   ## \param gpio GPIO number
@@ -561,7 +561,7 @@ proc gpioSetDirAllBits*(values: set[Gpio]) {.importc: "gpio_set_dir_all_bits".}
   ##
   ## \param values individual settings for each gpio; for GPIO N, bit N is 1 for out, 0 for in
 
-proc setDir*(gpio: Gpio, `out`: Direction) {.importc: "gpio_set_dir".}
+proc setDir*(gpio: Gpio; `out`: Direction) {.importc: "gpio_set_dir".}
   ## Set a single GPIO direction
   ##
   ## \param gpio GPIO number
@@ -590,7 +590,7 @@ template setupGpio*(name: untyped; pin: static[range[0 .. 29]]; dir: Direction) 
   init(name)
   setDir(name, dir)
 
-proc init*(_ : typedesc[Gpio]; pin: static[range[0 .. 29]]; dir: Direction = Out): Gpio =
+proc init*(_: typedesc[Gpio]; pin: static[range[0 .. 29]]; dir: Direction = Out): Gpio =
   ## perform the typical assignment, init(), and setDir() steps all in one proc.
   ## usage: let myPin = Gpio.init(5, In)
   ##

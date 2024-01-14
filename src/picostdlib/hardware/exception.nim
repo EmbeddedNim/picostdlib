@@ -17,11 +17,11 @@ type
     ## PENDSV_EXCEPTION     |   -2  | Pend SV
     ## SYSTICK_EXCEPTION    |   -1  | System Tick
     ##
-    NmiException        = -14     ## Non Maskable Interrupt
-    HardfaultException  = -13     ## HardFault Interrupt
-    SVCallException     =  -5     ## SV Call Interrupt
-    PendSVException     =  -2     ## Pend SV Interrupt
-    SysTickException    =  -1     ## System Tick Interrupt
+    NmiException       = -14 # Non Maskable Interrupt
+    HardfaultException = -13 # HardFault Interrupt
+    SVCallException    =  -5 # SV Call Interrupt
+    PendSVException    =  -2 # Pend SV Interrupt
+    SysTickException   =  -1 # System Tick Interrupt
 
 type
   ExceptionHandler* {.importc: "exception_handler_t".} = proc () {.cdecl.}

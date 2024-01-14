@@ -1,4 +1,4 @@
-{.warning[UnusedImport]:off.}
+{.warning[UnusedImport]: off.}
 
 # include everything in pico test
 include ./test_pico

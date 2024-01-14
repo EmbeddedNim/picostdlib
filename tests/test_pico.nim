@@ -1,4 +1,4 @@
-{.warning[UnusedImport]:off.}
+{.warning[UnusedImport]: off.}
 
 # stdlib
 import picostdlib

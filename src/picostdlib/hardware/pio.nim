@@ -46,14 +46,14 @@ type
     pisSm1RxFifoNotEmpty = 1 # PIO_INTR_SM1_RXNEMPTY_LSB
     pisSm2RxFifoNotEmpty = 2 # PIO_INTR_SM2_RXNEMPTY_LSB
     pisSm3RxFifoNotEmpty = 3 # PIO_INTR_SM3_RXNEMPTY_LSB
-    pisSm0TxFifoNotFull = 4 # PIO_INTR_SM0_TXNFULL_LSB
-    pisSm1TxFifoNotFull = 5 # PIO_INTR_SM1_TXNFULL_LSB
-    pisSm2TxFifoNotFull = 6 # PIO_INTR_SM2_TXNFULL_LSB
-    pisSm3TxFifoNotFull = 7 # PIO_INTR_SM3_TXNFULL_LSB
-    pisInterrupt0 = 8 # PIO_INTR_SM0_LSB
-    pisInterrupt1 = 9 # PIO_INTR_SM1_LSB
-    pisInterrupt2 = 10 # PIO_INTR_SM2_LSB
-    pisInterrupt3 = 11 # PIO_INTR_SM3_LSB
+    pisSm0TxFifoNotFull = 4  # PIO_INTR_SM0_TXNFULL_LSB
+    pisSm1TxFifoNotFull = 5  # PIO_INTR_SM1_TXNFULL_LSB
+    pisSm2TxFifoNotFull = 6  # PIO_INTR_SM2_TXNFULL_LSB
+    pisSm3TxFifoNotFull = 7  # PIO_INTR_SM3_TXNFULL_LSB
+    pisInterrupt0 = 8        # PIO_INTR_SM0_LSB
+    pisInterrupt1 = 9        # PIO_INTR_SM1_LSB
+    pisInterrupt2 = 10       # PIO_INTR_SM2_LSB
+    pisInterrupt3 = 11       # PIO_INTR_SM3_LSB
 
   PioInterruptNum* = range[0'u .. 7'u]
 
@@ -126,7 +126,7 @@ proc setClkdivIntFrac*(c: var PioSmConfig; divInt: uint16; divFrac: uint8)
   ## \param div_frac Fractional part in 1/256ths
   ## \sa sm_config_set_clkdiv()
 
-proc setClkdiv*(c: var PioSmConfig, divisor: cfloat)
+proc setClkdiv*(c: var PioSmConfig; divisor: cfloat)
   {.importc: "sm_config_set_clkdiv".}
   ## Set the state machine clock divider (from a floating point value) in a state machine configuration
   ##
@@ -770,7 +770,7 @@ proc smSetPindirsWithMask*(pio: PioInstance; sm: PioStateMachine; pinDirs: uint3
 
 
 proc smSetConsecutivePindirs*(pio: PioInstance; sm: PioStateMachine; pinBase: cuint; pinCount: cuint; isOut: bool)
-  {.importc: "pio_sm_set_consecutive_pindirs"}
+  {.importc: "pio_sm_set_consecutive_pindirs".}
   ## Use a state machine to set the same pin direction for multiple consecutive pins for the PIO instance
   ##
   ## This method repeatedly reconfigures the target state machine's pin configuration and executes 'set' instructions to set the pin direction on consecutive pins,
@@ -785,7 +785,7 @@ proc smSetConsecutivePindirs*(pio: PioInstance; sm: PioStateMachine; pinBase: cu
   ## \param is_out the direction to set; true = out, false = in
 
 proc smClaim*(pio: PioInstance; sm: PioStateMachine)
-  {.importc: "pio_sm_claim"}
+  {.importc: "pio_sm_claim".}
   ## Mark a state machine as used
   ##
   ## Method for cooperative claiming of hardware. Will cause a panic if the state machine
@@ -839,10 +839,10 @@ proc smIsClaimed*(pio: PioInstance; sm: PioStateMachine): bool
 
 # PIO State Machine Config
 
-proc setOutPins*(c: var PioSmConfig, pins: Slice[Gpio]) =
+proc setOutPins*(c: var PioSmConfig; pins: Slice[Gpio]) =
   c.setOutPins(pins.a, pins.len.cuint)
 
-proc setOutPin*(c: var PioSmConfig, pin: Gpio) =
+proc setOutPin*(c: var PioSmConfig; pin: Gpio) =
   c.setOutPins(pin, 1)
 
 proc setSetPins*(c: var PioSmConfig; pins: Slice[Gpio]) =
@@ -854,7 +854,7 @@ proc setSideset*(c: var PioSmConfig; bitCount: 1..5; optional: bool; pinDirs: bo
 proc setClkDiv*(c: var PioSmConfig; divInt: uint16; divFrac: uint8) =
   c.setClkdivIntFrac(divInt, divFrac)
 
-template setClkDiv*(c: var PioSmConfig, divisor: static[1.0 .. 65536.0]) =
+template setClkDiv*(c: var PioSmConfig; divisor: static[1.0 .. 65536.0]) =
   ## Template to set floating point clock divisor when it is known at
   ## compile-time. All the float calculation is done in a  static context,
   ## so we can avoid pulling in software-float code in the final binary.
@@ -874,15 +874,15 @@ proc addProgram*(pio: PioInstance; program: ptr PioProgram; offset: cuint) =
 proc claimUnusedSm*(pio: PioInstance): PioStateMachine =
   pio.claimUnusedSm(true).PioStateMachine
 
-proc setPins*(pio: PioInstance; sm: PioStateMachine; pins: set[Gpio], value: Value) =
+proc setPins*(pio: PioInstance; sm: PioStateMachine; pins: set[Gpio]; value: Value) =
   let v: uint32 = if value == High: uint32.high else: 0
   pio.smSetPinsWithMask(sm, v, cast[uint32](pins))
 
-proc setPinDirs*(pio: PioInstance, sm: PioStateMachine, pins: set[Gpio], dir: Direction) =
+proc setPinDirs*(pio: PioInstance; sm: PioStateMachine; pins: set[Gpio]; dir: Direction) =
   let v: uint32 = if dir == Out: uint32.high else: 0
   pio.smSetPindirsWithMask(sm, v, cast[uint32](pins))
 
-proc setPinDirs*(pio: PioInstance, sm: PioStateMachine, pins: Slice[Gpio], dir: Direction) =
+proc setPinDirs*(pio: PioInstance; sm: PioStateMachine; pins: Slice[Gpio]; dir: Direction) =
   pio.smSetConsecutivePindirs(sm, pins.a.cuint, pins.len.cuint, dir == Out)
 
 proc init*(pio: PioInstance; sm: PioStateMachine; initialpc: uint; config: var PioSmConfig) =

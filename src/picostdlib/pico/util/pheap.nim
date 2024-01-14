@@ -130,7 +130,7 @@ proc freeNode*(heap: ptr Pheap; id: PheapNodeId) {.importc: "ph_free_node".}
   ## @param heap the heap
   ## @param id the id of the node
 
-proc dump*(heap: ptr Pheap; dumpKey: proc (id: PheapNodeId; userData: pointer) {.cdecl.}, userData: pointer) {.importc: "ph_dump".}
+proc dump*(heap: ptr Pheap; dumpKey: proc (id: PheapNodeId; userData: pointer) {.cdecl.}; userData: pointer) {.importc: "ph_dump".}
   ## Print a representation of the heap for debugging
   ##
   ## @param heap the heap

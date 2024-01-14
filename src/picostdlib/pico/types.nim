@@ -16,13 +16,13 @@ type
     # Structure containing date and time information
     # When setting an RTC alarm, set a field to -1 tells
     # the RTC to not match on this field
-    year* {.importc: "year".}: range[0'i16 .. 4095'i16]  # 0..4095
-    month* {.importc: "month".}: range[1'i8 .. 12'i8]  # 1..12, 1 is January
-    day* {.importc: "day".}: range[1'i8 .. 31'i8]    # 1..28,29,30,31 depending on month
-    dotw* {.importc: "dotw".}: range[0'i8 .. 6'i8]   # 0..6, 0 is Sunday
-    hour* {.importc: "hour".}: range[0'i8 .. 23'i8]   # 0..23
-    min* {.importc: "min".}: range[0'i8 .. 59'i8]    # 0..59
-    sec* {.importc: "sec".}: range[0'i8 .. 59'i8]    # 0..59
+    year* {.importc: "year".}: range[0'i16 .. 4095'i16] # 0..4095
+    month* {.importc: "month".}: range[1'i8 .. 12'i8] # 1..12, 1 is January
+    day* {.importc: "day".}: range[1'i8 .. 31'i8] # 1..28,29,30,31 depending on month
+    dotw* {.importc: "dotw".}: range[0'i8 .. 6'i8] # 0..6, 0 is Sunday
+    hour* {.importc: "hour".}: range[0'i8 .. 23'i8] # 0..23
+    min* {.importc: "min".}: range[0'i8 .. 59'i8] # 0..59
+    sec* {.importc: "sec".}: range[0'i8 .. 59'i8] # 0..59
 
   # Datetime* = object
   #   year*: 0u16..4095u16

@@ -7,9 +7,9 @@ import ../helpers
 type
   I2cSlaveEvent* {.pure, importc: "i2c_slave_event_t".} = enum
     ## I2C slave event types.
-    I2cSlaveReceive  # Data from master is available for reading. Slave must read from Rx FIFO.
-    I2cSlaveRequest  # Master is requesting data. Slave must write into Tx FIFO.
-    I2cSlaveFinish   # Master has sent a Stop or Restart signal. Slave may prepare for the next transfer.
+    I2cSlaveReceive # Data from master is available for reading. Slave must read from Rx FIFO.
+    I2cSlaveRequest # Master is requesting data. Slave must write into Tx FIFO.
+    I2cSlaveFinish  # Master has sent a Stop or Restart signal. Slave may prepare for the next transfer.
 
   I2cSlaveHandler* {.importc: "i2c_slave_handler_t".} = proc (i2c: ptr I2cInst; event: I2cSlaveEvent) {.cdecl.}
     ## I2C slave event handler

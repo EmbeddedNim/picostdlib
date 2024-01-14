@@ -189,28 +189,28 @@ type
 
   HttpClient* = object
     client: TcpContext
-    clientTLS: bool# = false
-    clientGiven: bool# = false
+    clientTLS: bool                     # = false
+    clientGiven: bool                   # = false
     host: string
-    port: Port# = 0
-    reuse: bool# = true
-    tcpTimeout: uint# = Httpclient_Default_Tcp_Timeout
-    useHttp1_0: bool# = false
+    port: Port                          # = 0
+    reuse: bool                         # = true
+    tcpTimeout: uint                    # = Httpclient_Default_Tcp_Timeout
+    useHttp1_0: bool                    # = false
     uri: Uri
     protocol: string
     headers: string
     base64Authorization: string
-    userAgent: string# = defaultUserAgent ## / Response handling
+    userAgent: string                   # = defaultUserAgent ## / Response handling
     currentHeaders: owned HttpHeaders
     # headerKeysCount: int# = 0
-    returnCode: int# = 0
-    size: int# = -1
-    canReuse: bool# = false
-    followRedirects: FollowRedirectsT# = Httpc_Disable_Follow_Redirects
-    redirectLimit: uint16# = 10
+    returnCode: int                     # = 0
+    size: int                           # = -1
+    canReuse: bool                      # = false
+    followRedirects: FollowRedirectsT   # = Httpc_Disable_Follow_Redirects
+    redirectLimit: uint16               # = 10
     location: string
-    transferEncoding: TransferEncodingT# = Httpc_Te_Identity
-    payload: #[owned]# StringStream
+    transferEncoding: TransferEncodingT # = Httpc_Te_Identity
+    payload: StringStream               # #[owned]#
 
   # HttpClientRequestArgument* = object
   #   key*: string

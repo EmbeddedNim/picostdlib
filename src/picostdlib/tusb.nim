@@ -227,7 +227,7 @@ type KeyModifier* {.pure, size: 1.} = enum
   lCtrl, lShift, lAlt, lGui, rCtrl, rShift, rAlt, rGui
 
 type KeyboardLed* {.pure, importc: "hid_keyboard_led_bm_t".} = enum
-    numLock, capsLock, scrollLock, compose, kana
+  numLock, capsLock, scrollLock, compose, kana
 
 type GamepadButton* {.pure.} = enum
   ## Represent up to 32 buttons for HID gamepad input reports
@@ -385,7 +385,7 @@ proc sendGamepadReport*(itf: UsbHidInterface, id: uint8,
   ## **z, rz**    Right analog stick position
   ## **rx, ry**   Left and right analog trigger position
   ## **hat**      Position of gamepad hat or D-Pad
-{.pop}
+{.pop.}
 
 proc sendMouseReport*(itf: UsbHidInterface, id: byte, report: MouseReport): bool =
   ## Convenient helper to send mouse report if application
@@ -447,9 +447,9 @@ type CdcDataBits* {.size: 1, pure.} = enum Bits5, Bits6, Bits7, Bits8, Bits16
 
 type CdcLineCoding* {.importc: "cdc_line_coding_t", packed, completeStruct.} = object
   bitRate: uint32
-  stopBits: CdcStopBits   #  0: 1 stop bit - 1: 1.5 stop bits - 2: 2 stop bits
-  parity: CdcParity       #  0: None - 1: Odd - 2: Even - 3: Mark - 4: Space
-  dataBits: CdcDataBits   #  can be 5, 6, 7, 8 or 16
+  stopBits: CdcStopBits #  0: 1 stop bit - 1: 1.5 stop bits - 2: 2 stop bits
+  parity: CdcParity     #  0: None - 1: Odd - 2: Even - 3: Mark - 4: Space
+  dataBits: CdcDataBits #  can be 5, 6, 7, 8 or 16
 static:
   assert CdcLineCoding.sizeof == 7
 
@@ -501,7 +501,7 @@ proc cdcWriteFlush*(itf: uint8): uint32 {.importc: "tud_cdc_n_write_flush".}
 
 #  Clear the transmit FIFO
 #proc cdcWriteClear*(itf: uint8): bool {.importc: "tud_cdc_n_write_clear".}
-{.pop}
+{.pop.}
 
 # Nim stream-like API for USB CDC (serial)
 

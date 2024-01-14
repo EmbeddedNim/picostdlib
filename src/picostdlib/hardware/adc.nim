@@ -33,7 +33,7 @@ type
 let
   adcHw* {.importc: "adc_hw".}: ptr AdcHw
 
-proc adcInit*() {.importc:"adc_init".}
+proc adcInit*() {.importc: "adc_init".}
   ## Initialise the ADC HW
 
 proc initAdc*(gpio: range[Gpio(26) .. Gpio(29)]) {.importc: "adc_gpio_init".}
@@ -85,7 +85,7 @@ proc adcSetTempSensorEnabled*(enable: bool) {.importc: "adc_set_temp_sensor_enab
   ## **enable**    Set true to power on the onboard temperature sensor, false to power off.
   ## ===========  ======
 
-proc adcRead*(): uint16 {.importc:"adc_read".}
+proc adcRead*(): uint16 {.importc: "adc_read".}
   ## Perform a single conversion
   ##
   ## Performs an ADC conversion, waits for the result, and then returns it.

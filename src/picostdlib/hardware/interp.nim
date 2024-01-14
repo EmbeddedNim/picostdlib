@@ -11,7 +11,7 @@ type
     pop* {.importc.}: array[3, IoRo32]
     peek* {.importc.}: array[3, IoRo32]
     ctrl* {.importc.}: array[2, IoRw32]
-    addRaw* {.importc: "add_raw"}: array[2, IoRw32]
+    addRaw* {.importc: "add_raw".}: array[2, IoRw32]
     base01* {.importc.}: IoWo32
 
   InterpConfig* {.bycopy, importc: "interp_config".} = object

@@ -9,7 +9,7 @@ const partitionName = "Hello LittleFS!"
 stdioInitAll()
 
 var lfs: LittleFS
-lfs.init(start=startAddress, size=partitionSize)
+lfs.init(start = startAddress, size = partitionSize)
 
 bi_decl_include()
 bi_decl(bi_block_device(

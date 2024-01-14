@@ -4,8 +4,8 @@ import ../helpers
 
 let
   PicoSdkVersionMajor* {.importc: "PICO_SDK_VERSION_MAJOR".}: cuint
-  PicoSdkVersionMinor* {.importc: "PICO_SDK_VERSION_MINOR"}: cuint
-  PicoSdkVersionRevision* {.importc: "PICO_SDK_VERSION_REVISION"}: cuint
-  PicoSdkVersionString* {.importc: "PICO_SDK_VERSION_STRING"}: cstring
+  PicoSdkVersionMinor* {.importc: "PICO_SDK_VERSION_MINOR".}: cuint
+  PicoSdkVersionRevision* {.importc: "PICO_SDK_VERSION_REVISION".}: cuint
+  PicoSdkVersionString* {.importc: "PICO_SDK_VERSION_STRING".}: cstring
 
 {.pop.}

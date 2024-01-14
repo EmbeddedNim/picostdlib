@@ -13,7 +13,7 @@ type
   IoRo8* {.importc: "io_ro_8".} = uint8
   IoWo8* {.importc: "io_wo_8".} = uint8
 
-proc hwSetBits*(`addr`: ptr IoRw32, mask: uint32) {.importc:"hw_set_bits".}
+proc hwSetBits*(`addr`: ptr IoRw32, mask: uint32) {.importc: "hw_set_bits".}
   ## Atomically set the specified bits to 1 in a HW register
   ##
   ## **Parameters:**
@@ -23,7 +23,7 @@ proc hwSetBits*(`addr`: ptr IoRw32, mask: uint32) {.importc:"hw_set_bits".}
   ## **mask**    Bit-mask specifying bits to set
   ## =========  ======
 
-proc hwClearBits*(`addr`: ptr IoRw32, mask: uint32) {.importc:"hw_clear_bits".}
+proc hwClearBits*(`addr`: ptr IoRw32, mask: uint32) {.importc: "hw_clear_bits".}
   ## Atomically clear the specified bits to 0 in a HW register
   ##
   ## **Parameters:**
@@ -33,7 +33,7 @@ proc hwClearBits*(`addr`: ptr IoRw32, mask: uint32) {.importc:"hw_clear_bits".}
   ## **mask**    Bit-mask specifying bits to clear
   ## =========  ======
 
-proc hwXorBits*(`addr`: ptr IoRw32, mask: uint32) {.importc:"hw_xor_bits".}
+proc hwXorBits*(`addr`: ptr IoRw32, mask: uint32) {.importc: "hw_xor_bits".}
   ## Atomically flip the specified bits in a HW register
   ##
   ## **Parameters:**
@@ -43,7 +43,7 @@ proc hwXorBits*(`addr`: ptr IoRw32, mask: uint32) {.importc:"hw_xor_bits".}
   ## **mask**    Bit-mask specifying bits to invert
   ## =========  ======
 
-proc hwWriteMasked*(`addr`: ptr IoRw32, values: uint32, writeMask: uint32) {.importc:"hw_write_masked".}
+proc hwWriteMasked*(`addr`: ptr IoRw32, values: uint32, writeMask: uint32) {.importc: "hw_write_masked".}
   ## Set new values for a sub-set of the bits in a HW register
   ##
   ## Sets destination bits to values specified in `values`, if and only if corresponding bit in `writeMask` is set

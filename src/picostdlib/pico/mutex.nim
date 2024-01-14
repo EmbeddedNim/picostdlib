@@ -11,13 +11,13 @@ type
   RecursiveMutex* {.bycopy, importc: "recursive_mutex_t".} = object
     ## recursive mutex instance
     core* {.importc: "core".}: LockCore
-    owner* {.importc: "owner".}: LockOwnerId  # owner id LOCK_INVALID_OWNER_ID for unowned
-    enterCount* {.importc: "enter_count".}: uint8  # ownership count
+    owner* {.importc: "owner".}: LockOwnerId      # owner id LOCK_INVALID_OWNER_ID for unowned
+    enterCount* {.importc: "enter_count".}: uint8 # ownership count
 
   Mutex* {.bycopy, importc: "mutex_t".} = object
     ## regular (non recursive) mutex instance
     core* {.importc: "core".}: LockCore
-    owner* {.importc: "owner".}: LockOwnerId  # owner id LOCK_INVALID_OWNER_ID for unowned
+    owner* {.importc: "owner".}: LockOwnerId # owner id LOCK_INVALID_OWNER_ID for unowned
 
 
 proc init*(mtx: ptr Mutex) {.importc: "mutex_init".}

@@ -75,13 +75,13 @@ type
 
 type
   Cyw43LinkStatus* {.pure, size: sizeof(cint).} = enum
-    LinkBadauth = -3    ## Authenticatation failure
-    LinkNonet = -2      ## No matching SSID found (could be out of range, or down)
-    LinkFail = -1       ## Connection failed
-    LinkDown = 0        ## link is down
-    LinkJoin = 1        ## Connected to wifi
-    LinkNoip = 2        ## Connected to wifi, but no IP address
-    LinkUp = 3          ## Connect to wifi with an IP address
+    LinkBadauth = -3 ## Authenticatation failure
+    LinkNonet = -2   ## No matching SSID found (could be out of range, or down)
+    LinkFail = -1    ## Connection failed
+    LinkDown = 0     ## link is down
+    LinkJoin = 1     ## Connected to wifi
+    LinkNoip = 2     ## Connected to wifi, but no IP address
+    LinkUp = 3       ## Connect to wifi with an IP address
 
 {.push header: "cyw43.h".}
 
@@ -530,19 +530,19 @@ proc cyw43PmValue*(pmMode: uint8; pm2SleepRetMs: uint16; liBeaconPeriod: uint8; 
 ## Default power management mode
 ##
 
-let CYW43_DEFAULT_PM* {.importc: "CYW43_DEFAULT_PM"}: uint32
+let CYW43_DEFAULT_PM* {.importc: "CYW43_DEFAULT_PM".}: uint32
 
 ## !
 ## Aggressive power management mode for optimial power usage at the cost of performance
 ##
 
-let CYW43_AGGRESSIVE_PM* {.importc: "CYW43_AGGRESSIVE_PM"}: uint32
+let CYW43_AGGRESSIVE_PM* {.importc: "CYW43_AGGRESSIVE_PM".}: uint32
 
 ## !
 ## Performance power management mode where more power is used to increase performance
 ##
 
-let CYW43_PERFORMANCE_PM* {.importc: "CYW43_PERFORMANCE_PM"}: uint32
+let CYW43_PERFORMANCE_PM* {.importc: "CYW43_PERFORMANCE_PM".}: uint32
 
 ## !\} // cyw43_driver doxygen group
 

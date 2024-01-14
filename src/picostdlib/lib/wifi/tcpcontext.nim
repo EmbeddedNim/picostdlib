@@ -34,9 +34,9 @@ export lwip, dns, streams
 const
   WIFICLIENT_MAX_PACKET_SIZE*: uint = TCP_MSS
   WIFICLIENT_MAX_FLUSH_WAIT_MS*: uint = 300
-  TCP_DEFAULT_KEEPALIVE_IDLE_SEC*: uint32 = 7200 # 2 hours
+  TCP_DEFAULT_KEEPALIVE_IDLE_SEC*: uint32 = 7200   # 2 hours
   TCP_DEFAULT_KEEPALIVE_INTERVAL_SEC*: uint32 = 75 # 75 sec
-  TCP_DEFAULT_KEEPALIVE_COUNT*: uint32 = 9 # fault after 9 failures
+  TCP_DEFAULT_KEEPALIVE_COUNT*: uint32 = 9         # fault after 9 failures
 
 proc getDefaultPrivateGlobalSyncValue*(): bool = false
 
@@ -55,11 +55,11 @@ type
     rxBuf: ptr Pbuf
     rxBufOffset: uint
     datasource: ptr byte #= nil
-    datalen: uint #= 0
-    written: uint #= 0
-    timeoutMs: uint #= 5000
-    opStartTime: uint #= 0
-    sendWaiting: bool #= false
+    datalen: uint        #= 0
+    written: uint        #= 0
+    timeoutMs: uint      #= 5000
+    opStartTime: uint    #= 0
+    sendWaiting: bool    #= false
     connectPending: bool #= false
     connectedErr: ErrEnumT
     connected: bool
@@ -148,22 +148,22 @@ func getTimeout*(self: TcpContext): Natural =
 func getRemoteAddress*(self: TcpContext): ptr IpAddrT =
   if self.pcb.isNil:
     return nil
-  return self.pcb.altcpGetIp(local=false.cint)
+  return self.pcb.altcpGetIp(local = false.cint)
 
 func getRemotePort*(self: TcpContext): uint16 =
   if self.pcb.isNil:
     return 0
-  return self.pcb.altcpGetPort(local=false.cint)
+  return self.pcb.altcpGetPort(local = false.cint)
 
 func getLocalAddress*(self: TcpContext): ptr IpAddrT =
   if self.pcb.isNil:
     return nil
-  return self.pcb.altcpGetIp(local=true.cint)
+  return self.pcb.altcpGetIp(local = true.cint)
 
 func getLocalPort*(self: TcpContext): uint16 =
   if self.pcb.isNil:
     return 0
-  return self.pcb.altcpGetPort(local=true.cint)
+  return self.pcb.altcpGetPort(local = true.cint)
 
 func getSize*(self: TcpContext): uint =
   if self.rxBuf.isNil:
@@ -640,7 +640,7 @@ proc csFlush(s: Stream) =
   let client = ClientStream(s).client()
   discard client[].flush()
 
-proc init*(self: var TcpContext; pcb: ptr AltcpPcb; timeoutMs: uint = 10_000#[; discardCb: DiscardCbT = nil; discardCbArg: pointer = nil]#) =
+proc init*(self: var TcpContext; pcb: ptr AltcpPcb; timeoutMs: uint = 10_000) = # ; discardCb: DiscardCbT = nil; discardCbArg: pointer = nil
   assert(not pcb.isNil)
   self.pcb = pcb
   self.rxBuf = nil

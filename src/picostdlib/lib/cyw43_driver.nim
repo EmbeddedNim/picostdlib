@@ -43,7 +43,7 @@ type
     ## Power save mode paramter passed to cyw43_ll_wifi_pm
 
 const
-  Cyw43NoPowersaveMode* = (0).Cyw43PowersaveMode ##  No Powersave mode
+  Cyw43NoPowersaveMode* = (0).Cyw43PowersaveMode  ##  No Powersave mode
   Cyw43Pm1PowersaveMode* = (1).Cyw43PowersaveMode ##  Powersave mode on specified interface without regard for throughput reduction
   Cyw43Pm2PowersaveMode* = (2).Cyw43PowersaveMode ##  Powersave mode on specified interface with High throughput
 
@@ -130,13 +130,13 @@ type
     TraceMac = Cyw43TraceMac
 
   Cyw43LinkStatus* {.pure.} = enum
-    LinkBadauth = Cyw43LinkBadauth  ## Authenticatation failure
-    LinkNonet = Cyw43LinkNonet      ## No matching SSID found (could be out of range, or down)
-    LinkFail = Cyw43LinkFail        ## Connection failed
-    LinkDown = Cyw43LinkDown        ## link is down
-    LinkJoin = Cyw43LinkJoin        ## Connected to wifi
-    LinkNoip = Cyw43LinkNoip        ## Connected to wifi, but no IP address
-    LinkUp = Cyw43LinkUp            ## Connect to wifi with an IP address
+    LinkBadauth = Cyw43LinkBadauth ## Authenticatation failure
+    LinkNonet = Cyw43LinkNonet     ## No matching SSID found (could be out of range, or down)
+    LinkFail = Cyw43LinkFail       ## Connection failed
+    LinkDown = Cyw43LinkDown       ## link is down
+    LinkJoin = Cyw43LinkJoin       ## Connected to wifi
+    LinkNoip = Cyw43LinkNoip       ## Connected to wifi, but no IP address
+    LinkUp = Cyw43LinkUp           ## Connect to wifi with an IP address
 
   Cyw43Ioctl* {.pure.} = enum
     ## IOCTL commands
@@ -183,56 +183,56 @@ type
 
   Cyw43AuthReason* {.pure.} = enum
     ## Values for AP auth setting
-    AuthReasonInitialAssoc = Cyw43ReasonInitialAssoc ##  initial assoc
-    AuthReasonLowRssi = Cyw43ReasonLowRssi  ##  roamed due to low RSSI
-    AuthReasonDeauth = Cyw43ReasonDeauth    ##  roamed due to DEAUTH indication
-    AuthReasonDisassoc = Cyw43ReasonDisassoc  ##  roamed due to DISASSOC indication
-    AuthReasonBcnsLost = Cyw43ReasonBcnsLost ##  roamed due to lost beacons
+    AuthReasonInitialAssoc = Cyw43ReasonInitialAssoc     ##  initial assoc
+    AuthReasonLowRssi = Cyw43ReasonLowRssi               ##  roamed due to low RSSI
+    AuthReasonDeauth = Cyw43ReasonDeauth                 ##  roamed due to DEAUTH indication
+    AuthReasonDisassoc = Cyw43ReasonDisassoc             ##  roamed due to DISASSOC indication
+    AuthReasonBcnsLost = Cyw43ReasonBcnsLost             ##  roamed due to lost beacons
     AuthReasonFastRoamFailed = Cyw43ReasonFastRoamFailed ##  roamed due to fast roam failure
-    AuthReasonDirectedRoam = Cyw43ReasonDirectedRoam ##  roamed due to request by AP
-    AuthReasonTspecRejected = Cyw43ReasonTspecRejected ##  roamed due to TSPEC rejection
-    AuthReasonBetterAp = Cyw43ReasonBetterAp ##  roamed due to finding better AP
+    AuthReasonDirectedRoam = Cyw43ReasonDirectedRoam     ##  roamed due to request by AP
+    AuthReasonTspecRejected = Cyw43ReasonTspecRejected   ##  roamed due to TSPEC rejection
+    AuthReasonBetterAp = Cyw43ReasonBetterAp             ##  roamed due to finding better AP
 
   Cyw43PruneReason* {.pure.} = enum
     ##  prune reason codes
-    PruneReasonEncrMismatch = Cyw43ReasonPruneEncrMismatch ##  encryption mismatch
-    PruneReasonBcastBssid = Cyw43ReasonPruneBcastBssid ##  AP uses a broadcast BSSID
-    PruneReasonMacDeny = Cyw43ReasonPruneMacDeny ##  STA's MAC addr is in AP's MAC deny list
-    PruneReasonMacNa = Cyw43ReasonPruneMacNa ##  STA's MAC addr is not in AP's MAC allow list
-    PruneReasonRegPassv = Cyw43ReasonPruneRegPassv ##  AP not allowed due to regulatory restriction
-    PruneReasonSpctMgmt = Cyw43ReasonPruneSpctMgmt ##  AP does not support STA locale spectrum mgmt
-    PruneReasonRadar = Cyw43ReasonPruneRadar ##  AP is on a radar channel of STA locale
-    PruneReasonRsnMismatch = Cyw43ReasonRsnMismatch ##  STA does not support AP's RSN
+    PruneReasonEncrMismatch = Cyw43ReasonPruneEncrMismatch   ##  encryption mismatch
+    PruneReasonBcastBssid = Cyw43ReasonPruneBcastBssid       ##  AP uses a broadcast BSSID
+    PruneReasonMacDeny = Cyw43ReasonPruneMacDeny             ##  STA's MAC addr is in AP's MAC deny list
+    PruneReasonMacNa = Cyw43ReasonPruneMacNa                 ##  STA's MAC addr is not in AP's MAC allow list
+    PruneReasonRegPassv = Cyw43ReasonPruneRegPassv           ##  AP not allowed due to regulatory restriction
+    PruneReasonSpctMgmt = Cyw43ReasonPruneSpctMgmt           ##  AP does not support STA locale spectrum mgmt
+    PruneReasonRadar = Cyw43ReasonPruneRadar                 ##  AP is on a radar channel of STA locale
+    PruneReasonRsnMismatch = Cyw43ReasonRsnMismatch          ##  STA does not support AP's RSN
     PruneReasonNoCommonRates = Cyw43ReasonPruneNoCommonRates ##  No rates in common with AP
-    PruneReasonBasicRates = Cyw43ReasonPruneBasicRates ##  STA does not support all basic rates of BSS
+    PruneReasonBasicRates = Cyw43ReasonPruneBasicRates       ##  STA does not support all basic rates of BSS
     PruneReasonCcxfastPrevap = Cyw43ReasonPruneCcxfastPrevap ##  CCX FAST ROAM: prune previous AP
-    PruneReasonCipherNa = Cyw43ReasonPruneCipherNa ##  BSS's cipher not supported
-    PruneReasonKnownSta = Cyw43ReasonPruneKnownSta ##  AP is already known to us as a STA
-    PruneReasonCcxfastDroam = Cyw43ReasonPruneCcxfastDroam ##  CCX FAST ROAM: prune unqualified AP
-    PruneReasonWdsPeer = Cyw43ReasonPruneWdsPeer ##  AP is already known to us as a WDS peer
-    PruneReasonQbssLoad = Cyw43ReasonPruneQbssLoad ##  QBSS LOAD - AAC is too low
-    PruneReasonHomeAp = Cyw43ReasonPruneHomeAp ##  prune home AP
-    PruneReasonApBlocked = Cyw43ReasonPruneApBlocked ##  prune blocked AP
+    PruneReasonCipherNa = Cyw43ReasonPruneCipherNa           ##  BSS's cipher not supported
+    PruneReasonKnownSta = Cyw43ReasonPruneKnownSta           ##  AP is already known to us as a STA
+    PruneReasonCcxfastDroam = Cyw43ReasonPruneCcxfastDroam   ##  CCX FAST ROAM: prune unqualified AP
+    PruneReasonWdsPeer = Cyw43ReasonPruneWdsPeer             ##  AP is already known to us as a WDS peer
+    PruneReasonQbssLoad = Cyw43ReasonPruneQbssLoad           ##  QBSS LOAD - AAC is too low
+    PruneReasonHomeAp = Cyw43ReasonPruneHomeAp               ##  prune home AP
+    PruneReasonApBlocked = Cyw43ReasonPruneApBlocked         ##  prune blocked AP
     PruneReasonNoDiagSupport = Cyw43ReasonPruneNoDiagSupport ##  prune due to diagnostic mode not supported
 
   Cyw43ReasonSup* {.pure.} = enum
     ## WPA failure reason codes carried in the WLC_E_PSK_SUP event
-    ReasonSupOther = Cyw43ReasonSupOther ##  Other reason
+    ReasonSupOther = Cyw43ReasonSupOther                   ##  Other reason
     ReasonSupDecryptKeyData = Cyw43ReasonSupDecryptKeyData ##  Decryption of key data failed
     ReasonSupBadUcastWep128 = Cyw43ReasonSupBadUcastWep128 ##  Illegal use of ucast WEP128
-    ReasonSupBadUcastWep40 = Cyw43ReasonSupBadUcastWep40 ##  Illegal use of ucast WEP40
-    ReasonSupUnsupKeyLen = Cyw43ReasonSupUnsupKeyLen ##  Unsupported key length
-    ReasonSupPwKeyCipher = Cyw43ReasonSupPwKeyCipher ##  Unicast cipher mismatch in pairwise key
-    ReasonSupMsg3TooManyIe = Cyw43ReasonSupMsg3TooManyIe ##  WPA IE contains > 1 RSN IE in key msg 3
+    ReasonSupBadUcastWep40 = Cyw43ReasonSupBadUcastWep40   ##  Illegal use of ucast WEP40
+    ReasonSupUnsupKeyLen = Cyw43ReasonSupUnsupKeyLen       ##  Unsupported key length
+    ReasonSupPwKeyCipher = Cyw43ReasonSupPwKeyCipher       ##  Unicast cipher mismatch in pairwise key
+    ReasonSupMsg3TooManyIe = Cyw43ReasonSupMsg3TooManyIe   ##  WPA IE contains > 1 RSN IE in key msg 3
     ReasonSupMsg3IeMismatch = Cyw43ReasonSupMsg3IeMismatch ##  WPA IE mismatch in key message 3
-    ReasonSupNoInstallFlag = Cyw43ReasonSupNoInstallFlag ##  INSTALL flag unset in 4-way msg
-    ReasonSupMsg3NoGtk = Cyw43ReasonSupMsg3NoGtk ##  encapsulated GTK missing from msg 3
-    ReasonSupGrpKeyCipher = Cyw43ReasonSupGrpKeyCipher ##  Multicast cipher mismatch in group key
-    ReasonSupGrpMsg1NoGtk = Cyw43ReasonSupGrpMsg1NoGtk ##  encapsulated GTK missing from group msg 1
+    ReasonSupNoInstallFlag = Cyw43ReasonSupNoInstallFlag   ##  INSTALL flag unset in 4-way msg
+    ReasonSupMsg3NoGtk = Cyw43ReasonSupMsg3NoGtk           ##  encapsulated GTK missing from msg 3
+    ReasonSupGrpKeyCipher = Cyw43ReasonSupGrpKeyCipher     ##  Multicast cipher mismatch in group key
+    ReasonSupGrpMsg1NoGtk = Cyw43ReasonSupGrpMsg1NoGtk     ##  encapsulated GTK missing from group msg 1
     ReasonSupGtkDecryptFail = Cyw43ReasonSupGtkDecryptFail ##  GTK decrypt failure
-    ReasonSupSendFail = Cyw43ReasonSupSendFail ##  message send failure
-    ReasonSupDeauth = Cyw43ReasonSupDeauth ##  received FC_DEAUTH
-    ReasonSupWpaPskTmo = Cyw43ReasonSupWpaPskTmo ##  WPA PSK 4-way handshake timeout
+    ReasonSupSendFail = Cyw43ReasonSupSendFail             ##  message send failure
+    ReasonSupDeauth = Cyw43ReasonSupDeauth                 ##  received FC_DEAUTH
+    ReasonSupWpaPskTmo = Cyw43ReasonSupWpaPskTmo           ##  WPA PSK 4-way handshake timeout
 
   Cyw43Auth* {.pure.} = enum
     ## Values used for STA and AP auth settings
@@ -242,15 +242,15 @@ type
   Cyw43AuthType* {.pure, size: sizeof(uint32).} = enum
     ## Authorization types
     ## Used when setting up an access point, or connecting to an access point
-    AuthOpen = Cyw43AuthOpen                  ## No authorisation required (open)
-    AuthWpaTkipPsk = Cyw43AuthWpaTkipPsk      ## WPA authorisation
-    AuthWpa2AesPsk = Cyw43AuthWpa2AesPsk      ## WPA2 authorisation (preferred)
-    AuthWpa2MixedPsk = Cyw43AuthWpa2MixedPsk  ## WPA2/WPA mixed authorisation
+    AuthOpen = Cyw43AuthOpen ## No authorisation required (open)
+    AuthWpaTkipPsk = Cyw43AuthWpaTkipPsk ## WPA authorisation
+    AuthWpa2AesPsk = Cyw43AuthWpa2AesPsk ## WPA2 authorisation (preferred)
+    AuthWpa2MixedPsk = Cyw43AuthWpa2MixedPsk ## WPA2/WPA mixed authorisation
 
   Cyw43Itf* {.pure, size: sizeof(cuint).} = enum
     ## Network interface types
-    ItfSta = Cyw43itfsta         ## Client interface STA mode
-    ItfAp = Cyw43itfap           ## Access point (AP) interface mode
+    ItfSta = Cyw43itfsta ## Client interface STA mode
+    ItfAp = Cyw43itfap   ## Access point (AP) interface mode
 
 
 template cyw43WifiPm*(self: ptr Cyw43T; pm: Cyw43PowersaveMode): cint = cyw43WifiPm(self, pm.uint32)

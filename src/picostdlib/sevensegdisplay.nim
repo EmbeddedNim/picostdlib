@@ -48,7 +48,7 @@ const
 
 var SevenSegPins*: array[SevenSeg, Gpio]
 
-proc getCharacter*(c: char): (CharacterName, bool)=
+proc getCharacter*(c: char): (CharacterName, bool) =
   if c in Displayable:
     for charName, x in CharLut:
       if x == c:

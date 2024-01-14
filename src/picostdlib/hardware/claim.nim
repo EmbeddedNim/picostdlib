@@ -8,7 +8,7 @@ type
 proc `==`*(a, b: HwClaimToken): bool {.borrow.}
 proc `$`*(a: HwClaimToken): string {.borrow.}
 
-proc hwClaimOrAssert*(bits: UncheckedArray[uint8], bitIndex: cuint, message: cstring) {.importc:"hw_claim_or_assert".}
+proc hwClaimOrAssert*(bits: UncheckedArray[uint8], bitIndex: cuint, message: cstring) {.importc: "hw_claim_or_assert".}
   ## Atomically claim a resource, panicking if it is already in use
   ##
   ## The resource ownership is indicated by the bitIndex bit in an array of bits.
@@ -21,7 +21,7 @@ proc hwClaimOrAssert*(bits: UncheckedArray[uint8], bitIndex: cuint, message: cst
   ## **message**     string to display if the bit cannot be claimed; note this may have a single printf format "%d" for the bit
   ## =============  ======
 
-proc hwClaimUnusedFromRange*(bits: UncheckedArray[uint8], required: bool, bitLsb: cuint, bitMsb: cuint, message: cstring): cint {.importc:"hw_claim_unused_from_range".}
+proc hwClaimUnusedFromRange*(bits: UncheckedArray[uint8], required: bool, bitLsb: cuint, bitMsb: cuint, message: cstring): cint {.importc: "hw_claim_unused_from_range".}
   ## Atomically claim one resource out of a range of resources, optionally asserting if none are free
   ##
   ## The resource ownership is indicated by the bit_index bit in an array of bits.
@@ -38,7 +38,7 @@ proc hwClaimUnusedFromRange*(bits: UncheckedArray[uint8], required: bool, bitLsb
   ##
   ## **returns** the bit index representing the claimed or -1 if none are available in the range, and required = false
 
-proc hwIsClaimed*(bits: UncheckedArray[uint8], bitIndex: cuint): bool {.importc:"hw_is_claimed".}
+proc hwIsClaimed*(bits: UncheckedArray[uint8], bitIndex: cuint): bool {.importc: "hw_is_claimed".}
   ## Determine if a resource is claimed at the time of the call
   ##
   ## The resource ownership is indicated by the bitIndex bit in an array of bits.
@@ -52,7 +52,7 @@ proc hwIsClaimed*(bits: UncheckedArray[uint8], bitIndex: cuint): bool {.importc:
   ##
   ## **returns** true if the resource is claimed
 
-proc hwClaimClear*(bits: UncheckedArray[uint8], bitIndex: cuint) {.importc:"hw_claim_clear".}
+proc hwClaimClear*(bits: UncheckedArray[uint8], bitIndex: cuint) {.importc: "hw_claim_clear".}
   ## Atomically unclaim a resource
   ##
   ## The resource ownership is indicated by the bitIndex bit in an array of bits.

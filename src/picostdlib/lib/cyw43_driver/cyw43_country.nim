@@ -57,7 +57,7 @@ template cyw43Country*(a, b: char; rev: int): Cyw43Country =
 
 
 const
-  CYW43_COUNTRY_WORLDWIDE*         = cyw43Country('X', 'X', 0)
+  CYW43_COUNTRY_WORLDWIDE* = cyw43Country('X', 'X', 0)
     ## Worldwide Locale (passive Ch12-14)
 
   CYW43_COUNTRY_AUSTRALIA*         = cyw43Country('A', 'U', 0)

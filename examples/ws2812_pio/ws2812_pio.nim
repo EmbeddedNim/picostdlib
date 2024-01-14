@@ -44,9 +44,9 @@ proc initWs2812*(
   cfg.setFifoJoin PioFifoJoin.tx
 
   when isRgbw:
-    cfg.setOutShift(shiftRight=false, autopull=true, pullThreshold=32)
+    cfg.setOutShift(shiftRight = false, autopull = true, pullThreshold = 32)
   else:
-    cfg.setOutShift(shiftRight=false, autopull=true, pullThreshold=24)
+    cfg.setOutShift(shiftRight = false, autopull = true, pullThreshold = 24)
 
   const ws2812Freq = 800_000 # ws2812 data bitrate in bits/s
   let

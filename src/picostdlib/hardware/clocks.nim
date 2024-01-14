@@ -114,16 +114,16 @@ let
 type
   ClockIndex* {.pure, importc: "enum clock_index".} = enum
     ## Enumeration identifying a hardware clock
-    ClockGpOut0  ## GPIO Muxing 0
-    ClockGpOut1  ## GPIO Muxing 1
-    ClockGpOut2  ## GPIO Muxing 2
-    ClockGpOut3  ## GPIO Muxing 3
-    ClockRef     ## Watchdog and timers reference clock
-    ClockSys     ## Processors, bus fabric, memory, memory mapped registers
-    ClockPeri    ## Peripheral clock for UART and SPI
-    ClockUsb     ## USB clock
-    ClockAdc     ## ADC clock
-    ClockRtc     ## Real Time Clock
+    ClockGpOut0 ## GPIO Muxing 0
+    ClockGpOut1 ## GPIO Muxing 1
+    ClockGpOut2 ## GPIO Muxing 2
+    ClockGpOut3 ## GPIO Muxing 3
+    ClockRef    ## Watchdog and timers reference clock
+    ClockSys    ## Processors, bus fabric, memory, memory mapped registers
+    ClockPeri   ## Peripheral clock for UART and SPI
+    ClockUsb    ## USB clock
+    ClockAdc    ## ADC clock
+    ClockRtc    ## Real Time Clock
     ClockCount
 
   ClocksHw* {.importc: "clocks_hw_t".} = object
@@ -185,7 +185,7 @@ proc frequencyCountKHz*(src: ClocksFc0Src): uint32 {.importc: "frequency_count_k
   ## Uses the inbuilt frequency counter to measure the specified clocks frequency.
   ## Currently, this function is accurate to +-1KHz. See the datasheet for more details.
 
-proc setReportedHz*(clkInd: ClockIndex, hz: cuint) {.importc: "clock_set_reported_hz".}
+proc setReportedHz*(clkInd: ClockIndex; hz: cuint) {.importc: "clock_set_reported_hz".}
   ## Set the "current frequency" of the clock as reported by clock_get_hz without actually changing the clock
   ##
   ## **Parameters:**
@@ -226,7 +226,7 @@ proc initClock*(gpio: Gpio; src: ClocksClkGpoutCtrlAuxSrc; `div`: cfloat) {.impo
   ## **div**     The amount to divide the source clock by. This is useful to not overwhelm the GPIO pin with a fast clock.
   ## =========  ======
 
-proc configureGpin*(clkInd: ClockIndex, gpio: Gpio, srcFreq, freq: uint32): bool {.importc: "clock_configure_gpin".}
+proc configureGpin*(clkInd: ClockIndex; gpio: Gpio; srcFreq, freq: uint32): bool {.importc: "clock_configure_gpin".}
   ## Configure a clock to come from a gpio input
   ##
   ## **Parameters:**

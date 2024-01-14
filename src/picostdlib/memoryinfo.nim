@@ -9,16 +9,16 @@ template BssEnd*: untyped = cast[int](tBssEnd.unsafeAddr)
 
 type
   MallInfo* {.importc: "struct mallinfo", header: "<malloc.h>".} = object
-    arena*: csize_t     ## total space allocated from system
-    ordblks*: csize_t   ## number of non-inuse chunks
-    smblks*: csize_t    ## unused -- always zero
-    hblks*: csize_t     ## number of mmapped regions
-    hblkhd*: csize_t    ## total space in mmapped regions
-    usmblks*: csize_t   ## unused -- always zero
-    fsmblks*: csize_t   ## unused -- always zero
-    uordblks*: csize_t  ## total allocated space
-    fordblks*: csize_t  ## total non-inuse space
-    keepcost*: csize_t  ## top-most, releasable (via malloc_trim) space
+    arena*: csize_t    ## total space allocated from system
+    ordblks*: csize_t  ## number of non-inuse chunks
+    smblks*: csize_t   ## unused -- always zero
+    hblks*: csize_t    ## number of mmapped regions
+    hblkhd*: csize_t   ## total space in mmapped regions
+    usmblks*: csize_t  ## unused -- always zero
+    fsmblks*: csize_t  ## unused -- always zero
+    uordblks*: csize_t ## total allocated space
+    fordblks*: csize_t ## total non-inuse space
+    keepcost*: csize_t ## top-most, releasable (via malloc_trim) space
 
 proc mallinfo*(): MallInfo {.importc: "mallinfo", header: "<malloc.h>".}
 

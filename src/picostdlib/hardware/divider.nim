@@ -7,7 +7,7 @@ type
   HwDividerState* = array[4, uint32]
 
 
-proc hwDividerDivmodS32Start*(a, b: int32) {.importc:"hw_divider_divmod_s32_start".}
+proc hwDividerDivmodS32Start*(a, b: int32) {.importc: "hw_divider_divmod_s32_start".}
   ## Start a signed asynchronous divide
   ##
   ## Start a divide of the specified signed parameters. You should wait for 8 cycles (__div_pause()) or wait for the ready bit to be set
@@ -20,7 +20,7 @@ proc hwDividerDivmodS32Start*(a, b: int32) {.importc:"hw_divider_divmod_s32_star
   ## **b**    The divisor
   ## ======  ======
 
-proc hwDividerDivmodU32Start*(a, b: uint32) {.importc:"hw_divider_divmod_u32_start".}
+proc hwDividerDivmodU32Start*(a, b: uint32) {.importc: "hw_divider_divmod_u32_start".}
   ## Start a unsigned asynchronous divide
   ##
   ## Start a divide of the specified signed parameters. You should wait for 8 cycles (__div_pause()) or wait for the ready bit to be set

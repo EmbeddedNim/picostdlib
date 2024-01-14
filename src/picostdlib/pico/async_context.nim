@@ -78,7 +78,7 @@ type
     addWhenPendingWorker* {.importc: "add_when_pending_worker".}: proc (self: ptr AsyncContext; worker: ptr AsyncWhenPendingWorker) {.cdecl.}
     removeWhenPendingWorker* {.importc: "remove_when_pending_worker".}: proc (self: ptr AsyncContext; worker: ptr AsyncWhenPendingWorker) {.cdecl.}
     setWorkPending* {.importc: "set_work_pending".}: proc (self: ptr AsyncContext; worker: ptr AsyncWhenPendingWorker) {.cdecl.}
-    poll* {.importc: "poll".}: proc (self: ptr AsyncContext) {.cdecl.}  # may be NULL
+    poll* {.importc: "poll".}: proc (self: ptr AsyncContext) {.cdecl.} # may be NULL
     waitUntil* {.importc: "wait_until".}: proc (self: ptr AsyncContext; until: AbsoluteTime) {.cdecl.}
     waitForWorkUntil* {.importc: "wait_for_work_until".}: proc (self: ptr AsyncContext; until: AbsoluteTime) {.cdecl.}
     deinit* {.importc: "deinit".}: proc (self: ptr AsyncContext) {.cdecl.}
@@ -392,7 +392,7 @@ when defined(freertos):
     ## \return true if initialization is successful, false otherwise
 
   proc asyncContextFreertosDefaultConfig*(): AsyncContextFreertosConfig {.importc: "async_context_freertos_default_config".}
-    ## Return a copy of the default configuration object used by \ref async_context_freertos_init_with_defaults() 
+    ## Return a copy of the default configuration object used by \ref async_context_freertos_init_with_defaults()
     ##
     ## The caller can then modify just the settings it cares about, and call \ref async_context_freertos_init()
     ## \return the default configuration object
