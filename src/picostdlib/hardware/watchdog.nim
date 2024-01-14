@@ -2,17 +2,19 @@ import ../helpers
 {.localPassC: "-I" & picoSdkPath & "/src/rp2_common/hardware_watchdog/include".}
 {.push header: "hardware/watchdog.h".}
 
+let PARAM_ASSERTIONS_ENABLED_WATCHDOG* {.importc: "PARAM_ASSERTIONS_ENABLED_WATCHDOG".}: bool
+
 proc watchdogReboot*(pc: uint32; sp: uint32; delayMs: uint32) {.importc: "watchdog_reboot".}
   ## Define actions to perform at watchdog timeout
   ##
   ## \note If \ref watchdog_start_tick value does not give a 1MHz clock to the watchdog system, then the \p delay_ms
-  ## parameter will not be in microseconds. See the datasheet for more details.
+  ## parameter will not be in milliseconds. See the datasheet for more details.
   ##
   ## By default the SDK assumes a 12MHz XOSC and sets the \ref watchdog_start_tick appropriately.
   ##
   ## \param pc If Zero, a standard boot will be performed, if non-zero this is the program counter to jump to on reset.
   ## \param sp If \p pc is non-zero, this will be the stack pointer used.
-  ## \param delay_ms Initial load value. Maximum value 0x7fffff, approximately 8.3s.
+  ## \param delay_ms Initial load value. Maximum value 8388, approximately 8.3s.
 
 proc watchdogStartTick*(cycles: cuint) {.importc: "watchdog_start_tick".}
   ## Start the watchdog tick
@@ -27,7 +29,7 @@ proc watchdogEnable*(delayMs: uint32; pauseOnDebug: bool) {.importc: "watchdog_e
   ## Enable the watchdog
   ##
   ## \note If \ref watchdog_start_tick value does not give a 1MHz clock to the watchdog system, then the \p delay_ms
-  ## parameter will not be in microseconds. See the datasheet for more details.
+  ## parameter will not be in milliseconds. See the datasheet for more details.
   ##
   ## By default the SDK assumes a 12MHz XOSC and sets the \ref watchdog_start_tick appropriately.
   ##
@@ -36,7 +38,7 @@ proc watchdogEnable*(delayMs: uint32; pauseOnDebug: bool) {.importc: "watchdog_e
   ## onto the RPI-RP2), then this value will be cleared, and so \ref watchdog_enable_caused_reboot will
   ## return false.
   ##
-  ## \param delay_ms Number of milliseconds before watchdog will reboot without watchdog_update being called. Maximum of 0x7fffff, which is approximately 8.3 seconds
+  ## \param delay_ms Number of milliseconds before watchdog will reboot without watchdog_update being called. Maximum of 8388, which is approximately 8.3 seconds
   ## \param pause_on_debug If the watchdog should be paused when the debugger is stepping through code
 
 proc watchdogCausedReboot*(): bool {.importc: "watchdog_caused_reboot".}

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.13)
+cmake_minimum_required(VERSION 3.13...3.27)
 
 if(NOT DEFINED OUTPUT_NAME)
   set(OUTPUT_NAME blink)

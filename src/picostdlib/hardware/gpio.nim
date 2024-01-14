@@ -232,7 +232,7 @@ proc setIrqEnabled*(gpio: Gpio; eventMask: set[GpioIrqLevel]; enabled: bool) {.i
   ## Events is a bitmask of the following \ref gpio_irq_level values:
   ##
   ## bit | constant            | interrupt
-  ## ----|----------------------------------------------------------
+  ## ----|---------------------|------------------------------------
   ##   0 | GPIO_IRQ_LEVEL_LOW  | Continuously while level is low
   ##   1 | GPIO_IRQ_LEVEL_HIGH | Continuously while level is high
   ##   2 | GPIO_IRQ_EDGE_FALL  | On each transition from high to low
@@ -328,6 +328,8 @@ proc addRawIrqHandlerWithOrderPriority*(gpioMask: set[Gpio]; handler: IrqHandler
   ## This method adds such an explicit GPIO IRQ handler, and disables the "default" callback for the specified GPIOs.
   ##
   ## \note Multiple raw handlers should not be added for the same GPIOs, and this method will assert if you attempt to.
+  ## Internally, this function calls \ref irq_add_shared_handler, which will assert if the maximum number of shared handlers
+  ## (configurable via PICO_MAX_IRQ_SHARED_HANDLERS) would be exceeded.
   ##
   ## A raw handler should check for whichever GPIOs and events it handles, and acknowledge them itself; it might look something like:
   ##
@@ -359,6 +361,8 @@ proc addRawIrqHandlerWithOrderPriority*(gpio: Gpio; handler: IrqHandler; orderPr
   ## This method adds such a callback, and disables the "default" callback for the specified GPIO.
   ##
   ## \note Multiple raw handlers should not be added for the same GPIO, and this method will assert if you attempt to.
+  ## Internally, this function calls \ref irq_add_shared_handler, which will assert if the maximum number of shared handlers
+  ## (configurable via PICO_MAX_IRQ_SHARED_HANDLERS) would be exceeded.
   ##
   ## A raw handler should check for whichever GPIOs and events it handles, and acknowledge them itself; it might look something like:
   ##
@@ -412,6 +416,8 @@ proc addRawIrqHandler*(gpio: Gpio; handler: IrqHandler) {.importc: "gpio_add_raw
   ## This method adds such a callback, and disables the "default" callback for the specified GPIO.
   ##
   ## \note Multiple raw handlers should not be added for the same GPIO, and this method will assert if you attempt to.
+  ## Internally, this function calls \ref irq_add_shared_handler, which will assert if the maximum number of shared handlers
+  ## (configurable via PICO_MAX_IRQ_SHARED_HANDLERS) would be exceeded.
   ##
   ## A raw handler should check for whichever GPIOs and events it handles, and acknowledge them itself; it might look something like:
   ##
