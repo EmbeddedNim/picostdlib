@@ -9,6 +9,7 @@ let blinkTaskPriority = tskIDLE_PRIORITY + 1
 proc blinkTask(params: pointer) {.cdecl.} =
   let blinkDelay = cast[ptr uint32](params)[]
   while true:
+    echo "blink task!"
     led.put(High)
     vTaskDelay(blinkDelay)
     led.put(Low)
@@ -17,6 +18,8 @@ proc blinkTask(params: pointer) {.cdecl.} =
 proc mainTask(params: pointer) {.cdecl.} =
   led.init()
   led.setDir(Out)
+
+  echo "main task!"
 
   var blink1TaskHandle: TaskHandleT
   var blink1Delay: uint32 = 500
@@ -28,6 +31,8 @@ proc mainTask(params: pointer) {.cdecl.} =
   led.deinit()
 
 proc vLaunch() =
+  stdioInitAll()
+
   var mainTaskHandle: TaskHandleT
   discard xTaskCreate(mainTask, "MainTask", 128, nil, mainTaskPriority, mainTaskHandle.addr)
 
