@@ -1,5 +1,5 @@
 #
-# TcpContext.h - TCP connection handling on top of lwIP
+# ClientContext.h - TCP connection handling on top of lwIP
 #
 # Copyright (c) 2014 Ivan Grokhotkov. All rights reserved.
 # This file is part of the esp8266 core for Arduino environment.
@@ -18,7 +18,7 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #
-# Adapted from https://github.com/earlephilhower/arduino-pico/blob/master/libraries/WiFi/src/include/TcpContext.h
+# Adapted from https://github.com/earlephilhower/arduino-pico/blob/master/libraries/WiFi/src/include/ClientContext.h
 #
 
 import std/strutils

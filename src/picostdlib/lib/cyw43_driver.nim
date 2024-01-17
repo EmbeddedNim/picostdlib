@@ -252,42 +252,126 @@ type
     ItfSta = Cyw43itfsta ## Client interface STA mode
     ItfAp = Cyw43itfap   ## Access point (AP) interface mode
 
+# {.push header: "cyw43.h".}
 
 template cyw43WifiPm*(self: ptr Cyw43T; pm: Cyw43PowersaveMode): cint = cyw43WifiPm(self, pm.uint32)
 
-proc cyw43WifiScanActive*(self: ptr Cyw43T): bool {.inline.} = self.wifi_scan_state == 1
+proc cyw43WifiScanActive*(self: ptr Cyw43T): bool {.inline.} =
+  ## Determine if a wifi scan is in progress
+  ##
+  ## This method tells you if the scan is still in progress
+  ##
+  ## \param self the driver state object. This should always be  \c &cyw43_state
+  ## \return true if a wifi scan is in progress
+  self.wifi_scan_state == 1
 
 proc cyw43WifiApGetSsid*(self: ptr Cyw43T; len: ptr csize_t; buf: ptr ptr uint8) {.inline.} =
+  ## Get the ssid for the access point
+  ##
+  ## For access point (AP) mode, this method can be used to get the SSID name of the wifi access point.
+  ##
+  ## \param self the driver state object. This should always be \c &cyw43_state
+  ## \param len Returns the length of the AP SSID name
+  ## \param buf Returns a pointer to an internal buffer containing the AP SSID name
   len[] = self.ap_ssid_len
   buf[] = self.ap_ssid[0].addr
 
+proc cyw43WifiApGetAuth*(self: ptr Cyw43T): Cyw43AuthType {.inline.} =
+  ## Get the security authorisation used in AP mode
+  ##
+  ## For access point (AP) mode, this method can be used to get the security authorisation mode.
+  ##
+  ## \param self the driver state object. This should always be \c &cyw43_state
+  ## \return the current security authorisation mode for the access point
+  return cast[Cyw43AuthType](self.ap_auth.uint32)
+
 proc cyw43WifiApSetChannel*(self: ptr Cyw43T; channel: uint32) {.inline.} =
+  ## Set the the channel for the access point
+  ##
+  ## For access point (AP) mode, this method can be used to set the channel used for the wifi access point.
+  ##
+  ## \param self the driver state object. This should always be \c &cyw43_state
+  ## \param channel Wifi channel to use for the wifi access point
   self.ap_channel = channel.uint8
 
 proc cyw43WifiApSetSsid*(self: ptr Cyw43T; len: csize_t; buf: ptr uint8) {.inline.} =
-  self.ap_ssid_len = min(len, self.ap_ssid.len.csize_t).uint8
+  ## Set the ssid for the access point
+  ##
+  ## For access point (AP) mode, this method can be used to set the SSID name of the wifi access point.
+  ##
+  ## \param self the driver state object. This should always be \c &cyw43_state
+  ## \param len The length of the AP SSID name
+  ## \param buf A buffer containing the AP SSID name
+  self.ap_ssid_len = min(len, sizeof(self.ap_ssid).csize_t).uint8
   copyMem(self.ap_ssid[0].addr, buf, self.ap_ssid_len)
 
 proc cyw43WifiApSetPassword*(self: ptr Cyw43T; len: csize_t; buf: ptr uint8) {.inline.} =
-  self.ap_key_len = min(len, self.ap_key.len.csize_t).uint8
+  ## Set the password for the wifi access point
+  ##
+  ## For access point (AP) mode, this method can be used to set the password for the wifi access point.
+  ##
+  ## \param self the driver state object. This should always be \c &cyw43_state
+  ## \param len The length of the AP password
+  ## \param buf A buffer containing the AP password
+  self.ap_key_len = min(len, sizeof(self.ap_key).csize_t).uint8
   copyMem(self.ap_key[0].addr, buf, self.ap_key_len)
 
 # TODO: When pico-sdk updates, remove the uint8 here
 # Current stable pico-sdk uses a version of cyw43_driver that has it set to uint8
 # For now, make it compile with both
-proc cyw43WifiApSetAuth*(self: ptr Cyw43T; auth: uint32|uint8) {.inline.} =
-  self.ap_auth = auth
+proc cyw43WifiApSetAuth*(self: ptr Cyw43T; auth: Cyw43AuthType|uint32|uint8) {.inline.} =
+  ## Set the security authorisation used in AP mode
+  ##
+  ## For access point (AP) mode, this method can be used to set how access to the access point is authorised.
+  ##
+  ## Auth mode                 | Meaning
+  ## --------------------------|--------
+  ## CYW43_AUTH_OPEN           | Use an open access point with no authorisation required
+  ## CYW43_AUTH_WPA_TKIP_PSK   | Use WPA authorisation
+  ## CYW43_AUTH_WPA2_AES_PSK   | Use WPA2 (preferred)
+  ## CYW43_AUTH_WPA2_MIXED_PSK | Use WPA2/WPA mixed (currently treated the same as \ref CYW43_AUTH_WPA2_AES_PSK)
+  ##
+  ## \param self the driver state object. This should always be \c &cyw43_state
+  ## \param auth Auth mode for the access point
+  self.ap_auth = typeof(self.ap_auth)(auth)
 
-proc cyw43IsInitialized*(self: ptr Cyw43T): bool {.inline.} = self.initted
+proc cyw43IsInitialized*(self: ptr Cyw43T): bool {.inline.} =
+  ## Determines if the cyw43 driver been initialised
+  ##
+  ## Returns true if the cyw43 driver has been initialised with a call to \ref cyw43_init
+  ##
+  ## \param self the driver state object. This should always be \c &cyw43_state
+  ## \return True if the cyw43 driver has been initialised
+  return self.initted
 
 func cyw43PmValue*(pmMode: Cyw43PowersaveMode; pm2SleepRetMs: uint16; liBeaconPeriod: uint8; liDtimPeriod: uint8; liAssoc: uint8): Cyw43PowersaveMode {.inline.} =
-  return (
+  ## Return a power management value to pass to cyw43_wifi_pm
+  ##
+  ## Generate the power management (PM) value to pass to cyw43_wifi_pm
+  ##
+  ## pm_mode                  | Meaning
+  ## -------------------------|--------
+  ## CYW43_NO_POWERSAVE_MODE  | No power saving
+  ## CYW43_PM1_POWERSAVE_MODE | Aggressive power saving which reduces wifi throughput
+  ## CYW43_PM2_POWERSAVE_MODE | Power saving with High throughput (preferred). Saves power when there is no wifi activity for some time.
+  ##
+  ## \see \ref CYW43_DEFAULT_PM
+  ## \see \ref CYW43_AGGRESSIVE_PM
+  ## \see \ref CYW43_PERFORMANCE_PM
+  ##
+  ## \param pm_mode Power management mode
+  ## \param pm2_sleep_ret_ms The maximum time to wait before going back to sleep for CYW43_PM2_POWERSAVE_MODE mode.
+  ## Value measured in milliseconds and must be between 10 and 2000ms and divisible by 10
+  ## \param li_beacon_period Wake period is measured in beacon periods
+  ## \param li_dtim_period Wake interval measured in DTIMs. If this is set to 0, the wake interval is measured in beacon periods
+  ## \param li_assoc Wake interval sent to the access point
+  return Cyw43PowersaveMode(
     liAssoc shl 20 or # listen interval sent to ap
     liDtimPeriod shl 16 or
     liBeaconPeriod shl 12 or
     (pm2SleepRetMs div 10) shl 4 or # cyw43_ll_wifi_pm multiplies this by 10
     pmMode.uint8 # CYW43_PM2_POWERSAVE_MODE etc
-  ).Cyw43PowersaveMode
+  )
 
 const
   Cyw43DefaultPm* = cyw43PmValue(Cyw43Pm2PowersaveMode, 200, 1, 1, 10)
@@ -298,3 +382,5 @@ const
 
   Cyw43PerformancePm* = cyw43PmValue(Cyw43Pm2PowersaveMode, 20, 1, 1, 1)
     ## Performance power management mode where more power is used to increase performance
+
+# {.pop.}

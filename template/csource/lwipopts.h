@@ -34,8 +34,8 @@
 #define LWIP_ETHERNET               1
 #define LWIP_ICMP                   1
 #define LWIP_RAW                    1
-#define TCP_WND                     (16 * TCP_MSS)
 #define TCP_MSS                     1460
+#define TCP_WND                     (16 * TCP_MSS)
 #define TCP_SND_BUF                 (8 * TCP_MSS)
 #define TCP_SND_QUEUELEN            ((4 * (TCP_SND_BUF) + (TCP_MSS - 1)) / (TCP_MSS))
 #define LWIP_NETIF_STATUS_CALLBACK  1
@@ -94,7 +94,7 @@
 #define DHCP_DEBUG                  LWIP_DBG_OFF
 
 
-#if !NO_SYS
+#if NO_SYS == 0
 #define TCPIP_THREAD_STACKSIZE 1024
 #define DEFAULT_THREAD_STACKSIZE 1024
 #define DEFAULT_RAW_RECVMBOX_SIZE 8
