@@ -69,32 +69,19 @@ const
 
 ## / HTTP client errors
 
-const
-  HTTPC_ERROR_CONNECTION_FAILED* = (-1)
-  HTTPC_ERROR_SEND_HEADER_FAILED* = (-2)
-  HTTPC_ERROR_SEND_PAYLOAD_FAILED* = (-3)
-  HTTPC_ERROR_NOT_CONNECTED* = (-4)
-  HTTPC_ERROR_CONNECTION_LOST* = (-5)
-  HTTPC_ERROR_NO_STREAM* = (-6)
-  HTTPC_ERROR_NO_HTTP_SERVER* = (-7)
-  HTTPC_ERROR_TOO_LESS_RAM* = (-8)
-  HTTPC_ERROR_ENCODING* = (-9)
-  HTTPC_ERROR_STREAM_WRITE* = (-10)
-  HTTPC_ERROR_READ_TIMEOUT* = (-11)
-
 type
   HttpClientError* = enum
-    ErrConnectionFailed
-    ErrSendHeaderFailed
-    ErrSendPayloadFailed
-    ErrNotConnected
-    ErrConnectionLost
-    ErrNoStream
-    ErrNoHttpServer
-    ErrTooLessRam
-    ErrEncoding
-    ErrStreamWrite
-    ErrReadTimeout
+    ErrReadTimeout = -11
+    ErrStreamWrite = -10
+    ErrEncoding = -9
+    ErrTooLessRam = -8
+    ErrNoHttpServer = -7
+    ErrNoStream = -6
+    ErrConnectionLost = -5
+    ErrNotConnected = -4
+    ErrSendPayloadFailed = -3
+    ErrSendHeaderFailed = -2
+    ErrConnectionFailed = -1
 
 ## constexpr int HTTPC_ERROR_CONNECTION_REFUSED __attribute__((deprecated)) = HTTPC_ERROR_CONNECTION_FAILED;
 ## / size for the stream handling
@@ -207,7 +194,7 @@ type
     size: int                           # = -1
     canReuse: bool                      # = false
     followRedirects: FollowRedirectsT   # = Httpc_Disable_Follow_Redirects
-    redirectLimit: uint16               # = 10
+    redirectLimit: Natural              # = 10
     location: string
     transferEncoding: TransferEncodingT # = Httpc_Te_Identity
     payload: StringStream               # #[owned]#
@@ -414,7 +401,7 @@ proc setTimeout*(self: var HttpClient; timeout: uint) =
 proc setFollowRedirects*(self: var HttpClient; follow: FollowRedirectsT) =
   self.followRedirects = follow
 
-proc setRedirectLimit*(self: var HttpClient; limit: uint16) =
+proc setRedirectLimit*(self: var HttpClient; limit: Natural) =
   self.redirectLimit = limit
 
 proc setURL*(self: var HttpClient; url: string): bool =
@@ -455,8 +442,11 @@ proc sendHeaders*(self: var HttpClient; httpMethod: HttpMethod): bool =
   var header = newStringOfCap(200)
   header.add($httpMethod)
   header.add(" ")
-  if self.uri.path.len != 0:
+  if self.uri.path.len > 0:
     header.add(self.uri.path)
+    if self.uri.query.len > 0:
+      header.add('?')
+      header.add(self.uri.query)
   else:
     header.add('/')
 
@@ -587,7 +577,7 @@ proc sendRequest*(self: var HttpClient; httpMethod: HttpMethod; payload: ptr byt
 
   var code: int
   var redirect = false
-  var redirectCount: uint16 = 0
+  var redirectCount: Natural = 0
 
   while true:
     # wipe out any existing headers from previous request
