@@ -43,7 +43,7 @@ proc getDefaultPrivateGlobalSyncValue*(): bool = false
 when not defined(release):
   proc debugv(formatstr: cstring) {.importc: "printf", varargs, header: "<stdio.h>".}
 else:
-  proc debugv(formatstr: cstring) {.varargs.} = discard
+  proc debugv(formatstr: cstring) {.varargs, inline.} = discard
 
 proc millis(): auto = toMsSinceBoot(getAbsoluteTime())
 
@@ -197,7 +197,6 @@ proc consume(self: var TcpContext; size: uint) =
     self.rxBufOffset = 0
     withLwipLock:
       pbufRef(self.rxBuf)
-    withLwipLock:
       discard pbufFree(head)
 
   if not self.pcb.isNil:
@@ -267,6 +266,8 @@ proc read*(self: var TcpContext; dst_in: ptr byte; size_in: uint): uint =
   while size > 0:
     let bufSize = self.rxBuf.len - self.rxBufOffset
     var copySize = min(size, bufSize)
+    if copySize == 0:
+      break
     debugv(":rdi %d, %d\n", bufSize, copySize)
     withLwipLock:
       copySize = pbufCopyPartial(self.rxBuf, dst, copySize.uint16, self.rxBufOffset.uint16)
@@ -593,6 +594,11 @@ proc csGetPosition(s: Stream): int =
   if client.isNil or client[].rxBuf.isNil:
     return 0
   return client[].rxBufOffset.int
+proc csSetPosition(s: Stream; pos: int) =
+  let client = ClientStream(s).client()
+  if client.isNil or client[].rxBuf.isNil:
+    return
+  client[].rxBufOffset = pos.uint
 proc csReadData(s: Stream; buffer: pointer; bufLen: int): int =
   if ClientStream(s).client.isNil:
     return 0
@@ -664,7 +670,7 @@ proc init*(self: var TcpContext; pcb: ptr AltcpPcb; timeoutMs: uint = 10_000) = 
   self.stream.client = self.addr
   self.stream.closeImpl = csClose
   self.stream.atEndImpl = csAtEnd
-  # self.stream.setPositionImpl = csSetPosition
+  self.stream.setPositionImpl = csSetPosition
   self.stream.getPositionImpl = csGetPosition
   self.stream.readDataImpl = csReadData
   self.stream.readDataStrImpl = csReadDataStr

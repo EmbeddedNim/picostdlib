@@ -32,23 +32,26 @@ import std/streams
 import std/uri
 import std/base64
 import std/httpcore
+import std/parseutils
 
 import ../pico/time
 import ./wifi/tcpcontext
 
-export streams, uri
+export streams, uri, tcpcontext
 
-proc pipe(s: Stream; c: Stream; chunkSize: static[int] = 100; size = -1): int =
-  var buffer: array[chunkSize, byte]
-  while not s.atEnd():
-    let readSize = if size < 0: sizeof(buffer) else: min(sizeof(buffer), size - result)
+proc pipe(s: Stream; c: Stream; chunkSize: static[int] = 1000; size = -1): int =
+  var buffer = newString(chunkSize)
+  let endMs = makeTimeoutTimeMs(5000)
+  while not s.atEnd() and diffUs(getAbsoluteTime(), endMs) > 0:
+    let readSize = if size < 0: buffer.len else: min(buffer.len, size - result)
     if readSize <= 0:
       break
-    let x = s.readData(addr(buffer), readSize)
+    let x = s.readData(addr(buffer[0]), readSize)
     if x <= 0:
       break
-    c.writeData(addr(buffer), x)
-    inc(result, x)
+    if x > 0:
+      c.writeData(addr(buffer[0]), x)
+      inc(result, x)
 
   return result
 
@@ -62,6 +65,168 @@ proc DEBUG_HTTPCLIENT(formatstr: cstring) {.importc: "printf", varargs, header: 
 
 # when not defined(DEBUG_HTTPCLIENT):
 #   ## #define DEBUG_HTTPCLIENT(...) do { (void)0; } while (0)
+
+type
+  ChunkedState = enum
+    CHUNKED_IN_CHUNK_SIZE
+    CHUNKED_IN_CHUNK_EXT
+    CHUNKED_IN_CHUNK_DATA
+    CHUNKED_IN_CHUNK_CRLF
+    CHUNKED_IN_TRAILERS_LINE_HEAD
+    CHUNKED_IN_TRAILERS_LINE_MIDDLE
+  ChunkedDecoder* = object
+    bytes_left_in_chunk*: uint # number of bytes left in current chunk
+    consume_trailer*: bool # if trailing headers should be consumed
+    hex_count: uint8
+    state: ChunkedState
+    total_read: uint64
+    total_overhead: uint64
+
+func decodeHex(ch: char): int =
+  if ord('0') <= ord(ch) and ord(ch) <= ord('9'):
+    return ord(ch) - ord('0')
+  elif ord('A') <= ord(ch) and ord(ch) <= ord('F'):
+    return ord(ch) - ord('A') + 0xa
+  elif ord('a') <= ord(ch) and ord(ch) <= ord('f'):
+    return ord(ch) - ord('a') + 0xa
+  else:
+    return -1
+
+proc decodeChunked*(decoder: var ChunkedDecoder; buf: ptr UncheckedArray[char]; bufsz: var uint): int =
+  var dst: uint = 0
+  var src: uint = 0
+  var ret: int = -2 # incomplete
+  var complete = false
+
+  decoder.total_read += bufsz
+
+  block outer:
+    while true:
+      case decoder.state:
+      of CHUNKED_IN_CHUNK_SIZE:
+        while true:
+          if src == bufsz:
+            break outer
+          let v = decodeHex(buf[src])
+          if v == -1:
+            if decoder.hex_count == 0:
+              ret = -1
+              break outer
+
+            # the only characters that may appear after the chunk size are BWS, semicolon, or CRLF
+            case buf[src]:
+            of ' ', '\x09', ';', '\x0a', '\x0d':
+              discard
+            else:
+              ret = -1;
+              break outer
+            break
+
+          if decoder.hex_count == sizeof(csize_t) * 2:
+            ret = -1
+            break outer
+
+          decoder.bytes_left_in_chunk = decoder.bytes_left_in_chunk * 16 + v.uint
+          inc(decoder.hex_count)
+          inc(src)
+
+        decoder.hex_count = 0
+        decoder.state = CHUNKED_IN_CHUNK_EXT
+
+      of CHUNKED_IN_CHUNK_EXT:
+        # RFC 7230 A.2 "Line folding in chunk extensions is disallowed"
+        while true:
+          if src == bufsz:
+            break outer
+          if buf[src] == '\x0a':
+            break
+          inc(src)
+
+        inc(src)
+        if decoder.bytes_left_in_chunk == 0:
+          if decoder.consume_trailer:
+            decoder.state = CHUNKED_IN_TRAILERS_LINE_HEAD
+            break
+          else:
+            complete = true
+            break outer
+
+        decoder.state = CHUNKED_IN_CHUNK_DATA
+
+      of CHUNKED_IN_CHUNK_DATA:
+        let avail = bufsz - src
+        if avail < decoder.bytes_left_in_chunk:
+          if dst != src:
+            moveMem(buf[dst].addr, buf[src].addr, avail)
+          src += avail
+          dst += avail
+          decoder.bytes_left_in_chunk -= avail
+          break outer;
+
+        if dst != src:
+          moveMem(buf[dst].addr, buf[src].addr, decoder.bytes_left_in_chunk)
+        src += decoder.bytes_left_in_chunk
+        dst += decoder.bytes_left_in_chunk
+        decoder.bytes_left_in_chunk = 0
+        decoder.state = CHUNKED_IN_CHUNK_CRLF
+
+      of CHUNKED_IN_CHUNK_CRLF:
+        while true:
+          if src == bufsz:
+            break outer
+          if buf[src] != '\x0d':
+            break
+          inc(src)
+
+        if buf[src] != '\x0a':
+          ret = -1
+          break outer
+
+        inc(src)
+        decoder.state = CHUNKED_IN_CHUNK_SIZE
+
+      of CHUNKED_IN_TRAILERS_LINE_HEAD:
+        while true:
+          if src == bufsz:
+            break outer
+          if buf[src] != '\x0d':
+            break
+          inc(src)
+
+        inc(src)
+        if buf[src - 1] == '\x0a':
+          complete = true
+          break outer
+        decoder.state = CHUNKED_IN_TRAILERS_LINE_MIDDLE
+
+      of CHUNKED_IN_TRAILERS_LINE_MIDDLE:
+        while true:
+          if src == bufsz:
+            break outer
+          if buf[src] == '\x0a':
+            break
+          inc(src)
+
+        inc(src)
+        decoder.state = CHUNKED_IN_TRAILERS_LINE_HEAD
+
+  if complete:
+    ret = int bufsz - src
+
+  if dst != src:
+    moveMem(buf[dst].addr, buf[src].addr, bufsz - src)
+  bufsz = dst
+  # if incomplete but the overhead of the chunked encoding is >=100KB and >80%, signal an error
+  if ret == -2:
+    decoder.total_overhead += bufsz - dst
+    if decoder.total_overhead >= 100 * 1024 and decoder.total_read - decoder.total_overhead < decoder.total_read div 4:
+      ret = -1
+
+  return ret
+
+proc decodeChunkedIsInData*(decoder: ptr ChunkedDecoder): bool =
+  return decoder.state == CHUNKED_IN_CHUNK_DATA
+
 
 const
   HTTPCLIENT_DEFAULT_TCP_TIMEOUT* = 10_000
@@ -175,7 +340,7 @@ type
   #TransportTraitsPtr* = owned TransportTraits
 
   HttpClient* = object
-    client: TcpContext
+    client*: TcpContext
     clientTLS: bool                     # = false
     clientGiven: bool                   # = false
     host: string
@@ -198,10 +363,14 @@ type
     location: string
     transferEncoding: TransferEncodingT # = Httpc_Te_Identity
     payload: StringStream               # #[owned]#
+    chunkedDecoder: ChunkedDecoder
+    beforeBuffer*: string
 
   # HttpClientRequestArgument* = object
   #   key*: string
   #   value*: string
+
+
 
 # template client(self: var HttpClient): untyped =
 #   self.client
@@ -261,6 +430,7 @@ proc clear*(self: var HttpClient) =
   self.payload.reset()
   self.userAgent = defaultUserAgent
   self.tcpTimeout = HttpClientDefaultTcpTimeout
+  self.chunkedDecoder.reset()
 
 proc beginInternal*(self: var HttpClient; url: string; expectedProtocol: string): bool =
   let parsed = parseUri(url)
@@ -481,6 +651,9 @@ proc sendHeaders*(self: var HttpClient; httpMethod: HttpMethod): bool =
   # transfer all of it, with timeout
   return newStringStream(header).pipe(self.client.stream) == header.len
 
+proc available*(self: var HttpClient): int =
+  return self.client.available()
+
 proc handleHeaderResponse*(self: var HttpClient): int =
   if not self.connected():
     return self.returnError(ErrNotConnected)
@@ -517,7 +690,7 @@ proc handleHeaderResponse*(self: var HttpClient): int =
 
         case headerName.toLower().strip():
         of "content-length":
-          self.size = try: parseInt(headerValue) except ValueError: 0
+          self.size = try: parseInt(headerValue) except ValueError: -1
         of "connection":
           if self.canReuse:
             if headerValue.find("close") >= 0 and headerValue.find("keep-alive") < 0:
@@ -703,6 +876,36 @@ proc getStream*(self: var HttpClient): Stream =
     return self.client.stream
   DEBUG_HTTPCLIENT("[HTTP-Client] getStream: not connected\n");
 
+proc read*(self: var HttpClient; n: Natural): string =
+  # echo "READ ", (n, self.beforeBuffer.len)
+  if n <= self.beforeBuffer.len:
+    result.add(self.beforeBuffer[0 ..< n])
+    self.beforeBuffer = self.beforeBuffer[n .. ^1]
+    return result
+  else:
+    result.add(self.beforeBuffer)
+    self.beforeBuffer = ""
+  if not self.connected(): return result
+  let stream = self.client.stream
+  let endMs = makeTimeoutTimeMs(self.tcpTimeout.uint32)
+  while diffUs(getAbsoluteTime(), endMs) > 0 and result.len < n and (self.connected() or self.available() > 0):
+    if stream.atEnd(): continue
+    case self.transferEncoding:
+    of HTTPC_TE_IDENTITY:
+      result.add(stream.readStr(n - result.len))
+    of HTTPC_TE_CHUNKED:
+      var line = stream.readStr(n - result.len)
+      var bufLen = line.len.uint
+      let ret = self.chunkedDecoder.decodeChunked(cast[ptr UncheckedArray[char]](line[0].addr), bufLen)
+      if ret == -1:
+        return result
+      else:
+        line.setLen(bufLen)
+        result.add(line)
+        if ret != -2:
+          self.disconnect(true)
+          return result
+
 proc writeToStream*(self: var HTTPClient; writeStream: Stream): int =
   if writeStream.isNil:
     return self.returnError(ErrNoStream)
@@ -739,7 +942,7 @@ proc writeToStream*(self: var HTTPClient; writeStream: Stream): int =
       DEBUG_HTTPCLIENT("[HTTP-Client] chunk header: '%s'\n", chunkHeader.cstring)
 
       # read size of chunk
-      len = parseInt(chunkHeader)
+      discard parseHex(chunkHeader, len)
       DEBUG_HTTPCLIENT("[HTTP-Client] read chunk len: %d\n", len)
       size += len
 
