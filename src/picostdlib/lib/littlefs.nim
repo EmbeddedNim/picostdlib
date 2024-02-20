@@ -135,12 +135,15 @@ proc init*(self: var LittleFS; start, size: uint32) =
   self.lfsConfig.block_cycles = 16
   self.lfsConfig.cache_size = FlashPageSize
   self.lfsConfig.lookahead_size = FlashPageSize
+  self.lfsConfig.compact_thresh = 0
   self.lfsConfig.read_buffer = nil
   self.lfsConfig.prog_buffer = nil
   self.lfsConfig.lookahead_buffer = nil
   self.lfsConfig.name_max = 0
   self.lfsConfig.file_max = 0
   self.lfsConfig.attr_max = 0
+  self.lfsConfig.metadata_max = 0
+  self.lfsConfig.inline_max = 0
 
 when (NimMajor, NimMinor) >= (2, 0):
   proc `=destroy`*(self: LittleFS) =
