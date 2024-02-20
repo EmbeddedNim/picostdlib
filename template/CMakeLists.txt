@@ -45,7 +45,7 @@ include(FetchContent)
 
 FetchContent_Declare(mbedtls
   GIT_REPOSITORY https://github.com/Mbed-TLS/mbedtls.git
-  GIT_TAG        v2.28.6
+  GIT_TAG        v2.28.7
 )
 
 FetchContent_Declare(lwip
