@@ -27,7 +27,7 @@ import std/streams
 import ../../pico/time
 import ../../pico/cyw43_arch
 import ../lwip
-import ./dns
+import ../../net/dns
 
 export lwip, dns, streams
 
@@ -389,7 +389,7 @@ proc writeFromSource(self: var TcpContext; ds: ptr byte; dl: uint): uint =
     self.sendWaiting = true
     ##  will resume on timeout or when _write_some_from_cb or _notify_error fires
     ##  give scheduled functions a chance to run (e.g. Ethernet uses recurrent)
-    pollDelay(self.timeoutMs, self.sendWaiting, 1)
+    pollDelay(self.timeoutMs, self.sendWaiting)
     self.sendWaiting = false
     if not true:
       break
@@ -548,7 +548,7 @@ proc connect*(self: var TcpContext; ipaddr: IpAddrT; port: Port): bool =
   self.opStartTime = millis()
   ##  will resume on timeout or when _connected or _notify_error fires
   ##  give scheduled functions a chance to run (e.g. Ethernet uses recurrent)
-  pollDelay(self.timeoutMs, self.connectPending, 10)
+  pollDelay(self.timeoutMs, self.connectPending)
   let timeout = self.connectPending
   self.connectPending = false
 

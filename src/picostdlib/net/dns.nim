@@ -1,4 +1,4 @@
-import ../../pico/cyw43_arch
+import ../pico/cyw43_arch
 
 type
   DnsCb = object
@@ -14,11 +14,11 @@ proc dnsFoundCb(hostname: cstring; ipaddr: ptr IpAddrT; arg: pointer) {.cdecl.} 
     state.err = true
   state.running = false
 
-proc getHostByName*(hostname: string; ipaddr: var IpAddrT; timeoutMs: uint = 5000): bool =
+proc getHostByName*(hostname: string; ipaddr: var IpAddrT; timeoutMs: Natural = 5000): bool =
   var state = DnsCb(running: true)
   var err: ErrT
   withLwipLock:
-    err = dnsGethostbyname(hostname, ipaddr.addr, dnsFoundCb, state.addr)
+    err = dnsGethostbyname(hostname.cstring, ipaddr.addr, dnsFoundCb, state.addr)
 
   if err == ErrOk.ErrT:
     return true
@@ -26,7 +26,7 @@ proc getHostByName*(hostname: string; ipaddr: var IpAddrT; timeoutMs: uint = 500
     # echo ":dns err=", err
     return false
   else:
-    pollDelay(timeoutMs, state.running, 10)
+    pollDelay(timeoutMs, state.running)
     if state.err:
       return false
     ipaddr = state.ipaddr

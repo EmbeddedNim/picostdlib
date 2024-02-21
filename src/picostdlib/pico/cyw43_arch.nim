@@ -270,17 +270,26 @@ var lwipLock {.compileTime.}: int
 template withLwipLock*(body: untyped) =
   cyw43ArchLwipBegin()
   {.locks: [lwipLock].}:
-    try:
-      body
-    finally:
-      cyw43ArchLwipEnd()
+    defer: cyw43ArchLwipEnd()
+    body
 
-proc pollDelay*(timeoutMs: uint; blocked: var bool; intvlMs: uint) =
-  let endMs = makeTimeoutTimeMs(timeoutMs.uint32)
-  while diffUs(getAbsoluteTime(), endMs) > 0 and blocked:
-    # sysCheckTimeouts()
-    cyw43ArchPoll()
-    sleepMs(intvlMs.uint32)
+proc cyw43Wait*(timeoutUs: Natural) {.inline.} = cyw43ArchWaitForWorkUntil(makeTimeoutTimeUs(timeoutUs.uint64))
+
+template cyw43WaitCondition*(timeoutMs: Natural; condition: untyped): bool =
+  var timedOut = true
+  let endTime = makeTimeoutTimeMs(timeoutMs.uint32)
+  while diffUs(getAbsoluteTime(), endTime) > 0:
+    withLwipLock:
+      if (condition):
+        timedOut = false
+        break
+    cyw43ArchWaitForWorkUntil(endTime)
+    # cyw43ArchPoll()
+  # echo "poll delay: ", timeoutMs - (diffUs(getAbsoluteTime(), endTime) div 1000)
+  timedOut
+
+proc pollDelay*(timeoutMs: Natural; blocked: var bool) =
+  discard cyw43WaitCondition(timeoutMs, (blocked == false))
 
 # helper functions to support code using DefaultLedPin
 proc init*(wlGpio: Cyw43WlGpio) = assert cyw43ArchInit() == PicoOk

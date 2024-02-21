@@ -11,6 +11,8 @@ import picostdlib/pico/cyw43_driver as pico_cyw43_driver
 import picostdlib/lib/wifi/tcpcontext
 import picostdlib/lib/httpclient
 import picostdlib/lib/tcpclient
+import picostdlib/net/dns
+import picostdlib/net/picosocket
 
 # futhark stuff
 import picostdlib/lib/lwip
