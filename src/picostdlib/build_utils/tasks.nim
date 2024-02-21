@@ -150,4 +150,4 @@ task upload, "Upload task":
 
 
 task monitor, "Monitor task":
-  exec("minicom -D /dev/ttyACM0")
+  exec("minicom -w -D /dev/ttyACM0")
