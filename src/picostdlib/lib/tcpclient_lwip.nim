@@ -1,8 +1,6 @@
 
 import ../pico/cyw43_arch
 
-proc cyw43Wait(timeoutUs: Natural) {.inline.} = cyw43ArchWaitForWorkUntil(makeTimeoutTimeUs(timeoutUs.uint64))
-
 type
   Port* = distinct uint16
   TcpClient* = object
