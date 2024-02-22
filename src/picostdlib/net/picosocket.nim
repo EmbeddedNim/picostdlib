@@ -1,8 +1,18 @@
 import std/strformat
-import ../pico/cyw43_arch
+import std/macros
+import ../lib/lwip
 import ./dns
+import ../pico/cyw43_arch
 
 template debugv(text: string) = echo text
+
+macro ptr2var(arg: pointer; T: static[typedesc]; name: untyped) =
+  doAssert(name.kind == nnkIdent)
+  let namePtr = ident(name.strVal & "ptr")
+  return quote do:
+    assert(arg != nil)
+    let `namePtr` = cast[ptr `T`](`arg`)
+    template `name`: var `T` = `namePtr`[]
 
 type
   Port* = distinct uint16
@@ -12,12 +22,7 @@ type
     SOCK_DGRAM = 2 # Connectionless, unreliable datagrams of fixed maximum length.
     SOCK_RAW = 3 # Raw protocol interface.
 
-  AddressFamily* = enum
-    AF_UNSPEC =  0 # Unspecified.
-    AF_INET   =  2 # IP protocol family.
-    AF_INET6  = 10 # IP version 6.
-
-  SocketState = enum
+  SocketState* = enum
     STATE_NEW = 0
     STATE_LISTENING = 1
     STATE_CONNECTING = 2
@@ -39,15 +44,11 @@ type
     rxBuf: ptr Pbuf
     rxBufOffset: uint16
 
-    connectPending: bool
     sendWaiting: bool
-    opStartTime: AbsoluteTime
-    domain: AddressFamily
     state: SocketState
     err: ErrEnumT
 
   SocketAny* = Socket[SOCK_STREAM] | Socket[SOCK_DGRAM] | Socket[SOCK_RAW]
-
 
 proc `==`*(a, b: Port): bool {.borrow.}
 proc `$`*(p: Port): string {.borrow.}
@@ -60,62 +61,6 @@ func getBasePcb*(self: Socket[SOCK_DGRAM]): ptr UdpPcb {.inline.} =
   return self.pcb
 func getBasePcb*(self: Socket[SOCK_RAW]): ptr RawPcb {.inline.} =
   return self.pcb
-
-proc notifyError(self: var Socket[SOCK_STREAM]) =
-  if self.connectPending or self.sendWaiting:
-    # resume connect or _write_from_source
-    self.sendWaiting = false
-    self.connectPending = false
-    # self.connected = false
-    # esp_schedule();
-
-proc discardReceived(self: var SocketAny) =
-  withLwipLock:
-    debugv(&":discard {(if not self.rxBuf.isNil: self.rxBuf.totLen else: 0)}")
-    if self.rxBuf == nil:
-      return
-    let totLen = self.rxBuf.totLen
-    discard pbufFree(self.rxBuf)
-    self.rxBuf = nil
-    self.rxBufOffset = 0
-    if self.pcb != nil:
-      when self.kind == SOCK_STREAM:
-        altcpRecved(self.pcb, totLen)
-
-proc abort*(self: var Socket[SOCK_STREAM]): ErrEnumT =
-  withLwipLock:
-    if self.pcb != nil:
-      # self.discardReceived()
-      debugv(":abort")
-      altcpArg(self.pcb, nil)
-      altcpSent(self.pcb, nil)
-      altcpRecv(self.pcb, nil)
-      altcpErr(self.pcb, nil)
-      altcpPoll(self.pcb, nil, 0)
-      altcpAbort(self.pcb)
-      self.pcb = nil
-  return ErrAbrt
-
-proc close*(self: var Socket[SOCK_STREAM]): ErrEnumT =
-  result = ErrOk
-  if self.pcb != nil:
-    self.discardReceived()
-    withLwipLock:
-      debugv(":close")
-      altcpArg(self.pcb, nil)
-      altcpSent(self.pcb, nil)
-      altcpRecv(self.pcb, nil)
-      altcpErr(self.pcb, nil)
-      altcpPoll(self.pcb, nil, 0)
-      result = altcpClose(self.pcb).ErrEnumT
-      if result != ErrOk:
-        debugv(&":close err {result}")
-        altcpAbort(self.pcb)
-        result = ErrAbrt
-    self.pcb = nil
-
-proc availableForWrite*(self: Socket[SOCK_STREAM]): uint =
-  return if self.pcb != nil: altcpSndbuf(self.pcb) else: 0
 
 proc setNoDelay*(self: var Socket[SOCK_STREAM]; nodelay: bool) =
   if self.pcb == nil:
@@ -130,6 +75,12 @@ proc getNoDelay*(self: Socket[SOCK_STREAM]): bool =
   if self.pcb == nil:
     return false
   return altcpNagleDisabled(self.pcb).bool
+
+func getError*(self: SocketAny): ErrEnumT =
+  return self.err
+
+func getState*(self: SocketAny): SocketState =
+  return self.state
 
 func setTimeout*(self: var SocketAny; timeoutMs: Natural) =
   self.timeoutMs = timeoutMs
@@ -165,6 +116,55 @@ func available*(self: SocketAny): uint16 =
 func connected*(self: Socket[SOCK_STREAM]): bool =
   return not self.pcb.isNil and (self.state == STATE_CONNECTED or self.available() > 0)
 
+proc discardReceived(self: var SocketAny) =
+  withLwipLock:
+    if self.rxBuf == nil:
+      return
+    let totLen = self.rxBuf.totLen
+    debugv(&":discard {totLen}")
+    discard pbufFree(self.rxBuf)
+    self.rxBuf = nil
+    self.rxBufOffset = 0
+    if self.pcb != nil:
+      when self.kind == SOCK_STREAM:
+        altcpRecved(self.pcb, totLen)
+
+proc abort*(self: var Socket[SOCK_STREAM]): ErrEnumT =
+  withLwipLock:
+    if self.pcb != nil:
+      # self.discardReceived()
+      debugv(":abort")
+      altcpArg(self.pcb, nil)
+      altcpSent(self.pcb, nil)
+      altcpRecv(self.pcb, nil)
+      altcpErr(self.pcb, nil)
+      altcpPoll(self.pcb, nil, 0)
+      altcpAbort(self.pcb)
+      self.pcb = nil
+  return ErrAbrt
+
+proc close*(self: var Socket[SOCK_STREAM]): ErrEnumT =
+  result = ErrOk
+  if self.pcb != nil:
+    self.discardReceived()
+    withLwipLock:
+      self.state = STATE_PEER_CLOSED
+      debugv(":close")
+      altcpArg(self.pcb, nil)
+      altcpSent(self.pcb, nil)
+      altcpRecv(self.pcb, nil)
+      altcpErr(self.pcb, nil)
+      altcpPoll(self.pcb, nil, 0)
+      result = altcpClose(self.pcb).ErrEnumT
+      if result != ErrOk:
+        debugv(&":close err {result}")
+        altcpAbort(self.pcb)
+        result = ErrAbrt
+    self.pcb = nil
+
+proc availableForWrite*(self: Socket[SOCK_STREAM]): uint =
+  return if self.pcb != nil: altcpSndbuf(self.pcb) else: 0
+
 proc consume(self: var Socket[SOCK_STREAM]; size: uint16; buf: ptr char = nil): int =
   if self.rxBuf == nil:
     let timedOut = cyw43WaitCondition(self.timeoutMs, self.state != STATE_CONNECTED or self.rxBuf != nil)
@@ -184,6 +184,11 @@ proc consume(self: var Socket[SOCK_STREAM]; size: uint16; buf: ptr char = nil): 
     var remaining = self.rxBuf.len - self.rxBufOffset
     let size = min(size, remaining)
 
+    if buf != nil:
+      let copySize = pbufCopyPartial(self.rxBuf, buf, size, self.rxBufOffset)
+      debugv(&":copy {copySize}")
+      assert(size == copySize)
+
     remaining -= size
 
     if remaining == 0:
@@ -201,63 +206,64 @@ proc consume(self: var Socket[SOCK_STREAM]; size: uint16; buf: ptr char = nil): 
         self.rxBufOffset = 0
     else:
       debugv(&":consume {size}, {self.rxBuf.len}, {self.rxBuf.totLen}")
-      if buf != nil:
-        let copySize = pbufCopyPartial(self.rxBuf, buf, size, self.rxBufOffset)
-        debugv(&":copy {copySize}")
-        assert(size == copySize)
       self.rxBufOffset += size
 
     altcpRecved(self.pcb, size)
     return size.int
 
-# lwip callback wrappers
-proc errCb(self: var Socket[SOCK_STREAM]; err: ErrEnumT) =
+# lwip callbacks
+proc altcpErrCb(arg: pointer; err: ErrT) {.cdecl.} =
+  ptr2var(arg, Socket[SOCK_STREAM], self)
+  let err = cast[ErrEnumT](err)
   debugv(&":error {err}") # {cast[uint32](self.datasource):#X}")
   withLwipLock:
     altcpArg(self.pcb, nil)
     altcpSent(self.pcb, nil)
     altcpRecv(self.pcb, nil)
     altcpErr(self.pcb, nil)
-  self.pcb = nil
-  self.notifyError()
+    self.err = err
+    self.pcb = nil
 
-proc pollCb(self: var Socket[SOCK_STREAM]; pcb: ptr AltcpPcb): ErrEnumT =
+proc altcpPollCb(arg: pointer; pcb: ptr AltcpPcb): ErrT {.cdecl.} =
+  ptr2var(arg, Socket[SOCK_STREAM], self)
   assert(pcb == self.pcb)
   debugv(":poll - timed out")
   # self.writeSomeFromCb()
-  return self.close()
+  return self.close().ErrT
 
-proc connectCb(self: var Socket[SOCK_STREAM]; pcb: ptr AltcpPcb; err: ErrEnumT): ErrEnumT =
+proc altcpConnectCb(arg: pointer; pcb: ptr AltcpPcb; err: ErrT): ErrT {.cdecl.} =
+  ptr2var(arg, Socket[SOCK_STREAM], self)
+  let err = cast[ErrEnumT](err)
   assert(pcb == self.pcb)
-  debugv(&":connect-cb {err}")
+  debugv(&":connect {err}")
   self.err = err
-  if self.connectPending:
-    # resume connect
-    self.connectPending = false
-  return ErrOk
+  self.state = STATE_CONNECTED
+  return ErrOk.ErrT
 
-proc sentCb(self: var Socket[SOCK_STREAM]; pcb: ptr AltcpPcb; len: uint16): ErrEnumT =
+proc altcpSentCb(arg: pointer; pcb: ptr AltcpPcb; len: uint16): ErrT {.cdecl.} =
+  ptr2var(arg, Socket[SOCK_STREAM], self)
   assert(pcb == self.pcb)
   debugv(&":sent {len}")
   # self.writeSomeFromCb()
-  return ErrOk
+  return ErrOk.ErrT
 
-proc recvCb(self: var Socket[SOCK_STREAM]; pcb: ptr AltcpPcb; pb: ptr Pbuf; err: ErrEnumT): ErrEnumT =
+proc altcpRecvCb(arg: pointer; pcb: ptr AltcpPcb; pb: ptr Pbuf; err: ErrT): ErrT {.cdecl.} =
+  ptr2var(arg, Socket[SOCK_STREAM], self)
+  # let err = cast[ErrEnumT](err)
   assert(pcb == self.pcb)
   debugv(":recv")
   if pb == nil:
     # connection closed by peer
     debugv(&":remote closed pb={(cast[uint](self.rxBuf))} sz={(if self.rxBuf.isNil: -1 else: self.rxBuf.totLen.int)}")
-    self.notifyError()
+    self.state = STATE_PEER_CLOSED
     if self.rxBuf != nil and self.rxBuf.totLen > 0:
       # there is still something to read
-      return ErrOk
+      return ErrOk.ErrT
     else:
       # nothing in receive buffer,
       # peer closed = nothing can be written:
       # closing in the legacy way
-      discard self.abort()
-      return ErrAbrt
+      return self.abort().ErrT
   if self.rxBuf != nil:
     debugv(&":recv {pb.totLen} ({self.rxBuf.totLen} total)")
     pbufCat(self.rxBuf, pb)
@@ -266,28 +272,22 @@ proc recvCb(self: var Socket[SOCK_STREAM]; pcb: ptr AltcpPcb; pb: ptr Pbuf; err:
     debugv(&":recv {pb.totLen} (new)")
     self.rxBuf = pb
     self.rxBufOffset = 0
-  return ErrOk
+  return ErrOk.ErrT
 
-# lwip callbacks low level
-proc altcpErrCb(arg: pointer; err: ErrT) {.cdecl.} =
-  assert(arg != nil)
-  cast[ptr Socket[SOCK_STREAM]](arg)[].errCb(cast[ErrEnumT](err))
+proc udpRecvCb(arg: pointer; pcb: ptr UdpPcb; pb: ptr Pbuf; ipAddr: ptr IpAddrT; port: uint16) {.cdecl.} =
+  ptr2var(arg, Socket[SOCK_DGRAM], self)
+  assert(pcb == self.pcb)
+  let port = Port(port)
+  debugv(&":udprecv {pb.totLen} {ipAddr}:{port}")
+  discard pbufFree(pb)
 
-proc altcpPollCb(arg: pointer; pcb: ptr AltcpPcb): ErrT {.cdecl.} =
-  assert(arg != nil)
-  return cast[ptr Socket[SOCK_STREAM]](arg)[].pollCb(pcb).ErrT
+proc rawRecvCb(arg: pointer; pcb: ptr RawPcb; pb: ptr Pbuf; ipAddr: ptr IpAddrT): uint8 {.cdecl.} =
+  ptr2var(arg, Socket[SOCK_RAW], self)
+  assert(pcb == self.pcb)
+  debugv(&":rawrecv {pb.totLen} {ipAddr}")
+  discard pbufFree(pb)
+  return 1
 
-proc altcpConnectCb(arg: pointer; pcb: ptr AltcpPcb; err: ErrT): ErrT {.cdecl.} =
-  assert(arg != nil)
-  return cast[ptr Socket[SOCK_STREAM]](arg)[].connectCb(pcb, err.ErrEnumT).ErrT
-
-proc altcpSentCb(arg: pointer; pcb: ptr AltcpPcb; len: uint16): ErrT {.cdecl.} =
-  assert(arg != nil)
-  return cast[ptr Socket[SOCK_STREAM]](arg)[].sentCb(pcb, len).ErrT
-
-proc altcpRecvCb(arg: pointer; pcb: ptr AltcpPcb; pb: ptr Pbuf; err: ErrT): ErrT {.cdecl.} =
-  assert(arg != nil)
-  return cast[ptr Socket[SOCK_STREAM]](arg)[].recvCb(pcb, pb, err.ErrEnumT).ErrT
 
 proc write*(self: var Socket[SOCK_STREAM]; data: string|openArray[char]): int =
   if self.pcb == nil or data.len > uint16.high.int:
@@ -319,37 +319,34 @@ proc connect*(self: var Socket[SOCK_STREAM]; ipaddr: IpAddrT; port: Port): bool 
     if ip_Is_V6(ipaddr) and ip6AddrLacksZone(ip2Ip6(ipaddr), ip6Unknown):
       ip6AddrAssignZone(ip2Ip6(ipaddr), ip6Unknown, netifDefault)
 
-  if self.pcb.isNil or self.connected:
+  if self.pcb.isNil:
+    return false
+
+  if self.state != STATE_NEW:
     return false
 
   withLwipLock:
     altcpSetprio(self.pcb, TCP_PRIO_MIN)
     altcpArg(self.pcb, self.addr)
+    altcpErr(self.pcb, altcpErrCb)
     altcpRecv(self.pcb, altcpRecvCb)
     altcpSent(self.pcb, altcpSentCb)
-    altcpErr(self.pcb, altcpErrCb)
     altcpPoll(self.pcb, altcpPollCb, uint8(self.timeoutMs div 500))
+    self.state = STATE_CONNECTING
 
-  self.connectPending = true
-  self.opStartTime = getAbsoluteTime()
+    debugv(&":connect {ipaddr.unsafeAddr} {port}")
+    self.err = altcpConnect(self.pcb, ipaddr.unsafeAddr, port.uint16, altcpConnectCb).ErrEnumT
+    if self.err != ErrOk:
+      self.state = STATE_NEW
+      return false
 
-  # withLwipLock:
-  debugv(&":connect {ipaddr.unsafeAddr} {port}")
-  self.err = altcpConnect(self.pcb, ipaddr.unsafeAddr, port.uint16, altcpConnectCb).ErrEnumT
-  if self.err != ErrOk:
-    return false
-
-  # will resume on timeout or when _connected or _notify_error fires
-  # give scheduled functions a chance to run (e.g. Ethernet uses recurrent)
-  pollDelay(self.timeoutMs, self.connectPending)
-  let timeout = self.connectPending
-  self.connectPending = false
+  let timedOut = cyw43WaitCondition(self.timeoutMs, self.state != STATE_CONNECTING)
 
   if self.pcb == nil:
     debugv(":connect aborted")
     return false
 
-  if timeout:
+  if timedOut:
     debugv(":connect time out")
     discard self.abort()
     return false
@@ -381,16 +378,39 @@ proc connect*(self: var Socket[SOCK_STREAM]; hostname: string; port: Port; secur
     return self.connect(remoteAddr, port)
   return false
 
+proc connect*(self: var Socket[SOCK_DGRAM]; ipaddr: IpAddrT; port: Port): bool =
+  assert(self.pcb != nil)
+  self.err = udpConnect(self.pcb, ipaddr.unsafeAddr, port.uint16).ErrEnumT
+  return self.err == ErrOk
 
-proc init*(self: var Socket[SOCK_STREAM]; timeoutMs: Natural = 30_000; blocking: bool = false) =
+proc connect*(self: var Socket[SOCK_RAW]; ipaddr: IpAddrT): bool =
+  assert(self.pcb != nil)
+  self.err = rawConnect(self.pcb, ipaddr.unsafeAddr).ErrEnumT
+  return self.err == ErrOk
+
+proc init*(self: var SocketAny; timeoutMs: Natural = 30_000; blocking: bool = false; ipProto: uint8 = 0) =
   assert(self.pcb == nil)
   self.rxBuf = nil
   self.rxBufOffset = 0
   self.timeoutMs = timeoutMs
   self.blocking = blocking
+  self.state = STATE_NEW
 
-  var allocator: AltcpAllocatorT
-  allocator.alloc = altcpTcpAlloc
-  allocator.arg = nil
-  self.pcb = altcpNewIpType(allocator.addr, IPADDR_TYPE_ANY.ord)
-  assert(self.pcb != nil)
+  when self.kind == SOCK_STREAM:
+    var allocator: AltcpAllocatorT
+    allocator.alloc = altcpTcpAlloc
+    allocator.arg = nil
+    self.pcb = altcpNewIpType(allocator.addr, IPADDR_TYPE_ANY.ord)
+    assert(self.pcb != nil)
+    altcpArg(self.pcb, self.addr)
+    altcpErr(self.pcb, altcpErrCb)
+  elif self.kind == SOCK_DGRAM:
+    self.pcb = udpNew()
+    assert(self.pcb != nil)
+    self.state = STATE_ACTIVE_UDP
+    udpRecv(self.pcb, udpRecvCb, self.addr)
+  elif self.kind == SOCK_RAW:
+    self.pcb = rawNew(ipProto)
+    assert(self.pcb != nil)
+    rawRecv(self.pcb, rawRecvCb, self.addr)
+
