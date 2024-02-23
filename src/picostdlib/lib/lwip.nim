@@ -131,7 +131,7 @@ else:
 
 {.emit: "// picostdlib import: pico_lwip pico_lwip_mbedtls pico_mbedtls".}
 
-##  Nim helpers
+##  Nim helpers/macros
 
 const PBUF_NOT_FOUND* = uint16.high
 
@@ -145,31 +145,8 @@ proc pbufMemfind*(p: ptr Pbuf; mem: string; startOffset: Natural): uint16 {.inli
   var cmem = mem.cstring
   return p.pbufMemfind(cast[pointer](cmem[0].addr), cmem.len.uint16, startOffset.uint16)
 
-
-when declared(ip4addrntoa) and declared(ip6addrntoa) and declared(ipaddrntoa):
-  proc `$`*(ip: ptr IpAddrT): string = $cast[cstring](ipaddrntoa(ip))
-
-  proc `$`*(ip: var IpAddrT): string = $cast[cstring](ipaddrntoa(addr(ip)))
-elif declared(ip4addrntoa):
-  proc `$`*(ip: ptr IpAddrT): string = $cast[cstring](ip4addrntoa(ip))
-
-  proc `$`*(ip: var IpAddrT): string = $cast[cstring](ip4addrntoa(addr(ip)))
-
-elif declared(ip6addrntoa):
-  proc `$`*(ip: ptr IpAddrT): string = $cast[cstring](ip6addrntoa(ip))
-
-  proc `$`*(ip: var IpAddrT): string = $cast[cstring](ip6addrntoa(addr(ip)))
-
-when declared(ip4addrAton):
-  template ipaddrAton*(cp, `addr`: untyped): untyped =
-    ip4addrAton(cp, `addr`)
-else:
-  template ipaddrAton*(cp, `addr`: untyped): untyped =
-    ip6addrAton(cp, `addr`)
-
 template altcpListenWithBacklog*(conn, backlog: untyped): untyped = altcpListenWithBacklogAndErr(conn, backlog, nil)
 template altcpListen*(conn: untyped): untyped = altcpListenWithBacklogAndErr(conn, TcpDefaultListenBacklog, nil)
-
 template altcpTcpNew*(): untyped = altcpTcpNewIpType(IpAddrTypeV4.uint8)
 template altcpTcpNewIp6*(): untyped = altcpTcpNewIpType(IpAddrTypeV6.uint8)
 
@@ -180,8 +157,44 @@ proc getTcpState*(conn: ptr AltcpPcb): TcpState =
     if pcb != nil:
       return pcb.state
 
-template ipGetOption*(pcb: untyped; opt: cuint): bool =
-  (pcb.so_options and opt) != 0
+# IP helper macros
 
-when LWIP_NETCONN == 1:
-  template netconnNew*(t: NetconnType): ptr Netconn = netconnNewWithProtoAndCallback(t, 0, nil)
+proc ipIsV4*(ipaddr: ptr IpAddrT): bool {.importc: "IP_IS_V4", header: "lwip/ip_addr.h"}
+proc ipIsV6*(ipaddr: ptr IpAddrT): bool {.importc: "IP_IS_V6", header: "lwip/ip_addr.h"}
+proc ipIsAnyTypeVal*(ipaddr: ptr IpAddrT): bool {.importc: "IP_IS_ANY_TYPE_VAL", header: "lwip/ip_addr.h".}
+proc ipGetType*(ipaddr: ptr IpAddrT): LwipIpAddrType {.importc: "IP_GET_TYPE", header: "lwip/ip_addr.h".}
+
+template ipGetOption*(pcb: untyped; opt: cuint): bool = (pcb.so_options and opt) != 0
+
+when defined(lwipIpv4):
+  proc ip2Ip4*(ipaddr: ptr IpAddrT): ptr Ip4AddrT {.importc: "ip_2_ip4", header: "lwip/ip_addr.h".}
+
+when defined(lwipIpv6):
+  proc ip2Ip6*(ipaddr: ptr IpAddrT): ptr Ip6AddrT {.importc: "ip_2_ip6", header: "lwip/ip_addr.h".}
+
+  proc ip6AddrHasScope*(ip6addr: ptr Ip6AddrT; scope: LwipIpv6ScopeType): bool {.importc: "ip6_addr_has_scope", header: "lwip/ip6_zone.h".}
+
+  proc ip6AddrLacksZone*(ip6addr: ptr Ip6AddrT; scope: LwipIpv6ScopeType): bool {.importc: "ip6_addr_lacks_zone", header: "lwip/ip6_zone.h".}
+
+  proc ip6AddrAssignZone*(ip6addr: ptr Ip6AddrT; scope: LwipIpv6ScopeType; netif: ptr Netif) {.importc: "ip6_addr_assign_zone", header: "lwip/ip6_zone.h"}
+
+# ipAddrNtoa is not reentrant!
+when defined(lwipIpv4) and defined(lwipIpv6):
+  proc ipAddrNtoa*(ipaddr: ptr IpAddrT): cstring =
+    if ipaddr == nil: return nil
+    if ipIsV6(ipaddr):
+      return ip6AddrNtoa(ip2Ip6(ipaddr))
+    else:
+      ip4AddrNtoa(ip2Ip4(ip))
+elif defined(lwipIpv4):
+  const ipAddrNtoa* = ip4AddrNtoa
+elif defined(lwipIpv6):
+  const ipAddrNtoa* = ip6AddrNtoa
+else:
+  proc ipAddrNtoa*(ipaddr: ptr IpAddrT): cstring = nil
+
+proc `$`*(ipaddr: ptr IpAddrT): string = $ipAddrNtoa(ipaddr)
+proc `$`*(ipaddr: var IpAddrT): string = $ipAddrNtoa(addr(ipaddr))
+
+when not declared(ipAddrAton):
+  proc ipAddrAton*(cp: cstring; `addr`: ptr IpAddrT): cint {.importc: "ipaddr_aton", header: "lwip/ip_addr.h".}
