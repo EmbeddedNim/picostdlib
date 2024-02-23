@@ -24,12 +24,13 @@ type
     SOCK_RAW = 3 # Raw protocol interface.
 
   SocketState* = enum
-    STATE_NEW = 0
-    STATE_LISTENING = 1
-    STATE_CONNECTING = 2
-    STATE_CONNECTED = 3
-    STATE_PEER_CLOSED = 4
-    STATE_ACTIVE_UDP = 5
+    STATE_INVALID
+    STATE_NEW
+    STATE_LISTENING
+    STATE_CONNECTING
+    STATE_CONNECTED
+    STATE_PEER_CLOSED
+    STATE_ACTIVE_UDP
 
   Socket*[kind: static[SocketType]] = object
     when kind == SOCK_STREAM:
@@ -161,7 +162,7 @@ proc close*(self: var Socket[SOCK_STREAM]): ErrEnumT =
         debugv(":close err " & $result)
         altcpAbort(self.pcb)
         result = ErrAbrt
-    self.pcb = nil
+      self.pcb = nil
 
 proc availableForWrite*(self: Socket[SOCK_STREAM]): uint =
   return if self.pcb != nil: altcpSndbuf(self.pcb) else: 0
@@ -231,6 +232,13 @@ proc altcpPollCb(arg: pointer; pcb: ptr AltcpPcb): ErrT {.cdecl.} =
   debugv(":poll - timed out")
   # self.writeSomeFromCb()
   return self.close().ErrT
+
+proc altcpClosePollCb(arg: pointer; pcb: ptr AltcpPcb): ErrT {.cdecl.} =
+  # Connection has not been cleanly closed so just abort it to free up memory
+  debugv(":poll closing")
+  altcpPoll(pcb, nil, 0)
+  altcpAbort(pcb)
+  return ErrOk.ErrT
 
 proc altcpConnectCb(arg: pointer; pcb: ptr AltcpPcb; err: ErrT): ErrT {.cdecl.} =
   ptr2var(arg, Socket[SOCK_STREAM], self)
@@ -400,13 +408,15 @@ proc connect*(self: var Socket[SOCK_RAW]; host: string): bool {.inline.} =
   # raw sockets have no port
   self.connect(host, Port(0))
 
-proc init*(self: var SocketAny; timeoutMs: Natural = 30_000; blocking: bool = false; ipProto: uint8 = 0) =
+proc init*(self: var SocketAny; timeoutMs: Natural; blocking: bool; ipProto: uint8) =
   assert(self.pcb == nil)
+  assert(self.state in [STATE_NEW, STATE_PEER_CLOSED])
+
+  self.state = STATE_NEW
+  self.timeoutMs = timeoutMs
   self.rxBuf = nil
   self.rxBufOffset = 0
-  self.timeoutMs = timeoutMs
   self.blocking = blocking
-  self.state = STATE_NEW
 
   when self.kind == SOCK_STREAM:
     var allocator: AltcpAllocatorT
@@ -426,18 +436,62 @@ proc init*(self: var SocketAny; timeoutMs: Natural = 30_000; blocking: bool = fa
     assert(self.pcb != nil)
     rawRecv(self.pcb, rawRecvCb, self.addr)
 
-proc newSocket*(kind: static[SocketType]): owned Socket[kind] =
-  result.init()
+  debugv(":init " & $self.kind)
 
+proc newSocket*(kind: static[SocketType]; timeoutMs: Natural = 30_000; blocking: bool = false; ipProto: uint8 = 0): owned Socket[kind] =
+  result = Socket[kind]()
+  result.state = STATE_NEW
+  result.init(timeoutMs, blocking, ipProto)
+
+proc `=destroy`*(self: Socket[SOCK_STREAM]) =
+  withLwipLock:
+    if self.pcb != nil:
+      altcpArg(self.pcb, nil)
+      altcpSent(self.pcb, nil)
+      altcpRecv(self.pcb, nil)
+      altcpErr(self.pcb, nil)
+      if self.pcb.getTcpState != LISTEN:
+        altcpPoll(self.pcb, altcpClosePollCb, uint8(self.timeoutMs div 500))
+      else:
+        altcpPoll(self.pcb, nil, 0)
+      # try close with timeout, otherwise abort
+      let err = altcpClose(self.pcb).ErrEnumT
+      if err != ErrOk:
+        debugv(":destroy close err " & $err)
+        altcpAbort(self.pcb)
+    if self.rxBuf != nil:
+      discard pbufFree(self.rxBuf)
+  debugv(":destroyed")
+
+proc `=destroy`*(self: Socket[SOCK_DGRAM]) =
+  withLwipLock:
+    if self.pcb != nil:
+      udpRecv(self.pcb, nil, nil)
+      udpRemove(self.pcb)
+    if self.rxBuf != nil:
+      discard pbufFree(self.rxBuf)
+  debugv(":destroyed")
+
+proc `=destroy`*(self: Socket[SOCK_RAW]) =
+  withLwipLock:
+    if self.pcb != nil:
+      rawRecv(self.pcb, nil, nil)
+      rawRemove(self.pcb)
+    if self.rxBuf != nil:
+      discard pbufFree(self.rxBuf)
+  debugv(":destroyed")
 
 when defined(runtests) or defined(nimcheck):
-  var t = newSocket(SOCK_STREAM)
-  discard t.connect("google.com", Port(80))
+  block:
+    var t = newSocket(SOCK_STREAM)
+    discard t.connect("google.com", Port(80))
 
-  var u = newSocket(SOCK_DGRAM)
-  discard u.connect("127.0.0.1", Port(0))
+  block:
+    var u = newSocket(SOCK_DGRAM)
+    discard u.connect("127.0.0.1", Port(0))
 
-  var r = newSocket(SOCK_RAW)
-  discard r.connect("127.0.0.1")
+  block:
+    var r = newSocket(SOCK_RAW)
+    discard r.connect("127.0.0.1")
 
 {.pop.}
