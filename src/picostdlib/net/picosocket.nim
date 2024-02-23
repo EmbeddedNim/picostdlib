@@ -300,8 +300,6 @@ proc write*(self: var Socket[SOCK_STREAM]; data: string|openArray[char]): int =
   return written
 
 proc available*(self: var SocketAny): uint16 =
-  if self.written > 0:
-    discard self.flush()
   if self.rxBuf.isNil:
     return 0
   return self.rxBuf.totLen - self.rxBufOffset
@@ -311,9 +309,6 @@ proc connected*(self: var Socket[SOCK_STREAM]): bool =
 
 proc read*(self: var Socket[SOCK_STREAM]; size: uint16; buf: ptr char = nil): int =
   debugv(":read " & $size)
-
-  if self.written > 0:
-    discard self.flush()
 
   if self.rxBuf == nil:
     let timedOut = cyw43WaitCondition(self.timeoutMs, self.state != STATE_CONNECTED or self.rxBuf != nil)

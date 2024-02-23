@@ -39,15 +39,16 @@ proc runTcpClientTest() =
     echo "failed to write http request"
     return
 
-  var buf = newString(200)
-  while client.getState() == STATE_CONNECTED or (let avail = client.available(); avail > 0):
-    if avail == 0: continue
-    buf.setLen(200)
-    let readLen = client.read(buf.len.uint16, buf[0].addr)
-    if readLen <= 0:
-      break
-    buf.setLen(readLen)
-    echo buf
+  if client.flush():
+    var buf = newString(200)
+    while client.getState() == STATE_CONNECTED or (let avail = client.available(); avail > 0):
+      if avail == 0: continue
+      buf.setLen(200)
+      let readLen = client.read(buf.len.uint16, buf[0].addr)
+      if readLen <= 0:
+        break
+      buf.setLen(readLen)
+      echo buf
 
   echo "closing"
   var closed = client.close()
