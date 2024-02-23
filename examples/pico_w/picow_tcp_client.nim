@@ -4,7 +4,7 @@ import std/strutils
 import picostdlib
 import picostdlib/[
   pico/cyw43_arch,
-  lib/wifi/tcpcontext
+  net/picosocket
 ]
 
 const WIFI_SSID {.strdefine.} = ""
@@ -15,7 +15,7 @@ const HTTP_URL_PARSED = HTTP_URL.parseUri
 
 const HOSTNAME = HTTP_URL_PARSED.hostname
 const TCP_USE_TLS = HTTP_URL_PARSED.scheme.toLower() == "https"
-const TCP_PORT = if TCP_USE_TLS: 443 else: 80
+const TCP_PORT = if TCP_USE_TLS: Port(443) else: Port(80)
 
 const HTTP_PATH = (if HTTP_URL_PARSED.path == "": "/" else: HTTP_URL_PARSED.path) & (if HTTP_URL_PARSED.query != "": "?" & HTTP_URL_PARSED.query else: "")
 const HTTP_REQUEST = "GET " & HTTP_PATH & " HTTP/1.1\r\n" &
@@ -24,19 +24,10 @@ const HTTP_REQUEST = "GET " & HTTP_PATH & " HTTP/1.1\r\n" &
                      "\r\n"
 
 proc runTcpClientTest() =
-  var client: TcpContext
-  client.init(tls = TCP_USE_TLS, sniHostname = HOSTNAME)
-
-  # var ip: IpAddrT
-  # discard ipaddrAton(TCP_IP, ip.addr)
-  # echo "Resolving hostname ", HOSTNAME
-  # if not getHostByName(HOSTNAME, ip):
-  #   echo "unable to resolve dns name ", HOSTNAME
-  #   return
-  # let connected = client.connect(ip, Port(TCP_PORT))
+  var client = newSocket(SOCK_STREAM)
 
   echo "connecting to ", HOSTNAME, ":", TCP_PORT
-  let connected = client.connect(HOSTNAME, Port(TCP_PORT))
+  let connected = client.connect(HOSTNAME, TCP_PORT, secure = TCP_USE_TLS)
   if not connected:
     echo "error connecting!!"
     return
@@ -45,45 +36,26 @@ proc runTcpClientTest() =
 
   echo "write:"
   echo HTTP_REQUEST
-  client.stream.write(HTTP_REQUEST)
-  client.stream.flush()
+  echo client.write(HTTP_REQUEST)
 
-  while not client.hasData():
+  while client.available() == 0:
     tightLoopContents()
+    sleepMs(100)
 
-  var contentType = "text/plain"
-
-  for line in client.stream.lines():
-    if line.len == 0: break
-    echo "header: ", line
-    if line.toLower.startsWith("content-type: application/json"):
-      contentType = "application/json"
-    elif line.toLower.startsWith("content-type: text/html"):
-      contentType = "text/html"
-
-  if contentType == "application/json":
-    echo "Parsing JSON body..."
-    try:
-      let node = parseJson(client.stream)
-      echo pretty node
-    except JsonParsingError as e:
-      echo "Failed to parse JSON! ", e.msg
-  # elif contentType == "text/html":
-  else:
-    echo "Printing HTTP body..."
-    # for line in client.stream.lines():
-    #   echo "body: ", line
-    while not client.stream.atEnd():
-      stdout.write(client.stream.readStr(100))
-      stdout.flushFile()
-    echo ""
+  while client.available() > 0 or client.getState() == STATE_CONNECTED:
+    if client.available() == 0: continue
+    var buf = newString(200)
+    let readLen = client.read(buf.len, buf[0].addr)
+    if readLen < 0:
+      break
+    buf.setLen(readLen)
+    echo buf
 
   var closed = client.close()
   if closed != ErrOk:
     echo "error closing! ", closed
-
-  echo "closed"
-  sleepMs(100)
+  else:
+    echo "closed"
 
 proc tcpClientExample*() =
   if cyw43ArchInit() != PicoErrorNone:
