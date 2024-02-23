@@ -315,7 +315,7 @@ proc connect*(self: var Socket[SOCK_STREAM]; ipaddr: IpAddrT; port: Port): bool 
   # note: not using `const ip_addr_t* addr` because
   # - `ip6_addr_assign_zone()` below modifies `*addr`
   # - caller's parameter `WiFiClient::connect` is a local copy
-  when defined(lwipIpv6):
+  when lwipIpv6:
     # Set zone so that link local addresses use the default interface
     if ipIsV6(ipaddr.addr) and ip6AddrLacksZone(ip2Ip6(ipaddr.addr), IP6_UNKNOWN):
       ip6AddrAssignZone(ip2Ip6(ipaddr.addr), IP6_UNKNOWN, netifDefault)

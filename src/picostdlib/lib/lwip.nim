@@ -133,6 +133,9 @@ else:
 
 ##  Nim helpers/macros
 
+const lwipIpv4* = when declared(LWIP_IPV4): LWIP_IPV4.bool else: false
+const lwipIpv6* = when declared(LWIP_IPV6): LWIP_IPV6.bool else: false
+
 const PBUF_NOT_FOUND* = uint16.high
 
 proc pbufMemcmp*(p: ptr Pbuf; offset: Natural; s2: string): uint16 {.inline.} =
@@ -166,10 +169,10 @@ proc ipGetType*(ipaddr: ptr IpAddrT): LwipIpAddrType {.importc: "IP_GET_TYPE", h
 
 template ipGetOption*(pcb: untyped; opt: cuint): bool = (pcb.so_options and opt) != 0
 
-when defined(lwipIpv4):
+when lwipIpv4:
   proc ip2Ip4*(ipaddr: ptr IpAddrT): ptr Ip4AddrT {.importc: "ip_2_ip4", header: "lwip/ip_addr.h".}
 
-when defined(lwipIpv6):
+when lwipIpv6:
   proc ip2Ip6*(ipaddr: ptr IpAddrT): ptr Ip6AddrT {.importc: "ip_2_ip6", header: "lwip/ip_addr.h".}
 
   proc ip6AddrHasScope*(ip6addr: ptr Ip6AddrT; scope: LwipIpv6ScopeType): bool {.importc: "ip6_addr_has_scope", header: "lwip/ip6_zone.h".}
@@ -178,23 +181,21 @@ when defined(lwipIpv6):
 
   proc ip6AddrAssignZone*(ip6addr: ptr Ip6AddrT; scope: LwipIpv6ScopeType; netif: ptr Netif) {.importc: "ip6_addr_assign_zone", header: "lwip/ip6_zone.h"}
 
-# ipAddrNtoa is not reentrant!
-when defined(lwipIpv4) and defined(lwipIpv6):
+# warning: ipAddrNtoa is not reentrant!
+when lwipIpv4 and lwipIpv6:
   proc ipAddrNtoa*(ipaddr: ptr IpAddrT): cstring =
     if ipaddr == nil: return nil
     if ipIsV6(ipaddr):
       return ip6AddrNtoa(ip2Ip6(ipaddr))
     else:
       ip4AddrNtoa(ip2Ip4(ip))
-elif defined(lwipIpv4):
+elif lwipIpv4:
   const ipAddrNtoa* = ip4AddrNtoa
-elif defined(lwipIpv6):
+elif lwipIpv6:
   const ipAddrNtoa* = ip6AddrNtoa
-else:
-  proc ipAddrNtoa*(ipaddr: ptr IpAddrT): cstring = nil
 
 proc `$`*(ipaddr: ptr IpAddrT): string = $ipAddrNtoa(ipaddr)
 proc `$`*(ipaddr: var IpAddrT): string = $ipAddrNtoa(addr(ipaddr))
 
 when not declared(ipAddrAton):
-  proc ipAddrAton*(cp: cstring; `addr`: ptr IpAddrT): cint {.importc: "ipaddr_aton", header: "lwip/ip_addr.h".}
+  proc ipAddrAton*(cp: cstring; ipaddr: ptr IpAddrT): cint {.importc: "ipaddr_aton", header: "lwip/ip_addr.h".}
