@@ -426,17 +426,18 @@ proc init*(self: var SocketAny; timeoutMs: Natural = 30_000; blocking: bool = fa
     assert(self.pcb != nil)
     rawRecv(self.pcb, rawRecvCb, self.addr)
 
+proc newSocket*(kind: static[SocketType]): owned Socket[kind] =
+  result.init()
+
+
 when defined(runtests) or defined(nimcheck):
-  var t: Socket[SOCK_STREAM]
-  t.init()
+  var t = newSocket(SOCK_STREAM)
   discard t.connect("google.com", Port(80))
 
-  var u = Socket[SOCK_DGRAM]()
-  u.init()
+  var u = newSocket(SOCK_DGRAM)
   discard u.connect("127.0.0.1", Port(0))
 
-  var r = Socket[SOCK_RAW]()
-  r.init()
+  var r = newSocket(SOCK_RAW)
   discard r.connect("127.0.0.1")
 
 {.pop.}
