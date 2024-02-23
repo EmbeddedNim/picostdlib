@@ -1,5 +1,4 @@
 import std/uri
-import std/json
 import std/strutils
 import picostdlib
 import picostdlib/[
@@ -36,21 +35,21 @@ proc runTcpClientTest() =
 
   echo "write:"
   echo HTTP_REQUEST
-  echo client.write(HTTP_REQUEST)
+  if client.write(HTTP_REQUEST) != HTTP_REQUEST.len:
+    echo "failed to write http request"
+    return
 
-  while client.available() == 0:
-    tightLoopContents()
-    sleepMs(100)
-
-  while client.available() > 0 or client.getState() == STATE_CONNECTED:
-    if client.available() == 0: continue
-    var buf = newString(200)
-    let readLen = client.read(buf.len, buf[0].addr)
-    if readLen < 0:
+  var buf = newString(200)
+  while client.getState() == STATE_CONNECTED or (let avail = client.available(); avail > 0):
+    if avail == 0: continue
+    buf.setLen(200)
+    let readLen = client.read(buf.len.uint16, buf[0].addr)
+    if readLen <= 0:
       break
     buf.setLen(readLen)
     echo buf
 
+  echo "closing"
   var closed = client.close()
   if closed != ErrOk:
     echo "error closing! ", closed

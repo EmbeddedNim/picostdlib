@@ -242,7 +242,7 @@ proc waitUntilAcked*(self: var TcpContext; maxWaitMs: uint = WIFICLIENT_MAX_FLUS
       prevsndbuf = sndbuf
       ## We just sent a bit, move timeout forward
       lastSent = millis()
-    if not self.connected or (sndbuf == TCP_SND_BUF):
+    if not self.connected or (sndbuf == TCP_SND_BUF.int):
       ##  peer has closed or all bytes are sent and acked
       ##  ((TCP_SND_BUF-sndbuf) is the amount of un-acked bytes)
       break

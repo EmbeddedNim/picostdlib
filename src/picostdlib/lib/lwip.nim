@@ -32,7 +32,7 @@ import ../helpers
 {.localPassC: "-I" & piconimCsourceDir.}
 
 let
-  TCP_SND_BUF* {.importc: "TCP_SND_BUF", header: "lwipopts.h".}: cint
+  TCP_SND_BUF* {.importc: "TCP_SND_BUF", header: "lwipopts.h".}: uint16
 
 when defined(nimcheck):
   include ../futharkgen/futhark_lwip

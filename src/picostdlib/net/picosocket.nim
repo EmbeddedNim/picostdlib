@@ -49,6 +49,8 @@ type
     sendWaiting: bool
     state: SocketState
     err: ErrEnumT
+    written: uint
+    acked: uint
 
   SocketAny* = Socket[SOCK_STREAM] | Socket[SOCK_DGRAM] | Socket[SOCK_RAW]
 
@@ -110,14 +112,6 @@ func getLocalPort*(self: SocketAny): Port =
     return 0.Port
   return self.getBasePcb().local_port.Port
 
-func available*(self: SocketAny): uint16 =
-  if self.rxBuf.isNil:
-    return 0
-  return self.rxBuf.totLen - self.rxBufOffset
-
-func connected*(self: Socket[SOCK_STREAM]): bool =
-  return not self.pcb.isNil and (self.state == STATE_CONNECTED or self.available() > 0)
-
 proc discardReceived(self: var SocketAny) =
   withLwipLock:
     if self.rxBuf == nil:
@@ -164,73 +158,22 @@ proc close*(self: var Socket[SOCK_STREAM]): ErrEnumT =
         result = ErrAbrt
       self.pcb = nil
 
-proc availableForWrite*(self: Socket[SOCK_STREAM]): uint =
-  return if self.pcb != nil: altcpSndbuf(self.pcb) else: 0
-
-proc consume(self: var Socket[SOCK_STREAM]; size: uint16; buf: ptr char = nil): int =
-  if self.rxBuf == nil:
-    let timedOut = cyw43WaitCondition(self.timeoutMs, self.state != STATE_CONNECTED or self.rxBuf != nil)
-    if timedOut:
-      return -1
-
-    if self.state == STATE_PEER_CLOSED:
-      if self.available() == 0:
-        return 0
-    elif self.state != STATE_CONNECTED:
-      return -1
-
-  withLwipLock:
-    assert(self.rxBuf != nil)
-    assert(self.pcb != nil)
-
-    var remaining = self.rxBuf.len - self.rxBufOffset
-    let size = min(size, remaining)
-
-    if buf != nil:
-      let copySize = pbufCopyPartial(self.rxBuf, buf, size, self.rxBufOffset)
-      debugv(":copy " & $copySize)
-      assert(size == copySize)
-
-    remaining -= size
-
-    if remaining == 0:
-      if self.rxBuf.next != nil:
-        debugv(":consume next " & $size & ", " & $self.rxBuf.len & ", " & $self.rxBuf.totLen)
-        let next = self.rxBuf.next
-        pbufRef(self.rxBuf.next)
-        discard pbufFree(self.rxBuf)
-        self.rxBuf = next
-        self.rxBufOffset = 0
-      else:
-        debugv(":consume emptied " & $size & ", " & $self.rxBuf.len)
-        discard pbufFree(self.rxBuf)
-        self.rxBuf = nil
-        self.rxBufOffset = 0
-    else:
-      debugv(":consume " & $size & ", " & $self.rxBuf.len & ", " & $self.rxBuf.totLen)
-      self.rxBufOffset += size
-
-    altcpRecved(self.pcb, size)
-    return size.int
-
 # lwip callbacks
 proc altcpErrCb(arg: pointer; err: ErrT) {.cdecl.} =
   ptr2var(arg, Socket[SOCK_STREAM], self)
   let err = cast[ErrEnumT](err)
-  debugv(":error " & $err) # {cast[uint32](self.datasource):#X}")
-  withLwipLock:
-    altcpArg(self.pcb, nil)
-    altcpSent(self.pcb, nil)
-    altcpRecv(self.pcb, nil)
-    altcpErr(self.pcb, nil)
-    self.err = err
-    self.pcb = nil
+  debugv(":error " & $err)
+  altcpArg(self.pcb, nil)
+  altcpSent(self.pcb, nil)
+  altcpRecv(self.pcb, nil)
+  altcpErr(self.pcb, nil)
+  self.err = err
+  self.pcb = nil
 
 proc altcpPollCb(arg: pointer; pcb: ptr AltcpPcb): ErrT {.cdecl.} =
   ptr2var(arg, Socket[SOCK_STREAM], self)
   assert(pcb == self.pcb)
   debugv(":poll - timed out")
-  # self.writeSomeFromCb()
   return self.close().ErrT
 
 proc altcpClosePollCb(arg: pointer; pcb: ptr AltcpPcb): ErrT {.cdecl.} =
@@ -253,7 +196,7 @@ proc altcpSentCb(arg: pointer; pcb: ptr AltcpPcb; len: uint16): ErrT {.cdecl.} =
   ptr2var(arg, Socket[SOCK_STREAM], self)
   assert(pcb == self.pcb)
   debugv(":sent " & $len)
-  # self.writeSomeFromCb()
+  self.acked += len
   return ErrOk.ErrT
 
 proc altcpRecvCb(arg: pointer; pcb: ptr AltcpPcb; pb: ptr Pbuf; err: ErrT): ErrT {.cdecl.} =
@@ -297,27 +240,124 @@ proc rawRecvCb(arg: pointer; pcb: ptr RawPcb; pb: ptr Pbuf; ipAddr: ptr IpAddrT)
   discard pbufFree(pb)
   return 1
 
+proc flush*(self: var Socket[SOCK_STREAM]): bool =
+  if self.pcb == nil:
+    return false
+  withLwipLock:
+    debugv(":flushing " & $self.written)
+    let err = altcpOutput(self.pcb)
+    if err != ErrOk.ErrT:
+      debugv(":flushfail " & $err)
+      return false
+    if self.written == 0:
+      return true
+    let timedOut = cyw43WaitCondition(self.timeoutMs, self.written <= self.acked or self.state != STATE_CONNECTED)
+    if timedOut:
+      debugv(":flush - timeout")
+    else:
+      debugv(":flush complete " & $(self.written, self.acked))
+      self.acked -= self.written
+      self.written = 0
+    return not timedOut
 
 proc write*(self: var Socket[SOCK_STREAM]; data: string|openArray[char]): int =
-  if self.pcb == nil or data.len > uint16.high.int:
+  if self.pcb == nil:
     return -1
   if data.len == 0:
     return 0
   withLwipLock:
-    let sndBuf = altcpSndbuf(self.pcb)
-    if sndBuf == 0:
-      return 0
-    assert(data.len.uint16 <= sndBuf)
-    let err = altcpWrite(self.pcb, data[0].unsafeAddr, data.len.uint16, 0).ErrEnumT
-    if err != ErrOk:
-      debugv(":writefail " & $err)
+    var remaining = data.len
+    var err = ErrOk
+    var written = 0
+    while remaining > 0:
+      var available = altcpSndbuf(self.pcb).int
+      if remaining <= available:
+        debugv(":write final " & $remaining & " " & $available)
+        err = altcpWrite(self.pcb, data[written].unsafeAddr, remaining.uint16, TCP_WRITE_FLAG_COPY).ErrEnumT
+        written += remaining
+        if err != ErrOk:
+          debugv(":writefail " & $err)
+          return -1
+        else:
+          self.written += remaining.uint
+          return written
+      else:
+        let chunk = min(available, remaining)
+        if chunk == 0:
+          if not self.flush():
+            return -1
+        else:
+          debugv(":write chunk " & $chunk & " " & $available)
+          err = altcpWrite(self.pcb, data[written].unsafeAddr, chunk.uint16, TCP_WRITE_FLAG_COPY or TCP_WRITE_FLAG_MORE).ErrEnumT
+          written += chunk
+          remaining -= chunk
+          if err != ErrOk:
+            debugv(":writefail " & $err)
+            return -1
+          else:
+            self.written += chunk.uint
+
+  return written
+
+proc available*(self: var SocketAny): uint16 =
+  if self.written > 0:
+    discard self.flush()
+  if self.rxBuf.isNil:
+    return 0
+  return self.rxBuf.totLen - self.rxBufOffset
+
+proc connected*(self: var Socket[SOCK_STREAM]): bool =
+  return not self.pcb.isNil and (self.state == STATE_CONNECTED or self.available() > 0)
+
+proc read*(self: var Socket[SOCK_STREAM]; size: uint16; buf: ptr char = nil): int =
+  debugv(":read " & $size)
+
+  if self.written > 0:
+    discard self.flush()
+
+  if self.rxBuf == nil:
+    let timedOut = cyw43WaitCondition(self.timeoutMs, self.state != STATE_CONNECTED or self.rxBuf != nil)
+    if timedOut:
+      return -1
+
+    if self.state == STATE_PEER_CLOSED:
+      if self.available() == 0:
+        return 0
+    elif self.state != STATE_CONNECTED:
       return -1
     return 0
 
-proc read*(self: var Socket[SOCK_STREAM]; length: Natural; buf: ptr char): int =
-  if length > uint16.high.int:
-    return -1
-  return self.consume(length.uint16, buf)
+  withLwipLock:
+    var remaining = self.rxBuf.len - self.rxBufOffset
+    let size = min(size, remaining)
+
+    if buf != nil:
+      let copySize = pbufCopyPartial(self.rxBuf, buf, size, self.rxBufOffset)
+      debugv(":read copy " & $copySize)
+      assert(size == copySize)
+
+    remaining -= size
+
+    if remaining == 0:
+      if self.rxBuf.next != nil:
+        debugv(":read next " & $size & ", " & $self.rxBuf.len & ", " & $self.rxBuf.totLen)
+        let next = self.rxBuf.next
+        pbufRef(self.rxBuf.next)
+        discard pbufFree(self.rxBuf)
+        self.rxBuf = next
+        self.rxBufOffset = 0
+      else:
+        debugv(":read emptied " & $size & ", " & $self.rxBuf.len)
+        discard pbufFree(self.rxBuf)
+        self.rxBuf = nil
+        self.rxBufOffset = 0
+    else:
+      debugv(":read " & $size & ", " & $self.rxBuf.len & ", " & $self.rxBuf.totLen)
+      self.rxBufOffset += size
+
+    if self.pcb != nil:
+      altcpRecved(self.pcb, size)
+    return size.int
 
 proc connect*(self: var Socket[SOCK_STREAM]; ipaddr: IpAddrT; port: Port): bool =
   # note: not using `const ip_addr_t* addr` because
