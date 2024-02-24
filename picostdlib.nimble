@@ -34,11 +34,11 @@ task test, "Runs the test suite":
   selfExec "c -d:release -d:mock tests/test_mock"
   exec "nimble build"
 
-  exec "./piconim configure --project tests --source tests --board pico"
-  exec "./piconim build --project tests tests/test_pico"
+  exec "./piconim configure --project tests_pico --source tests --board pico"
+  exec "./piconim build --project tests_pico tests/test_pico"
 
-  exec "./piconim configure --project tests --source tests --board pico_w"
-  exec "./piconim build --project tests tests/test_pico_w"
+  exec "./piconim configure --project tests_pico_w --source tests --board pico_w"
+  exec "./piconim build --project tests_pico_w tests/test_pico_w"
 
   when not defined(windows):
     rmDir "testproject_pico"
