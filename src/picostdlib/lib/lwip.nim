@@ -162,12 +162,12 @@ proc getTcpState*(conn: ptr AltcpPcb): TcpState =
 
 # IP helper macros
 
+template ipGetOption*(pcb: untyped; opt: cuint): bool = (pcb.so_options and opt) != 0
+
 # proc ipIsV4*(ipaddr: ptr IpAddrT): bool {.importc: "IP_IS_V4", header: "lwip/ip_addr.h"}
 # proc ipIsV6*(ipaddr: ptr IpAddrT): bool {.importc: "IP_IS_V6", header: "lwip/ip_addr.h"}
 # proc ipIsAnyTypeVal*(ipaddr: ptr IpAddrT): bool {.importc: "IP_IS_ANY_TYPE_VAL", header: "lwip/ip_addr.h".}
 # proc ipGetType*(ipaddr: ptr IpAddrT): LwipIpAddrType {.importc: "IP_GET_TYPE", header: "lwip/ip_addr.h".}
-
-# template ipGetOption*(pcb: untyped; opt: cuint): bool = (pcb.so_options and opt) != 0
 
 # when lwipIpv4:
 #   proc ip2Ip4*(ipaddr: ptr IpAddrT): ptr Ip4AddrT {.importc: "ip_2_ip4", header: "lwip/ip_addr.h".}
