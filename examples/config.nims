@@ -10,6 +10,8 @@ switch("d", "cmakeBinaryDir:" & getCurrentDir() & "/build/examples")
 switch("d", "piconimCsourceDir:" & getCurrentDir() & "/template/csource")
 switch("d", "futharkgen")
 
+switch("d", "debugSocket")
+
 when fileExists("secret.nims"):
   import "../secret.nims"
   when declared(WIFI_SSID):

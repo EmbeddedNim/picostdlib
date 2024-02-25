@@ -5,7 +5,10 @@ import ../pico/cyw43_arch
 
 {.push raises: [].}
 
-template debugv(text: string) = echo text
+when not defined(release) or defined(debugSocket):
+  template debugv(text: string) = echo text
+else:
+  template debugv(text: string) = discard
 
 macro ptr2var(arg: pointer; T: static[typedesc]; name: untyped) =
   doAssert(name.kind == nnkIdent)
@@ -51,6 +54,8 @@ type
     err: ErrEnumT
     written: uint
     acked: uint
+
+    recvCb*: proc (socket: var Socket[kind]; len: uint16; totLen: uint16)
 
   SocketAny* = Socket[SOCK_STREAM] | Socket[SOCK_DGRAM] | Socket[SOCK_RAW]
 
@@ -210,6 +215,8 @@ proc altcpRecvCb(arg: pointer; pcb: ptr AltcpPcb; pb: ptr Pbuf; err: ErrT): ErrT
     self.state = STATE_PEER_CLOSED
     if self.rxBuf != nil and self.rxBuf.totLen > 0:
       # there is still something to read
+      if self.recvCb != nil:
+        self.recvCb(self, 0, self.rxBuf.totLen)
       return ErrOk.ErrT
     else:
       # nothing in receive buffer,
@@ -219,11 +226,14 @@ proc altcpRecvCb(arg: pointer; pcb: ptr AltcpPcb; pb: ptr Pbuf; err: ErrT): ErrT
   if self.rxBuf != nil:
     debugv(":recv " & $pb.totLen & " (" & $self.rxBuf.totLen & " total)")
     pbufCat(self.rxBuf, pb)
+    debugv(":recv (" & $self.rxBuf.totLen & " total)")
     # altcpRecved is called in consume()
   else:
     debugv(":recv " & $pb.totLen & " (new)")
     self.rxBuf = pb
     self.rxBufOffset = 0
+  if self.recvCb != nil:
+    self.recvCb(self, pb.totLen, self.rxBuf.totLen)
   return ErrOk.ErrT
 
 proc udpRecvCb(arg: pointer; pcb: ptr UdpPcb; pb: ptr Pbuf; ipAddr: ptr IpAddrT; port: uint16) {.cdecl.} =
@@ -358,10 +368,10 @@ proc connect*(self: var Socket[SOCK_STREAM]; ipaddr: IpAddrT; port: Port): bool 
   # note: not using `const ip_addr_t* addr` because
   # - `ip6_addr_assign_zone()` below modifies `*addr`
   # - caller's parameter `WiFiClient::connect` is a local copy
-  when lwipIpv6:
-    # Set zone so that link local addresses use the default interface
-    if ipIsV6(ipaddr.addr) and ip6AddrLacksZone(ip2Ip6(ipaddr.addr), IP6_UNKNOWN):
-      ip6AddrAssignZone(ip2Ip6(ipaddr.addr), IP6_UNKNOWN, netifDefault)
+  # when lwipIpv6:
+  #   # Set zone so that link local addresses use the default interface
+  #   if ipIsV6(ipaddr.addr) and ip6AddrLacksZone(ip2Ip6(ipaddr.addr), IP6_UNKNOWN):
+  #     ip6AddrAssignZone(ip2Ip6(ipaddr.addr), IP6_UNKNOWN, netifDefault)
 
   if self.pcb.isNil:
     return false
@@ -418,7 +428,7 @@ proc connect*(self: var SocketAny; host: string; port: Port; secure: bool = fals
   ## Connect using ip address or hostname as string
   assert(self.pcb != nil)
 
-  var remoteAddr: IpAddrT
+  var remoteAddr = IpAddrT()
   let isIp = ipAddrAton(host.cstring, remoteAddr.addr).bool
 
   when self.kind == SOCK_STREAM:
@@ -473,7 +483,7 @@ proc init*(self: var SocketAny; timeoutMs: Natural; blocking: bool; ipProto: uin
 
   debugv(":init " & $self.kind)
 
-proc newSocket*(kind: static[SocketType]; timeoutMs: Natural = 30_000; blocking: bool = false; ipProto: uint8 = 0): owned Socket[kind] =
+proc newSocket*(kind: static[SocketType]; timeoutMs: Natural = 30_000; blocking: bool = true; ipProto: uint8 = 0): owned Socket[kind] =
   result = Socket[kind]()
   result.state = STATE_NEW
   result.init(timeoutMs, blocking, ipProto)

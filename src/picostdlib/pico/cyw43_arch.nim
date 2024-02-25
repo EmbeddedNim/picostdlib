@@ -266,14 +266,14 @@ proc get*(wlGpio: Cyw43WlGpio): Value {.importc: "cyw43_arch_gpio_get".}
 
 import ../pico/time
 
-var lwipLock {.compileTime.}: bool = false
-discard lwipLock
+var lwipLock {.compileTime.}: int
+var lwipLocked = false
 template withLwipLock*(body: untyped) =
   cyw43ArchLwipBegin()
   {.locks: [lwipLock].}:
-    lwipLock = true
+    lwipLocked = true
     defer:
-      lwipLock = false
+      lwipLocked = false
       cyw43ArchLwipEnd()
     body
 
@@ -282,19 +282,18 @@ proc cyw43Wait*(timeoutMs: Natural) {.inline.} = cyw43ArchWaitForWorkUntil(makeT
 template cyw43WaitCondition*(timeoutMs: Natural; condition: untyped): bool =
   var timedOut = true
   let endTime = makeTimeoutTimeMs(timeoutMs.uint32)
-  if lwipLock:
+  if lwipLocked:
     cyw43ArchLwipEnd()
   while diffUs(getAbsoluteTime(), endTime) > 0:
-    block:
-      cyw43ArchLwipBegin()
-      defer: cyw43ArchLwipEnd()
-      if (condition):
-        timedOut = false
-    if not timedOut: break
     cyw43ArchWaitForWorkUntil(endTime)
+    cyw43ArchLwipBegin()
+    defer: cyw43ArchLwipEnd()
+    if (condition):
+      timedOut = false
+      break
     # cyw43ArchPoll()
   # echo "poll delay: ", timeoutMs - (diffUs(getAbsoluteTime(), endTime) div 1000)
-  if lwipLock:
+  if lwipLocked:
     cyw43ArchLwipBegin()
   timedOut
 
