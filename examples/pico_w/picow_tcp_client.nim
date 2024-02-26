@@ -26,47 +26,35 @@ proc runTcpClientTest() =
   var client = newSocket(SOCK_STREAM)
 
   echo "connecting to ", HOSTNAME, ":", TCP_PORT
-  client.setSecure(HOSTNAME)
-  let conn = client.connect(HOSTNAME, TCP_PORT, proc () =
-    # if socket.state != STATE_CONNECTED:
-    #   echo "error connecting!!"
-    #   return
+  when TCP_USE_TLS:
+    client.setSecure(HOSTNAME)
+  let conn = client.connect(HOSTNAME, TCP_PORT, proc (socket: ref Socket[SOCK_STREAM]) =
+    if socket.getState() != STATE_CONNECTED:
+      echo "error connecting!!"
+      return
+
     echo "connected!"
-    # nil error on this line:
-    # echo client.getState()
+    echo socket.getState()
+    if socket.write(HTTP_REQUEST) != HTTP_REQUEST.len:
+      echo "failed to write http request"
+      return
   )
+  client.recvCb = proc(socket: ref Socket[SOCK_STREAM]; len, totLen: uint16) =
+    if len == 0:
+      # closed
+      echo "connection closed"
+      return
+    echo (len, totLen)
+    var buf = newString(200)
+    while socket.available() > 0:
+      buf.setLen(200)
+      let readLen = socket.read(buf.len.uint16, buf[0].addr)
+      if readLen <= 0:
+        break
+      buf.setLen(readLen)
+      echo buf
 
-  echo "connected? ", conn
-
-  while true:
-    tightLoopContents()
-
-
-  # echo "connected!"
-
-  # echo "write:"
-  # echo HTTP_REQUEST
-  # if client.write(HTTP_REQUEST) != HTTP_REQUEST.len:
-  #   echo "failed to write http request"
-  #   return
-
-  # if client.flush():
-  #   var buf = newString(200)
-  #   while client.getState() == STATE_CONNECTED or (let avail = client.available(); avail > 0):
-  #     if avail == 0: continue
-  #     buf.setLen(200)
-  #     let readLen = client.read(buf.len.uint16, buf[0].addr)
-  #     if readLen <= 0:
-  #       break
-  #     buf.setLen(readLen)
-  #     echo buf
-
-  # echo "closing"
-  # var closed = client.close()
-  # if closed != ErrOk:
-  #   echo "error closing! ", closed
-  # else:
-  #   echo "closed"
+  echo "connected? ", conn, " ", client.getState()
 
 proc tcpClientExample*() =
   if cyw43ArchInit() != PicoErrorNone:
@@ -107,7 +95,7 @@ proc tcpClientExample*() =
 
   runTcpClientTest()
 
-  cyw43ArchDeinit()
+  # cyw43ArchDeinit()
 
 
 when isMainModule:
@@ -115,4 +103,8 @@ when isMainModule:
 
   tcpClientExample()
 
-  while true: tightLoopContents()
+  while true:
+    Cyw43WlGpioLedPin.put(High)
+    sleepMs(100)
+    Cyw43WlGpioLedPin.put(Low)
+    sleepMs(100)

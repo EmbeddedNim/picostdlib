@@ -58,11 +58,11 @@ type
 
     recvCb*: proc (socket: ref Socket[kind]; len: uint16; totLen: uint16)
 
-    connectCb: SocketConnectCb
+    connectCb: proc (socket: ref Socket[kind])
 
-  SocketAny* = ref Socket[SOCK_STREAM] | ref Socket[SOCK_DGRAM] | ref Socket[SOCK_RAW]
+  SocketAny*[kind: static[SocketType]] = ref Socket[kind]
 
-  SocketConnectCb* = proc ()
+  SocketConnectCb*[kind: static[SocketType]] = proc (socket: ref Socket[kind])
 
 proc `==`*(a, b: Port): bool {.borrow.}
 proc `$`*(p: Port): string {.borrow.}
@@ -203,6 +203,7 @@ proc abort*(self: ref Socket[SOCK_STREAM]): ErrEnumT =
       altcpPoll(self.pcb, nil, 0)
       altcpAbort(self.pcb)
       self.pcb = nil
+      GC_unref(self)
   return ErrAbrt
 
 proc close*(self: ref Socket[SOCK_STREAM]): ErrEnumT =
@@ -222,6 +223,7 @@ proc close*(self: ref Socket[SOCK_STREAM]): ErrEnumT =
         debugv(":close err " & $result)
         altcpAbort(self.pcb)
         result = ErrAbrt
+      GC_unref(self)
       self.pcb = nil
 
 # lwip callbacks
@@ -235,6 +237,7 @@ proc altcpErrCb(arg: pointer; err: ErrT) {.cdecl.} =
   altcpErr(self.pcb, nil)
   self.err = err
   self.pcb = nil
+  GC_unref(self)
 
 proc altcpPollCb(arg: pointer; pcb: ptr AltcpPcb): ErrT {.cdecl.} =
   ptr2ref(arg, Socket[SOCK_STREAM], self)
@@ -249,7 +252,7 @@ proc altcpConnectCb(arg: pointer; pcb: ptr AltcpPcb; err: ErrT): ErrT {.cdecl.} 
   debugv(":connect " & $err)
   self.err = err
   self.state = STATE_CONNECTED
-  self.connectCb()
+  self.connectCb(self)
   return ErrOk.ErrT
 
 proc altcpSentCb(arg: pointer; pcb: ptr AltcpPcb; len: uint16): ErrT {.cdecl.} =
@@ -419,7 +422,7 @@ proc read*(self: ref Socket[SOCK_STREAM]; size: uint16; buf: ptr char = nil): in
       altcpRecved(self.pcb, size)
     return size.int
 
-proc connect*(self: ref Socket[SOCK_STREAM]; ipaddr: ptr IpAddrT; port: Port; callback: SocketConnectCb): bool =
+proc connect*(self: ref Socket[SOCK_STREAM]; ipaddr: ptr IpAddrT; port: Port; callback: SocketConnectCb[SOCK_STREAM]): bool =
   # note: not using `const ip_addr_t* addr` because
   # - `ip6_addr_assign_zone()` below modifies `*addr`
   # - caller's parameter `WiFiClient::connect` is a local copy
@@ -434,28 +437,28 @@ proc connect*(self: ref Socket[SOCK_STREAM]; ipaddr: ptr IpAddrT; port: Port; ca
   if self.state != STATE_NEW:
     return false
 
-  withLwipLock:
-    altcpSetprio(self.pcb, TCP_PRIO_MIN)
-    altcpArg(self.pcb, cast[pointer](self))
-    altcpErr(self.pcb, altcpErrCb)
-    altcpRecv(self.pcb, altcpRecvCb)
-    altcpSent(self.pcb, altcpSentCb)
-    altcpPoll(self.pcb, altcpPollCb, uint8(self.timeoutMs div 500))
-    self.state = STATE_CONNECTING
-    self.connectCb = callback
+  # withLwipLock:
+  altcpSetprio(self.pcb, TCP_PRIO_MIN)
+  altcpArg(self.pcb, cast[pointer](self))
+  altcpErr(self.pcb, altcpErrCb)
+  altcpRecv(self.pcb, altcpRecvCb)
+  altcpSent(self.pcb, altcpSentCb)
+  altcpPoll(self.pcb, altcpPollCb, uint8(self.timeoutMs div 500))
+  self.state = STATE_CONNECTING
+  self.connectCb = callback
 
-    debugv(":connect " & $ipaddr & " " & $port)
-    self.err = altcpConnect(self.pcb, ipaddr, port.uint16, altcpConnectCb).ErrEnumT
-    if self.err != ErrOk:
-      self.state = STATE_NEW
-      callback()
-      return false
+  debugv(":connect " & $ipaddr & " " & $port)
+  self.err = altcpConnect(self.pcb, ipaddr, port.uint16, altcpConnectCb).ErrEnumT
+  if self.err != ErrOk:
+    self.state = STATE_NEW
+    callback(self)
+    return false
 
   # let timedOut = cyw43WaitCondition(self.timeoutMs, self.state != STATE_CONNECTING)
 
   if self.pcb == nil:
     debugv(":connect aborted")
-    callback()
+    callback(self)
     return false
 
   # if timedOut:
@@ -466,7 +469,7 @@ proc connect*(self: ref Socket[SOCK_STREAM]; ipaddr: ptr IpAddrT; port: Port; ca
   if self.err != ErrOk:
     debugv(":connect error " & $self.err)
     discard self.abort()
-    callback()
+    callback(self)
     return false
 
   self.state = STATE_CONNECTED
@@ -476,7 +479,7 @@ proc connect*(self: ref Socket[SOCK_STREAM]; ipaddr: ptr IpAddrT; port: Port; ca
   GC_ref(self)
   return true
 
-proc connect*(self: ref Socket[SOCK_DGRAM]; ipaddr: IpAddrT; port: Port): bool =
+proc connect*(self: ref Socket[SOCK_DGRAM]; ipaddr: IpAddrT; port: Port; callback: SocketConnectCb[SOCK_DGRAM]): bool =
   assert(self.pcb != nil)
   self.err = udpConnect(self.pcb, ipaddr.unsafeAddr, port.uint16).ErrEnumT
   if self.err != ErrOk:
@@ -484,7 +487,7 @@ proc connect*(self: ref Socket[SOCK_DGRAM]; ipaddr: IpAddrT; port: Port): bool =
   GC_ref(self)
   return true
 
-proc connect*(self: ref Socket[SOCK_RAW]; ipaddr: IpAddrT; _: Port = Port(0)): bool =
+proc connect*(self: ref Socket[SOCK_RAW]; ipaddr: IpAddrT; _: Port = Port(0); callback: SocketConnectCb[SOCK_RAW]): bool =
   assert(self.pcb != nil)
   self.err = rawConnect(self.pcb, ipaddr.unsafeAddr).ErrEnumT
   if self.err != ErrOk:
@@ -492,7 +495,7 @@ proc connect*(self: ref Socket[SOCK_RAW]; ipaddr: IpAddrT; _: Port = Port(0)): b
   GC_ref(self)
   return true
 
-proc connect*[kind: static[SocketType]](self: ref Socket[kind]; host: string; port: Port; callback: SocketConnectCb): bool =
+proc connect*[kind: static[SocketType]](self: ref Socket[kind]; host: string; port: Port; callback: SocketConnectCb[kind]): bool =
   ## Connect using ip address or hostname as string
   assert(self.pcb != nil)
 
@@ -510,7 +513,7 @@ proc connect*[kind: static[SocketType]](self: ref Socket[kind]; host: string; po
     # commenting this results in SIGSEGV: Illegal storage access. (Attempt to read from nil?)
     let self = cast[ref Socket[kind]](s)
     if ipaddr.isNil:
-      callback()
+      callback(self)
     else:
       discard self.connect(ipaddr, port, callback)
     GC_unref(self)
