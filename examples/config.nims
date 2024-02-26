@@ -11,6 +11,7 @@ switch("d", "piconimCsourceDir:" & getCurrentDir() & "/template/csource")
 switch("d", "futharkgen")
 
 switch("d", "debugSocket")
+switch("d", "debugDns")
 
 when fileExists("secret.nims"):
   import "../secret.nims"

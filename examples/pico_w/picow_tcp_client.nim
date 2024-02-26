@@ -26,36 +26,47 @@ proc runTcpClientTest() =
   var client = newSocket(SOCK_STREAM)
 
   echo "connecting to ", HOSTNAME, ":", TCP_PORT
-  let connected = client.connect(HOSTNAME, TCP_PORT, secure = TCP_USE_TLS)
-  if not connected:
-    echo "error connecting!!"
-    return
+  client.setSecure(HOSTNAME)
+  let conn = client.connect(HOSTNAME, TCP_PORT, proc () =
+    # if socket.state != STATE_CONNECTED:
+    #   echo "error connecting!!"
+    #   return
+    echo "connected!"
+    # nil error on this line:
+    # echo client.getState()
+  )
 
-  echo "connected!"
+  echo "connected? ", conn
 
-  echo "write:"
-  echo HTTP_REQUEST
-  if client.write(HTTP_REQUEST) != HTTP_REQUEST.len:
-    echo "failed to write http request"
-    return
+  while true:
+    tightLoopContents()
 
-  if client.flush():
-    var buf = newString(200)
-    while client.getState() == STATE_CONNECTED or (let avail = client.available(); avail > 0):
-      if avail == 0: continue
-      buf.setLen(200)
-      let readLen = client.read(buf.len.uint16, buf[0].addr)
-      if readLen <= 0:
-        break
-      buf.setLen(readLen)
-      echo buf
 
-  echo "closing"
-  var closed = client.close()
-  if closed != ErrOk:
-    echo "error closing! ", closed
-  else:
-    echo "closed"
+  # echo "connected!"
+
+  # echo "write:"
+  # echo HTTP_REQUEST
+  # if client.write(HTTP_REQUEST) != HTTP_REQUEST.len:
+  #   echo "failed to write http request"
+  #   return
+
+  # if client.flush():
+  #   var buf = newString(200)
+  #   while client.getState() == STATE_CONNECTED or (let avail = client.available(); avail > 0):
+  #     if avail == 0: continue
+  #     buf.setLen(200)
+  #     let readLen = client.read(buf.len.uint16, buf[0].addr)
+  #     if readLen <= 0:
+  #       break
+  #     buf.setLen(readLen)
+  #     echo buf
+
+  # echo "closing"
+  # var closed = client.close()
+  # if closed != ErrOk:
+  #   echo "error closing! ", closed
+  # else:
+  #   echo "closed"
 
 proc tcpClientExample*() =
   if cyw43ArchInit() != PicoErrorNone:
