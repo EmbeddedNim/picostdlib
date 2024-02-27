@@ -28,27 +28,27 @@ proc runTcpClientTest() =
   echo "connecting to ", HOSTNAME, ":", TCP_PORT
   when TCP_USE_TLS:
     client.setSecure(HOSTNAME)
-  let conn = client.connect(HOSTNAME, TCP_PORT, proc (socket: ref Socket[SOCK_STREAM]) =
-    if socket.getState() != STATE_CONNECTED:
+  let conn = client.connect(HOSTNAME, TCP_PORT, proc () =
+    if client.getState() != STATE_CONNECTED:
       echo "error connecting!!"
       return
 
     echo "connected!"
-    echo socket.getState()
-    if socket.write(HTTP_REQUEST) != HTTP_REQUEST.len:
+    echo client.getState()
+    if client.write(HTTP_REQUEST) != HTTP_REQUEST.len:
       echo "failed to write http request"
       return
   )
-  client.recvCb = proc(socket: ref Socket[SOCK_STREAM]; len, totLen: uint16) =
+  client.recvCb = proc(len, totLen: uint16) =
     if len == 0:
       # closed
       echo "connection closed"
       return
     echo (len, totLen)
     var buf = newString(200)
-    while socket.available() > 0:
+    while client.available() > 0:
       buf.setLen(200)
-      let readLen = socket.read(buf.len.uint16, buf[0].addr)
+      let readLen = client.read(buf.len.uint16, buf[0].addr)
       if readLen <= 0:
         break
       buf.setLen(readLen)

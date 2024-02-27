@@ -15,11 +15,12 @@ type
   DnsCbState = object
     callback: DnsCallback
 
-  DnsCallback* = proc(hostname: string; ipaddr: ptr IpAddrT) {.raises: [].}
+  DnsCallback* = proc(hostname: string; ipaddr: ptr IpAddrT)
 
 proc dnsGethostbynameCb(hostname: cstring; ipaddr: ptr IpAddrT; arg: pointer) {.cdecl.} =
   let state = cast[ref DnsCbState](arg)
   state.callback($hostname, ipaddr)
+  reset(state.callback)
   GC_unref(state)
 
 proc getHostByName*(hostname: string; callback: DnsCallback; timeoutMs: Natural = 5000): bool =
@@ -44,7 +45,7 @@ proc getHostByName*(hostname: string; callback: DnsCallback; timeoutMs: Natural 
 
 proc getHostByName*(hostname: string; ipaddr: var IpAddrT; timeoutMs: Natural = 5000): bool =
   var state = DnsState(running: true)
-  let ok = getHostByName(hostname, proc (hostnameOut: string; ipaddrOut: ptr IpAddrT) {.raises: [].} =
+  let ok = getHostByName(hostname, proc (hostnameOut: string; ipaddrOut: ptr IpAddrT) =
     if ipaddrOut != nil:
       state.ipaddr = ipaddrOut[]
     state.err = ipaddrOut.isNil

@@ -3,20 +3,15 @@ import ../lib/lwip
 import ./dns
 import ../pico/cyw43_arch
 
-{.push raises: [].}
-
 when not defined(release) or defined(debugSocket):
   template debugv(text: string) = echo text
 else:
   template debugv(text: string) = discard
 
-macro ptr2ref(arg: pointer; T: static[typedesc]; name: untyped) =
-  doAssert(name.kind == nnkIdent)
-  let nameRef = ident(name.strVal & "ref")
+macro ptr2ref(arg: pointer; T: typedesc; name: untyped) =
   return quote do:
     assert(arg != nil)
-    let `name` = cast[ref `T`](`arg`)
-    # template `name`: var `T` = `nameRef`
+    let `name` = cast[`T`](`arg`)
 
 type
   Port* = distinct uint16
@@ -35,7 +30,7 @@ type
     STATE_PEER_CLOSED
     STATE_ACTIVE_UDP
 
-  Socket*[kind: static[SocketType]] = object
+  Socket*[kind: static[SocketType]] = ref object
     when kind == SOCK_STREAM:
       pcb: ptr AltcpPcb
     elif kind == SOCK_DGRAM:
@@ -56,13 +51,13 @@ type
     written: uint
     acked: uint
 
-    recvCb*: proc (socket: ref Socket[kind]; len: uint16; totLen: uint16)
+    recvCb*: proc (len: uint16; totLen: uint16)
 
-    connectCb: proc (socket: ref Socket[kind])
+    connectCb: SocketConnectCb
 
-  SocketAny*[kind: static[SocketType]] = ref Socket[kind]
+  SocketAny*[kind: static[SocketType]] = Socket[kind]
 
-  SocketConnectCb*[kind: static[SocketType]] = proc (socket: ref Socket[kind])
+  SocketConnectCb* = proc ()
 
 proc `==`*(a, b: Port): bool {.borrow.}
 proc `$`*(p: Port): string {.borrow.}
@@ -83,7 +78,7 @@ proc altcpClosePollCb(arg: pointer; pcb: ptr AltcpPcb): ErrT {.cdecl.} =
   altcpAbort(pcb)
   return ErrOk.ErrT
 
-proc `=destroy`*(self: Socket[SOCK_STREAM]) =
+proc `=destroy`*(self: typeof(Socket[SOCK_STREAM]()[])) =
   withLwipLock:
     if self.pcb != nil:
       altcpArg(self.pcb, nil)
@@ -103,7 +98,7 @@ proc `=destroy`*(self: Socket[SOCK_STREAM]) =
       discard pbufFree(self.rxBuf)
   debugv(":destroyed")
 
-proc `=destroy`*(self: Socket[SOCK_DGRAM]) =
+proc `=destroy`*(self: typeof(Socket[SOCK_DGRAM]()[])) =
   withLwipLock:
     if self.pcb != nil:
       udpRecv(self.pcb, nil, nil)
@@ -112,7 +107,7 @@ proc `=destroy`*(self: Socket[SOCK_DGRAM]) =
       discard pbufFree(self.rxBuf)
   debugv(":destroyed")
 
-proc `=destroy`*(self: Socket[SOCK_RAW]) =
+proc `=destroy`*(self: typeof(Socket[SOCK_RAW]()[])) =
   withLwipLock:
     if self.pcb != nil:
       rawRecv(self.pcb, nil, nil)
@@ -167,7 +162,7 @@ func getLocalPort*(self: SocketAny): Port =
     return 0.Port
   return self.getBasePcb().local_port.Port
 
-proc setSecure*(self: ref Socket[SOCK_STREAM]; sniHostname: string = "") =
+proc setSecure*(self: Socket[SOCK_STREAM]; sniHostname: string = "") =
   assert(self.pcb != nil)
   if self.secure: return
   self.pcb = altcpTlsWrap(altcpTlsCreateConfigClient(nil, 0), self.pcb)
@@ -191,7 +186,7 @@ proc discardReceived(self: SocketAny) =
       when self.kind == SOCK_STREAM:
         altcpRecved(self.pcb, totLen)
 
-proc abort*(self: ref Socket[SOCK_STREAM]): ErrEnumT =
+proc abort*(self: Socket[SOCK_STREAM]): ErrEnumT =
   withLwipLock:
     if self.pcb != nil:
       # self.discardReceived()
@@ -206,7 +201,7 @@ proc abort*(self: ref Socket[SOCK_STREAM]): ErrEnumT =
       GC_unref(self)
   return ErrAbrt
 
-proc close*(self: ref Socket[SOCK_STREAM]): ErrEnumT =
+proc close*(self: Socket[SOCK_STREAM]): ErrEnumT =
   result = ErrOk
   if self.pcb != nil:
     self.discardReceived()
@@ -252,7 +247,7 @@ proc altcpConnectCb(arg: pointer; pcb: ptr AltcpPcb; err: ErrT): ErrT {.cdecl.} 
   debugv(":connect " & $err)
   self.err = err
   self.state = STATE_CONNECTED
-  self.connectCb(self)
+  self.connectCb()
   return ErrOk.ErrT
 
 proc altcpSentCb(arg: pointer; pcb: ptr AltcpPcb; len: uint16): ErrT {.cdecl.} =
@@ -274,7 +269,7 @@ proc altcpRecvCb(arg: pointer; pcb: ptr AltcpPcb; pb: ptr Pbuf; err: ErrT): ErrT
     if self.rxBuf != nil and self.rxBuf.totLen > 0:
       # there is still something to read
       if self.recvCb != nil:
-        self.recvCb(self, 0, self.rxBuf.totLen)
+        self.recvCb(0, self.rxBuf.totLen)
       return ErrOk.ErrT
     else:
       # nothing in receive buffer,
@@ -291,7 +286,7 @@ proc altcpRecvCb(arg: pointer; pcb: ptr AltcpPcb; pb: ptr Pbuf; err: ErrT): ErrT
     self.rxBuf = pb
     self.rxBufOffset = 0
   if self.recvCb != nil:
-    self.recvCb(self, pb.totLen, self.rxBuf.totLen)
+    self.recvCb(pb.totLen, self.rxBuf.totLen)
   return ErrOk.ErrT
 
 proc udpRecvCb(arg: pointer; pcb: ptr UdpPcb; pb: ptr Pbuf; ipAddr: ptr IpAddrT; port: uint16) {.cdecl.} =
@@ -308,7 +303,7 @@ proc rawRecvCb(arg: pointer; pcb: ptr RawPcb; pb: ptr Pbuf; ipAddr: ptr IpAddrT)
   discard pbufFree(pb)
   return 1
 
-proc flush*(self: ref Socket[SOCK_STREAM]): bool =
+proc flush*(self: Socket[SOCK_STREAM]): bool =
   if self.pcb == nil:
     return false
   withLwipLock:
@@ -328,7 +323,7 @@ proc flush*(self: ref Socket[SOCK_STREAM]): bool =
       self.written = 0
     return not timedOut
 
-proc write*(self: ref Socket[SOCK_STREAM]; data: string|openArray[char]): int =
+proc write*(self: Socket[SOCK_STREAM]; data: string|openArray[char]): int =
   if self.pcb == nil:
     return -1
   if data.len == 0:
@@ -372,10 +367,10 @@ proc available*(self: SocketAny): uint16 =
     return 0
   return self.rxBuf.totLen - self.rxBufOffset
 
-proc connected*(self: ref Socket[SOCK_STREAM]): bool =
+proc connected*(self: Socket[SOCK_STREAM]): bool =
   return not self.pcb.isNil and (self.state == STATE_CONNECTED or self.available() > 0)
 
-proc read*(self: ref Socket[SOCK_STREAM]; size: uint16; buf: ptr char = nil): int =
+proc read*(self: Socket[SOCK_STREAM]; size: uint16; buf: ptr char = nil): int =
   debugv(":read " & $size)
 
   if self.rxBuf == nil:
@@ -422,7 +417,7 @@ proc read*(self: ref Socket[SOCK_STREAM]; size: uint16; buf: ptr char = nil): in
       altcpRecved(self.pcb, size)
     return size.int
 
-proc connect*(self: ref Socket[SOCK_STREAM]; ipaddr: ptr IpAddrT; port: Port; callback: SocketConnectCb[SOCK_STREAM]): bool =
+proc connect*(self: Socket[SOCK_STREAM]; ipaddr: ptr IpAddrT; port: Port; callback: SocketConnectCb): bool =
   # note: not using `const ip_addr_t* addr` because
   # - `ip6_addr_assign_zone()` below modifies `*addr`
   # - caller's parameter `WiFiClient::connect` is a local copy
@@ -451,14 +446,14 @@ proc connect*(self: ref Socket[SOCK_STREAM]; ipaddr: ptr IpAddrT; port: Port; ca
   self.err = altcpConnect(self.pcb, ipaddr, port.uint16, altcpConnectCb).ErrEnumT
   if self.err != ErrOk:
     self.state = STATE_NEW
-    callback(self)
+    callback()
     return false
 
   # let timedOut = cyw43WaitCondition(self.timeoutMs, self.state != STATE_CONNECTING)
 
   if self.pcb == nil:
     debugv(":connect aborted")
-    callback(self)
+    callback()
     return false
 
   # if timedOut:
@@ -469,7 +464,7 @@ proc connect*(self: ref Socket[SOCK_STREAM]; ipaddr: ptr IpAddrT; port: Port; ca
   if self.err != ErrOk:
     debugv(":connect error " & $self.err)
     discard self.abort()
-    callback(self)
+    callback()
     return false
 
   self.state = STATE_CONNECTED
@@ -479,7 +474,7 @@ proc connect*(self: ref Socket[SOCK_STREAM]; ipaddr: ptr IpAddrT; port: Port; ca
   GC_ref(self)
   return true
 
-proc connect*(self: ref Socket[SOCK_DGRAM]; ipaddr: IpAddrT; port: Port; callback: SocketConnectCb[SOCK_DGRAM]): bool =
+proc connect*(self: Socket[SOCK_DGRAM]; ipaddr: IpAddrT; port: Port; callback: SocketConnectCb): bool =
   assert(self.pcb != nil)
   self.err = udpConnect(self.pcb, ipaddr.unsafeAddr, port.uint16).ErrEnumT
   if self.err != ErrOk:
@@ -487,7 +482,7 @@ proc connect*(self: ref Socket[SOCK_DGRAM]; ipaddr: IpAddrT; port: Port; callbac
   GC_ref(self)
   return true
 
-proc connect*(self: ref Socket[SOCK_RAW]; ipaddr: IpAddrT; _: Port = Port(0); callback: SocketConnectCb[SOCK_RAW]): bool =
+proc connect*(self: Socket[SOCK_RAW]; ipaddr: IpAddrT; _: Port = Port(0); callback: SocketConnectCb): bool =
   assert(self.pcb != nil)
   self.err = rawConnect(self.pcb, ipaddr.unsafeAddr).ErrEnumT
   if self.err != ErrOk:
@@ -495,7 +490,7 @@ proc connect*(self: ref Socket[SOCK_RAW]; ipaddr: IpAddrT; _: Port = Port(0); ca
   GC_ref(self)
   return true
 
-proc connect*[kind: static[SocketType]](self: ref Socket[kind]; host: string; port: Port; callback: SocketConnectCb[kind]): bool =
+proc connect*(self: SocketAny; host: string; port: Port; callback: SocketConnectCb): bool =
   ## Connect using ip address or hostname as string
   assert(self.pcb != nil)
 
@@ -505,15 +500,12 @@ proc connect*[kind: static[SocketType]](self: ref Socket[kind]; host: string; po
   # when self.kind == SOCK_STREAM:
   #   let sniHostname = if not isIp and sniHostname.len == 0: host else: sniHostname
 
-  let s = cast[pointer](self)
 
   if isIp:
     return self.connect(remoteAddr.addr, port, callback)
-  let res = getHostByName(host, (proc (hostname: string; ipaddr: ptr IpAddrT) {.raises: [].} =
-    # commenting this results in SIGSEGV: Illegal storage access. (Attempt to read from nil?)
-    let self = cast[ref Socket[kind]](s)
+  let res = getHostByName(host, (proc (hostname: string; ipaddr: ptr IpAddrT) =
     if ipaddr.isNil:
-      callback(self)
+      callback()
     else:
       discard self.connect(ipaddr, port, callback)
     GC_unref(self)
@@ -523,11 +515,11 @@ proc connect*[kind: static[SocketType]](self: ref Socket[kind]; host: string; po
   GC_ref(self)
   return true
 
-# proc connect*(self: ref Socket[SOCK_RAW]; host: string): bool {.inline.} =
+# proc connect*(self: Socket[SOCK_RAW]; host: string): bool {.inline.} =
 #   # raw sockets have no port
 #   self.connect(host, Port(0))
 
-proc init*[kind: static[SocketType]](self: ref Socket[kind]; timeoutMs: Natural; blocking: bool; ipProto: uint8) =
+proc init*(self: SocketAny; timeoutMs: Natural; blocking: bool; ipProto: uint8) =
   assert(self.pcb == nil)
   assert(self.state in [STATE_NEW, STATE_PEER_CLOSED])
 
@@ -558,9 +550,8 @@ proc init*[kind: static[SocketType]](self: ref Socket[kind]; timeoutMs: Natural;
 
   debugv(":init " & $self.kind)
 
-proc newSocket*(kind: static[SocketType]; timeoutMs: Natural = 30_000; blocking: bool = true; ipProto: uint8 = 0): owned ref Socket[kind] =
-  result = new(Socket[kind])
-  result.state = STATE_NEW
+proc newSocket*(kind: static[SocketType]; timeoutMs: Natural = 30_000; blocking: bool = true; ipProto: uint8 = 0): owned Socket[kind] =
+  result = Socket[kind](state: STATE_NEW)
   result.init(timeoutMs, blocking, ipProto)
 
 when defined(runtests) or defined(nimcheck):
@@ -576,5 +567,3 @@ when defined(runtests) or defined(nimcheck):
   #   var r = newSocket(SOCK_RAW)
   #   discard r.connect("127.0.0.1")
   discard
-
-{.pop.}

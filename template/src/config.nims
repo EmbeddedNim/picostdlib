@@ -34,7 +34,7 @@ when picostdlibPath != "":
   echo picostdlibPath
   staticInclude(picostdlibPath / "build_utils" / "include.nims")
 
-switch("mm", "arc")
+switch("mm", "orc")
 switch("deepcopy", "on")
 switch("threads", "off")
 # switch("hints", "off")
