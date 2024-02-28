@@ -266,8 +266,8 @@ proc get*(wlGpio: Cyw43WlGpio): Value {.importc: "cyw43_arch_gpio_get".}
 
 import ../pico/time
 
-var lwipLock {.compileTime.}: int
-var lwipLocked = false
+var lwipLock* {.compileTime.}: int
+var lwipLocked* = false
 template withLwipLock*(body: untyped) =
   cyw43ArchLwipBegin()
   {.locks: [lwipLock].}:
