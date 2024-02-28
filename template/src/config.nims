@@ -34,7 +34,7 @@ when picostdlibPath != "":
   echo picostdlibPath
   staticInclude(picostdlibPath / "build_utils" / "include.nims")
 
-switch("mm", "orc")
+switch("mm", "arc")
 switch("deepcopy", "on")
 switch("threads", "off")
 # switch("hints", "off")
@@ -58,9 +58,9 @@ switch("nimcache", cmakeBinaryDir / projectName() / "nimcache")
 
 switch("define", "checkAbi")
 switch("define", "nimMemAlignTiny")
-switch("define", "useMalloc")
-# switch("define", "nimAllocPagesViaMalloc")
-# switch("define", "nimPage512")
+# switch("define", "useMalloc")
+switch("define", "nimAllocPagesViaMalloc")
+switch("define", "nimPage512")
 
 # when using cpp backend
 # see for similar issue: https://github.com/nim-lang/Nim/issues/17040
