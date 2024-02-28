@@ -12,8 +12,8 @@ type
     running: bool
     err: bool
 
-  DnsCbState = object
-    callback: DnsCallback
+  # DnsCbState = object
+  #   callback: DnsCallback
 
   DnsCallback* = proc(hostname: string; ipaddr: ptr IpAddrT)
 
@@ -26,12 +26,15 @@ proc getSlot(): int =
   return -1
 
 proc dnsGethostbynameCb(hostname: cstring; ipaddr: ptr IpAddrT; arg: pointer) {.cdecl.} =
-  let slotIndex = cast[int](arg)
-  var callback = dnsCbSlots[slotIndex] #cast[ref DnsCbState](arg)
+  assert(arg != nil)
+  let slotIndex = (cast[uint](arg) - cast[uint](dnsCbSlots[0].addr)).int div sizeof(dnsCbSlots[0])
+  assert(slotIndex >= 0 and slotIndex < dnsCbSlots.len)
+  var callback = dnsCbSlots[slotIndex]
+  # cast[ref DnsCbState](arg)
   if callback == nil: return
   callback($hostname, ipaddr)
   reset(callback)
-  callback = nil
+  dnsCbSlots[slotIndex] = nil
   #GC_unref(state)
 
 proc getHostByName*(hostname: string; callback: DnsCallback; timeoutMs: Natural = 5000): bool =
@@ -45,17 +48,19 @@ proc getHostByName*(hostname: string; callback: DnsCallback; timeoutMs: Natural 
       return false
     #var state = new(DnsCbState)
     #state.callback = callback
+    dnsCbSlots[slotIndex] = callback
 
-    err = dnsGethostbyname(hostname.cstring, ipaddrIn.addr, dnsGethostbynameCb, cast[pointer](slotIndex)).ErrEnumT
+    err = dnsGethostbyname(hostname.cstring, ipaddrIn.addr, dnsGethostbynameCb, dnsCbSlots[slotIndex].addr).ErrEnumT
 
     if err == ErrInprogress:
-      dnsCbSlots[slotIndex] = callback
       #GC_ref(state)
       return true
     elif err != ErrOk:
       debugv(":dns err=" & $err & " " & hostname)
+      dnsCbSlots[slotIndex] = nil
       return false
     debugv(":dns found " & $ipaddrIn)
+    dnsCbSlots[slotIndex] = nil
     callback(hostname, ipaddrIn.addr)
     return true
 
