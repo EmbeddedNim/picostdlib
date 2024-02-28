@@ -550,7 +550,7 @@ proc init*(self: SocketAny; timeoutMs: Natural; blocking: bool; ipProto: uint8) 
 
   debugv(":init " & $self.kind)
 
-proc newSocket*(kind: static[SocketType]; timeoutMs: Natural = 30_000; blocking: bool = true; ipProto: uint8 = 0): owned Socket[kind] =
+proc newSocket*(kind: static[SocketType]; timeoutMs: Natural = 30_000; blocking: bool = true; ipProto: uint8 = 0): Socket[kind] =
   result = Socket[kind](state: STATE_NEW)
   result.init(timeoutMs, blocking, ipProto)
 
