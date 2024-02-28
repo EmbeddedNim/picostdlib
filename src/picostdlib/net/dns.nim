@@ -29,13 +29,12 @@ proc dnsGethostbynameCb(hostname: cstring; ipaddr: ptr IpAddrT; arg: pointer) {.
   assert(arg != nil)
   let slotIndex = (cast[uint](arg) - cast[uint](dnsCbSlots[0].addr)).int div sizeof(dnsCbSlots[0])
   assert(slotIndex >= 0 and slotIndex < dnsCbSlots.len)
-  var callback = dnsCbSlots[slotIndex]
+  let callback = dnsCbSlots[slotIndex]
   # cast[ref DnsCbState](arg)
   if callback == nil: return
-  callback($hostname, ipaddr)
-  reset(callback)
   dnsCbSlots[slotIndex] = nil
   #GC_unref(state)
+  callback($hostname, ipaddr)
 
 proc getHostByName*(hostname: string; callback: DnsCallback; timeoutMs: Natural = 5000): bool =
   var err: ErrEnumT

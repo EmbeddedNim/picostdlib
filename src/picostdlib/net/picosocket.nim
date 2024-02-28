@@ -199,6 +199,8 @@ proc abort*(self: Socket[SOCK_STREAM]): ErrEnumT =
       altcpAbort(self.pcb)
       self.pcb = nil
       GC_unref(self)
+  self.connectCb = nil
+  self.recvCb = nil
   return ErrAbrt
 
 proc close*(self: Socket[SOCK_STREAM]): ErrEnumT =
@@ -220,6 +222,8 @@ proc close*(self: Socket[SOCK_STREAM]): ErrEnumT =
         result = ErrAbrt
       GC_unref(self)
       self.pcb = nil
+  self.connectCb = nil
+  self.recvCb = nil
 
 # lwip callbacks
 proc altcpErrCb(arg: pointer; err: ErrT) {.cdecl.} =
@@ -248,6 +252,7 @@ proc altcpConnectCb(arg: pointer; pcb: ptr AltcpPcb; err: ErrT): ErrT {.cdecl.} 
   self.err = err
   self.state = STATE_CONNECTED
   self.connectCb()
+  self.connectCb = nil
   return ErrOk.ErrT
 
 proc altcpSentCb(arg: pointer; pcb: ptr AltcpPcb; len: uint16): ErrT {.cdecl.} =
