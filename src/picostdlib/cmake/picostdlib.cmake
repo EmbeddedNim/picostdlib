@@ -54,8 +54,8 @@ function(picostdlib_target target name)
     endforeach()
     # Suppress gcc warnings for nim-generated files
     target_sources(${target} PRIVATE ${NIM_SOURCES})
-    set_source_files_properties(${NIM_SOURCES} PROPERTIES COMPILE_OPTIONS "-flto;-Wno-discarded-qualifiers;-Wno-unused-but-set-variable;-Wno-parentheses;-Wno-unused-label;-Wno-free-nonheap-object")
-    target_link_options(${target} PRIVATE "-Wno-stringop-overflow")
+    set_source_files_properties(${NIM_SOURCES} PROPERTIES COMPILE_OPTIONS "-flto;-fno-fat-lto-objects;-Wno-discarded-qualifiers;-Wno-unused-but-set-variable;-Wno-parentheses;-Wno-unused-label;-Wno-free-nonheap-object")
+    target_link_options(${target} PRIVATE "-flto;-Wno-stringop-overflow")
   endif()
   # experimental linking
   # target_link_libraries(${target} "${NIMCACHE_DIR}/${name}.a")
