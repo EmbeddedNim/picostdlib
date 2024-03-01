@@ -1,0 +1,3 @@
+[submodule "src/picostdlib/vendor/littlefs"]
+	path = src/picostdlib/vendor/littlefs
+	url = https://github.com/littlefs-project/littlefs
