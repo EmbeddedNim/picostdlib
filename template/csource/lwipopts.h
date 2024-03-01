@@ -124,10 +124,14 @@
 
 // SNTP
 #define SNTP_DEBUG LWIP_DBG_OFF
+
 #define SNTP_SERVER_DNS 1
+
 extern void __sntp_set_system_time(uint32_t sec);
 #define SNTP_SET_SYSTEM_TIME(sec) __sntp_set_system_time(sec)
-// once an hour
-#define SNTP_UPDATE_DELAY 60*1000*1000
+
+// every 6 hours
+#define SNTP_UPDATE_DELAY 6*60*60*1000
+
 
 #endif // _LWIPOPTS_H
