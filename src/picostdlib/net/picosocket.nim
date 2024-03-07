@@ -53,7 +53,7 @@ type
     written: uint
     acked: uint
 
-    recvCb*: proc (len: uint16; totLen: uint16)
+    recvCb*: proc (len: uint16; totLen: uint32)
 
     connectCb: SocketConnectCb
 

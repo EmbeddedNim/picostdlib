@@ -19,3 +19,8 @@ when fileExists("secret.nims"):
     switch("d", "WIFI_SSID:" & WIFI_SSID)
   when declared(WIFI_PASSWORD):
     switch("d", "WIFI_PASSWORD:" & WIFI_PASSWORD)
+  when declared(MQTT_USER):
+    switch("d", "MQTT_USER:" & MQTT_USER)
+  when declared(MQTT_PASS):
+    switch("d", "MQTT_PASS:" & MQTT_PASS)
+

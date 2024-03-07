@@ -130,4 +130,7 @@ extern void __sntp_set_system_time(uint32_t sec);
 // once an hour
 #define SNTP_UPDATE_DELAY 60*1000*1000
 
+// If we use MQTT:
+#define MEMP_NUM_SYS_TIMEOUT            (LWIP_NUM_SYS_TIMEOUT_INTERNAL + 1)
+
 #endif // _LWIPOPTS_H

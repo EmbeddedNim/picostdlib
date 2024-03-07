@@ -91,6 +91,7 @@ task examples, "Builds the examples":
     "pico_w/picow_http_client",
     "pico_w/picow_ntp_client",
     "pico_w/picow_tcp_client",
+    "pico_w/picow_mqtt_client",
     "pico_w/picow_tls_client",
     "pico_w/picow_wifi_scan",
   ]
