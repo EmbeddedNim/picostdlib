@@ -89,11 +89,9 @@ else:
     "tftp_server.h"
     "ping/ping.h"
 
-{.emit: "// picostdlib import: pico_lwip_sntp".}
-
 
 # Nim helpers
 
-proc sntpSetoperatingmode*(operatingMode: SntpOpmode) =
+template sntpSetoperatingmode*(operatingMode: SntpOpmode) =
   sntpSetoperatingmode(operatingMode.uint8)
 

@@ -2,6 +2,9 @@ import std/macros
 import ../lib/lwip
 import ./dns
 import ../pico/cyw43_arch
+import ./common
+
+export common
 
 when not defined(release) or defined(debugSocket):
   template debugv(text: string) = echo text
@@ -14,7 +17,6 @@ macro ptr2ref(arg: pointer; T: typedesc; name: untyped) =
     let `name` = cast[`T`](`arg`)
 
 type
-  Port* = distinct uint16
 
   SocketType* = enum
     SOCK_STREAM = 1 # Sequenced, reliable, connection-based byte streams
@@ -58,9 +60,6 @@ type
   SocketAny*[kind: static[SocketType]] = Socket[kind]
 
   SocketConnectCb* = proc ()
-
-proc `==`*(a, b: Port): bool {.borrow.}
-proc `$`*(p: Port): string {.borrow.}
 
 func getBasePcb*(self: Socket[SOCK_STREAM]): ptr TcpPcb =
   if not self.pcb.isNil:
@@ -434,49 +433,49 @@ proc connect*(self: Socket[SOCK_STREAM]; ipaddr: ptr IpAddrT; port: Port; callba
   if self.pcb.isNil:
     return false
 
-  if self.state != STATE_NEW:
-    return false
+  withLwipLock:
+    if self.state != STATE_NEW:
+      return false
 
-  # withLwipLock:
-  altcpSetprio(self.pcb, TCP_PRIO_MIN)
-  altcpArg(self.pcb, cast[pointer](self))
-  altcpErr(self.pcb, altcpErrCb)
-  altcpRecv(self.pcb, altcpRecvCb)
-  altcpSent(self.pcb, altcpSentCb)
-  altcpPoll(self.pcb, altcpPollCb, uint8(self.timeoutMs div 500))
-  self.state = STATE_CONNECTING
-  self.connectCb = callback
+    altcpSetprio(self.pcb, TCP_PRIO_MIN)
+    altcpArg(self.pcb, cast[pointer](self))
+    altcpErr(self.pcb, altcpErrCb)
+    altcpRecv(self.pcb, altcpRecvCb)
+    altcpSent(self.pcb, altcpSentCb)
+    altcpPoll(self.pcb, altcpPollCb, uint8(self.timeoutMs div 500))
+    self.state = STATE_CONNECTING
+    self.connectCb = callback
 
-  debugv(":connect " & $ipaddr & " " & $port)
-  self.err = altcpConnect(self.pcb, ipaddr, port.uint16, altcpConnectCb).ErrEnumT
-  if self.err != ErrOk:
-    self.state = STATE_NEW
-    callback()
-    return false
+    debugv(":connect " & $ipaddr & " " & $port)
+    self.err = altcpConnect(self.pcb, ipaddr, port.uint16, altcpConnectCb).ErrEnumT
+    if self.err != ErrOk:
+      self.state = STATE_NEW
+      callback()
+      return false
 
-  # let timedOut = cyw43WaitCondition(self.timeoutMs, self.state != STATE_CONNECTING)
+    # let timedOut = cyw43WaitCondition(self.timeoutMs, self.state != STATE_CONNECTING)
 
-  if self.pcb == nil:
-    debugv(":connect aborted")
-    callback()
-    return false
+    if self.pcb == nil:
+      debugv(":connect aborted")
+      callback()
+      return false
 
-  # if timedOut:
-  #   debugv(":connect time out")
-  #   discard self.abort()
-  #   return false
+    # if timedOut:
+    #   debugv(":connect time out")
+    #   discard self.abort()
+    #   return false
 
-  if self.err != ErrOk:
-    debugv(":connect error " & $self.err)
-    discard self.abort()
-    callback()
-    return false
+    if self.err != ErrOk:
+      debugv(":connect error " & $self.err)
+      discard self.abort()
+      callback()
+      return false
 
-  self.state = STATE_CONNECTED
+    self.state = STATE_CONNECTED
 
-  if self.err != ErrOk:
-    return false
-  GC_ref(self)
+    if self.err != ErrOk:
+      return false
+    GC_ref(self)
   return true
 
 proc connect*(self: Socket[SOCK_DGRAM]; ipaddr: IpAddrT; port: Port; callback: SocketConnectCb): bool =
