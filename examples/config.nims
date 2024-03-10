@@ -12,7 +12,7 @@ switch("d", "futharkgen")
 
 switch("d", "debugSocket")
 switch("d", "debugDns")
---d:debugMqtt
+switch("d", "debugMqtt")
 
 when fileExists("secret.nims"):
   import "../secret.nims"

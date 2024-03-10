@@ -95,8 +95,8 @@ else:
 template sntpSetoperatingmode*(operatingMode: SntpOpmode) =
   sntpSetoperatingmode(operatingMode.uint8)
 
-template mqttSubscribe*(client: ptr MqttClientT; topic: string; qos: uint8; cb: MqttRequestCbT, arg: pointer): ErrT =
-  mqttSubUnsub(client, topic.cstring, qos, cb, arg, 1)
+template mqttSubscribe*(client: ptr MqttClientT; topic: cstring; qos: uint8; cb: MqttRequestCbT, arg: pointer): ErrT =
+  mqttSubUnsub(client, topic, qos, cb, arg, 1)
 
-template mqttUnsubscribe*(client: ptr MqttClientT; topic: string; cb: MqttRequestCbT, arg: pointer): ErrT =
-  mqttSubUnsub(client, topic.cstring, 0, cb, arg, 0)
+template mqttUnsubscribe*(client: ptr MqttClientT; topic: cstring; cb: MqttRequestCbT, arg: pointer): ErrT =
+  mqttSubUnsub(client, topic, 0, cb, arg, 0)

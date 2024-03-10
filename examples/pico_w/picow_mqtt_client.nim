@@ -1,28 +1,32 @@
 import picostdlib
-import picostdlib/[
-  pico/cyw43_arch,
-  net/mqttclient
-]
+import picostdlib/pico/cyw43_arch
+import picostdlib/net/mqttclient
+
 
 const WIFI_SSID {.strdefine.} = ""
 const WIFI_PASSWORD {.strdefine.} = ""
 
+
+const MQTT_HOST {.strdefine.} = "test.mosquitto.org"
+const MQTT_PORT {.intdefine.} = 8883
+
+const MQTT_CLIENT_ID {.strdefine.} = "PicoW"
 const MQTT_USER {.strdefine.} = ""
 const MQTT_PASS {.strdefine.} = ""
+const MQTT_USE_TLS {.booldefine.} = true
 
-const MQTT_HOST {.strdefine.} = "192.168.1.6"
-const MQTT_TOPIC {.strdefine.} = "enviro/enviro-indoor-01"
-# const MQTT_USE_TLS = true
+const MQTT_TOPIC {.strdefine.} = "picostdlib/mqttclient"
 
 
 proc runMqttClientTest() =
   var client = newMqttClient()
 
-  let clientInfo = MqttConnectClientInfoT(
-    client_id: "PicoW",
-    client_user: MQTT_USER,
-    client_pass: MQTT_PASS,
-    tls_config: nil
+  let clientConfig = MqttClientConfig(
+    clientId: MQTT_CLIENT_ID,
+    user: MQTT_USER,
+    password: MQTT_PASS,
+    keepAlive: 60,
+    tls: MQTT_USE_TLS
   )
 
   client.setConnectionCallback(proc (connStatus: MqttConnectionStatusT) =
@@ -30,22 +34,24 @@ proc runMqttClientTest() =
       echo "connected!"
 
       discard client.subscribe(MQTT_TOPIC, qos = 1)
+      discard client.publish(MQTT_TOPIC, "hello world!")
     else:
       echo "couldnt connect! status: " & $connStatus
       client = nil
   )
 
-  client.setInpubCallback(proc (topic: string; data: string) =
+  client.setInpubCallback(proc (topic: string; payload: string) =
     echo "got topic " & topic
-    echo "got data:"
-    echo data
+    echo "got payload:"
+    echo payload
+
     client.disconnect()
     client = nil # client is destroyed here
   )
 
   echo "connecting to ", MQTT_HOST
 
-  if client.connect(MQTT_HOST, Port(LWIP_IANA_PORT_MQTT), clientInfo):
+  if client.connect(MQTT_HOST, Port(MQTT_PORT), clientConfig):
     echo "connecting..."
   else:
     echo "failed to connect to mqtt server"
