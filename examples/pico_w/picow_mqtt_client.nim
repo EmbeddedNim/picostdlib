@@ -1,5 +1,3 @@
-import std/uri
-import std/strutils
 import picostdlib
 import picostdlib/[
   pico/cyw43_arch,
@@ -19,9 +17,6 @@ const MQTT_TOPIC {.strdefine.} = "enviro/enviro-indoor-01"
 
 proc runMqttClientTest() =
   var client = newMqttClient()
-  var ipaddr: IpAddrT
-
-  discard ipAddrAton(MQTT_HOST, ipaddr.addr)
 
   let clientInfo = MqttConnectClientInfoT(
     client_id: "PicoW",
@@ -50,7 +45,7 @@ proc runMqttClientTest() =
 
   echo "connecting to ", MQTT_HOST
 
-  if client.connect(ipaddr.addr, Port(LWIP_IANA_PORT_MQTT), clientInfo):
+  if client.connect(MQTT_HOST, Port(LWIP_IANA_PORT_MQTT), clientInfo):
     echo "connecting..."
   else:
     echo "failed to connect to mqtt server"

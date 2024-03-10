@@ -1,6 +1,7 @@
 import ../lib/lwip_apps
 import ../pico/cyw43_arch
 import ./common
+import ./dns
 
 export common
 
@@ -98,8 +99,13 @@ proc mqttDataCb(arg: pointer; data: ptr uint8; len: uint16; flags: uint8) {.cdec
       self.inpubBuf.reset()
       self.inpubBufOffset = 0
 
+proc isConnected*(self: MqttClient): bool =
+  if self.client == nil: return false
+  withLwipLock:
+    return mqttClientIsConnected(self.client).bool
+
 proc connect*(self: MqttClient; ipaddr: ptr IpAddrT; port: Port = Port(LWIP_IANA_PORT_MQTT); clientInfo: MqttConnectClientInfoT): bool =
-  if self.connectionCb == nil or self.isConnecting:
+  if self.connectionCb == nil or self.isConnecting or self.isConnected():
     return false
   withLwipLock:
     debugv(":mqtt connecting to " & $ipaddr & ":" & $port)
@@ -110,15 +116,31 @@ proc connect*(self: MqttClient; ipaddr: ptr IpAddrT; port: Port = Port(LWIP_IANA
       return false
   return true
 
+proc connect*(self: MqttClient; host: string; port: Port = Port(LWIP_IANA_PORT_MQTT); clientInfo: MqttConnectClientInfoT): bool =
+  if self.connectionCb == nil or self.isConnecting or self.isConnected():
+    return false
+
+  var remoteAddr = IpAddrT()
+  let isIp = ipAddrAton(host.cstring, remoteAddr.addr).bool
+
+  if isIp:
+    return self.connect(remoteAddr.addr, port, clientInfo)
+  let res = getHostByName(host, (proc (hostname: string; ipaddr: ptr IpAddrT) =
+    if ipaddr.isNil:
+      self.connStatus = MQTT_CONNECT_REFUSED_SERVER
+    else:
+      discard self.connect(ipaddr, port, clientInfo)
+    GC_unref(self)
+  ))
+  if not res:
+    return false
+  GC_ref(self)
+  return true
+
 proc disconnect*(self: MqttClient) =
   withLwipLock:
     self.isConnecting = false
     mqttDisconnect(self.client)
-
-proc isConnected*(self: MqttClient): bool =
-  if self.client == nil: return false
-  withLwipLock:
-    return mqttClientIsConnected(self.client).bool
 
 proc setInpubCallback*(self: MqttClient; cb: MqttInpubCb) =
   self.inpubCb = cb
