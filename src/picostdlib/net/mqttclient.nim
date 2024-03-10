@@ -23,7 +23,7 @@ type
     inpubCb: MqttInpubCb
     inpubTopic: string
     inpubBuf: string
-    inpubBufOffset: int
+    inpubBufOffset: uint32
 
   MqttRequest* = object
     topic: string
@@ -79,6 +79,7 @@ proc mqttDataCb(arg: pointer; data: ptr uint8; len: uint16; flags: uint8) {.cdec
   assert(arg != nil)
   let self = cast[MqttClient](arg)
   copyMem(self.inpubBuf[self.inpubBufOffset].addr, data, len)
+  self.inpubBufOffset += len
   if (flags and MQTT_DATA_FLAG_LAST) == 1:
     self.inpubCb(self.inpubTopic, self.inpubBuf)
     self.inpubTopic.reset()

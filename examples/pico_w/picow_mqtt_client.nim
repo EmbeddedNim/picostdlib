@@ -13,7 +13,7 @@ const MQTT_USER {.strdefine.} = ""
 const MQTT_PASS {.strdefine.} = ""
 
 const MQTT_HOST {.strdefine.} = "192.168.1.6"
-const MQTT_TOPIC {.strdefine.} = "picow/ds18/temperature"
+const MQTT_TOPIC {.strdefine.} = "enviro/enviro-indoor-01"
 # const MQTT_USE_TLS = true
 
 
