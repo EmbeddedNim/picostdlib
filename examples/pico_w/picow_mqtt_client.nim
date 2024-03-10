@@ -30,25 +30,38 @@ proc runMqttClientTest() =
     tls_config: nil
   )
 
-  echo "connecting to ", MQTT_HOST
+  client.setConnectionCallback(proc (connStatus: MqttConnectionStatusT) =
+    if connStatus == MqttConnectAccepted:
+      echo "connected!"
 
-  client.setInpubCallback(proc (topic: string; data: string) =
-    echo "got topic " & $topic
-    echo "got data:"
-    echo data
+      discard client.subscribe(MQTT_TOPIC, qos = 1)
+    else:
+      echo "couldnt connect! status: " & $connStatus
+      client = nil
   )
 
-  if client.connect(ipaddr.addr, cb = proc (connStatus: MqttConnectionStatusT) =
-    echo "connected!"
-    echo connStatus
+  client.setInpubCallback(proc (topic: string; data: string) =
+    echo "got topic " & topic
+    echo "got data:"
+    echo data
+    client.disconnect()
+    client = nil # client is destroyed here
+  )
 
-    echo client.subscribe(MQTT_TOPIC, 0, proc (err: ErrEnumT) =
-      echo "ok ", $err
-    )
-  , clientInfo = clientInfo):
+  echo "connecting to ", MQTT_HOST
+
+  if client.connect(ipaddr.addr, Port(LWIP_IANA_PORT_MQTT), clientInfo):
     echo "connecting..."
   else:
     echo "failed to connect to mqtt server"
+    client = nil
+
+  # fast blink while connecting/connected
+  while client != nil:
+    Cyw43WlGpioLedPin.put(High)
+    sleepMs(100)
+    Cyw43WlGpioLedPin.put(Low)
+    sleepMs(100)
 
 proc mqttClientExample*() =
   if cyw43ArchInit() != PicoErrorNone:
@@ -99,6 +112,6 @@ when isMainModule:
 
   while true:
     Cyw43WlGpioLedPin.put(High)
-    sleepMs(100)
+    sleepMs(500)
     Cyw43WlGpioLedPin.put(Low)
-    sleepMs(100)
+    sleepMs(500)
