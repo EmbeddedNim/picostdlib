@@ -21,6 +21,9 @@ type
     connectCb: MqttConnectCb
     requests: array[MQTT_REQ_MAX_IN_FLIGHT, MqttRequest]
     inpubCb: MqttInpubCb
+    inpubTopic: string
+    inpubBuf: string
+    inpubBufOffset: int
 
   MqttRequest* = object
     topic: string
@@ -28,13 +31,16 @@ type
 
   MqttConnectCb* = proc (connStatus: MqttConnectionStatusT)
   MqttRequestCb* = proc (err: ErrEnumT)
-  MqttInpubCb* = proc (topic: string; totLen: uint32)
+  MqttInpubCb* = proc (topic: string; data: string)
 
 proc `=destroy`*(self: typeof(MqttClient()[])) =
-  echo "Destroying MQTT client"
+  debugv("Destroying MQTT client")
   let selfptr = self.addr
   `=destroy`(selfptr.connectCb)
-  # `=destroy`(selfptr.requests)
+  `=destroy`(selfptr.requests)
+  `=destroy`(selfptr.inpubCb)
+  `=destroy`(selfptr.inpubTopic)
+  `=destroy`(selfptr.inpubBuf)
   if self.client != nil:
     mqttDisconnect(self.client)
     mqtt_client_free(self.client)
@@ -63,14 +69,21 @@ proc mqttRequestCb(arg: pointer; err: ErrT) {.cdecl.} =
   request.cb(err.ErrEnumT)
 
 proc mqttInpubCb(arg: pointer; topic: cstring; totLen: uint32) {.cdecl.} =
-  echo topic, " ", totLen
+  assert(arg != nil)
+  let self = cast[MqttClient](arg)
+  self.inpubTopic = $topic
+  self.inpubBufOffset = 0
+  self.inpubBuf.setLen(totLen)
 
 proc mqttDataCb(arg: pointer; data: ptr uint8; len: uint16; flags: uint8) {.cdecl.} =
-  echo len
-  var str = newString(len)
-  copyMem(str[0].addr, data, len)
-  echo str
-  echo flags
+  assert(arg != nil)
+  let self = cast[MqttClient](arg)
+  copyMem(self.inpubBuf[self.inpubBufOffset].addr, data, len)
+  if (flags and MQTT_DATA_FLAG_LAST) == 1:
+    self.inpubCb(self.inpubTopic, self.inpubBuf)
+    self.inpubTopic.reset()
+    self.inpubBuf.reset()
+    self.inpubBufOffset = 0
 
 proc connect*(self: MqttClient; ipaddr: ptr IpAddrT; port: Port = Port(LWIP_IANA_PORT_MQTT); cb: MqttConnectCb; clientInfo: MqttConnectClientInfoT): bool =
   assert(self.connectCb == nil)

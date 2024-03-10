@@ -32,8 +32,10 @@ proc runMqttClientTest() =
 
   echo "connecting to ", MQTT_HOST
 
-  client.setInpubCallback(proc (topic: string; totLen: uint32) =
+  client.setInpubCallback(proc (topic: string; data: string) =
     echo "got topic " & $topic
+    echo "got data:"
+    echo data
   )
 
   if client.connect(ipaddr.addr, cb = proc (connStatus: MqttConnectionStatusT) =
