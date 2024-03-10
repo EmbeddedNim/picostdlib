@@ -36,10 +36,14 @@ type
     keepAlive*: uint16
     willTopic*: string
     willMsg*: string
-    willQos*: uint8
+    willQos*: MqttQos
     willRetain*: bool
     tls*: bool
 
+  MqttQos* {.size: sizeof(uint8).} = enum
+    Qos0
+    Qos1
+    Qos2
 
   # MqttRequest* = object
   #   topic: string
@@ -136,7 +140,7 @@ proc connect*(self: MqttClient; ipaddr: ptr IpAddrT; port: Port = Port(LWIP_IANA
     if config.willMsg.len > 0:
       clientInfo.willMsg = config.willMsg.cstring
     # clientInfo.willMsgLen = config.willMsg.len.uint8
-    clientInfo.willQos = config.willQos
+    clientInfo.willQos = config.willQos.uint8
     clientInfo.willRetain = config.willRetain.uint8
 
   if config.tls and self.tlsConfig == nil:
@@ -181,10 +185,10 @@ proc setInpubCallback*(self: MqttClient; cb: MqttInpubCb) =
 proc setConnectionCallback*(self: MqttClient; cb: MqttConnectionCb) =
   self.connectionCb = cb
 
-proc subscribe*(self: MqttClient; topic: string; qos: uint8 = 0): bool =
+proc subscribe*(self: MqttClient; topic: string; qos: MqttQos = Qos0): bool =
   withLwipLock:
     debugv(":mqtt subscribe " & topic)
-    let err = mqttSubscribe(self.client, topic, qos, nil, nil).ErrEnumT
+    let err = mqttSubscribe(self.client, topic, qos.uint8, nil, nil).ErrEnumT
     if err != ErrOk:
       debugv(":mqtt subscribe error " & topic & ": " & $err)
       return false
@@ -199,12 +203,12 @@ proc unsubscribe*(self: MqttClient; topic: string): bool =
       return false
   return true
 
-proc publish*(self: MqttClient; topic: string; payload: string; qos: uint8 = 0; retain: bool = false): bool =
+proc publish*(self: MqttClient; topic: string; payload: string; qos: MqttQos = Qos0; retain: bool = false): bool =
   withLwipLock:
     debugv(":mqtt publish " & topic & " payload:")
     debugv(payload)
 
-    let err = mqttPublish(self.client, topic.cstring, payload.cstring, payload.len.uint16, qos, retain.uint8, nil, nil).ErrEnumT
+    let err = mqttPublish(self.client, topic.cstring, payload.cstring, payload.len.uint16, qos.uint8, retain.uint8, nil, nil).ErrEnumT
     if err != ErrOk:
       debugv(":mqtt publish error: " & $err)
       return false

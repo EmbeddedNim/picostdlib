@@ -33,8 +33,8 @@ proc runMqttClientTest() =
     if connStatus == MqttConnectAccepted:
       echo "connected!"
 
-      discard client.subscribe(MQTT_TOPIC, qos = 1)
-      discard client.publish(MQTT_TOPIC, "hello world!")
+      discard client.subscribe(MQTT_TOPIC, Qos1)
+      discard client.publish(MQTT_TOPIC, "hello world!", Qos1)
     else:
       echo "couldnt connect! status: " & $connStatus
       client = nil
@@ -45,6 +45,8 @@ proc runMqttClientTest() =
     echo "got payload:"
     echo payload
 
+    client.setConnectionCallback(nil)
+    client.setInpubCallback(nil)
     client.disconnect()
     client = nil # client is destroyed here
   )
