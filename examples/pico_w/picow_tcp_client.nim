@@ -39,7 +39,7 @@ proc runTcpClientTest() =
       echo "failed to write http request"
       return
   )
-  client.recvCb = proc(len: uint16; totLen: uint32) =
+  client.recvCb = proc(len: uint16; totLen: uint16) =
     if len == 0:
       # closed
       echo "connection closed"
