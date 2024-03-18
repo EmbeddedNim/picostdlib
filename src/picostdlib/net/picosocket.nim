@@ -59,7 +59,7 @@ type
 
   SocketAny*[kind: static[SocketType]] = Socket[kind]
 
-  SocketConnectCb* = proc ()
+  SocketConnectCb* = proc (success: bool)
 
 func getBasePcb*(self: Socket[SOCK_STREAM]): ptr TcpPcb =
   if not self.pcb.isNil:
@@ -249,8 +249,8 @@ proc altcpConnectCb(arg: pointer; pcb: ptr AltcpPcb; err: ErrT): ErrT {.cdecl.} 
   assert(pcb == self.pcb)
   debugv(":connect " & $err)
   self.err = err
-  self.state = STATE_CONNECTED
-  self.connectCb()
+  self.state = if err == ErrOk: STATE_CONNECTED else: STATE_PEER_CLOSED
+  self.connectCb(err == ErrOk)
   self.connectCb = nil
   return ErrOk.ErrT
 
@@ -371,7 +371,7 @@ proc available*(self: SocketAny): uint16 =
     return 0
   return self.rxBuf.totLen - self.rxBufOffset
 
-proc connected*(self: Socket[SOCK_STREAM]): bool =
+proc isConnected*(self: Socket[SOCK_STREAM]): bool =
   return not self.pcb.isNil and (self.state == STATE_CONNECTED or self.available() > 0)
 
 proc read*(self: Socket[SOCK_STREAM]; size: uint16; buf: ptr char = nil): int =
@@ -450,14 +450,14 @@ proc connect*(self: Socket[SOCK_STREAM]; ipaddr: ptr IpAddrT; port: Port; callba
     self.err = altcpConnect(self.pcb, ipaddr, port.uint16, altcpConnectCb).ErrEnumT
     if self.err != ErrOk:
       self.state = STATE_NEW
-      callback()
+      callback(true)
       return false
 
     # let timedOut = cyw43WaitCondition(self.timeoutMs, self.state != STATE_CONNECTING)
 
     if self.pcb == nil:
       debugv(":connect aborted")
-      callback()
+      callback(false)
       return false
 
     # if timedOut:
@@ -468,7 +468,7 @@ proc connect*(self: Socket[SOCK_STREAM]; ipaddr: ptr IpAddrT; port: Port; callba
     if self.err != ErrOk:
       debugv(":connect error " & $self.err)
       discard self.abort()
-      callback()
+      callback(false)
       return false
 
     self.state = STATE_CONNECTED
