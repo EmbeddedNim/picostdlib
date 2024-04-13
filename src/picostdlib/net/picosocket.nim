@@ -509,7 +509,7 @@ proc connect*(self: SocketAny; host: string; port: Port; callback: SocketConnect
     return self.connect(remoteAddr.addr, port, callback)
   let res = getHostByName(host, (proc (hostname: string; ipaddr: ptr IpAddrT) =
     if ipaddr.isNil:
-      callback()
+      callback(false)
     else:
       discard self.connect(ipaddr, port, callback)
     GC_unref(self)

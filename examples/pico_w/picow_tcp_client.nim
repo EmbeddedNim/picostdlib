@@ -23,13 +23,13 @@ const HTTP_REQUEST = "GET " & HTTP_PATH & " HTTP/1.1\r\n" &
                      "\r\n"
 
 proc runTcpClientTest() =
-  var client = newSocket(SOCK_STREAM)
+  var client {.cursor.} = newSocket(SOCK_STREAM)
 
   echo "connecting to ", HOSTNAME, ":", TCP_PORT
   when TCP_USE_TLS:
     client.setSecure(HOSTNAME)
-  let conn = client.connect(HOSTNAME, TCP_PORT, proc () =
-    if client.getState() != STATE_CONNECTED:
+  let conn = client.connect(HOSTNAME, TCP_PORT, proc (success: bool) =
+    if client.getState() != STATE_CONNECTED or not success:
       echo "error connecting!!"
       return
 
