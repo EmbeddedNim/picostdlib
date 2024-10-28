@@ -61,7 +61,7 @@ type
     pwm = "hardware_pwm"
     interp = "hardware_interp"
 
-macro parseLinkableLib(s: string) =
+macro parseLinkableLib(s: string): untyped =
   ## Parses enum using the field name and field str
   let
     lLib = bindSym"LinkableLib".enumDef
