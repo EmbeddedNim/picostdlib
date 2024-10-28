@@ -1,6 +1,6 @@
 # Package
 
-version       = "0.3.3"
+version = "0.3.4"
 author        = "Jason"
 description   = "Raspberry Pi Pico stdlib bindings/libraries"
 license       = "MIT"
@@ -16,3 +16,4 @@ installDirs = @["template"]
 requires "nim >= 1.6.0"
 requires "https://github.com/casey-SK/commandant >= 0.15.1"
 requires "https://github.com/beef331/micros"
+
