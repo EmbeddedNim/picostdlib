@@ -84,7 +84,7 @@ var buildDir* = ""
 proc importPath*(program: string): string = buildDir / program / "imports.cmake"
 proc nimcache*(program: string): string = buildDir / program / "nimcache"
 
-macro parseLinkableLib(s: string) =
+macro parseLinkableLib(s: string): untyped =
   ## Parses enum using the field name and field str
   let
     lLib = bindSym"LinkableLib".enumDef
