@@ -47,6 +47,8 @@ importc:
   sysPath armInstallInclude
   sysPath picoSdkPath / "lib/btstack/src"
   sysPath picoSdkPath / "lib/btstack/3rd-party/lc3-google/include"
+  sysPath picoSdkPath / "lib/btstack/3rd-party/bluedroid/decoder/include"
+  sysPath picoSdkPath / "lib/btstack/3rd-party/bluedroid/encoder/include"
   path piconimCsourceDir
   path getProjectPath()
 

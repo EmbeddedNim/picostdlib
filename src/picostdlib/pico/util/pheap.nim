@@ -1,18 +1,17 @@
+import ../../helpers
+{.localPassC: "-I" & picoSdkPath & "/src/common/pico_util/include".}
 {.push header: "pico/util/pheap.h".}
 
 # let PicoPheapMaxEntries* {.importc: "PICO_PHEAP_MAX_ENTRIES".}: cuint
+const PICO_PHEAP_MAX_ENTRIES* {.intdefine.} = 255
 
 # public heap_node ids are numbered from 1 (0 means none)
-when defined(PICO_PHEAP_MAX_ENTRIES):
-  when PICO_PHEAP_MAX_ENTRIES < 256:
-    type PheapNodeId* {.importc: "pheap_node_id_t".} = uint8
-  elif PICO_PHEAP_MAX_ENTRIES < 65535:
-    type PheapNodeId* {.importc: "pheap_node_id_t".} = uint16
-  else:
-    {.error: "invalid PICO_PHEAP_MAX_ENTRIES".}
-else:
-  # assume default value (255)
+when PICO_PHEAP_MAX_ENTRIES < 256:
   type PheapNodeId* {.importc: "pheap_node_id_t".} = uint8
+elif PICO_PHEAP_MAX_ENTRIES < 65535:
+  type PheapNodeId* {.importc: "pheap_node_id_t".} = uint16
+else:
+  {.error: "invalid PICO_PHEAP_MAX_ENTRIES".}
 
 type
   PheapNode* {.importc: "pheap_node_t".} = object

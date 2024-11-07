@@ -1,7 +1,7 @@
 import ../helpers
-{.localPassC: "-I" & picoSdkPath & "/src/rp2040/hardware_regs/include".}
-{.localPassC: "-I" & picoSdkPath & "/src/rp2_common/pico_platform/include".}
-{.push header: "pico/platform.h".}
+{.localPassC: "-I" & picoSdkPath & "/src/" & picoPlatform & "/hardware_regs/include".}
+{.localPassC: "-I" & picoSdkPath & "/src/" & picoPlatform & "/pico_platform/include".}
+{.push header: "pico.h".}
 
 let
   XipBase* {.importc: "XIP_BASE".}: uint32

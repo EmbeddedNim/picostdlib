@@ -1,6 +1,8 @@
 import ../lock_core
 export lock_core
 
+import ../../helpers
+{.localPassC: "-I" & picoSdkPath & "/src/common/pico_util/include".}
 {.push header: "pico/util/queue.h".}
 
 let PicoQueueMaxLevel* {.importc: "PICO_QUEUE_MAX_LEVEL".}: bool

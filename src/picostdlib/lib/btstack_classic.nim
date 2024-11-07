@@ -49,6 +49,8 @@ importc:
   sysPath armSysrootInclude
   sysPath armInstallInclude
   sysPath picoSdkPath / "lib/btstack/src"
+  sysPath picoSdkPath / "lib/btstack/3rd-party/bluedroid/decoder/include"
+  sysPath picoSdkPath / "lib/btstack/3rd-party/bluedroid/encoder/include"
   sysPath piconimCsourceDir
   sysPath getProjectPath()
 
@@ -67,6 +69,7 @@ importc:
   "classic/avrcp_browsing.h"
   "classic/avrcp_browsing_target.h"
   "classic/avrcp_controller.h"
+  "classic/avrcp_cover_art_client.h"
   "classic/avrcp.h"
   "classic/avrcp_media_item_iterator.h"
   "classic/avrcp_target.h"
@@ -76,6 +79,7 @@ importc:
   "classic/btstack_link_key_db_memory.h"
   "classic/btstack_link_key_db_static.h"
   "classic/btstack_link_key_db_tlv.h"
+  "classic/btstack_sbc_bluedroid.h"
   "classic/btstack_sbc.h"
   "classic/btstack_sbc_plc.h"
   "classic/core.h"
@@ -84,6 +88,7 @@ importc:
   "classic/goep_client.h"
   "classic/goep_server.h"
   "classic/hfp_ag.h"
+  "classic/hfp_codec.h"
   "classic/hfp_gsm_model.h"
   "classic/hfp.h"
   "classic/hfp_hf.h"

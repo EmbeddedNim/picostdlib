@@ -3,7 +3,7 @@ import ./irq
 export setutils, irq
 
 import ../helpers
-{.localPassC: "-I" & picoSdkPath & "/src/rp2040/hardware_structs/include".}
+{.localPassC: "-I" & picoSdkPath & "/src/" & picoPlatform & "/hardware_structs/include".}
 {.localPassC: "-I" & picoSdkPath & "/src/rp2_common/hardware_gpio/include".}
 
 type
@@ -55,7 +55,7 @@ type
 {.push header: "hardware/gpio.h".}
 
 type
-  GpioFunction* {.pure, importc: "enum gpio_function", size: sizeof(byte).} = enum
+  GpioFunction* {.pure, importc: "gpio_function_t", size: sizeof(byte).} = enum
     ## GPIO function definitions for use with function select.
     ## Each GPIO can have one function selected at a time. Likewise,
     ## each peripheral input (e.g. UART0 RX) should only be selected on one

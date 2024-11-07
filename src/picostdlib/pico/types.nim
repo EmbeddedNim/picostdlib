@@ -1,5 +1,5 @@
 import ../helpers
-{.localPassC: "-I" & picoSdkPath & "/src/common/pico_base/include".}
+{.localPassC: "-I" & picoSdkPath & "/src/common/pico_base_headers/include".}
 {.push header: "pico/types.h".}
 
 when defined(NDEBUG):

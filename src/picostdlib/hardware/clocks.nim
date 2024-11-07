@@ -1,5 +1,5 @@
-import ./base, ./gpio
-export base, gpio
+import ./base, ./gpio, ../pico/runtime_init
+export base, gpio, clocksInit
 
 import ../helpers
 {.localPassC: "-I" & picoSdkPath & "/src/rp2_common/hardware_clocks/include".}
@@ -112,7 +112,7 @@ let
 
 
 type
-  ClockIndex* {.pure, importc: "enum clock_index".} = enum
+  ClockIndex* {.pure, importc: "clock_handle_t".} = enum
     ## Enumeration identifying a hardware clock
     ClockGpOut0 ## GPIO Muxing 0
     ClockGpOut1 ## GPIO Muxing 1
@@ -138,11 +138,6 @@ let clocksHw* {.importc: "clocks_hw".}: ptr ClocksHw
 const
   KHz* = 1_000
   MHz* = 1_000_000
-
-proc clocksInit*() {.importc: "clocks_init".}
-  ## Initialise the clock hardware
-  ##
-  ## Must be called before any other clock function.
 
 proc configure*(clkInd: ClockIndex; src, auxSrc, srcFreq, freq: uint32): bool {.importc: "clock_configure".}
   ## Configure the specified clock.

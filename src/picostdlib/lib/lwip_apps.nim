@@ -30,11 +30,6 @@
 import ./lwip
 export lwip
 
-type
-  SntpOpmode* = enum
-    SntpOPmodePoll
-    SntpOpmodeListenonly
-
 when defined(nimcheck):
   include ../futharkgen/futhark_lwip_apps
 else:
@@ -56,24 +51,27 @@ else:
     sysPath futhark.getClangIncludePath()
     sysPath armSysrootInclude
     sysPath armInstallInclude
-    sysPath picoSdkPath / "src/rp2040/hardware_regs/include"
-    sysPath picoSdkPath / "src/common/pico_base/include"
-    sysPath picoSdkPath / "src/rp2_common/pico_platform/include"
+    sysPath picoSdkPath / "src" / picoPlatform / "hardware_regs/include"
+    sysPath picoSdkPath / "src/common/pico_base_headers/include"
+    sysPath picoSdkPath / "src" / picoPlatform / "pico_platform/include"
+    sysPath picoSdkPath / "src/rp2_common/pico_platform_compiler/include"
+    sysPath picoSdkPath / "src/rp2_common/pico_platform_sections/include"
+    sysPath picoSdkPath / "src/rp2_common/pico_platform_panic/include"
     sysPath picoSdkPath / "src/rp2_common/pico_rand/include"
     sysPath cmakeBinaryDir / "generated/pico_base"
     path picoSdkPath / "src/rp2_common/pico_lwip/include"
     path picoLwipPath / "src/include"
     path picoLwipPath / "src/include/lwip/apps"
     path picoLwipPath / "contrib/apps"
-    path piconimCsourceDir
+    sysPath piconimCsourceDir
     path nimcacheDir
-    path getProjectPath()
+    sysPath getProjectPath()
 
     define "MBEDTLS_USER_CONFIG_FILE \"mbedtls_config.h\""
+    define "PICO_RP2040 (1)"
 
     renameCallback futharkRenameCallback
 
-    "cyw43_arch_config.h" # defines what type (background, poll, freertos, none)
     "altcp_proxyconnect.h"
     "http_client.h"
     "httpd.h"
@@ -91,6 +89,11 @@ else:
 
 
 # Nim helpers
+
+type
+  SntpOpmode* = enum
+    OpmodePoll
+    OpmodeListenonly
 
 template sntpSetoperatingmode*(operatingMode: SntpOpmode) =
   sntpSetoperatingmode(operatingMode.uint8)

@@ -58,6 +58,7 @@ import picostdlib/pico/multicore
 import picostdlib/pico/mutex
 import picostdlib/pico/platform
 import picostdlib/pico/rand
+import picostdlib/pico/runtime_init
 import picostdlib/pico/sem
 import picostdlib/pico/sleep
 import picostdlib/pico/stdio

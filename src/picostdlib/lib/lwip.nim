@@ -55,10 +55,13 @@ else:
     sysPath futhark.getClangIncludePath()
     sysPath armSysrootInclude
     sysPath armInstallInclude
-    sysPath picoSdkPath / "src/rp2040/hardware_regs/include"
+    sysPath picoSdkPath / "src" / picoPlatform / "hardware_regs/include"
     sysPath picoLwipPath / "contrib/ports/freertos/include"
-    sysPath picoSdkPath / "src/common/pico_base/include"
-    sysPath picoSdkPath / "src/rp2_common/pico_platform/include"
+    sysPath picoSdkPath / "src/common/pico_base_headers/include"
+    sysPath picoSdkPath / "src" / picoPlatform / "pico_platform/include"
+    sysPath picoSdkPath / "src/rp2_common/pico_platform_compiler/include"
+    sysPath picoSdkPath / "src/rp2_common/pico_platform_sections/include"
+    sysPath picoSdkPath / "src/rp2_common/pico_platform_panic/include"
     sysPath picoSdkPath / "src/rp2_common/pico_rand/include"
     sysPath picoSdkPath / "src/rp2_common/pico_cyw43_driver/include"
     sysPath cmakeBinaryDir / "generated/pico_base"
@@ -71,6 +74,7 @@ else:
     path getProjectPath()
 
     define "MBEDTLS_USER_CONFIG_FILE \"mbedtls_config.h\""
+    define "PICO_RP2040 (1)"
 
     renameCallback futharkRenameCallback
 
@@ -196,3 +200,4 @@ elif lwipIpv6:
 
 proc `$`*(ipaddr: ptr IpAddrT): string = $ipAddrNtoa(ipaddr)
 proc `$`*(ipaddr: var IpAddrT): string = $ipAddrNtoa(addr(ipaddr))
+proc `$`*(ipaddr: IpAddrT): string = $ipAddrNtoa(unsafeAddr(ipaddr))

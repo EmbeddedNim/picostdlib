@@ -37,16 +37,6 @@ import ../helpers
 import ./cyw43_driver/cyw43_country
 export cyw43_country
 
-type
-  # Declared before futhark importc to be able to use it as its own type
-  Cyw43PowersaveMode* = distinct uint32
-    ## Power save mode paramter passed to cyw43_ll_wifi_pm
-
-const
-  Cyw43NoPowersaveMode* = (0).Cyw43PowersaveMode  ##  No Powersave mode
-  Cyw43Pm1PowersaveMode* = (1).Cyw43PowersaveMode ##  Powersave mode on specified interface without regard for throughput reduction
-  Cyw43Pm2PowersaveMode* = (2).Cyw43PowersaveMode ##  Powersave mode on specified interface with High throughput
-
 const (cyw43ArchDefine, cyw43ArchLib, importLwip) = when cyw43ArchBackend == "threadsafe_background":
   ("PICO_CYW43_ARCH_THREADSAFE_BACKGROUND", "pico_cyw43_arch_lwip_threadsafe_background", true)
 elif cyw43ArchBackend == "poll":
@@ -62,7 +52,7 @@ else:
 static:
   # echo (cyw43ArchDefine, cyw43ArchLib, importLwip)
   createDir(nimcacheDir)
-  writeFile(nimcacheDir / "cyw43_arch_config.h", "#define " & cyw43ArchDefine & " (1)")
+  writeFile(nimcacheDir / "cyw43_arch_config.h", "#define " & cyw43ArchDefine & " (1)\n#define PICO_RP2040 (" & (if picoPlatform == "rp2040": "1" else: "0") & ")")
 
 when cyw43ArchBackend == "freertos":
   import ./freertos
@@ -92,24 +82,29 @@ else:
     sysPath armSysrootInclude
     sysPath armInstallInclude
     sysPath cmakeBinaryDir / "generated/pico_base"
-    sysPath picoSdkPath / "src/common/pico_base/include"
-    sysPath picoSdkPath / "src/rp2040/hardware_regs/include"
-    sysPath picoSdkPath / "src/rp2040/hardware_structs/include"
+    sysPath picoSdkPath / "src/common/pico_base_headers/include"
+    sysPath picoSdkPath / "src" / picoPlatform / "hardware_regs/include"
+    sysPath picoSdkPath / "src" / picoPlatform / "hardware_structs/include"
     sysPath picoSdkPath / "src/rp2_common/hardware_base/include"
     sysPath picoSdkPath / "src/rp2_common/hardware_irq/include"
     sysPath picoSdkPath / "src/rp2_common/hardware_gpio/include"
     sysPath picoSdkPath / "src/rp2_common/hardware_timer/include"
     sysPath picoSdkPath / "src/rp2_common/pico_rand/include"
-    sysPath picoSdkPath / "src/rp2_common/pico_platform/include"
+    sysPath picoSdkPath / "src" / picoPlatform / "pico_platform/include"
+    sysPath picoSdkPath / "src/rp2_common/pico_platform_compiler/include"
+    sysPath picoSdkPath / "src/rp2_common/pico_platform_sections/include"
+    sysPath picoSdkPath / "src/rp2_common/pico_platform_panic/include"
     sysPath picoSdkPath / "src/common/pico_time/include"
     sysPath picoSdkPath / "src/rp2_common/pico_cyw43_driver/include"
     sysPath picoSdkPath / "src/rp2_common/pico_lwip/include"
     sysPath picoSdkPath / "src/rp2_common/pico_cyw43_arch/include"
     sysPath picoSdkPath / "lib/lwip/src/include"
+    # sysPath picoSdkPath / "src/rp2350/hardware_structs/include" # TODO set PICO_RP2040 after picoPlatform
+    # sysPath picoSdkPath / "src/rp2350/hardware_regs/include" # TODO set PICO_RP2040 after picoPlatform
     path picoSdkPath / "lib/cyw43-driver/src"
-    path piconimCsourceDir
+    sysPath piconimCsourceDir
     path nimcacheDir
-    path getProjectPath()
+    sysPath getProjectPath()
 
     define "MBEDTLS_USER_CONFIG_FILE \"mbedtls_config.h\""
 
@@ -121,6 +116,8 @@ else:
 {.emit: ["// picostdlib import: ", cyw43ArchLib].}
 
 type
+  Cyw43PowersaveMode* = uint32
+
   Cyw43TraceFlag* {.pure.} = enum
     ## Trace flags
     TraceAsyncEv = Cyw43TraceAsyncEv
@@ -234,10 +231,10 @@ type
     ReasonSupDeauth = Cyw43ReasonSupDeauth                 ##  received FC_DEAUTH
     ReasonSupWpaPskTmo = Cyw43ReasonSupWpaPskTmo           ##  WPA PSK 4-way handshake timeout
 
-  Cyw43Auth* {.pure.} = enum
-    ## Values used for STA and AP auth settings
-    WpaAuthPsk = Cyw43WpaAuthPsk
-    Wpa2AuthPsk = Cyw43Wpa2AuthPsk
+  # Cyw43Auth* {.pure.} = enum
+  #   ## Values used for STA and AP auth settings
+  #   WpaAuthPsk = Cyw43WpaAuthPsk
+  #   Wpa2AuthPsk = Cyw43Wpa2AuthPsk
 
   Cyw43AuthType* {.pure, size: sizeof(uint32).} = enum
     ## Authorization types

@@ -1,5 +1,5 @@
 import ../helpers
-{.localPassC: "-I" & picoSdkPath & "/src/common/pico_base/include".}
+{.localPassC: "-I" & picoSdkPath & "/src/common/pico_base_headers/include".}
 
 type
   PicoErrorCode* {.pure, size: sizeof(int8), importc: "enum pico_error_codes", header: "pico/error.h".} = enum
