@@ -45,7 +45,7 @@ include(FetchContent)
 
 FetchContent_Declare(mbedtls
   GIT_REPOSITORY https://github.com/Mbed-TLS/mbedtls.git
-  GIT_TAG        v2.28.7
+  GIT_TAG        v2.28.8
 )
 
 FetchContent_Declare(lwip
@@ -55,19 +55,22 @@ FetchContent_Declare(lwip
 
 FetchContent_Declare(freertos_kernel
   GIT_REPOSITORY https://github.com/FreeRTOS/FreeRTOS-Kernel.git
-  GIT_TAG        V11.0.1
+  GIT_TAG        V11.1.0
 )
 
 # fetch and use alternative mbedtls version
-#FetchContent_Populate(mbedtls)
+#FetchContent_MakeAvailable(mbedtls)
 #set(PICO_MBEDTLS_PATH ${mbedtls_SOURCE_DIR})
 
 # fetch and use alternative lwip version
-#FetchContent_Populate(lwip)
+#FetchContent_MakeAvailable(lwip)
 #set(PICO_LWIP_PATH ${lwip_SOURCE_DIR})
 
 # fetch and initialize FreeRTOS-Kernel
-#FetchContent_Populate(freertos_kernel)
+#add_library(freertos_config INTERFACE)
+#target_include_directories(freertos_config SYSTEM INTERFACE ${CMAKE_SOURCE_DIR}/csource) # The config file directory
+#set(FREERTOS_PORT GCC_RP2040 CACHE STRING "")
+#FetchContent_MakeAvailable(freertos_kernel)
 #include(${freertos_kernel_SOURCE_DIR}/portable/ThirdParty/GCC/RP2040/FreeRTOS_Kernel_import.cmake)
 
 

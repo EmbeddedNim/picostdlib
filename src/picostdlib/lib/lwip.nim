@@ -160,6 +160,9 @@ proc getTcpState*(conn: ptr AltcpPcb): TcpState =
     if pcb != nil:
       return pcb.state
 
+when not declared(DNS_MAX_REQUESTS):
+  const DNS_MAX_REQUESTS* = DNS_TABLE_SIZE
+
 # IP helper macros
 
 template ipGetOption*(pcb: untyped; opt: cuint): bool = (pcb.so_options and opt) != 0

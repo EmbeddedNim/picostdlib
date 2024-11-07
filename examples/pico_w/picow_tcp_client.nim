@@ -23,26 +23,30 @@ const HTTP_REQUEST = "GET " & HTTP_PATH & " HTTP/1.1\r\n" &
                      "\r\n"
 
 proc runTcpClientTest() =
-  var client = newSocket(SOCK_STREAM)
+  var client {.cursor.} = newSocket(SOCK_STREAM)
 
   echo "connecting to ", HOSTNAME, ":", TCP_PORT
-  let connected = client.connect(HOSTNAME, TCP_PORT, secure = TCP_USE_TLS)
-  if not connected:
-    echo "error connecting!!"
-    return
+  when TCP_USE_TLS:
+    client.setSecure(HOSTNAME)
+  let conn = client.connect(HOSTNAME, TCP_PORT, proc (success: bool) =
+    if client.getState() != STATE_CONNECTED or not success:
+      echo "error connecting!!"
+      return
 
-  echo "connected!"
-
-  echo "write:"
-  echo HTTP_REQUEST
-  if client.write(HTTP_REQUEST) != HTTP_REQUEST.len:
-    echo "failed to write http request"
-    return
-
-  if client.flush():
+    echo "connected!"
+    echo client.getState()
+    if client.write(HTTP_REQUEST) != HTTP_REQUEST.len:
+      echo "failed to write http request"
+      return
+  )
+  client.recvCb = proc(len: uint16; totLen: uint16) =
+    if len == 0:
+      # closed
+      echo "connection closed"
+      return
+    echo (len, totLen)
     var buf = newString(200)
-    while client.getState() == STATE_CONNECTED or (let avail = client.available(); avail > 0):
-      if avail == 0: continue
+    while client.available() > 0:
       buf.setLen(200)
       let readLen = client.read(buf.len.uint16, buf[0].addr)
       if readLen <= 0:
@@ -50,12 +54,7 @@ proc runTcpClientTest() =
       buf.setLen(readLen)
       echo buf
 
-  echo "closing"
-  var closed = client.close()
-  if closed != ErrOk:
-    echo "error closing! ", closed
-  else:
-    echo "closed"
+  echo "connected? ", conn, " ", client.getState()
 
 proc tcpClientExample*() =
   if cyw43ArchInit() != PicoErrorNone:
@@ -96,7 +95,7 @@ proc tcpClientExample*() =
 
   runTcpClientTest()
 
-  cyw43ArchDeinit()
+  # cyw43ArchDeinit()
 
 
 when isMainModule:
@@ -104,4 +103,8 @@ when isMainModule:
 
   tcpClientExample()
 
-  while true: tightLoopContents()
+  while true:
+    Cyw43WlGpioLedPin.put(High)
+    sleepMs(100)
+    Cyw43WlGpioLedPin.put(Low)
+    sleepMs(100)

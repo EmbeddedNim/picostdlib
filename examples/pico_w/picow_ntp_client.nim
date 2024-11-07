@@ -6,6 +6,7 @@ import picostdlib/[
   lib/lwip_apps
 ]
 
+{.emit: "// picostdlib import: pico_lwip_sntp".}
 
 const WIFI_SSID {.strdefine.} = ""
 const WIFI_PASSWORD {.strdefine.} = ""

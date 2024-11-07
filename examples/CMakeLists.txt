@@ -51,15 +51,18 @@ FetchContent_Declare(freertos_kernel
 )
 
 # fetch and use alternative mbedtls version
-#FetchContent_Populate(mbedtls)
+#FetchContent_MakeAvailable(mbedtls)
 #set(PICO_MBEDTLS_PATH ${mbedtls_SOURCE_DIR})
 
 # fetch and use alternative lwip version
-#FetchContent_Populate(lwip)
+#FetchContent_MakeAvailable(lwip)
 #set(PICO_LWIP_PATH ${lwip_SOURCE_DIR})
 
 # fetch and initialize FreeRTOS-Kernel
-FetchContent_Populate(freertos_kernel)
+add_library(freertos_config INTERFACE)
+target_include_directories(freertos_config SYSTEM INTERFACE ${CMAKE_SOURCE_DIR}/../template/csource) # The config file directory
+set(FREERTOS_PORT GCC_RP2040 CACHE STRING "")
+FetchContent_MakeAvailable(freertos_kernel)
 include(${freertos_kernel_SOURCE_DIR}/portable/ThirdParty/GCC/RP2040/FreeRTOS_Kernel_import.cmake)
 
 
@@ -110,6 +113,7 @@ if(PICO_CYW43_SUPPORTED)
   add_example(picow_http_client)
   add_example(picow_ntp_client)
   add_example(picow_tcp_client)
+  add_example(picow_mqtt_client)
   add_example(picow_tls_client)
   add_example(picow_wifi_scan)
 else()

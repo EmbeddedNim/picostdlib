@@ -89,11 +89,14 @@ else:
     "tftp_server.h"
     "ping/ping.h"
 
-{.emit: "// picostdlib import: pico_lwip_sntp".}
-
 
 # Nim helpers
 
-proc sntpSetoperatingmode*(operatingMode: SntpOpmode) =
+template sntpSetoperatingmode*(operatingMode: SntpOpmode) =
   sntpSetoperatingmode(operatingMode.uint8)
 
+template mqttSubscribe*(client: ptr MqttClientT; topic: cstring; qos: uint8; cb: MqttRequestCbT, arg: pointer): ErrT =
+  mqttSubUnsub(client, topic, qos, cb, arg, 1)
+
+template mqttUnsubscribe*(client: ptr MqttClientT; topic: cstring; cb: MqttRequestCbT, arg: pointer): ErrT =
+  mqttSubUnsub(client, topic, 0, cb, arg, 0)

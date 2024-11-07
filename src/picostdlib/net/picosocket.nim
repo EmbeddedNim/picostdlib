@@ -2,24 +2,21 @@ import std/macros
 import ../lib/lwip
 import ./dns
 import ../pico/cyw43_arch
+import ./common
 
-{.push raises: [].}
+export common
 
 when not defined(release) or defined(debugSocket):
   template debugv(text: string) = echo text
 else:
   template debugv(text: string) = discard
 
-macro ptr2var(arg: pointer; T: static[typedesc]; name: untyped) =
-  doAssert(name.kind == nnkIdent)
-  let namePtr = ident(name.strVal & "ptr")
+macro ptr2ref(arg: pointer; T: typedesc; name: untyped) =
   return quote do:
     assert(arg != nil)
-    let `namePtr` = cast[ptr `T`](`arg`)
-    template `name`: var `T` = `namePtr`[]
+    let `name` = cast[`T`](`arg`)
 
 type
-  Port* = distinct uint16
 
   SocketType* = enum
     SOCK_STREAM = 1 # Sequenced, reliable, connection-based byte streams
@@ -35,7 +32,7 @@ type
     STATE_PEER_CLOSED
     STATE_ACTIVE_UDP
 
-  Socket*[kind: static[SocketType]] = object
+  Socket*[kind: static[SocketType]] = ref object
     when kind == SOCK_STREAM:
       pcb: ptr AltcpPcb
     elif kind == SOCK_DGRAM:
@@ -49,18 +46,20 @@ type
     rxBuf: ptr Pbuf
     rxBufOffset: uint16
 
+    secure: bool
     sendWaiting: bool
     state: SocketState
     err: ErrEnumT
     written: uint
     acked: uint
 
-    recvCb*: proc (socket: var Socket[kind]; len: uint16; totLen: uint16)
+    recvCb*: proc (len: uint16; totLen: uint16)
 
-  SocketAny* = Socket[SOCK_STREAM] | Socket[SOCK_DGRAM] | Socket[SOCK_RAW]
+    connectCb: SocketConnectCb
 
-proc `==`*(a, b: Port): bool {.borrow.}
-proc `$`*(p: Port): string {.borrow.}
+  SocketAny*[kind: static[SocketType]] = Socket[kind]
+
+  SocketConnectCb* = proc (success: bool)
 
 func getBasePcb*(self: Socket[SOCK_STREAM]): ptr TcpPcb =
   if not self.pcb.isNil:
@@ -70,6 +69,51 @@ func getBasePcb*(self: Socket[SOCK_DGRAM]): ptr UdpPcb {.inline.} =
   return self.pcb
 func getBasePcb*(self: Socket[SOCK_RAW]): ptr RawPcb {.inline.} =
   return self.pcb
+
+proc altcpClosePollCb(arg: pointer; pcb: ptr AltcpPcb): ErrT {.cdecl.} =
+  # Connection has not been cleanly closed so just abort it to free up memory
+  debugv(":poll closing")
+  altcpPoll(pcb, nil, 0)
+  altcpAbort(pcb)
+  return ErrOk.ErrT
+
+proc `=destroy`*(self: typeof(Socket[SOCK_STREAM]()[])) =
+  withLwipLock:
+    if self.pcb != nil:
+      altcpArg(self.pcb, nil)
+      altcpSent(self.pcb, nil)
+      altcpRecv(self.pcb, nil)
+      altcpErr(self.pcb, nil)
+      if self.pcb.getTcpState != LISTEN:
+        altcpPoll(self.pcb, altcpClosePollCb, uint8(self.timeoutMs div 500))
+      else:
+        altcpPoll(self.pcb, nil, 0)
+      # try close with timeout, otherwise abort
+      let err = altcpClose(self.pcb).ErrEnumT
+      if err != ErrOk:
+        debugv(":destroy close err " & $err)
+        altcpAbort(self.pcb)
+    if self.rxBuf != nil:
+      discard pbufFree(self.rxBuf)
+  debugv(":destroyed")
+
+proc `=destroy`*(self: typeof(Socket[SOCK_DGRAM]()[])) =
+  withLwipLock:
+    if self.pcb != nil:
+      udpRecv(self.pcb, nil, nil)
+      udpRemove(self.pcb)
+    if self.rxBuf != nil:
+      discard pbufFree(self.rxBuf)
+  debugv(":destroyed")
+
+proc `=destroy`*(self: typeof(Socket[SOCK_RAW]()[])) =
+  withLwipLock:
+    if self.pcb != nil:
+      rawRecv(self.pcb, nil, nil)
+      rawRemove(self.pcb)
+    if self.rxBuf != nil:
+      discard pbufFree(self.rxBuf)
+  debugv(":destroyed")
 
 proc setNoDelay*(self: var Socket[SOCK_STREAM]; nodelay: bool) =
   if self.pcb == nil:
@@ -117,7 +161,18 @@ func getLocalPort*(self: SocketAny): Port =
     return 0.Port
   return self.getBasePcb().local_port.Port
 
-proc discardReceived(self: var SocketAny) =
+proc setSecure*(self: Socket[SOCK_STREAM]; sniHostname: string = "") =
+  assert(self.pcb != nil)
+  if self.secure: return
+  self.pcb = altcpTlsWrap(altcpTlsCreateConfigClient(nil, 0), self.pcb)
+  assert(self.pcb != nil)
+  let sslCtx = cast[ptr MbedtlsSslContext](altcpTlsContext(self.pcb))
+  # Set SNI
+  if sniHostname != "" and mbedtlsSslSetHostname(sslCtx, sniHostname.cstring) != 0:
+    debugv(":mbedtls ssl set hostname failed!")
+  self.secure = true
+
+proc discardReceived(self: SocketAny) =
   withLwipLock:
     if self.rxBuf == nil:
       return
@@ -130,7 +185,7 @@ proc discardReceived(self: var SocketAny) =
       when self.kind == SOCK_STREAM:
         altcpRecved(self.pcb, totLen)
 
-proc abort*(self: var Socket[SOCK_STREAM]): ErrEnumT =
+proc abort*(self: Socket[SOCK_STREAM]): ErrEnumT =
   withLwipLock:
     if self.pcb != nil:
       # self.discardReceived()
@@ -142,9 +197,12 @@ proc abort*(self: var Socket[SOCK_STREAM]): ErrEnumT =
       altcpPoll(self.pcb, nil, 0)
       altcpAbort(self.pcb)
       self.pcb = nil
+      GC_unref(self)
+  self.connectCb = nil
+  self.recvCb = nil
   return ErrAbrt
 
-proc close*(self: var Socket[SOCK_STREAM]): ErrEnumT =
+proc close*(self: Socket[SOCK_STREAM]): ErrEnumT =
   result = ErrOk
   if self.pcb != nil:
     self.discardReceived()
@@ -161,11 +219,14 @@ proc close*(self: var Socket[SOCK_STREAM]): ErrEnumT =
         debugv(":close err " & $result)
         altcpAbort(self.pcb)
         result = ErrAbrt
+      GC_unref(self)
       self.pcb = nil
+  self.connectCb = nil
+  self.recvCb = nil
 
 # lwip callbacks
 proc altcpErrCb(arg: pointer; err: ErrT) {.cdecl.} =
-  ptr2var(arg, Socket[SOCK_STREAM], self)
+  ptr2ref(arg, Socket[SOCK_STREAM], self)
   let err = cast[ErrEnumT](err)
   debugv(":error " & $err)
   altcpArg(self.pcb, nil)
@@ -174,38 +235,34 @@ proc altcpErrCb(arg: pointer; err: ErrT) {.cdecl.} =
   altcpErr(self.pcb, nil)
   self.err = err
   self.pcb = nil
+  GC_unref(self)
 
 proc altcpPollCb(arg: pointer; pcb: ptr AltcpPcb): ErrT {.cdecl.} =
-  ptr2var(arg, Socket[SOCK_STREAM], self)
+  ptr2ref(arg, Socket[SOCK_STREAM], self)
   assert(pcb == self.pcb)
   debugv(":poll - timed out")
   return self.close().ErrT
 
-proc altcpClosePollCb(arg: pointer; pcb: ptr AltcpPcb): ErrT {.cdecl.} =
-  # Connection has not been cleanly closed so just abort it to free up memory
-  debugv(":poll closing")
-  altcpPoll(pcb, nil, 0)
-  altcpAbort(pcb)
-  return ErrOk.ErrT
-
 proc altcpConnectCb(arg: pointer; pcb: ptr AltcpPcb; err: ErrT): ErrT {.cdecl.} =
-  ptr2var(arg, Socket[SOCK_STREAM], self)
+  ptr2ref(arg, Socket[SOCK_STREAM], self)
   let err = cast[ErrEnumT](err)
   assert(pcb == self.pcb)
   debugv(":connect " & $err)
   self.err = err
-  self.state = STATE_CONNECTED
+  self.state = if err == ErrOk: STATE_CONNECTED else: STATE_PEER_CLOSED
+  self.connectCb(err == ErrOk)
+  self.connectCb = nil
   return ErrOk.ErrT
 
 proc altcpSentCb(arg: pointer; pcb: ptr AltcpPcb; len: uint16): ErrT {.cdecl.} =
-  ptr2var(arg, Socket[SOCK_STREAM], self)
+  ptr2ref(arg, Socket[SOCK_STREAM], self)
   assert(pcb == self.pcb)
   debugv(":sent " & $len)
   self.acked += len
   return ErrOk.ErrT
 
 proc altcpRecvCb(arg: pointer; pcb: ptr AltcpPcb; pb: ptr Pbuf; err: ErrT): ErrT {.cdecl.} =
-  ptr2var(arg, Socket[SOCK_STREAM], self)
+  ptr2ref(arg, Socket[SOCK_STREAM], self)
   # let err = cast[ErrEnumT](err)
   assert(pcb == self.pcb)
   debugv(":recv")
@@ -216,7 +273,7 @@ proc altcpRecvCb(arg: pointer; pcb: ptr AltcpPcb; pb: ptr Pbuf; err: ErrT): ErrT
     if self.rxBuf != nil and self.rxBuf.totLen > 0:
       # there is still something to read
       if self.recvCb != nil:
-        self.recvCb(self, 0, self.rxBuf.totLen)
+        self.recvCb(0, self.rxBuf.totLen)
       return ErrOk.ErrT
     else:
       # nothing in receive buffer,
@@ -233,24 +290,24 @@ proc altcpRecvCb(arg: pointer; pcb: ptr AltcpPcb; pb: ptr Pbuf; err: ErrT): ErrT
     self.rxBuf = pb
     self.rxBufOffset = 0
   if self.recvCb != nil:
-    self.recvCb(self, pb.totLen, self.rxBuf.totLen)
+    self.recvCb(pb.totLen, self.rxBuf.totLen)
   return ErrOk.ErrT
 
 proc udpRecvCb(arg: pointer; pcb: ptr UdpPcb; pb: ptr Pbuf; ipAddr: ptr IpAddrT; port: uint16) {.cdecl.} =
-  ptr2var(arg, Socket[SOCK_DGRAM], self)
+  ptr2ref(arg, Socket[SOCK_DGRAM], self)
   assert(pcb == self.pcb)
   let port = Port(port)
   debugv(":udprecv " & $pb.totLen & " " & $ipAddr & ":" & $port)
   discard pbufFree(pb)
 
 proc rawRecvCb(arg: pointer; pcb: ptr RawPcb; pb: ptr Pbuf; ipAddr: ptr IpAddrT): uint8 {.cdecl.} =
-  ptr2var(arg, Socket[SOCK_RAW], self)
+  ptr2ref(arg, Socket[SOCK_RAW], self)
   assert(pcb == self.pcb)
   debugv(":rawrecv " & $pb.totLen & " " & $ipAddr)
   discard pbufFree(pb)
   return 1
 
-proc flush*(self: var Socket[SOCK_STREAM]): bool =
+proc flush*(self: Socket[SOCK_STREAM]): bool =
   if self.pcb == nil:
     return false
   withLwipLock:
@@ -270,7 +327,7 @@ proc flush*(self: var Socket[SOCK_STREAM]): bool =
       self.written = 0
     return not timedOut
 
-proc write*(self: var Socket[SOCK_STREAM]; data: string|openArray[char]): int =
+proc write*(self: Socket[SOCK_STREAM]; data: string|openArray[char]): int =
   if self.pcb == nil:
     return -1
   if data.len == 0:
@@ -309,15 +366,15 @@ proc write*(self: var Socket[SOCK_STREAM]; data: string|openArray[char]): int =
 
   return written
 
-proc available*(self: var SocketAny): uint16 =
+proc available*(self: SocketAny): uint16 =
   if self.rxBuf.isNil:
     return 0
   return self.rxBuf.totLen - self.rxBufOffset
 
-proc connected*(self: var Socket[SOCK_STREAM]): bool =
+proc isConnected*(self: Socket[SOCK_STREAM]): bool =
   return not self.pcb.isNil and (self.state == STATE_CONNECTED or self.available() > 0)
 
-proc read*(self: var Socket[SOCK_STREAM]; size: uint16; buf: ptr char = nil): int =
+proc read*(self: Socket[SOCK_STREAM]; size: uint16; buf: ptr char = nil): int =
   debugv(":read " & $size)
 
   if self.rxBuf == nil:
@@ -364,7 +421,7 @@ proc read*(self: var Socket[SOCK_STREAM]; size: uint16; buf: ptr char = nil): in
       altcpRecved(self.pcb, size)
     return size.int
 
-proc connect*(self: var Socket[SOCK_STREAM]; ipaddr: IpAddrT; port: Port): bool =
+proc connect*(self: Socket[SOCK_STREAM]; ipaddr: ptr IpAddrT; port: Port; callback: SocketConnectCb): bool =
   # note: not using `const ip_addr_t* addr` because
   # - `ip6_addr_assign_zone()` below modifies `*addr`
   # - caller's parameter `WiFiClient::connect` is a local copy
@@ -376,84 +433,97 @@ proc connect*(self: var Socket[SOCK_STREAM]; ipaddr: IpAddrT; port: Port): bool 
   if self.pcb.isNil:
     return false
 
-  if self.state != STATE_NEW:
-    return false
-
   withLwipLock:
+    if self.state != STATE_NEW:
+      return false
+
     altcpSetprio(self.pcb, TCP_PRIO_MIN)
-    altcpArg(self.pcb, self.addr)
+    altcpArg(self.pcb, cast[pointer](self))
     altcpErr(self.pcb, altcpErrCb)
     altcpRecv(self.pcb, altcpRecvCb)
     altcpSent(self.pcb, altcpSentCb)
     altcpPoll(self.pcb, altcpPollCb, uint8(self.timeoutMs div 500))
     self.state = STATE_CONNECTING
+    self.connectCb = callback
 
-    debugv(":connect " & $ipaddr.unsafeAddr & " " & $port)
-    self.err = altcpConnect(self.pcb, ipaddr.unsafeAddr, port.uint16, altcpConnectCb).ErrEnumT
+    debugv(":connect " & $ipaddr & " " & $port)
+    self.err = altcpConnect(self.pcb, ipaddr, port.uint16, altcpConnectCb).ErrEnumT
     if self.err != ErrOk:
       self.state = STATE_NEW
+      callback(true)
       return false
 
-  let timedOut = cyw43WaitCondition(self.timeoutMs, self.state != STATE_CONNECTING)
+    # let timedOut = cyw43WaitCondition(self.timeoutMs, self.state != STATE_CONNECTING)
 
-  if self.pcb == nil:
-    debugv(":connect aborted")
-    return false
+    if self.pcb == nil:
+      debugv(":connect aborted")
+      callback(false)
+      return false
 
-  if timedOut:
-    debugv(":connect time out")
-    discard self.abort()
-    return false
+    # if timedOut:
+    #   debugv(":connect time out")
+    #   discard self.abort()
+    #   return false
 
-  if self.err != ErrOk:
-    debugv(":connect error " & $self.err)
-    discard self.abort()
-    return false
+    if self.err != ErrOk:
+      debugv(":connect error " & $self.err)
+      discard self.abort()
+      callback(false)
+      return false
 
-  self.state = STATE_CONNECTED
+    self.state = STATE_CONNECTED
 
+    if self.err != ErrOk:
+      return false
+    GC_ref(self)
   return true
 
-proc connect*(self: var Socket[SOCK_DGRAM]; ipaddr: IpAddrT; port: Port): bool =
+proc connect*(self: Socket[SOCK_DGRAM]; ipaddr: IpAddrT; port: Port; callback: SocketConnectCb): bool =
   assert(self.pcb != nil)
   self.err = udpConnect(self.pcb, ipaddr.unsafeAddr, port.uint16).ErrEnumT
-  return self.err == ErrOk
+  if self.err != ErrOk:
+    return false
+  GC_ref(self)
+  return true
 
-proc connect*(self: var Socket[SOCK_RAW]; ipaddr: IpAddrT; _: Port = Port(0)): bool =
+proc connect*(self: Socket[SOCK_RAW]; ipaddr: IpAddrT; _: Port = Port(0); callback: SocketConnectCb): bool =
   assert(self.pcb != nil)
   self.err = rawConnect(self.pcb, ipaddr.unsafeAddr).ErrEnumT
-  return self.err == ErrOk
+  if self.err != ErrOk:
+    return false
+  GC_ref(self)
+  return true
 
-proc connect*(self: var SocketAny; host: string; port: Port; secure: bool = false; sniHostname: string = ""): bool =
+proc connect*(self: SocketAny; host: string; port: Port; callback: SocketConnectCb): bool =
   ## Connect using ip address or hostname as string
   assert(self.pcb != nil)
 
   var remoteAddr = IpAddrT()
   let isIp = ipAddrAton(host.cstring, remoteAddr.addr).bool
 
-  when self.kind == SOCK_STREAM:
-    let sniHostname = if not isIp and sniHostname.len == 0: host else: sniHostname
+  # when self.kind == SOCK_STREAM:
+  #   let sniHostname = if not isIp and sniHostname.len == 0: host else: sniHostname
 
-    if secure:
-      self.pcb = altcpTlsWrap(altcpTlsCreateConfigClient(nil, 0), self.pcb)
-      assert(self.pcb != nil)
-      let sslCtx = cast[ptr MbedtlsSslContext](altcpTlsContext(self.pcb))
-      # Set SNI
-      if sniHostname != "" and mbedtlsSslSetHostname(sslCtx, sniHostname.cstring) != 0:
-        debugv(":mbedtls set hostname failed!")
-        return false
 
   if isIp:
-    return self.connect(remoteAddr, port)
-  elif getHostByName(host, remoteAddr, self.timeoutMs):
-    return self.connect(remoteAddr, port)
-  return false
+    return self.connect(remoteAddr.addr, port, callback)
+  let res = getHostByName(host, (proc (hostname: string; ipaddr: ptr IpAddrT) =
+    if ipaddr.isNil:
+      callback(false)
+    else:
+      discard self.connect(ipaddr, port, callback)
+    GC_unref(self)
+  ), self.timeoutMs)
+  if not res:
+    return false
+  GC_ref(self)
+  return true
 
-proc connect*(self: var Socket[SOCK_RAW]; host: string): bool {.inline.} =
-  # raw sockets have no port
-  self.connect(host, Port(0))
+# proc connect*(self: Socket[SOCK_RAW]; host: string): bool {.inline.} =
+#   # raw sockets have no port
+#   self.connect(host, Port(0))
 
-proc init*(self: var SocketAny; timeoutMs: Natural; blocking: bool; ipProto: uint8) =
+proc init*(self: SocketAny; timeoutMs: Natural; blocking: bool; ipProto: uint8) =
   assert(self.pcb == nil)
   assert(self.state in [STATE_NEW, STATE_PEER_CLOSED])
 
@@ -462,6 +532,7 @@ proc init*(self: var SocketAny; timeoutMs: Natural; blocking: bool; ipProto: uin
   self.rxBuf = nil
   self.rxBufOffset = 0
   self.blocking = blocking
+  self.secure = false
 
   when self.kind == SOCK_STREAM:
     var allocator: AltcpAllocatorT
@@ -469,74 +540,34 @@ proc init*(self: var SocketAny; timeoutMs: Natural; blocking: bool; ipProto: uin
     allocator.arg = nil
     self.pcb = altcpNewIpType(allocator.addr, IPADDR_TYPE_ANY.ord)
     assert(self.pcb != nil)
-    altcpArg(self.pcb, self.addr)
+    altcpArg(self.pcb, cast[pointer](self))
     altcpErr(self.pcb, altcpErrCb)
   elif self.kind == SOCK_DGRAM:
     self.pcb = udpNew()
     assert(self.pcb != nil)
     self.state = STATE_ACTIVE_UDP
-    udpRecv(self.pcb, udpRecvCb, self.addr)
+    udpRecv(self.pcb, udpRecvCb, cast[pointer](self))
   elif self.kind == SOCK_RAW:
     self.pcb = rawNew(ipProto)
     assert(self.pcb != nil)
-    rawRecv(self.pcb, rawRecvCb, self.addr)
+    rawRecv(self.pcb, rawRecvCb, cast[pointer](self))
 
   debugv(":init " & $self.kind)
 
-proc newSocket*(kind: static[SocketType]; timeoutMs: Natural = 30_000; blocking: bool = true; ipProto: uint8 = 0): owned Socket[kind] =
-  result = Socket[kind]()
-  result.state = STATE_NEW
+proc newSocket*(kind: static[SocketType]; timeoutMs: Natural = 30_000; blocking: bool = true; ipProto: uint8 = 0): Socket[kind] =
+  result = Socket[kind](state: STATE_NEW)
   result.init(timeoutMs, blocking, ipProto)
 
-proc `=destroy`*(self: Socket[SOCK_STREAM]) =
-  withLwipLock:
-    if self.pcb != nil:
-      altcpArg(self.pcb, nil)
-      altcpSent(self.pcb, nil)
-      altcpRecv(self.pcb, nil)
-      altcpErr(self.pcb, nil)
-      if self.pcb.getTcpState != LISTEN:
-        altcpPoll(self.pcb, altcpClosePollCb, uint8(self.timeoutMs div 500))
-      else:
-        altcpPoll(self.pcb, nil, 0)
-      # try close with timeout, otherwise abort
-      let err = altcpClose(self.pcb).ErrEnumT
-      if err != ErrOk:
-        debugv(":destroy close err " & $err)
-        altcpAbort(self.pcb)
-    if self.rxBuf != nil:
-      discard pbufFree(self.rxBuf)
-  debugv(":destroyed")
-
-proc `=destroy`*(self: Socket[SOCK_DGRAM]) =
-  withLwipLock:
-    if self.pcb != nil:
-      udpRecv(self.pcb, nil, nil)
-      udpRemove(self.pcb)
-    if self.rxBuf != nil:
-      discard pbufFree(self.rxBuf)
-  debugv(":destroyed")
-
-proc `=destroy`*(self: Socket[SOCK_RAW]) =
-  withLwipLock:
-    if self.pcb != nil:
-      rawRecv(self.pcb, nil, nil)
-      rawRemove(self.pcb)
-    if self.rxBuf != nil:
-      discard pbufFree(self.rxBuf)
-  debugv(":destroyed")
-
 when defined(runtests) or defined(nimcheck):
-  block:
-    var t = newSocket(SOCK_STREAM)
-    discard t.connect("google.com", Port(80))
+  # block:
+  #   var t = newSocket(SOCK_STREAM)
+  #   discard t.connect("google.com", Port(80))
 
-  block:
-    var u = newSocket(SOCK_DGRAM)
-    discard u.connect("127.0.0.1", Port(0))
+  # block:
+  #   var u = newSocket(SOCK_DGRAM)
+  #   discard u.connect("127.0.0.1", Port(0))
 
-  block:
-    var r = newSocket(SOCK_RAW)
-    discard r.connect("127.0.0.1")
-
-{.pop.}
+  # block:
+  #   var r = newSocket(SOCK_RAW)
+  #   discard r.connect("127.0.0.1")
+  discard

@@ -16,7 +16,7 @@ requires "nim >= 1.6.0"
 requires "commandant >= 0.15.0"  # for piconim
 requires "micros >= 0.1.8"  # for the after build hook
 requires "https://github.com/PMunch/nimbleutils >= 0.3.1" # used by futhark, version contains a fix
-requires "futhark >= 0.12.2" # for bindings to lwip, cyw43_driver, btstack...
+requires "futhark >= 0.13.4" # for bindings to lwip, cyw43_driver, btstack...
 
 # Tests
 
@@ -91,6 +91,7 @@ task examples, "Builds the examples":
     "pico_w/picow_http_client",
     "pico_w/picow_ntp_client",
     "pico_w/picow_tcp_client",
+    "pico_w/picow_mqtt_client",
     "pico_w/picow_tls_client",
     "pico_w/picow_wifi_scan",
   ]
