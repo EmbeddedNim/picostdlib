@@ -74,7 +74,7 @@ import picostdlib/sevensegdisplay
 
 # futhark stuff
 import picostdlib/lib/littlefs
-import picostdlib/lib/freertos
+# import picostdlib/lib/freertos
 
 # examples
 import "../examples/blink"
@@ -104,7 +104,7 @@ import "../examples/hello_serial"
 import "../examples/sleep/hello_sleep"
 import "../examples/hello_stdio"
 import "../examples/hello_timestart"
-import "../examples/freertos_blink"
+# import "../examples/freertos_blink"
 
 # import and include blink from template
 import "../template/src/blink"

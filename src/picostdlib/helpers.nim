@@ -7,13 +7,16 @@ const cmakeBinaryDir* {.strdefine.} = os.getEnv("CMAKE_BINARY_DIR").replace('\\'
 const cmakecachePath = cmakeBinaryDir / "generated" / "cmakecache.nim"
 
 when fileExists(cmakecachePath):
-  # exports PICO_SDK_PATH, PICO_BOARD, CMAKE_BUILD_TYPE
+  # exports PICO_SDK_PATH, PICO_BOARD, CMAKE_BUILD_TYPE...
   staticInclude(cmakecachePath)
 
 const picoSdkPath* {.strdefine.} = when declared(PICO_SDK_PATH): PICO_SDK_PATH else: os.getEnv("PICO_SDK_PATH").replace('\\', DirSep)
 const freertosKernelPath* {.strdefine.} = when declared(FREERTOS_KERNEL_PATH): FREERTOS_KERNEL_PATH else: ""
 const picoMbedtlsPath* {.strdefine.} = when declared(PICO_MBEDTLS_PATH): PICO_MBEDTLS_PATH else: picoSdkPath / "lib" / "mbedtls"
 const picoLwipPath* {.strdefine.} = when declared(PICO_LWIP_PATH): PICO_LWIP_PATH else: picoSdkPath / "lib" / "lwip"
+
+const picoBoard* {.strdefine.} = when declared(PICO_BOARD): PICO_BOARD else: "pico"
+const picoPlatform* {.strdefine.} = when declared(PICO_PLATFORM): PICO_PLATFORM else: "rp2040"
 
 
 const piconimCsourceDir* {.strdefine.} = getProjectPath().replace('\\', DirSep).parentDir() / "csource"
