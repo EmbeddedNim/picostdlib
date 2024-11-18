@@ -8,8 +8,8 @@ switch("d", "WIFI_SSID:myssid")
 switch("d", "WIFI_PASSWORD:mypassword")
 
 when not defined(mock):
-  switch("os", "freertos")
-  switch("define", "freertosKernelHeap:FreeRTOS-Kernel-Heap3")
+  # switch("os", "freertos")
+  # switch("define", "freertosKernelHeap:FreeRTOS-Kernel-Heap3")
 
   include "../template/src/config.nims"
 
