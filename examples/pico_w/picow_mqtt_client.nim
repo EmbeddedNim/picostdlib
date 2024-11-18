@@ -30,7 +30,7 @@ proc runMqttClientTest() =
   )
 
   client.setConnectionCallback(proc (connStatus: MqttConnectionStatusT) =
-    if connStatus == MqttConnectAccepted:
+    if connStatus == MqttConnectionStatusT.MqttConnectAccepted:
       echo "connected!"
 
       discard client.subscribe(MQTT_TOPIC, Qos1)

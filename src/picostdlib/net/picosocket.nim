@@ -129,16 +129,16 @@ proc getNoDelay*(self: Socket[SOCK_STREAM]): bool =
     return false
   return altcpNagleDisabled(self.pcb).bool
 
-func getError*(self: SocketAny): ErrEnumT =
+func getError*(self: SocketAny): ErrEnumT {.inline.}  =
   return self.err
 
-func getState*(self: SocketAny): SocketState =
+func getState*(self: SocketAny): SocketState {.inline.} =
   return self.state
 
-func setTimeout*(self: var SocketAny; timeoutMs: Natural) =
+func setTimeout*(self: var SocketAny; timeoutMs: Natural) {.inline.} =
   self.timeoutMs = timeoutMs
 
-func getTimeout*(self: SocketAny): Natural =
+func getTimeout*(self: SocketAny): Natural {.inline.} =
   return self.timeoutMs
 
 func getRemoteAddress*(self: SocketAny): ptr IpAddrT =
@@ -311,7 +311,8 @@ proc flush*(self: Socket[SOCK_STREAM]): bool =
   if self.pcb == nil:
     return false
   withLwipLock:
-    debugv(":flushing " & $self.written)
+    if self.written > 0:
+      debugv(":flushing " & $self.written)
     let err = altcpOutput(self.pcb)
     if err != ErrOk.ErrT:
       debugv(":flushfail " & $err)

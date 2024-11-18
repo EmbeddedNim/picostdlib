@@ -65,8 +65,8 @@ FetchContent_Declare(freertos_kernel
 add_library(freertos_config INTERFACE)
 target_include_directories(freertos_config SYSTEM INTERFACE ${CMAKE_SOURCE_DIR}/../template/csource) # The config file directory
 set(FREERTOS_PORT GCC_RP2040 CACHE STRING "")
-FetchContent_MakeAvailable(freertos_kernel)
-include(${freertos_kernel_SOURCE_DIR}/portable/ThirdParty/GCC/RP2040/FreeRTOS_Kernel_import.cmake)
+# FetchContent_MakeAvailable(freertos_kernel)
+# include(${freertos_kernel_SOURCE_DIR}/portable/ThirdParty/GCC/RP2040/FreeRTOS_Kernel_import.cmake)
 
 
 # initialize the Raspberry Pi Pico SDK

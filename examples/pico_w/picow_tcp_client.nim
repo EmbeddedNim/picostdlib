@@ -9,7 +9,7 @@ import picostdlib/[
 const WIFI_SSID {.strdefine.} = ""
 const WIFI_PASSWORD {.strdefine.} = ""
 
-const HTTP_URL {.strdefine.} = "https://worldtimeapi.org/api/ip"
+const HTTP_URL {.strdefine.} = "https://eu.httpbin.org/headers"
 const HTTP_URL_PARSED = HTTP_URL.parseUri
 
 const HOSTNAME = HTTP_URL_PARSED.hostname
