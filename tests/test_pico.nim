@@ -50,6 +50,7 @@ import picostdlib/pico/critical_section
 import picostdlib/pico/divider
 import picostdlib/pico/double
 import picostdlib/pico/error
+import picostdlib/pico/filesystem
 import picostdlib/pico/flash
 import picostdlib/pico/"float"
 import picostdlib/pico/i2c_slave
@@ -86,6 +87,8 @@ import "../examples/clocks/hello_48mhz"
 import "../examples/clocks/hello_gpout"
 import "../examples/clocks/hello_resus"
 import "../examples/dma/hello_dma"
+import "../examples/filesystem/hello_filesystem_flash"
+import "../examples/filesystem/hello_filesystem_sd"
 import "../examples/flash/hello_littlefs"
 import "../examples/gpio/hello_gpio_irq"
 import "../examples/i2c/bus_scan"

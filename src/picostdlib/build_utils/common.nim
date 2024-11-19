@@ -77,6 +77,8 @@ const cMakeIncludeTemplate* = """
 
 target_link_libraries(${{target}} {strLibs})
 
+target_include_directories(${{target}} PRIVATE {includes})
+
 {pios}
 """
 
@@ -108,7 +110,7 @@ macro parseLinkableLib(s: string): untyped =
   result = NimNode caseStmt
 
 
-proc getLinkedLib(fileName: string): tuple[libs: HashSet[string], pios: HashSet[string]] =
+proc getLinkedLib(fileName: string): tuple[libs: HashSet[string], pios: HashSet[string], includes: HashSet[string]] =
   ## Iterates over lines searching for includes adding to result
   let file = readFile(fileName)
   for line in file.split("\n"):
@@ -124,21 +126,28 @@ proc getLinkedLib(fileName: string): tuple[libs: HashSet[string], pios: HashSet[
         result.libs.incl l
     elif line.scanf("""// picostdlib generate pio: $+""", incld):
       result.pios.incl incld
+    elif line.scanf("""// picostdlib include: $+""", incld):
+      result.includes.incl incld
 
-proc getPicoLibs(program: string, extension: string): tuple[libs: string, pios: string] =
+proc getPicoLibs(program: string, extension: string): tuple[libs: string, pios: string, includes: string] =
   var libs = initHashSet[string]()
   var pios = initHashSet[string]()
+  var includes = initHashSet[string]()
   for kind, path in walkDir(nimcache(program)):
     if kind == pcFile and path.endsWith(fmt".{extension}"):
       let res = getLinkedLib(path)
       libs.incl res.libs
       pios.incl res.pios
+      includes.incl res.includes
 
   for lib in libs:
     result.libs.add lib
     result.libs.add " "
   for pio in pios:
     result.pios.add "pico_generate_pio_header(${target} \"" & pio & "\")\n"
+  for incl in includes:
+    result.includes.add "\n  "
+    result.includes.add incl
 
 proc genCMakeInclude*(program: string; backend: string) =
   ## Create a CMake include file in the csources containing:
@@ -151,7 +160,7 @@ proc genCMakeInclude*(program: string; backend: string) =
   let buildImportPath = importPath(program)
 
   # pico-sdk libs, pio headers
-  let (strLibs, pios) = getPicoLibs(program, extension)
+  let (strLibs, pios, includes) = getPicoLibs(program, extension)
 
   # only update file if contents change
   # to prevent CMake from reconfiguring

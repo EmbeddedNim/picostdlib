@@ -34,7 +34,7 @@ import ../hardware/[flash, sync]
 
 export flash, types
 
-const littlefsInclude = currentSourcePath.replace('\\', DirSep).parentDir / ".." / "vendor" / "littlefs"
+const littlefsInclude = currentSourcePath.replace('\\', DirSep).parentDir / ".." / "vendor" / "pico-vfs" / "vendor" / "littlefs"
 
 {.compile: littlefsInclude / "lfs.c".}
 {.compile: littlefsInclude / "lfs_util.c".}

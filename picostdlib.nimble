@@ -59,6 +59,8 @@ task examples, "Builds the examples":
     "clocks/hello_resus",
     "dma/hello_dma",
     "flash/hello_littlefs",
+    "filesystem/hello_filesystem_flash",
+    "filesystem/hello_filesystem_sd",
     "gpio/hello_7segment",
     "gpio/hello_gpio_irq",
     "hello_serial",

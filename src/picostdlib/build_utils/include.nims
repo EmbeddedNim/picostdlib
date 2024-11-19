@@ -25,3 +25,4 @@ switch("cpu", "arm")
 switch("define", "posix") # workaround for os=any
 
 patchFile("stdlib", "monotimes", picostdlibPath / "patches" / "monotimes")
+patchFile("stdlib", "posix_other", picostdlibPath / "patches" / "posix_other")
