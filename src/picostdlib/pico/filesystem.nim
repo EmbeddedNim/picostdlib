@@ -6,7 +6,6 @@ const picoVfsPath = currentSourcePath.replace('\\', DirSep).parentDir.parentDir 
 {.emit: "// picostdlib include: " & picoVfsPath / "include".}
 {.emit: "// picostdlib import: pico_clib_interface pico_sync".}
 
-{.emit: "#define lstat stat".}
 
 when defined(pico_filesystem_default) or defined(nimcheck):
   {.compile: picoVfsPath / "src" / "filesystem" / "fs_init.c".}
