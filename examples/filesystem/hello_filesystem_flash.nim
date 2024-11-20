@@ -23,6 +23,10 @@ else:
     close(fp)
     echo "HELLO.TXT: ", buffer
 
+  echo "list files in root:"
+  for file in fsWalkDir("/"):
+    echo file
+
   echo "unmounting: ", fsStrerror(fsUnmount("/"))
 
 while true:

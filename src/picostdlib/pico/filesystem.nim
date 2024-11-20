@@ -1,5 +1,7 @@
 import std/os, std/strutils, std/posix
 
+export os, posix
+
 const picoVfsPath = currentSourcePath.replace('\\', DirSep).parentDir.parentDir / "vendor" / "pico-vfs"
 
 {.compile: picoVfsPath / "src" / "filesystem" / "vfs.c".}
@@ -37,8 +39,8 @@ type
 
 type
   DirectoryEntry* {.importc: "struct dirent".} = object
-    dtype* {.importc: "d_type".}: DirectoryType
-    dname* {.importc: "d_name".}: array[255 + 1, char]
+    d_type*: DirectoryType
+    d_name*: array[255 + 1, char]
 
   FilesystemFile* {.importc: "fs_file_t".} = object
     fd*: cint
@@ -311,3 +313,18 @@ when defined(pico_filesystem_filesystem_fat) or defined(nimcheck):
     ## \param fs littlefs file system object
 
   {.pop.}
+
+
+# old workaround
+#{.emit: "#define lstat stat".}
+# proc lstat(path: cstring; buf: var Stat): cint {.exportc.} = stat(path, buf)
+iterator fsWalkDir*(directory: string): tuple[kind: DirectoryType, name: string] =
+  var dirent: ptr Dirent
+  var dir = opendir(directory.cstring)
+  assert(not dir.isNil)
+  defer: assert(closedir(dir) == 0)
+  while (dirent = readdir(dir); not dirent.isNil):
+    yield (
+      kind: cast[DirectoryType](dirent.d_type),
+      name: $cast[cstring](dirent.d_name[0].addr)
+    )

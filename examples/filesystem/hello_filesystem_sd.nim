@@ -1,13 +1,7 @@
 import picostdlib
 import picostdlib/pico/filesystem
-import std/posix
-import std/os
 
 # see hello_filesystem_sd.nims
-
-# workaround
-#{.emit: "#define lstat stat".}
-proc lstat(path: cstring; buf: var Stat): cint {.exportc.} = stat(path, buf)
 
 const csPin = Gpio(22) # Change to the pin your sdcard uses
 
@@ -48,7 +42,7 @@ else:
     echo "HELLO.TXT: ", buffer
 
   echo "list files in sdcard root:"
-  for file in walkDir("/sd"):
+  for file in fsWalkDir("/sd"):
     echo file
 
   echo "unmounting: ", fsStrerror(fsUnmount("/sd"))
