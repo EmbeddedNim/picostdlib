@@ -66,9 +66,14 @@ when defined(nimcheck):
   include ../futharkgen/futhark_cyw43_driver
 else:
   import std/macros
+  import std/strutils
   import futhark
 
   const outputPath = when defined(futharkgen): futharkGenDir / "futhark_cyw43_driver.nim" else: ""
+
+  proc futharkRenameCallbackCyw43(name: string; kind: string; partof: string): string =
+    var name = name.replace("CYW43_PERFORMANCE_PM", "CYW43_PERFORMANCE_PM_ignore")
+    return futharkRenameCallback(name, kind, partof)
 
   importc:
     outputPath outputPath
@@ -108,7 +113,7 @@ else:
 
     define "MBEDTLS_USER_CONFIG_FILE \"mbedtls_config.h\""
 
-    renameCallback futharkRenameCallback
+    renameCallback futharkRenameCallbackCyw43
 
     "cyw43_arch_config.h" # defines what type (background, poll, freertos, none)
     "cyw43.h"
@@ -371,13 +376,16 @@ func cyw43PmValue*(pmMode: Cyw43PowersaveMode; pm2SleepRetMs: uint16; liBeaconPe
   )
 
 const
-  Cyw43DefaultPm* = cyw43PmValue(Cyw43Pm2PowersaveMode, 200, 1, 1, 10)
-    ## Default power management mode
+  Cyw43NonePm* = cyw43PmValue(CYW43_NO_POWERSAVE_MODE, 10, 0, 0, 0)
+    ## No power management
 
-  Cyw43AggressivePm* = cyw43PmValue(Cyw43Pm2PowersaveMode, 2000, 1, 1, 10)
+  Cyw43AggressivePm* = cyw43PmValue(CYW43_PM1_POWERSAVE_MODE, 10, 0, 0, 0)
     ## Aggressive power management mode for optimial power usage at the cost of performance
 
-  Cyw43PerformancePm* = cyw43PmValue(Cyw43Pm2PowersaveMode, 20, 1, 1, 1)
+  Cyw43PerformancePm* = cyw43PmValue(CYW43_PM2_POWERSAVE_MODE, 200, 1, 1, 10)
     ## Performance power management mode where more power is used to increase performance
+
+  Cyw43DefaultPm* = Cyw43PerformancePm
+    ## Default power management mode
 
 # {.pop.}
