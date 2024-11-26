@@ -119,8 +119,8 @@
 // #define LWIP_STATS_DISPLAY          1
 // #define HTTPC_DEBUG 1
 
-
-// #define ALTCP_MBEDTLS_DEBUG  LWIP_DBG_ON
+// #define ALTCP_MBEDTLS_DEBUG  1
+// #define ALTCP_MBEDTLS_LIB_DEBUG 1
 
 // SNTP
 #define SNTP_DEBUG LWIP_DBG_OFF

@@ -1,6 +1,8 @@
 /* Workaround for some mbedtls source files using INT_MAX without including limits.h */
 #include <limits.h>
 
+//#define MBEDTLS_DEBUG_C 1
+
 #define MBEDTLS_NO_PLATFORM_ENTROPY
 #define MBEDTLS_ENTROPY_HARDWARE_ALT
 
@@ -60,3 +62,7 @@
 #define MBEDTLS_ECP_C
 #define MBEDTLS_ECDSA_C
 #define MBEDTLS_ASN1_WRITE_C
+
+// The following is needed to parse a certificate
+#define MBEDTLS_PEM_PARSE_C
+#define MBEDTLS_BASE64_C

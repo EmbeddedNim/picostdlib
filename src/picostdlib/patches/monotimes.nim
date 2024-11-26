@@ -105,6 +105,7 @@ proc getMonoTime*(): MonoTime {.tags: [TimeEffect].} =
       machAbsoluteTimeFreq.denom)
   elif defined(picosdk):
     let ticks = (time_us_64() * 1000).int64
+    result = MonoTime(ticks: ticks)
   elif defined(zephyr):
     let ticks = k_ticks_to_ns_floor64(k_uptime_ticks())
     result = MonoTime(ticks: ticks)

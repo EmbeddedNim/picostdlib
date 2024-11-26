@@ -51,7 +51,6 @@ type
     state: SocketState
     err: ErrEnumT
     written: uint
-    acked: uint
 
     recvCb*: proc (len: uint16; totLen: uint16)
 
@@ -168,6 +167,7 @@ proc setSecure*(self: Socket[SOCK_STREAM]; sniHostname: string = "") =
   assert(self.pcb != nil)
   let sslCtx = cast[ptr MbedtlsSslContext](altcpTlsContext(self.pcb))
   # Set SNI
+  debugv(":mbedtls sni " & sniHostname)
   if sniHostname != "" and mbedtlsSslSetHostname(sslCtx, sniHostname.cstring) != 0:
     debugv(":mbedtls ssl set hostname failed!")
   self.secure = true
@@ -258,7 +258,7 @@ proc altcpSentCb(arg: pointer; pcb: ptr AltcpPcb; len: uint16): ErrT {.cdecl.} =
   ptr2ref(arg, Socket[SOCK_STREAM], self)
   assert(pcb == self.pcb)
   debugv(":sent " & $len)
-  self.acked += len
+  self.written -= len
   return ErrOk.ErrT
 
 proc altcpRecvCb(arg: pointer; pcb: ptr AltcpPcb; pb: ptr Pbuf; err: ErrT): ErrT {.cdecl.} =
@@ -317,16 +317,7 @@ proc flush*(self: Socket[SOCK_STREAM]): bool =
     if err != ErrOk.ErrT:
       debugv(":flushfail " & $err)
       return false
-    if self.written == 0:
-      return true
-    let timedOut = cyw43WaitCondition(self.timeoutMs, self.written <= self.acked or self.state != STATE_CONNECTED)
-    if timedOut:
-      debugv(":flush - timeout")
-    else:
-      debugv(":flush complete " & $(self.written, self.acked))
-      self.acked -= self.written
-      self.written = 0
-    return not timedOut
+    return true
 
 proc write*(self: Socket[SOCK_STREAM]; data: string): int =
   if self.pcb == nil:
