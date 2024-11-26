@@ -32,7 +32,7 @@ measureFreqs()
 # Change clk_sys to be 48MHz. The simplest way is to take this from PLL_USB
 # which has a source frequency of 48MHz
 discard ClockSys.configure(
-  CtrlSrcValueClksrcClkSysAux,
+  1, # CLOCKS_CLK_SYS_CTRL_SRC_VALUE_CLKSRC_CLK_SYS_AUX
   ClocksClkGpoutCtrlAuxSrc.ClksrcPllUsb.uint32,
   48u32 * MHz,
   48u32 * MHz

@@ -3,14 +3,14 @@ import ./irq
 export setutils, irq
 
 import ../helpers
-{.localPassC: "-I" & picoSdkPath & "/src/" & picoPlatform & "/hardware_structs/include".}
+{.localPassC: "-I" & picoSdkPath & "/src/" & $picoPlatform & "/hardware_structs/include".}
 {.localPassC: "-I" & picoSdkPath & "/src/rp2_common/hardware_gpio/include".}
 
 type
-  Gpio* = distinct range[0.cuint .. 29.cuint] # NUM_BANK0_GPIOS = 30
+  Gpio* = distinct range[0.cuint .. 47.cuint] # NUM_BANK0_GPIOS = 47 on RP2350B, 29 otherwise
     ## Gpio pins available to the RP2040. Not all pins may be available on some
     ## microcontroller boards.
-  GpioOptional* = distinct range[-1 .. 29]
+  GpioOptional* = distinct range[-1 .. 47]
 
   Direction* {.pure, size: sizeof(bool).} = enum
     ## Gpio direction
@@ -34,15 +34,15 @@ proc `==`*(a, b: Cyw43WlGpio): bool {.borrow.}
 proc `$`*(a: Cyw43WlGpio): string {.borrow.}
 
 type
-  GpioIrqLevel* {.pure, size: sizeof(byte).} = enum
+  GpioIrqLevel* {.pure, size: sizeof(uint32).} = enum
     ## GPIO Interrupt level definitions (GPIO events)
     ##
     ## An interrupt can be generated for every GPIO pin in 4 scenarios:
     ##
-    ## * Level High: the GPIO pin is a logical 1
     ## * Level Low: the GPIO pin is a logical 0
-    ## * Edge High: the GPIO has transitioned from a logical 0 to a logical 1
-    ## * Edge Low: the GPIO has transitioned from a logical 1 to a logical 0
+    ## * Level High: the GPIO pin is a logical 1
+    ## * Edge Fall: the GPIO has transitioned from a logical 1 to a logical 0
+    ## * Edge Rise: the GPIO has transitioned from a logical 0 to a logical 1
     ##
     ## The level interrupts are not latched. This means that if the pin is a logical 1 and the level high interrupt is active, it will
     ## become inactive as soon as the pin changes to a logical 0. The edge interrupts are stored in the INTR register and can be
@@ -64,7 +64,7 @@ type
     Xip, Spi, Uart, I2c, Pwm, Sio, Pio0, Pio1, Gpck, Usb,
     Null = 0x1F
 
-  GpioIrqCallback* {.importc: "gpio_irq_callback_t".} = proc (gpio: Gpio; eventMask: culong) {.cdecl.}
+  GpioIrqCallback* {.importc: "gpio_irq_callback_t".} = proc (gpio: Gpio; eventMask: uint32) {.cdecl.}
 
   GpioOverride* {.pure, importc: "gpio_override".} = enum
     OverrideNormal # peripheral signal selected via \ref gpio_set_function
@@ -92,13 +92,22 @@ proc setFunction*(gpio: Gpio; fn: GpioFunction) {.importc: "gpio_set_function".}
   ## Select GPIO function
   ##
   ## \param gpio GPIO number
-  ## \param fn Which GPIO function select to use from list \ref gpio_function
+  ## \param fn Which GPIO function select to use from list \ref gpio_function_t
+
+proc setFunction*(gpioMask: set[Gpio]; fn: GpioFunction)  {.importc: "gpio_set_function_masked".}
+  ## Select the function for multiple GPIOs
+  ##
+  ## \sa gpio_set_function
+  ## \param gpio_mask Mask with 1 bit per GPIO number to set the function for
+  ## \param fn Which GPIO function select to use from list \ref gpio_function_t
+
+proc setFunction64*(gpioMask: set[Gpio]; fn: GpioFunction)  {.importc: "gpio_set_function_masked64".}
 
 proc getFunction*(gpio: Gpio): GpioFunction {.importc: "gpio_get_function".}
   ## Determine current GPIO function
   ##
   ## \param gpio GPIO number
-  ## \return Which GPIO function is currently selected from list \ref gpio_function
+  ## \return Which GPIO function is currently selected from list \ref gpio_function_t
 
 proc setPulls*(gpio: Gpio; up: bool; down: bool) {.importc: "gpio_set_pulls".}
   ## Select up and down pulls on specific GPIO
@@ -350,6 +359,8 @@ proc addRawIrqHandlerWithOrderPriority*(gpioMask: set[Gpio]; handler: IrqHandler
   ## @param handler the handler to add to the list of GPIO IRQ handlers for this core
   ## @param order_priority the priority order to determine the relative position of the handler in the list of GPIO IRQ handlers for this core.
 
+proc addRawIrqHandlerWithOrderPriority64*(gpioMask: set[Gpio]; handler: IrqHandler; orderPriority: uint8) {.importc: "gpio_add_raw_irq_handler_with_order_priority_masked64".}
+
 proc addRawIrqHandlerWithOrderPriority*(gpio: Gpio; handler: IrqHandler; orderPriority: uint8) {.importc: "gpio_add_raw_irq_handler_with_order_priority".}
   ## Adds a raw GPIO IRQ handler for a specific GPIO on the current core
   ##
@@ -407,6 +418,8 @@ proc addRawIrqHandler*(gpioMask: set[Gpio]; handler: IrqHandler) {.importc: "gpi
   ## @param gpio_mask a bit mask of the GPIO numbers that will no longer be passed to the default callback for this core
   ## @param handler the handler to add to the list of GPIO IRQ handlers for this core
 
+proc addRawIrqHandler64*(gpioMask: set[Gpio]; handler: IrqHandler) {.importc: "gpio_add_raw_irq_handler_masked64".}
+
 proc addRawIrqHandler*(gpio: Gpio; handler: IrqHandler) {.importc: "gpio_add_raw_irq_handler".}
   ## Adds a raw GPIO IRQ handler for a specific GPIO on the current core
   ##
@@ -443,6 +456,8 @@ proc removeRawIrqHandler*(gpioMask: set[Gpio]; handler: IrqHandler) {.importc: "
   ##
   ## @param gpio_mask a bit mask of the GPIO numbers that will now be passed to the default callback for this core
   ## @param handler the handler to remove from the list of GPIO IRQ handlers for this core
+
+proc removeRawIrqHandler64*(gpioMask: set[Gpio]; handler: IrqHandler) {.importc: "gpio_remove_raw_irq_handler_masked64".}
 
 proc removeRawIrqHandler*(gpio: Gpio; handler: IrqHandler) {.importc: "gpio_remove_raw_irq_handler".}
   ## Removes a raw GPIO IRQ handler for the specified GPIO on the current core
@@ -484,27 +499,35 @@ proc get*(gpio: Gpio): Value {.importc: "gpio_get".}
 proc gpioGetAll*(): set[Gpio] {.importc: "gpio_get_all".}
   ## Get raw value of all GPIOs
   ##
-  ## \return Bitmask of raw GPIO values, as bits 0-29
+  ## \return Bitmask of raw GPIO values
 
-proc set*(mask: set[Gpio]) {.importc: "gpio_set_mask".}
+proc gpioGetAll64*(): set[Gpio] {.importc: "gpio_get_all64".}
+
+proc set*(gpioMask: set[Gpio]) {.importc: "gpio_set_mask".}
   ## Drive high every GPIO appearing in mask
   ##
-  ## \param mask Bitmask of GPIO values to set, as bits 0-29
+  ## \param mask Bitmask of GPIO values to set
 
-proc clear*(mask: set[Gpio]) {.importc: "gpio_clr_mask".}
+proc set64*(gpioMask: set[Gpio]) {.importc: "gpio_set_mask64".}
+
+proc clear*(gpioMask: set[Gpio]) {.importc: "gpio_clr_mask".}
   ## Drive low every GPIO appearing in mask
   ##
-  ## \param mask Bitmask of GPIO values to clear, as bits 0-29
+  ## \param mask Bitmask of GPIO values to clear
 
-proc toggle*(mask: set[Gpio]) {.importc: "gpio_xor_mask".}
+proc clear64*(gpioMask: set[Gpio]) {.importc: "gpio_clr_mask64".}
+
+proc toggle*(gpioMask: set[Gpio]) {.importc: "gpio_xor_mask".}
   ## Toggle every GPIO appearing in mask
   ##
-  ## \param mask Bitmask of GPIO values to toggle, as bits 0-29
+  ## \param mask Bitmask of GPIO values to toggle
 
-proc putMasked*(mask: set[Gpio]; value: set[Gpio]) {.importc: "gpio_put_masked".}
+proc toggle64*(gpioMask: set[Gpio]) {.importc: "gpio_xor_mask64".}
+
+proc putMasked*(gpioMask: set[Gpio]; value: set[Gpio]) {.importc: "gpio_put_masked".}
   ## Drive GPIO high/low depending on parameters
   ##
-  ## \param mask Bitmask of GPIO values to change, as bits 0-29
+  ## \param mask Bitmask of GPIO values to change
   ## \param value Value to set
   ##
   ## For each 1 bit in \p mask, drive that pin to the value given by
@@ -512,10 +535,14 @@ proc putMasked*(mask: set[Gpio]; value: set[Gpio]) {.importc: "gpio_put_masked".
   ## Since this uses the TOGL alias, it is concurrency-safe with e.g. an IRQ
   ## bashing different pins from the same core.
 
+proc putMasked64*(gpioMask: set[Gpio]; value: set[Gpio]) {.importc: "gpio_put_masked64".}
+
 proc putAll*(value: set[Gpio]) {.importc: "gpio_put_all".}
   ## Drive all pins simultaneously
   ##
-  ## \param value Bitmask of GPIO values to change, as bits 0-29
+  ## \param value Bitmask of GPIO values to change
+
+proc putAll64*(value: set[Gpio]) {.importc: "gpio_put_all64".}
 
 proc put*(gpio: Gpio; value: Value) {.importc: "gpio_put".}
   ## Drive a single GPIO high/low
@@ -539,22 +566,26 @@ proc getOutLevel*(gpio: Gpio): bool {.importc: "gpio_get_out_level".}
   ## \param gpio GPIO number
   ## \return true if the GPIO output level is high, false if low.
 
-proc setDirOut*(mask: set[Gpio]) {.importc: "gpio_set_dir_out_masked".}
+proc setDirOut*(gpioMask: set[Gpio]) {.importc: "gpio_set_dir_out_masked".}
   ## Set a number of GPIOs to output
   ##
   ## Switch all GPIOs in "mask" to output
   ##
-  ## \param mask Bitmask of GPIO to set to output, as bits 0-29
+  ## \param mask Bitmask of GPIO to set to output
 
-proc setDirIn*(mask: set[Gpio]) {.importc: "gpio_set_dir_in_masked".}
+proc setDirOut64*(gpioMask: set[Gpio]) {.importc: "gpio_set_dir_out_masked64".}
+
+proc setDirIn*(gpioMask: set[Gpio]) {.importc: "gpio_set_dir_in_masked".}
   ## Set a number of GPIOs to input
   ##
-  ## \param mask Bitmask of GPIO to set to input, as bits 0-29
+  ## \param mask Bitmask of GPIO to set to input
 
-proc setDirMasked*(mask: set[Gpio]; value: set[Gpio]) {.importc: "gpio_set_dir_masked".}
+proc setDirIn64*(gpioMask: set[Gpio]) {.importc: "gpio_set_dir_in_masked64".}
+
+proc setDirMasked*(gpioMask: set[Gpio]; value: set[Gpio]) {.importc: "gpio_set_dir_masked".}
   ## Set multiple GPIO directions
   ##
-  ## \param mask Bitmask of GPIO to set to input, as bits 0-29
+  ## \param mask Bitmask of GPIO to set to input
   ## \param value Values to set
   ##
   ## For each 1 bit in "mask", switch that pin to the direction given by
@@ -562,10 +593,14 @@ proc setDirMasked*(mask: set[Gpio]; value: set[Gpio]) {.importc: "gpio_set_dir_m
   ## E.g. gpio_set_dir_masked(0x3, 0x2); -> set pin 0 to input, pin 1 to output,
   ## simultaneously.
 
-proc gpioSetDirAllBits*(values: set[Gpio]) {.importc: "gpio_set_dir_all_bits".}
+proc setDirMasked64*(gpioMask: set[Gpio]; value: set[Gpio]) {.importc: "gpio_set_dir_masked64".}
+
+proc setDirAllBits*(values: set[Gpio]) {.importc: "gpio_set_dir_all_bits".}
   ## Set direction of all pins simultaneously.
   ##
   ## \param values individual settings for each gpio; for GPIO N, bit N is 1 for out, 0 for in
+
+proc setDirAllBits64*(values: set[Gpio]) {.importc: "gpio_set_dir_all_bits64".}
 
 proc setDir*(gpio: Gpio; `out`: Direction) {.importc: "gpio_set_dir".}
   ## Set a single GPIO direction
@@ -589,14 +624,14 @@ proc getDir*(gpio: Gpio): Direction {.importc: "gpio_get_dir".}
 
 # Nim helpers
 
-template setupGpio*(name: untyped; pin: static[range[0 .. 29]]; dir: Direction) =
+template setupGpio*(name: untyped; pin: static[range[0 .. 47]]; dir: Direction) =
   # Makes a `const 'name' = pin; init(name); name.setDir(dir)
   # usage: setupGpio(myPinName, 5, Out)
   const name = Gpio(pin)
   init(name)
   setDir(name, dir)
 
-proc init*(_: typedesc[Gpio]; pin: static[range[0 .. 29]]; dir: Direction = Out): Gpio =
+proc init*(_: typedesc[Gpio]; pin: static[range[0 .. 47]]; dir: Direction = Out): Gpio =
   ## perform the typical assignment, init(), and setDir() steps all in one proc.
   ## usage: let myPin = Gpio.init(5, In)
   ##
@@ -614,3 +649,9 @@ when defined(runtests):
 
   let myPin = Gpio.init(5, In)
   discard myPin
+
+  let allpins = gpioGetAll()
+  discard allpins
+
+  setDirOut64({Gpio(47)})
+

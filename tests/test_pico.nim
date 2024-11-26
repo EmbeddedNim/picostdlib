@@ -40,6 +40,7 @@ import picostdlib/pico/util/pheap
 import picostdlib/pico/util/queue
 
 import picostdlib/pico/async_context
+import picostdlib/pico/aon_timer
 import picostdlib/pico/binary_info
 block:
   bi_decl_include()

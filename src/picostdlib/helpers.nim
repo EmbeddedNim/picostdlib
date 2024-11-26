@@ -3,6 +3,16 @@ import std/os, std/strutils, std/macros, std/compilesettings
 macro staticInclude(path: static[string]): untyped =
   newTree(nnkIncludeStmt, newLit(path))
 
+type
+  PicoPlatformKind* = enum
+    PlatformRp2040 = "rp2040"
+    PlatformRp2350_ArmS = "rp2350-arm-s"
+    PlatformRp2350_RiscV = "rp235-riscv"
+
+  PicoChipKind* = enum
+    ChipRp2040 = "rp2040"
+    ChipRp2350 = "rp2350"
+
 const cmakeBinaryDir* {.strdefine.} = os.getEnv("CMAKE_BINARY_DIR").replace('\\', DirSep)
 const cmakecachePath = cmakeBinaryDir / "generated" / "cmakecache.nim"
 
@@ -16,8 +26,11 @@ const picoMbedtlsPath* {.strdefine.} = when declared(PICO_MBEDTLS_PATH): PICO_MB
 const picoLwipPath* {.strdefine.} = when declared(PICO_LWIP_PATH): PICO_LWIP_PATH else: picoSdkPath / "lib" / "lwip"
 
 const picoBoard* {.strdefine.} = when declared(PICO_BOARD): PICO_BOARD else: "pico"
-const picoPlatform* {.strdefine.} = when declared(PICO_PLATFORM): PICO_PLATFORM else: "rp2040"
+const picoPlatform* = when declared(PICO_PLATFORM): parseEnum[PicoPlatformKind](PICO_PLATFORM) else: PlatformRp2040
+const picoChip* = when declared(PICO_CHIP): parseEnum[PicoChipKind](PICO_CHIP) else: ChipRp2040
 
+const picoRp2040* = picoChip == ChipRp2040
+const picoRp2350* = picoChip == ChipRp2350
 
 const piconimCsourceDir* {.strdefine.} = getProjectPath().replace('\\', DirSep).parentDir() / "csource"
 const picostdlibFutharkSysroot* {.strdefine.} = ""

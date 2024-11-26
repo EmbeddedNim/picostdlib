@@ -52,7 +52,7 @@ else:
 static:
   # echo (cyw43ArchDefine, cyw43ArchLib, importLwip)
   createDir(nimcacheDir)
-  writeFile(nimcacheDir / "cyw43_arch_config.h", "#define " & cyw43ArchDefine & " (1)\n#define PICO_RP2040 (" & (if picoPlatform == "rp2040": "1" else: "0") & ")")
+  writeFile(nimcacheDir / "cyw43_arch_config.h", "#define " & cyw43ArchDefine & " (1)\n#define PICO_RP2040 (" & (when picoRp2040: "1" else: "0") & ")")
 
 when cyw43ArchBackend == "freertos":
   import ./freertos
@@ -88,14 +88,14 @@ else:
     sysPath armInstallInclude
     sysPath cmakeBinaryDir / "generated/pico_base"
     sysPath picoSdkPath / "src/common/pico_base_headers/include"
-    sysPath picoSdkPath / "src" / picoPlatform / "hardware_regs/include"
-    sysPath picoSdkPath / "src" / picoPlatform / "hardware_structs/include"
+    sysPath picoSdkPath / "src" / $picoPlatform / "hardware_regs/include"
+    sysPath picoSdkPath / "src" / $picoPlatform / "hardware_structs/include"
     sysPath picoSdkPath / "src/rp2_common/hardware_base/include"
     sysPath picoSdkPath / "src/rp2_common/hardware_irq/include"
     sysPath picoSdkPath / "src/rp2_common/hardware_gpio/include"
     sysPath picoSdkPath / "src/rp2_common/hardware_timer/include"
     sysPath picoSdkPath / "src/rp2_common/pico_rand/include"
-    sysPath picoSdkPath / "src" / picoPlatform / "pico_platform/include"
+    sysPath picoSdkPath / "src" / $picoPlatform / "pico_platform/include"
     sysPath picoSdkPath / "src/rp2_common/pico_platform_compiler/include"
     sysPath picoSdkPath / "src/rp2_common/pico_platform_sections/include"
     sysPath picoSdkPath / "src/rp2_common/pico_platform_panic/include"

@@ -1,73 +1,59 @@
-# example from pico-playground repository
-# not tested
-# please see https://github.com/raspberrypi/pico-extras/issues/41
-
 import picostdlib
 import picostdlib/pico/sleep
 
 var awake: bool
 
-proc sleepCallback() {.cdecl.} =
-  echo "RTC woke us up"
+let led = DefaultLedPin
+
+
+
+proc alarmSleepCallback(alarm: HardwareAlarmNum) {.cdecl.} =
+  # echo "alarm woke us up"
+  # uart_default_tx_wait_blocking();
   awake = true
+  alarm.setCallback(nil)
+  alarm.unclaim()
 
-proc rtcSleep() =
-  # Start on Friday 5th of June 2020 15:45:00
-  var t = DatetimeT(
-    year  : 2020,
-    month : 6,
-    day   : 5,
-    dotw  : 5, # 0 is Sunday, so 5 is Friday
-    hour  : 15,
-    min   : 45,
-    sec   : 0
-  )
+proc main() =
 
-  # Alarm 10 seconds later
-  var alarm = DatetimeT(
-    year  : 2020,
-    month : 6,
-    day   : 5,
-    dotw  : 5, # 0 is Sunday, so 5 is Friday
-    hour  : 15,
-    min   : 45,
-    sec   : 10
-  )
+  led.init()
+  led.setDir(Out)
 
-  # Start the RTC
-  rtcInit()
-  discard rtcSetDatetime(t.addr)
+  #stdio_init_all()
+  #echo "Hello Alarm Sleep!"
 
-  echo "Sleeping for 10 seconds"
-  # uartDefaultTxWaitBlocking()
+  while true:
+    led.put(High)
+    # echo "Awake for 5 seconds"
+    sleepMs(1000 * 5)
 
-  sleepGotoSleepUntil(alarm.addr, sleepCallback)
+    #echo "Switching to XOSC"
 
-discard stdioInitAll()
-echo "Hello Sleep!"
+    # Wait for the fifo to be drained so we get reliable output
+    # uart_default_tx_wait_blocking();
 
-echo "Switching to XOSC"
+    # Set the crystal oscillator as the dormant clock source, UART will be reconfigured from here
+    # This is only really necessary before sending the pico dormant but running from xosc while asleep saves power
+    led.put(Low)
+    sleepRunFromDormantSource(SrcXosc)
+    awake = false
 
-# Wait for the fifo to be drained so we get reliable output
-# uartDefaultTxWaitBlocking()
+    # Go to sleep until the alarm interrupt is generated after 10 seconds
+    #echo "Sleeping for 10 seconds"
+    #uart_default_tx_wait_blocking();
 
-# UART will be reconfigured by sleep_run_from_xosc
-sleepRunFromXosc()
+    led.put(High)
 
-echo "Switched to XOSC"
+    sleepMs(100)
 
-awake = false
+    if sleepGotoSleepFor(5_000, alarmSleepCallback):
+        # Make sure we don't wake
+        while not awake:
+          #echo "Should be sleeping"
+          tightLoopContents()
 
-# rtcSleep()
-sleepGotoSleepDelay(10 * 1000)
+    # Re-enabling clock sources and generators.
+    sleepPowerUp()
 
-awake = true
+main()
 
-# Make sure we don't wake
-while not awake:
-  echo "Should be sleeping"
-  sleepMs(1000)
-
-while true:
-  echo "Awake!"
-  sleepMs(1000)

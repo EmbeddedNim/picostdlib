@@ -14,6 +14,7 @@ when declared(cpFile):
 type
   LinkableLib* = enum
     adc = "hardware_adc"
+    aon_timer = "pico_aon_timer"
     base = "hardware_base"
     claim = "hardware_claim"
     clocks = "hardware_clocks"

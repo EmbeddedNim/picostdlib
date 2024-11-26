@@ -7,8 +7,6 @@ when fileExists(cmakecachePath):
   staticInclude(cmakecachePath)
 
   when CMAKE_BUILD_TYPE in ["Release", "MinSizeRel", "RelWithDebInfo"]:
-    switch("define", "NDEBUG")
-    switch("passC", "-DNDEBUG")
     when releaseFollowsCmake:
       switch("define", "release")
 

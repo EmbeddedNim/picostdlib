@@ -4,40 +4,125 @@ export base, gpio, clocksInit
 import ../helpers
 {.localPassC: "-I" & picoSdkPath & "/src/rp2_common/hardware_clocks/include".}
 
+when picoRp2040:
+  type
+    ClocksFc0Src* {.pure, size: sizeof(uint32).} = enum
+      ## CLOCKS_FC0_SRC
+      ## Clock sent to frequency counter, set to 0 when not required.
+      ## Writing to this register initiates the frequency count
+      Null
+      PllSysClksrcPrimary
+      PllUsbClksrcPrimary
+      RoscClksrc
+      RoscClksrcPh
+      XoscClksrc
+      ClksrcGpin0
+      ClksrcGpin1
+      ClkRef
+      ClkSys
+      ClkPeri
+      ClkUsb
+      ClkAdc
+      ClkRtc
+
+    ClocksClkGpoutCtrlAuxSrc* {.pure, size: sizeof(uint32).} = enum
+      ## CLOCKS_CLK_GPOUT0_CTRL_AUXSRC
+      ## Selects the auxiliary clock source, will glitch when switching
+      ClksrcPllSys
+      ClksrcGpin0
+      ClksrcGpin1
+      ClksrcPllUsb
+      RoscClksrc
+      XoscClksrc
+      ClkSys
+      ClkUsb
+      ClkAdc
+      ClkRtc
+      ClkRef
+
+    ClocksClkRefCtrlSrc* {.pure, size: sizeof(uint32).} = enum
+      ## CLOCKS_CLK_REF_CTRL_SRC
+      ## Selects the clock source glitchlessly, can be changed on-the-fly
+      RoscClksrcPh
+      ClksrcClkRefAux
+      XoscClksrc
+
+    ClocksClkRtcCtrlAuxsrc* {.pure, size: sizeof(uint32).} = enum
+      ## Selects the auxiliary clock source, will glitch when switching
+      ClksrcPllUsb
+      ClksrcPllSys
+      RoscClksrcPh
+      XoscClksrc
+      ClksrcGpin0
+      ClksrcGpin1
+
+else: # rp2350
+  type
+    ClocksFc0Src* {.pure, size: sizeof(uint32).} = enum
+      ## CLOCKS_FC0_SRC
+      ## Clock sent to frequency counter, set to 0 when not required.
+      ## Writing to this register initiates the frequency count
+      Null
+      PllSysClksrcPrimary
+      PllUsbClksrcPrimary
+      RoscClksrc
+      RoscClksrcPh
+      XoscClksrc
+      ClksrcGpin0
+      ClksrcGpin1
+      ClkRef
+      ClkSys
+      ClkPeri
+      ClkUsb
+      ClkAdc
+      ClkHstx
+      LposcClksrc
+      OtpClk2fc
+      PllUsbClksrcPrimaryDft
+
+    ClocksClkGpoutCtrlAuxSrc* {.pure, size: sizeof(uint32).} = enum
+      ## CLOCKS_CLK_GPOUT0_CTRL_AUXSRC
+      ## Selects the auxiliary clock source, will glitch when switching
+      ClksrcPllSys
+      ClksrcGpin0
+      ClksrcGpin1
+      ClksrcPllUsb
+      ClksrcPllUsbPrimaryRefOpcg
+      RoscClksrc
+      XoscClksrc
+      LposcClksrc
+      ClkSys
+      ClkUsb
+      ClkAdc
+      ClkRef
+      ClkPeri
+      ClkHstx
+      OtpClk2fc
+
+    ClocksClkRefCtrlSrc* {.pure, size: sizeof(uint32).} = enum
+      ## CLOCKS_CLK_REF_CTRL_SRC
+      ## Selects the clock source glitchlessly, can be changed on-the-fly
+      RoscClksrcPh
+      ClksrcClkRefAux
+      XoscClksrc
+      LposcClksrc
+
+    ClocksClkHstxCtrlAuxSrc* {.pure, size: sizeof(uint32).} = enum
+      ## CLOCKS_CLK_HSTX_CTRL_AUXSRC
+      ## Selects the auxiliary clock source, will glitch when switching
+      ClkSys
+      ClksrcPllSys
+      ClksrcPllUsb
+      ClksrcGpin0
+      ClksrcGpin1
+
+    # CLOCKS_DFTCLK_XOSC_CTRL_SRC
+    # CLOCKS_DFTCLK_ROSC_CTRL_SRC
+    # CLOCKS_DFTCLK_LPOSC_CTRL_SRC
+
 type
-  ClocksFc0Src* {.pure, size: sizeof(uint32).} = enum
-    ## Clock sent to frequency counter, set to 0 when not required.
-    ## Writing to this register initiates the frequency count
-    Null
-    PllSysClksrcPrimary
-    PllUsbClksrcPrimary
-    RoscClksrc
-    RoscClksrcPh
-    XoscClksrc
-    ClksrcGpin0
-    ClksrcGpin1
-    ClkRef
-    ClkSys
-    ClkPeri
-    ClkUsb
-    ClkAdc
-    ClkRtc
-
-  ClocksClkGpoutCtrlAuxSrc* {.pure, size: sizeof(uint32).} = enum
-    ## Selects the auxiliary clock source, will glitch when switching
-    ClksrcPllSys
-    ClksrcGpin0
-    ClksrcGpin1
-    ClksrcPllUsb
-    RoscClksrc
-    XoscClksrc
-    ClkSys
-    ClkUsb
-    ClkAdc
-    ClkRtc
-    ClkRef
-
   ClocksClkSysCtrlAuxSrc* {.pure, size: sizeof(uint32).} = enum
+    ## CLOCKS_CLK_SYS_CTRL_AUXSRC
     ## Selects the auxiliary clock source, will glitch when switching
     ClksrcPllSys
     ClksrcPllUsb
@@ -45,19 +130,26 @@ type
     XoscClksrc
     ClksrcGpin0
     ClksrcGpin1
-
-  ClocksClkRefCtrlSrc* {.pure, size: sizeof(uint32).} = enum
-    ## Selects the clock source glitchlessly, can be changed on-the-fly
-    RoscClksrcPh
-    ClksrcClkRefAux
-    XoscClksrc
 
   ClocksClkSysCtrlSrc* {.pure, size: sizeof(uint32).} = enum
+    ## CLOCKS_CLK_SYS_CTRL_SRC
     ## Selects the clock source glitchlessly, can be changed on-the-fly
     ClkRef
     ClksrcClkSysAux
 
-  ClocksClkRtcCtrlAuxsrc* {.pure, size: sizeof(uint32).} = enum
+  ClocksClkPeriCtrlAuxsrc* {.pure, size: sizeof(uint32).} = enum
+    ## CLOCKS_CLK_PERI_CTRL_AUXSRC
+    ## Selects the auxiliary clock source, will glitch when switching
+    ClkSys
+    ClksrcPllSys
+    ClksrcPllUsb
+    RoscClksrcPh
+    XoscClksrc
+    ClksrcGpin0
+    ClksrcGpin1
+
+  ClocksClkUsbCtrlAuxSrc* {.pure, size: sizeof(uint32).} = enum
+    ## CLOCKS_CLK_USB_CTRL_AUXSRC
     ## Selects the auxiliary clock source, will glitch when switching
     ClksrcPllUsb
     ClksrcPllSys
@@ -66,11 +158,11 @@ type
     ClksrcGpin0
     ClksrcGpin1
 
-  ClocksClkPeriCtrlAuxsrc* {.pure, size: sizeof(uint32).} = enum
+  ClocksClkAdcCtrlAuxSrc* {.pure, size: sizeof(uint32).} = enum
+    ## CLOCKS_CLK_ADC_CTRL_AUXSRC
     ## Selects the auxiliary clock source, will glitch when switching
-    ClkSys
-    ClksrcPllSys
     ClksrcPllUsb
+    ClksrcPllSys
     RoscClksrcPh
     XoscClksrc
     ClksrcGpin0
@@ -80,56 +172,56 @@ type
 {.push header: "hardware/clocks.h".}
 
 const
-  Fc0SrcOffset* = 0x00000094'u32
-  Fc0SrcBits* = 0x000000ff'u32
-  Fc0SrcReset* = 0x00000000'u32
-  Fc0SrcMsb* = 7'u32
-  Fc0SrcLsb* = 0'u32
-  Fc0SrcAccess* = "RW"
-  Fc0SrcValueNull* = 0x00'u32
-
-  CtrlAuxsrcReset* = 0'u32
-  CtrlAuxsrcBits* = 0xe0'u32
-  CtrlAuxsrcMsb* = 7'u32
-  CtrlAuxsrcLsb* = 0'u32
-  CtrlAuxsrcAccess* = "RW"
   CtrlAuxsrcValueClksrcPllSys* = 0'u32
-
-  CtrlSrcReset* = 0'u32
-  CtrlSrcBits* = 1'u32
-  CtrlSrcMsb* = 0'u32
-  CtrlSrcLsb* = 0'u32
-  CtrlSrcAccess* = "RW"
-  CtrlSrcValueClkRef* = 0'u32
   CtrlSrcValueClksrcClkSysAux* = 1'u32
 
 let
+  ## Todo: add more constants
   ClocksSleepEn0ClkRtcRtcBits* {.importc: "CLOCKS_SLEEP_EN0_CLK_RTC_RTC_BITS".}: uint32
-  ClocksSleepEn0ClkSysPllUsbBits* {.importc: "CLOCKS_SLEEP_EN0_CLK_SYS_PLL_USB_BITS".}: uint32
   ClocksSleepEn1ClkUsbUsbctrlBits* {.importc: "CLOCKS_SLEEP_EN1_CLK_USB_USBCTRL_BITS".}: uint32
-  ClocksSleepEn1ClkSysUsbctrlBits* {.importc: "CLOCKS_SLEEP_EN1_CLK_SYS_USBCTRL_BITS".}: uint32
   ClocksSleepEn1ClkSysTimerBits* {.importc: "CLOCKS_SLEEP_EN1_CLK_SYS_TIMER_BITS".}: uint32
+  CLOCKS_CLK_SYS_CTRL_SRC_VALUE_CLKSRC_CLK_SYS_AUX* {.importc: "CLOCKS_CLK_SYS_CTRL_SRC_VALUE_CLKSRC_CLK_SYS_AUX".}: uint32
+  CLOCKS_CLK_SYS_CTRL_AUXSRC_VALUE_CLKSRC_PLL_SYS* {.importc: "CLOCKS_CLK_SYS_CTRL_AUXSRC_VALUE_CLKSRC_PLL_SYS".}: uint32
+  ClocksSleepEn0ClkSysPllUsbBits* {.importc: "CLOCKS_SLEEP_EN0_CLK_SYS_PLL_USB_BITS".}: uint32
+  ClocksSleepEn1ClkSysUsbctrlBits* {.importc: "CLOCKS_SLEEP_EN1_CLK_SYS_USBCTRL_BITS".}: uint32
 
+
+when picoRp2040:
+  type
+    ClockIndex* {.pure, importc: "clock_handle_t".} = enum
+      ## Enumeration identifying a hardware clock on rp2040
+      ClockGpOut0 ## GPIO Muxing 0
+      ClockGpOut1 ## GPIO Muxing 1
+      ClockGpOut2 ## GPIO Muxing 2
+      ClockGpOut3 ## GPIO Muxing 3
+      ClockRef    ## Watchdog and timers reference clock
+      ClockSys    ## Processors, bus fabric, memory, memory mapped registers
+      ClockPeri   ## Peripheral clock for UART and SPI
+      ClockUsb    ## USB clock
+      ClockAdc    ## ADC clock
+      ClockRtc    ## Real Time Clock
+      ClockCount
+
+else:
+  type
+    ClockIndex* {.pure, importc: "clock_handle_t".} = enum
+      ## Enumeration identifying a hardware clock on rp2350
+      ClockGpOut0 ## GPIO Muxing 0
+      ClockGpOut1 ## GPIO Muxing 1
+      ClockGpOut2 ## GPIO Muxing 2
+      ClockGpOut3 ## GPIO Muxing 3
+      ClockRef    ## Watchdog and timers reference clock
+      ClockSys    ## Processors, bus fabric, memory, memory mapped registers
+      ClockPeri   ## Peripheral clock for UART and SPI
+      ClockHstx   ## HSTX clock
+      ClockUsb    ## USB clock
+      ClockAdc    ## ADC clock
+      ClockCount
 
 type
-  ClockIndex* {.pure, importc: "clock_handle_t".} = enum
-    ## Enumeration identifying a hardware clock
-    ClockGpOut0 ## GPIO Muxing 0
-    ClockGpOut1 ## GPIO Muxing 1
-    ClockGpOut2 ## GPIO Muxing 2
-    ClockGpOut3 ## GPIO Muxing 3
-    ClockRef    ## Watchdog and timers reference clock
-    ClockSys    ## Processors, bus fabric, memory, memory mapped registers
-    ClockPeri   ## Peripheral clock for UART and SPI
-    ClockUsb    ## USB clock
-    ClockAdc    ## ADC clock
-    ClockRtc    ## Real Time Clock
-    ClockCount
-
   ClocksHw* {.importc: "clocks_hw_t".} = object
     sleep_en0*: IoRw32
     sleep_en1*: IoRw32
-
 
   ResusCallback* {.importc: "resus_callback_t".} = proc () {.cdecl.}
 

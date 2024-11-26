@@ -1,5 +1,5 @@
 import ../helpers
-{.localPassC: "-I" & picoSdkPath & "/src/" & picoPlatform & "/hardware_regs/include".}
+{.localPassC: "-I" & picoSdkPath & "/src/" & $picoPlatform & "/hardware_regs/include".}
 {.push header: "hardware/platform_defs.h".}
 
 const
@@ -24,10 +24,9 @@ const
   PIO_INSTRUCTION_COUNT* = 32'u
 
 let
-  XOSC_KHZ* {.importc: "XOSC_KHZ".}: uint
-  XOSC_MHZ* {.importc: "XOSC_MHZ".}: uint
-  SYS_CLK_KHZ* {.importc: "SYS_CLK_KHZ".}: uint
-  USB_CLK_KHZ* {.importc: "USB_CLK_KHZ".}: uint
+  XOSC_HZ* {.importc: "XOSC_HZ".}: uint
+  SYS_CLK_HZ* {.importc: "SYS_CLK_HZ".}: uint
+  USB_CLK_HZ* {.importc: "USB_CLK_HZ".}: uint
 
 const
   FIRST_USER_IRQ* = NUM_IRQS - NUM_USER_IRQS

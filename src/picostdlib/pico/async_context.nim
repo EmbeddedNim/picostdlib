@@ -15,12 +15,12 @@ type
     ## Base structure type of all async_contexts. For details about its use, see \ref pico_async_context.
     ##
     ## Individual async_context_types with additional state, should contain this structure at the start.
-    `type`* {.importc: "type".}: ptr AsyncContextType
-    whenPendingList* {.importc: "when_pending_list".}: ptr AsyncWhenPendingWorker
-    atTimeList* {.importc: "async_at_time_worker_t".}: ptr AsyncAtTimeWorker
+    `type` {.importc: "type".}: ptr AsyncContextType
+    whenPendingList {.importc: "when_pending_list".}: ptr AsyncWhenPendingWorker
+    atTimeList {.importc: "async_at_time_worker_t".}: ptr AsyncAtTimeWorker
     nextTime* {.importc: "next_time".}: AbsoluteTime
     flags* {.importc: "flags".}: set[AsyncContextFlags]
-    coreNum* {.importc: "core_num".}: uint8
+    coreNum {.importc: "core_num".}: uint8
 
   AsyncAtTimeWorker* {.importc: "async_at_time_worker_t".} = object
     ## A "timeout" instance used by an async_context
@@ -30,7 +30,7 @@ type
     ##
     ## \see async_context_add_worker_at
     ## \see async_context_add_worker_in_ms
-    next* {.importc: "next".}: ptr AsyncAtTimeWorker
+    next {.importc: "next".}: ptr AsyncAtTimeWorker
       ## private link list pointer
     doWork* {.importc: "do_work".}: proc (context: ptr AsyncContext; timeout: ptr AsyncAtTimeWorker)
       ## Method called when the timeout is reached; may not be NULL
@@ -54,7 +54,7 @@ type
     ##
     ## \see async_context_add_worker_at
     ## \see async_context_add_worker_in_ms
-    next* {.importc: "next".}: ptr AsyncWhenPendingWorker
+    next {.importc: "next".}: ptr AsyncWhenPendingWorker
       ## private link list pointer
     doWork* {.importc: "do_work".}: proc (context: ptr AsyncContext; worker: ptr AsyncWhenPendingWorker) {.cdecl.}
       ## Called by the async_context when the worker has been marked as having "work pending"

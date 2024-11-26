@@ -55,10 +55,10 @@ else:
     sysPath armInstallInclude
     sysPath cmakeBinaryDir / "generated/pico_base"
     sysPath picoSdkPath / "src/common/pico_base_headers/include"
-    sysPath picoSdkPath / "src" / picoPlatform / "hardware_regs/include"
+    sysPath picoSdkPath / "src" / $picoPlatform / "hardware_regs/include"
     sysPath picoSdkPath / "src/rp2_common/hardware_base/include"
     sysPath picoSdkPath / "src/rp2_common/hardware_sync/include"
-    sysPath picoSdkPath / "src" / picoPlatform / "pico_platform/include"
+    sysPath picoSdkPath / "src" / $picoPlatform / "pico_platform/include"
     sysPath picoSdkPath / "src/rp2_common/pico_platform_compiler/include"
     sysPath picoSdkPath / "src/rp2_common/pico_platform_sections/include"
     sysPath picoSdkPath / "src/rp2_common/pico_platform_panic/include"

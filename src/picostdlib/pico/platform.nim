@@ -1,6 +1,6 @@
 import ../helpers
-{.localPassC: "-I" & picoSdkPath & "/src/" & picoPlatform & "/hardware_regs/include".}
-{.localPassC: "-I" & picoSdkPath & "/src/" & picoPlatform & "/pico_platform/include".}
+{.localPassC: "-I" & picoSdkPath & "/src/" & $picoPlatform & "/hardware_regs/include".}
+{.localPassC: "-I" & picoSdkPath & "/src/" & $picoPlatform & "/pico_platform/include".}
 {.push header: "pico.h".}
 
 let

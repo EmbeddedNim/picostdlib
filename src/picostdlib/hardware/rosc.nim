@@ -13,7 +13,7 @@ import ./base, ./clocks
 export base, clocks
 
 import ../helpers
-{.localPassC: "-I" & picoSdkPath & "/src/" & picoPlatform & "/hardware_regs/include".}
+{.localPassC: "-I" & picoSdkPath & "/src/" & $picoPlatform & "/hardware_regs/include".}
 {.push header: "hardware/regs/rosc.h".}
 
 let
@@ -32,7 +32,7 @@ let
 
 {.pop.}
 
-{.localPassC: "-I" & picoSdkPath & "/src/" & picoPlatform & "/hardware_structs/include".}
+{.localPassC: "-I" & picoSdkPath & "/src/" & $picoPlatform & "/hardware_structs/include".}
 {.push header: "hardware/structs/rosc.h".}
 
 type
@@ -91,11 +91,9 @@ proc roscDisable*() =
   while (roscHw.status and ROSC_STATUS_STABLE_BITS) != 0: discard
 
 proc roscEnable*() =
-  var tmp = roscHw.ctrl
-  tmp = tmp and (not ROSC_CTRL_ENABLE_BITS)
-  tmp = tmp or (ROSC_CTRL_ENABLE_VALUE_ENABLE shl ROSC_CTRL_ENABLE_LSB)
-  roscWrite(roscHw.ctrl, tmp)
-  # Wait for stable
+  # Re-enable the rosc
+  roscWrite(roscHw.ctrl, ROSC_CTRL_ENABLE_BITS)
+  # Wait for it to become stable once restarted
   while (roscHw.status and ROSC_STATUS_STABLE_BITS) != ROSC_STATUS_STABLE_BITS: discard
 
 

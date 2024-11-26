@@ -328,7 +328,7 @@ proc flush*(self: Socket[SOCK_STREAM]): bool =
       self.written = 0
     return not timedOut
 
-proc write*(self: Socket[SOCK_STREAM]; data: string|openArray[char]): int =
+proc write*(self: Socket[SOCK_STREAM]; data: string): int =
   if self.pcb == nil:
     return -1
   if data.len == 0:
@@ -388,6 +388,7 @@ proc read*(self: Socket[SOCK_STREAM]; size: uint16; buf: ptr char = nil): int =
         return 0
     elif self.state != STATE_CONNECTED:
       return -1
+    echo "picosocket.read: there may be bytes available: ", self.available()
     return 0
 
   withLwipLock:
@@ -421,6 +422,13 @@ proc read*(self: Socket[SOCK_STREAM]; size: uint16; buf: ptr char = nil): int =
     if self.pcb != nil:
       altcpRecved(self.pcb, size)
     return size.int
+
+proc readStr*(self: Socket[SOCK_STREAM]; size: uint16): string =
+  if size == 0: return
+  result = newString(size)
+  var l = self.read(size, result[0].addr)
+  if l < 0: l = 0
+  result.setLen(l)
 
 proc connect*(self: Socket[SOCK_STREAM]; ipaddr: ptr IpAddrT; port: Port; callback: SocketConnectCb): bool =
   # note: not using `const ip_addr_t* addr` because
