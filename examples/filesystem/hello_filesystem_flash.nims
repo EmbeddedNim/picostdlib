@@ -1,6 +1,7 @@
 
 ## filesystem modules - uncomment to enable
 
+--define:pico_filesystem
 --define:pico_filesystem_default # includes flash, littlefs and fs_init
 # --define:pico_filesystem_blockdevice_flash
 # --define:pico_filesystem_blockdevice_heap
