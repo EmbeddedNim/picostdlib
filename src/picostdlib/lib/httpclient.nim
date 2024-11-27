@@ -361,6 +361,7 @@ type
     followRedirects: FollowRedirectsT   # = Httpc_Disable_Follow_Redirects
     redirectLimit: Natural              # = 10
     location: string
+    contentType: string
     transferEncoding: TransferEncodingT # = Httpc_Te_Identity
     payload: StringStream               # #[owned]#
     chunkedDecoder: ChunkedDecoder
@@ -699,6 +700,8 @@ proc handleHeaderResponse*(self: var HttpClient): int =
           transferEncoding = headerValue
         of "location":
           self.location = headerValue
+        of "content-type":
+          self.contentType = headerValue
 
         # for (size_t i = 0; i < _headerKeysCount; i++) {
         #   if (_currentHeaders[i].key.equalsIgnoreCase(headerName)) {
@@ -858,6 +861,8 @@ proc getSize*(self: var HttpClient): int =
 proc getLocation*(self: var HttpClient): string =
   self.location
 
+proc getContentType*(self: var HttpClient): string =
+  self.contentType
 
 proc header*(self: var HttpClient; name: string): string =
   return self.currentHeaders.getOrDefault(name, @[""].HttpHeaderValues)
