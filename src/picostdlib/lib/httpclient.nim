@@ -890,7 +890,7 @@ proc read*(self: var HttpClient; n: Natural): string =
   else:
     result.add(self.beforeBuffer)
     self.beforeBuffer = ""
-  if not self.connected(): return result
+  if not self.connected() and self.available() == 0: return result
   let stream = self.client.stream
   let endMs = makeTimeoutTimeMs(self.tcpTimeout.uint32)
   while diffUs(getAbsoluteTime(), endMs) > 0 and result.len < n and (self.connected() or self.available() > 0):

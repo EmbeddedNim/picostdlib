@@ -646,7 +646,7 @@ proc csFlush(s: Stream) =
   let client = ClientStream(s).client()
   discard client[].flush()
 
-proc init*(self: var TcpContext; pcb: ptr AltcpPcb; timeoutMs: uint = 10_000) = # ; discardCb: DiscardCbT = nil; discardCbArg: pointer = nil
+proc init*(self: var TcpContext; pcb: ptr AltcpPcb; timeoutMs: uint = 30_000) = # ; discardCb: DiscardCbT = nil; discardCbArg: pointer = nil
   assert(not pcb.isNil)
   self.pcb = pcb
   self.rxBuf = nil
