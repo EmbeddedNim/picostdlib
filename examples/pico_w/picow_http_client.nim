@@ -1,36 +1,31 @@
 import picostdlib
 import picostdlib/[
   pico/cyw43_arch,
-  lib/httpclient
+  net/httpclient
 ]
 
 const WIFI_SSID {.strdefine.} = ""
 const WIFI_PASSWORD {.strdefine.} = ""
 
-const HTTP_URL {.strdefine.} = "https://worldtimeapi.org/api/ip"
-
+# to test chunked encoding: "https://httpbin.org/stream-bytes/5000?chunk_size=3000"
+const HTTP_URL {.strdefine.} = "https://httpbin.org/headers"
 
 proc runHttpClientTest() =
-  var client: HttpClient
+  var client = newHttpClient()
 
-  let httpBegin = client.begin(HTTP_URL)
-  if not httpBegin:
-    echo "error creating http client!!"
-    return
+  echo "http client created."
 
-  echo "http client ok!"
+  client.setUrl(HTTP_URL)
 
-  if client.get() > 0:
-    echo "get request ok"
-    let data = client.getString()
-    echo "data: ", data
-  else:
-    echo "empty response"
+  client.get(proc (res: HttpResponse) =
+    echo "http code: ", res.code
+    echo res
+  )
 
-  client.finish()
+  client.recvCb = proc (data: string) =
+    echo "body: ", repr data
 
-  echo "closed"
-  sleepMs(100)
+  sleepMs(60*1000)
 
 proc httpClientExample*() =
   if cyw43ArchInit() != PicoErrorNone:
