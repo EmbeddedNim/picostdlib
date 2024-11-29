@@ -26,8 +26,8 @@ const picoMbedtlsPath* {.strdefine.} = when declared(PICO_MBEDTLS_PATH): PICO_MB
 const picoLwipPath* {.strdefine.} = when declared(PICO_LWIP_PATH): PICO_LWIP_PATH else: picoSdkPath / "lib" / "lwip"
 
 const picoBoard* {.strdefine.} = when declared(PICO_BOARD): PICO_BOARD else: "pico"
-const picoPlatform* = when declared(PICO_PLATFORM): parseEnum[PicoPlatformKind](PICO_PLATFORM) else: PlatformRp2040
-const picoChip* = when declared(PICO_CHIP): parseEnum[PicoChipKind](PICO_CHIP) else: ChipRp2040
+const picoPlatform* = when declared(PICO_PLATFORM): parseEnum[PicoPlatformKind](PICO_PLATFORM, PlatformRp2040) else: PlatformRp2040
+const picoChip* = when declared(PICO_CHIP): parseEnum[PicoChipKind](PICO_CHIP, ChipRp2040) else: ChipRp2040
 
 const picoRp2040* = picoChip == ChipRp2040
 const picoRp2350* = picoChip == ChipRp2350
