@@ -15,6 +15,7 @@ import picostdlib/net/common
 import picostdlib/net/dns
 import picostdlib/net/mqttclient
 import picostdlib/net/picosocket
+import picostdlib/net/httpclient
 
 # futhark stuff
 import picostdlib/lib/lwip
