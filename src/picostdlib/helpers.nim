@@ -51,6 +51,8 @@ const armSysrootInclude* = static:
       sysroot / "include"
     elif dirExists("/usr/lib/arm-none-eabi/include"): # symlink to /usr/include/newlib on debian
       "/usr/lib/arm-none-eabi/include"
+    elif dirExists("/usr/arm-none-eabi/include"): # check fallback
+      "/usr/arm-none-eabi/include"
     else:
       ""
 
