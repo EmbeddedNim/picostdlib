@@ -36,8 +36,14 @@ task test, "Runs the test suite":
   exec "./piconim configure --project tests_pico --source tests --board pico"
   exec "./piconim build --project tests_pico tests/test_pico"
 
+  exec "./piconim configure --project tests_pico2 --source tests --board pico2"
+  exec "./piconim build --project tests_pico2 tests/test_pico2"
+
   exec "./piconim configure --project tests_picow --source tests --board pico_w"
   exec "./piconim build --project tests_picow tests/test_pico_w"
+
+  exec "./piconim configure --project tests_pico2w --source tests --board pico2_w"
+  exec "./piconim build --project tests_pico2w tests/test_pico2_w"
 
   when not defined(windows):
     rmDir "testproject_pico"
@@ -71,8 +77,8 @@ task examples, "Builds the examples":
     "multicore/hello_multicore",
     "pwm/hello_pwm",
     "reset/hello_reset",
-    "rtc/hello_rtc",
-    "rtc/rtc_alarm",
+    # "rtc/hello_rtc",
+    # "rtc/rtc_alarm",
     "sleep/hello_sleep",
     "hello_stdio",
     "system/unique_board_id",
@@ -90,7 +96,7 @@ task examples, "Builds the examples":
   const examples_picow = [
     "pico_w/picow_blink",
     "pico_w/picow_http_client",
-    "pico_w/picow_ntp_client",
+    # "pico_w/picow_ntp_client",
     "pico_w/picow_tcp_client",
     "pico_w/picow_mqtt_client",
     "pico_w/picow_tls_client",
@@ -116,3 +122,12 @@ task examples, "Builds the examples":
     let base = ex.split("/")[^1]
     exec "./piconim build --project examples_picow examples/" & ex & " --target " & base & " --compileOnly"
   exec "cmake --build build/examples_picow -- -j4"
+
+  exec "./piconim configure --project examples_pico2w --source examples --board pico2_w"
+  for ex in examples:
+    let base = ex.split("/")[^1]
+    exec "./piconim build --project examples_pico2w examples/" & ex & " --target " & base & " --compileOnly"
+  for ex in examples_picow:
+    let base = ex.split("/")[^1]
+    exec "./piconim build --project examples_pico2w examples/" & ex & " --target " & base & " --compileOnly"
+  exec "cmake --build build/examples_pico2w -- -j4"

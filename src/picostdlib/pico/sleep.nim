@@ -14,7 +14,7 @@
 import std/options
 
 from picostdlib import setupDefaultUart
-import ../hardware/[rosc, platform_defs, pll, xosc, sync, structs/scb, timer, regs/cpu]
+import ../hardware/[rosc, platform_defs, pll, powman, xosc, sync, structs/scb, timer, regs/cpu]
 import ./time, ./aon_timer, ./stdio
 import ../helpers
 import std/posix
@@ -286,7 +286,7 @@ proc sleepGotoDormantUntil*(ts: ptr Timespec; callback: AonTimerAlarmHandler) =
     clocksHw.sleep_en0 = ClocksSleepEn0ClkRtcRtcBits
     clocksHw.sleep_en1 = 0x00
   else:
-    assert(some(dormantSourceCache) == SrcLposc)
+    assert(get(dormantSourceCache) == SrcLposc)
     let restoreMs = powmanTimerGetMs()
     powman_timer_set_1khz_tick_source_lposc()
     powman_timer_set_ms(restoreMs)

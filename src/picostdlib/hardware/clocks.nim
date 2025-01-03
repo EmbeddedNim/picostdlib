@@ -185,6 +185,11 @@ let
   ClocksSleepEn0ClkSysPllUsbBits* {.importc: "CLOCKS_SLEEP_EN0_CLK_SYS_PLL_USB_BITS".}: uint32
   ClocksSleepEn1ClkSysUsbctrlBits* {.importc: "CLOCKS_SLEEP_EN1_CLK_SYS_USBCTRL_BITS".}: uint32
 
+  # rp2350
+  ClocksSleepEn0ClkRefPowmanBits* {.importc: "CLOCKS_SLEEP_EN0_CLK_REF_POWMAN_BITS".}: uint32
+  CLOCKS_SLEEP_EN1_CLK_REF_TICKS_BITS* {.importc: "CLOCKS_SLEEP_EN1_CLK_REF_TICKS_BITS".}: uint32
+  CLOCKS_SLEEP_EN1_CLK_SYS_TIMER0_BITS* {.importc: "CLOCKS_SLEEP_EN1_CLK_SYS_TIMER0_BITS".}: uint32
+
 
 when picoRp2040:
   type

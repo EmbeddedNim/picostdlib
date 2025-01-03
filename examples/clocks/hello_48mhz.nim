@@ -11,7 +11,8 @@ proc measureFreqs() =
     clkPeri = frequencyCountKHz(ClocksFc0Src.ClkPeri)
     clkUsb = frequencyCountKHz(ClocksFc0Src.ClkUsb)
     clkAdc = frequencyCountKHz(ClocksFc0Src.ClkAdc)
-    clkRtc = frequencyCountKHz(ClocksFc0Src.ClkRtc)
+  when picoIncludeRtcDatetime:
+    let clkRtc = frequencyCountKHz(ClocksFc0Src.ClkRtc)
 
   echo &"pll_sys = {pllSys}kHz"
   echo &"pll_usb = {pllUsb}kHz"
@@ -20,7 +21,8 @@ proc measureFreqs() =
   echo &"clk_peri = {clkPeri}kHz"
   echo &"clk_usb = {clkUsb}kHz"
   echo &"clk_adc = {clkAdc}kHz"
-  echo &"clk_rtc = {clkRtc}kHz"
+  when picoIncludeRtcDatetime:
+    echo &"clk_rtc = {clkRtc}kHz"
 
   # Can't measure clk_ref / xosc as it is the ref
 

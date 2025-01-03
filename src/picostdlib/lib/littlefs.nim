@@ -66,6 +66,9 @@ else:
 
 # Nim helpers
 
+import std/times
+export times
+
 type
   LittleFS* = object
     lfs: LfsT

@@ -28,6 +28,7 @@ type
     irq = "hardware_irq"
     pio = "hardware_pio"
     pll = "hardware_pll"
+    powman = "hardware_powman"
     pwm = "hardware_pwm"
     reset = "hardware_resets"
     rtc = "hardware_rtc"

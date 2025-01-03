@@ -23,10 +23,12 @@ import picostdlib/hardware/interp
 import picostdlib/hardware/irq
 import picostdlib/hardware/pio
 import picostdlib/hardware/pll
+import picostdlib/hardware/powman
 import picostdlib/hardware/pwm
 import picostdlib/hardware/resets
 import picostdlib/hardware/rosc
-import picostdlib/hardware/rtc
+when picoIncludeRtcDatetime:
+  import picostdlib/hardware/rtc
 import picostdlib/hardware/spi
 import picostdlib/hardware/sync as hardware_sync
 import picostdlib/hardware/timer
@@ -99,8 +101,9 @@ when not defined(picoCyw43Supported):
   import "../examples/pwm/pwm_led_fade"
 import "../examples/pwm/hello_pwm"
 import "../examples/reset/hello_reset"
-import "../examples/rtc/hello_rtc"
-import "../examples/rtc/rtc_alarm"
+when picoIncludeRtcDatetime:
+  import "../examples/rtc/hello_rtc"
+  import "../examples/rtc/rtc_alarm"
 import "../examples/system/unique_board_id"
 import "../examples/timer/hello_timer"
 import "../examples/uart/hello_uart"
