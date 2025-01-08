@@ -83,6 +83,7 @@ import picostdlib/lib/littlefs
 
 # examples
 import "../examples/blink"
+import "../examples/hello_async"
 import "../examples/adc/hello_adc"
 import "../examples/adc/onboard_temperature"
 import "../examples/adc/read_vsys"

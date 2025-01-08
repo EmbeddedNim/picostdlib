@@ -57,6 +57,7 @@ task test, "Runs the test suite":
 task examples, "Builds the examples":
   const examples = [
     "blink",
+    "hello_async",
     "adc/hello_adc",
     "adc/read_vsys",
     "adc/onboard_temperature",
@@ -77,8 +78,6 @@ task examples, "Builds the examples":
     "multicore/hello_multicore",
     "pwm/hello_pwm",
     "reset/hello_reset",
-    # "rtc/hello_rtc",
-    # "rtc/rtc_alarm",
     "sleep/hello_sleep",
     "hello_stdio",
     "system/unique_board_id",
@@ -89,45 +88,65 @@ task examples, "Builds the examples":
     # "ws2812_pio/ws2812_pio",
     # "freertos_blink",
   ]
+
+  # examples only available on base pico boards (uses default LED)
   const examples_pico = [
     "pio/hello_pio",
     "pwm/pwm_led_fade",
   ]
-  const examples_picow = [
+
+  # wireless examples
+  const examples_wireless = [
     "pico_w/picow_blink",
     "pico_w/picow_http_client",
-    # "pico_w/picow_ntp_client",
     "pico_w/picow_tcp_client",
     "pico_w/picow_mqtt_client",
     "pico_w/picow_tls_client",
     "pico_w/picow_wifi_scan",
   ]
 
+  # examples only for rp2040 boards (uses RTC hardware)
+  const examples_rp2040 = [
+    "rtc/hello_rtc",
+    "rtc/rtc_alarm"
+  ]
+
+  # examples only for rp2040 Pico W (uses RTC hardware)
+  const examples_picow = [
+    "pico_w/picow_ntp_client"
+  ]
+
   exec "nimble build"
 
   exec "./piconim configure --project examples_pico --source examples --board pico"
-  for ex in examples:
+  var cmakeTargets: seq[string] = @[]
+  for ex in @examples & @examples_rp2040 & @examples_pico:
     let base = ex.split("/")[^1]
-    exec "./piconim build --project examples_pico examples/" & ex & " --target " & base & " --compileOnly"
-  for ex in examples_pico:
-    let base = ex.split("/")[^1]
-    exec "./piconim build --project examples_pico examples/" & ex & " --target " & base & " --compileOnly"
-  exec "cmake --build build/examples_pico -- -j4"
+    let command = "piconim build --project examples_pico examples/" & ex & " --target " & base
+    echo command
+    exec "./" & command & " --compileOnly"
+    cmakeTargets.add(base)
+  echo cmakeTargets
+  exec "cmake --build build/examples_pico --target " & cmakeTargets.join(" ") & " -- -j4 --quiet"
 
   exec "./piconim configure --project examples_picow --source examples --board pico_w"
-  for ex in examples:
+  cmakeTargets.setLen(0)
+  for ex in @examples & @examples_rp2040 & @examples_wireless & @examples_picow:
     let base = ex.split("/")[^1]
-    exec "./piconim build --project examples_picow examples/" & ex & " --target " & base & " --compileOnly"
-  for ex in examples_picow:
-    let base = ex.split("/")[^1]
-    exec "./piconim build --project examples_picow examples/" & ex & " --target " & base & " --compileOnly"
-  exec "cmake --build build/examples_picow -- -j4"
+    let command = "piconim build --project examples_picow examples/" & ex & " --target " & base
+    echo command
+    exec "./" & command & " --compileOnly"
+    cmakeTargets.add(base)
+  echo cmakeTargets
+  exec "cmake --build build/examples_picow --target " & cmakeTargets.join(" ") & " -- -j4 --quiet"
 
   exec "./piconim configure --project examples_pico2w --source examples --board pico2_w"
-  for ex in examples:
+  cmakeTargets.setLen(0)
+  for ex in @examples & @examples_wireless:
     let base = ex.split("/")[^1]
-    exec "./piconim build --project examples_pico2w examples/" & ex & " --target " & base & " --compileOnly"
-  for ex in examples_picow:
-    let base = ex.split("/")[^1]
-    exec "./piconim build --project examples_pico2w examples/" & ex & " --target " & base & " --compileOnly"
-  exec "cmake --build build/examples_pico2w -- -j4"
+    let command = "piconim build --project examples_pico2w examples/" & ex & " --target " & base
+    echo command
+    exec "./" & command & " --compileOnly"
+    cmakeTargets.add(base)
+  echo cmakeTargets
+  exec "cmake --build build/examples_pico2w --target " & cmakeTargets.join(" ") & " -- -j4 --quiet"

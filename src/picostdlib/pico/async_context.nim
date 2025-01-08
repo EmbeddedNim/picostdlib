@@ -32,7 +32,7 @@ type
     ## \see async_context_add_worker_in_ms
     next {.importc: "next".}: ptr AsyncAtTimeWorker
       ## private link list pointer
-    doWork* {.importc: "do_work".}: proc (context: ptr AsyncContext; timeout: ptr AsyncAtTimeWorker)
+    doWork* {.importc: "do_work".}: proc (context: ptr AsyncContext; worker: ptr AsyncAtTimeWorker) {.cdecl.}
       ## Method called when the timeout is reached; may not be NULL
       ##
       ## Note, that when this method is called, the timeout has been removed from the async_context, so
@@ -236,7 +236,7 @@ proc poll*(context: ptr AsyncContext) {.importc: "async_context_poll".}
 proc waitUntil*(context: ptr AsyncContext; until: AbsoluteTime) {.importc: "async_context_wait_until".}
   ## sleep until the specified time in an async_context callback safe way
   ##
-  ## \note for async_contexts that provide locking (not async_context_poll), this method is threadsafe. and may be called from within any
+  ## \note for async_contexts that provide locking (not async_context_poll), this method is threadsafe, and may be called from within any
   ## worker method called by the async_context or from any other non-IRQ context.
   ##
   ## \param context the async_context
@@ -348,6 +348,8 @@ proc initWithDefaults*(self: ptr AsyncContextPoll): bool {.importc: "async_conte
   ##
   ## \param self a pointer to async_context_poll structure to initialize
   ## \return true if initialization is successful, false otherwise
+
+template init*(self: ptr AsyncContextPoll): bool = initWithDefaults(self)
 
 {.pop.}
 

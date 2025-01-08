@@ -2,6 +2,8 @@ import ../helpers
 {.localPassC: "-I" & picoSdkPath & "/src/rp2_common/hardware_sync/include".}
 {.push header: "hardware/sync.h".}
 
+const picoUseSwSpinLocks* {.booldefine.} = picoRp2350
+
 const
   SpinlockIdIrq* = 9
   SpinlockIdTimer* = 10
@@ -16,8 +18,15 @@ const
 type
   LockNum* = distinct cuint
 
-  SpinLock* {.importc: "spin_lock_t".} = uint32
-    ## A spin lock identifier
+when not picoUseSwSpinLocks:
+  type
+    SpinLock* {.importc: "spin_lock_t".} = uint32
+      ## A spin lock identifier
+else:
+  type
+    SpinLock* {.importc: "spin_lock_t".} = uint8
+      ## A software spin lock identifier
+
 
 proc `==`*(a, b: LockNum): bool {.borrow.}
 proc `$`*(a: LockNum): string {.borrow.}

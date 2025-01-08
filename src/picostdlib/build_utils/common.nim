@@ -50,6 +50,11 @@ type
     stdio = "pico_stdlib"
     util = "pico_stdlib"
 
+    async_context_base = "pico_async_context_base"
+    async_context_poll = "pico_async_context_poll"
+    async_context_threadsafe_background = "pico_async_context_threadsafe_background"
+    async_context_freertos = "pico_async_context_freertos"
+
     rand = "pico_rand"
 
     sync = "pico_sync"
