@@ -1,7 +1,6 @@
 import picostdlib
 import picostdlib/pico/async_context
 import picostdlib/async
-import std/volatile
 
 stdioInitAll()
 
@@ -33,12 +32,13 @@ proc performTest(context: ptr AsyncContext; blocking: bool) =
 
   discard co[bool](value):
     echo "blinking led..."
+    echo await Promise.resolve(123) # can await any type
     var i = 0
     while true:
-      await sleepAsync(500)
+      discard await sleepAsync(500)
       led.put(High)
       echo "blink! ", i
-      await sleepAsync(200)
+      discard await sleepAsync(200)
       led.put(Low)
       inc(i)
 

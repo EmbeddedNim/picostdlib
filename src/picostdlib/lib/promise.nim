@@ -20,10 +20,12 @@ type
     resolveFn: PromiseResolveFn[T]
     rejectFn: PromiseRejectFn
 
-  Promise*[T] = ref object
+  PromiseBase* = ref object of RootObj
     state: PromiseState
-    value: T
     reason: ref PromiseError
+
+  Promise*[T] = ref object of PromiseBase
+    value: T
     callbacks: Deque[PromiseCallback[T]]
 
 var asyncNotify = initDeque[proc ()]()
@@ -31,7 +33,7 @@ var promiseNotifyWork*: proc ()
 
 proc state*(self: Promise): PromiseState = return self.state
 
-proc value*[T](self: Promise[T]): T = return self.value
+proc read*[T](self: Promise[T]): T = return self.value
 proc reason*[T](self: Promise[T]): ref PromiseError = return self.reason
 
 proc notify(self: Promise)
@@ -145,14 +147,14 @@ proc race*[T](_: typedesc[Promise[T]]; promises: varargs[Promise[T]]): Promise[T
   )
 
 # TODO: Make coroutines work with any Promise type
-proc coroutine*[T](fn: iterator (value: T): Promise[T]): Promise[T] =
+proc coroutine*[T](fn: iterator (value: T): PromiseBase): Promise[T] =
   return newPromise[T](proc (resolve: proc (value: T), reject: proc (reason: ref PromiseError)) =
     var initial: T
     let ctx = fn
     proc next(val: T) =
       var p: Promise[T]
       if not ctx.finished:
-        p = ctx(val)
+        p = cast[typeof(p)](ctx(val))
       if ctx.finished:
         if p.isNil:
           resolve(val)
@@ -169,13 +171,14 @@ proc coroutine*[T](fn: iterator (value: T): Promise[T]): Promise[T] =
   )
 
 template co*[T](valueName: untyped; body: untyped): Promise[T] =
-  coroutine(iterator (valueName: T): Promise[T] =
+  coroutine(iterator (valueName: T): PromiseBase =
     body
   )
 
-template await*[T](promise: Promise[T]) =
-  yield promise
-
+template await*[T](promise: Promise[T]): auto =
+  var internalTmpPromise: PromiseBase = promise
+  yield internalTmpPromise
+  (cast[typeof(promise)](internalTmpPromise)).read()
 
 
 when isMainModule or defined(nimcheck):
@@ -209,9 +212,9 @@ when isMainModule or defined(nimcheck):
 
   var p4 = co[int](value):
     echo "hello co!"
-    await Promise.resolve(6)
+    discard await Promise.resolve(true)
     echo value
-    # await Promise[int].reject(newException(PromiseError, "aaaa"))
+    # discard await Promise[int].reject(newException(PromiseError, "aaaa"))
     echo "woo"
     return p3
 

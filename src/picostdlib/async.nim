@@ -19,7 +19,8 @@ proc atTimeWorkerCb(context: ptr AsyncContext; worker: ptr AsyncAtTimeWorker) {.
   GC_unref(state)
 
 proc sleepAsync*(ms: int): Promise[bool] =
-  ## Leaks memory if atTimeWorkerCb is never called (async context is deinited for example)
+  # TODO: Make this return Promise[void]
+  # Leaks memory if atTimeWorkerCb is never called (async context is deinited for example)
   return newPromise[bool](proc (resolve: proc (value: bool), reject: proc (reason: ref PromiseError)) =
     if promiseAsyncContext.isNil:
       reject(newException(PromiseError, "No AsyncContext provided"))
