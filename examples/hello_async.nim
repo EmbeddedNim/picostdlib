@@ -1,20 +1,62 @@
 import picostdlib
 import picostdlib/pico/async_context
+import picostdlib/async
+import std/volatile
 
 stdioInitAll()
 
 type
   State = object
     counter: int
-    complete: bool
+
+let led = DefaultLedPin
+led.init()
+led.setDir(Out)
+
+var state: State
 
 proc atTimeWorkerCb(context: ptr AsyncContext; worker: ptr AsyncAtTimeWorker) {.cdecl.} =
   let state = cast[ptr State](worker.userData)
   inc(state.counter)
   echo "at time worker fired! ", state.counter
-  state.complete = true
 
-var state = State()
+proc performTest(context: ptr AsyncContext; blocking: bool) =
+  var complete = false
+
+  var atTimeWorker = AsyncAtTimeWorker(userData: state.addr, doWork: atTimeWorkerCb)
+  assert context.addAtTimeWorkerInMs(atTimeWorker.addr, 2000)
+
+  discard sleepAsync(5_000).then(proc (value: bool): bool =
+    echo "timer complete!"
+    complete = true
+  )
+
+  discard co[bool](value):
+    echo "blinking led..."
+    var i = 0
+    while true:
+      await sleepAsync(500)
+      led.put(High)
+      echo "blink! ", i
+      await sleepAsync(200)
+      led.put(Low)
+      inc(i)
+
+  if blocking:
+    while not complete:
+      wfe()
+  else:
+    while true:
+      context.waitForWorkMs(10_000)
+      echo "polling"
+      context.poll()
+      if complete: break
+
+  # just in case...
+  while promiseHaveWork():
+    promiseProcess()
+
+  echo "test complete!!"
 
 proc testPollingAsync() =
   var asyncPoll: AsyncContextPoll
@@ -22,19 +64,11 @@ proc testPollingAsync() =
   assert asyncPoll.addr.init()
   let context = asyncPoll.core.addr
   defer: context.deinit() # noop for polling context
+  defer: promiseAsyncContext = nil
+  promiseAsyncContext = context
 
-  state.complete = false
-
-  var atTimeWorker = AsyncAtTimeWorker(userData: state.addr, doWork: atTimeWorkerCb)
-  assert context.addAtTimeWorkerInMs(atTimeWorker.addr, 2000)
-
-  echo "starting poll loop async test"
-  while not state.complete:
-    context.waitForWorkMs(300)
-    echo "polling"
-    context.poll()
-
-  echo "polling complete!!"
+  echo "running test using AsyncContextPoll"
+  performTest(context, false)
 
 proc testBackgroundThreadAsync() =
   var asyncThread: AsyncContextThreadsafeBackground
@@ -43,19 +77,13 @@ proc testBackgroundThreadAsync() =
   assert asyncThread.addr.init(cfg.addr)
   let context = asyncThread.core.addr
   defer: context.deinit()
+  defer: promiseAsyncContext = nil
 
-  state.complete = false
+  promiseAsyncContext = context
 
-  var atTimeWorker = AsyncAtTimeWorker(userData: state.addr, doWork: atTimeWorkerCb)
-  assert context.addAtTimeWorkerInMs(atTimeWorker.addr, 2000)
+  echo "running test using AsyncContextThreadsafeBackground"
 
-  echo "starting background thread async test"
-  while not state.complete:
-    echo "waiting"
-    context.waitForWorkMs(300)
-    #sleepMs(300)
-
-  echo "background thread complete!!"
+  performTest(context, true)
 
 while true:
   testPollingAsync()
