@@ -486,3 +486,19 @@ proc cancel*(timer: ptr RepeatingTimer): bool {.importc: "cancel_repeating_timer
   ## \sa alarm_id_t for a note on reuse of IDs
 
 {.pop.}
+
+
+## Nim helpers
+
+proc `-`*(timeLeft, timeRight: AbsoluteTime): int64 {.inline.} =
+  diffUs(timeRight, timeLeft)
+
+proc `==`*(timeLeft, timeRight: AbsoluteTime): bool {.inline.} =
+  timeLeft - timeRight == 0
+
+proc `<=`*(timeLeft, timeRight: AbsoluteTime): bool {.inline.} =
+  timeLeft - timeRight <= 0
+
+proc `<`*(timeLeft, timeRight: AbsoluteTime): bool {.inline.} =
+  timeLeft - timeRight < 0
+

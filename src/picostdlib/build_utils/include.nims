@@ -24,3 +24,5 @@ switch("define", "posix") # workaround for os=any
 
 patchFile("stdlib", "monotimes", picostdlibPath / "patches" / "monotimes")
 patchFile("stdlib", "posix_other", picostdlibPath / "patches" / "posix_other")
+patchFile("stdlib", "asyncmacro", picostdlibPath / "patches" / "asyncmacro")
+patchFile("stdlib", "asyncfutures", picostdlibPath / "patches" / "asyncfutures")

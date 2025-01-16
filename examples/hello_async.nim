@@ -1,7 +1,7 @@
 import picostdlib
 import picostdlib/pico/async_context
-import picostdlib/async
-import picostdlib/lib/promise
+import picostdlib/asyncdispatch
+import picostdlib/promise
 
 stdioInitAll()
 
@@ -12,6 +12,7 @@ type
 let led = DefaultLedPin
 led.init()
 led.setDir(Out)
+led.put(Low)
 
 var state: State
 
@@ -21,50 +22,45 @@ proc atTimeWorkerCb(context: ptr AsyncContext; worker: ptr AsyncAtTimeWorker) {.
   echo "at time worker fired! ", state.counter
 
 proc asyncable(): Future[int] {.async.} =
-  echo "blinking led..."
   assert 4321 == await Promise.resolve(4321).toFuture()
   var i = 0
-  while i < 5:
-    await sleepAsync(400)
+  while true:
+    await sleepAsync(200)
     led.put(High)
-    echo "blink! ", i
     await sleepAsync(100)
     led.put(Low)
     inc(i)
   return 123
 
 proc performTest(context: ptr AsyncContext; blocking: bool) =
+
   var complete = false
 
   var atTimeWorker = AsyncAtTimeWorker(userData: state.addr, doWork: atTimeWorkerCb)
-  assert context.addAtTimeWorkerInMs(atTimeWorker.addr, 2000)
-
-  # sleepAsync is called instantly
-  var sl = sleepAsync(5_000)
-  asyncCheck sl
-  # careful, other methods may overwrite the callback:
-  sl.addCallback(proc (fut: Future[void]) =
-    echo "timer complete!"
-    complete = true
-  )
+  assert context.addAtTimeWorkerInMs(atTimeWorker.addr, 1_000)
 
   echo "waiting for blinking"
+  var blinky = asyncable()
 
-  assert 123 == waitFor asyncable()
+  waitFor(sleepAsync(2_000) or blinky)
 
-  echo "blinking complete"
+  echo "stopping blinky"
+  blinky.complete(0)
+  led.put(Low)
 
   echo "waiting for complete..."
 
-  if blocking:
-    while not complete:
-      wfe()
-  else:
-    while true:
-      context.waitForWorkMs(10_000)
-      echo "polling"
-      context.poll()
-      if complete: break
+  waitFor(sleepAsync(500))
+
+  complete = true
+
+  context.poll()
+
+  while true:
+    context.waitForWorkMs(5_000)
+    echo "polling"
+    context.poll()
+    if complete: break
 
   echo "test complete!!"
 
@@ -73,12 +69,19 @@ proc testPollingAsync() =
 
   assert asyncPoll.addr.init()
   let context = asyncPoll.core.addr
-  defer: context.deinit() # noop for polling context
-  defer: currentAsyncContext = nil
+  defer:
+    destroyDispatcher()
+    currentAsyncContext = nil
+    context.deinit()
+
   currentAsyncContext = context
 
   echo "running test using AsyncContextPoll"
+  GC_fullCollect()
+  echo "before:\n", GC_getStatistics()
   performTest(context, false)
+  GC_fullCollect()
+  echo "after: \n", GC_getStatistics()
 
 proc testBackgroundThreadAsync() =
   var asyncThread: AsyncContextThreadsafeBackground
@@ -86,14 +89,20 @@ proc testBackgroundThreadAsync() =
 
   assert asyncThread.addr.init(cfg.addr)
   let context = asyncThread.core.addr
-  defer: context.deinit()
-  defer: currentAsyncContext = nil
+  defer:
+    destroyDispatcher()
+    currentAsyncContext = nil
+    context.deinit()
 
   currentAsyncContext = context
 
   echo "running test using AsyncContextThreadsafeBackground"
 
+  GC_fullCollect()
+  echo "before:\n", GC_getStatistics()
   performTest(context, true)
+  GC_fullCollect()
+  echo "after: \n", GC_getStatistics()
 
 while true:
   testPollingAsync()

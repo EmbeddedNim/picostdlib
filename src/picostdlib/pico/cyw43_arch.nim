@@ -3,8 +3,9 @@ import ./error
 import ./types
 import ./async_context
 import ../lib/cyw43_driver
+from ../asyncdispatch import currentAsyncContext
 
-export pico, error, types, async_context, cyw43_driver
+export pico, error, types, async_context, cyw43_driver, currentAsyncContext
 
 proc cyw43ThreadEnter*() {.importc: "cyw43_thread_enter".}
 proc cyw43ThreadExit*() {.importc: "cyw43_thread_exit".}

@@ -1,43 +1,29 @@
 import std/deques
-import ./pico/async_context
+import std/heapqueue
 import std/asyncmacro
 import std/asyncfutures
+import ./pico/async_context
 
-export async_context, asyncfutures, asyncmacro
+export asyncfutures, asyncmacro, async_context
 
 var currentAsyncContext*: ptr AsyncContext
 var whenPendingWorker = AsyncWhenPendingWorker()
 
 
-proc sleepAsync*(ms: int): owned Future[void] =
-  # Leaks memory if atTimeWorkerCb is never called (async context is deinited for example)
-  var retFuture = newFuture[void]("sleepAsync")
-  if currentAsyncContext.isNil:
-    raise newException(CatchableError, "No AsyncContext provided")
-
-  var worker = new(AsyncAtTimeWorker)
-
-  worker.userData = cast[pointer](retFuture)
-  worker.doWork = proc (context: ptr AsyncContext; worker: ptr AsyncAtTimeWorker) {.cdecl.} =
-    let worker = cast[ref AsyncAtTimeWorker](worker)
-    let future = cast[Future[void]](worker.userData)
-    future.complete()
-    GC_unref(worker)
-    GC_unref(future)
-
-  let time = makeTimeoutTimeMs(ms.uint32)
-  discard currentAsyncContext.addAtTimeWorkerAt(cast[ptr AsyncAtTimeWorker](worker), time)
-  GC_ref(worker)
-  GC_ref(retFuture)
-  return retFuture
-
 type
-  Dispatcher = ref object of RootObj
-    callbacks*: Deque[proc () {.gcsafe.}]
+  Dispatcher* = ref object of RootObj
+    callbacks: Deque[proc () {.gcsafe.}]
+    timers: HeapQueue[ref AsyncAtTimeWorker]
+
+proc `<`(a, b: ref AsyncAtTimeWorker): bool =
+  ## used for timers' HeapQueue
+  a.nextTime < b.nextTime
 
 proc newDispatcher(): owned Dispatcher =
+  # echo "creating new dispatcher"
   new result
   result.callbacks = initDeque[proc () {.closure, gcsafe.}]()
+  result.timers = initHeapQueue[ref AsyncAtTimeWorker]()
 
 var asyncDispatcher {.threadvar.}: Dispatcher
 var asyncDidSomeWork {.threadvar.}: bool
@@ -47,7 +33,6 @@ proc getDispatcher(): Dispatcher =
     asyncDispatcher = newDispatcher()
   result = asyncDispatcher
 
-
 proc processPendingCallbacks(dispatcher: Dispatcher; didSomeWork: var bool) =
   # echo "processing ", dispatcher.callbacks.len, " callback(s)"
   while dispatcher.callbacks.len > 0:
@@ -55,11 +40,16 @@ proc processPendingCallbacks(dispatcher: Dispatcher; didSomeWork: var bool) =
     cb()
     didSomeWork = true
 
+proc destroyDispatcher*() =
+  if not asyncDispatcher.isNil:
+    var didSomeWork: bool
+    asyncDispatcher.processPendingCallbacks(didSomeWork)
+    asyncDispatcher = nil
+
 proc whenWorkPendingCb(context: ptr AsyncContext; worker: ptr AsyncWhenPendingWorker) {.cdecl.} =
   getDispatcher().processPendingCallbacks(asyncDidSomeWork)
 
-proc asyncContextCallSoon(cbproc: proc () {.gcsafe.}) =
-  # echo "call soon!"
+proc dispatcherCallSoon*(cbproc: proc () {.gcsafe.}) =
   let dispatcher = getDispatcher()
   dispatcher.callbacks.addLast(cbproc)
 
@@ -70,7 +60,7 @@ proc asyncContextCallSoon(cbproc: proc () {.gcsafe.}) =
     discard currentAsyncContext.addWhenPendingWorker(whenPendingWorker.addr)
     currentAsyncContext.setWorkPending(whenPendingWorker.addr)
 
-asyncfutures.setCallSoonProc(asyncContextCallSoon)
+asyncfutures.setCallSoonProc(dispatcherCallSoon)
 
 proc runOnce(timeout: int): bool =
   let dispatcher = getDispatcher()
@@ -100,6 +90,33 @@ proc waitFor*[T](fut: Future[T]): T =
     poll()
 
   fut.read
+
+proc timerWorkerCb(context: ptr AsyncContext; worker: ptr AsyncAtTimeWorker) {.cdecl.} =
+  let dispatcher = getDispatcher()
+  for i in 0 ..< dispatcher.timers.len:
+    let timer = dispatcher.timers[i]
+    if cast[ptr AsyncAtTimeWorker](timer) == worker:
+      let future = cast[Future[void]](worker.userData)
+      if not future.failed and not future.finished:
+        future.complete()
+      dispatcher.timers.del(i)
+      return
+  raise newException(CatchableError, "AsyncAtTimeWorker not found is heapqueue")
+
+proc sleepAsync*(ms: int): Future[void] =
+  if currentAsyncContext.isNil:
+    raise newException(CatchableError, "No AsyncContext provided")
+
+  let dispatcher = getDispatcher()
+  var retFuture = newFuture[void]("sleepAsync")
+  let expireAt = makeTimeoutTimeMs(ms.uint32)
+  let worker = new(AsyncAtTimeWorker)
+  worker.userData = cast[pointer](retFuture)
+  worker.doWork = timerWorkerCb
+  discard currentAsyncContext.addAtTimeWorkerAt(cast[ptr AsyncAtTimeWorker](worker), expireAt)
+  dispatcher.timers.push(worker)
+  return retFuture
+
 
 proc withTimeout*[T](fut: Future[T], timeout: int): owned(Future[bool]) =
   ## Returns a future which will complete once `fut` completes or after

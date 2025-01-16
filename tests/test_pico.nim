@@ -73,8 +73,10 @@ import picostdlib/pico/unique_id
 import picostdlib/pico/version
 
 # misc
+import picostdlib/asyncdispatch
 import picostdlib/memoryinfo
 import picostdlib/power
+import picostdlib/promise
 import picostdlib/sevensegdisplay
 
 # futhark stuff

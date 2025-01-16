@@ -5,21 +5,21 @@ import ../helpers
 {.localPassC: "-I" & picoSdkPath & "/src/rp2_common/pico_async_context/include".}
 {.push header: "pico/async_context.h".}
 
-type
-  AsyncContextFlags* {.size: sizeof(uint16).} = enum
-    ASYNC_CONTEXT_FLAG_CALLBACK_FROM_NON_IRQ
-    ASYNC_CONTEXT_FLAG_CALLBACK_FROM_IRQ
-    ASYNC_CONTEXT_FLAG_POLLED
+let
+  ASYNC_CONTEXT_FLAG_CALLBACK_FROM_NON_IRQ* {.importc: "ASYNC_CONTEXT_FLAG_CALLBACK_FROM_NON_IRQ".}: uint16
+  ASYNC_CONTEXT_FLAG_CALLBACK_FROM_IRQ* {.importc: "ASYNC_CONTEXT_FLAG_CALLBACK_FROM_IRQ".}: uint16
+  ASYNC_CONTEXT_FLAG_POLLED* {.importc: "ASYNC_CONTEXT_FLAG_POLLED".}: uint16
 
+type
   AsyncContext* {.importc: "async_context_t".} = object
     ## Base structure type of all async_contexts. For details about its use, see \ref pico_async_context.
     ##
     ## Individual async_context_types with additional state, should contain this structure at the start.
-    `type` {.importc: "type".}: ptr AsyncContextType
+    contextType {.importc: "type".}: ptr AsyncContextType
     whenPendingList {.importc: "when_pending_list".}: ptr AsyncWhenPendingWorker
-    atTimeList {.importc: "async_at_time_worker_t".}: ptr AsyncAtTimeWorker
-    nextTime* {.importc: "next_time".}: AbsoluteTime
-    flags* {.importc: "flags".}: set[AsyncContextFlags]
+    atTimeList {.importc: "at_time_list".}: ptr AsyncAtTimeWorker
+    nextTime {.importc: "next_time".}: AbsoluteTime
+    flags {.importc: "flags".}: uint16
     coreNum {.importc: "core_num".}: uint8
 
   AsyncAtTimeWorker* {.importc: "async_at_time_worker_t".} = object

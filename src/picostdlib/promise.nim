@@ -143,4 +143,3 @@ proc toFuture*[T](self: Promise[T]): owned Future[T] =
   let future = newFuture[T]("promise.toFuture")
   discard self.then(proc (value: T): T = future.complete(value), proc (reason: ref PromiseError): ref PromiseError = future.fail(reason))
   return future
-

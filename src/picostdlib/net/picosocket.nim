@@ -3,8 +3,9 @@ import ../lib/lwip
 import ./dns
 import ../pico/cyw43_arch
 import ./common
+import ../asyncdispatch
 
-export common
+export common, asyncdispatch
 
 when not defined(release) or defined(debugSocket):
   template debugv(text: string) = echo text
@@ -513,11 +514,17 @@ proc connect*(self: SocketAny; host: string; port: Port; callback: SocketConnect
     else:
       discard self.connect(ipaddr, port, callback)
     GC_unref(self)
-  ), self.timeoutMs)
+  ))
   if not res:
     return false
   GC_ref(self)
   return true
+
+proc connect*(self: SocketAny; host: string; port: Port): owned Future[bool] =
+  var retFuture = newFuture[bool]("picosocket.connect")
+  if not self.connect(host, port, retFuture.complete): retFuture.complete(false)
+  return retFuture
+
 
 # proc connect*(self: Socket[SOCK_RAW]; host: string): bool {.inline.} =
 #   # raw sockets have no port

@@ -9,10 +9,10 @@ when picoOpaqueAbsoluteTime:
   type
     AbsoluteTime* {.importc: "absolute_time_t".} = object
       ## the absolute time (now) of the hardware timer
-      time*{.importc: "_private_us_since_boot".}: uint64
+      time*{.importc: "_private_us_since_boot".}: distinct uint64
 else:
   type
-    AbsoluteTime* {.importc: "absolute_time_t".} = uint64
+    AbsoluteTime* {.importc: "absolute_time_t".} = distinct uint64
 
 when picoIncludeRtcDatetime:
   type

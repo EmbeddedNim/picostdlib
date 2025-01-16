@@ -1,5 +1,6 @@
 import ../lib/lwip
 import ../pico/cyw43_arch
+import ../asyncdispatch
 
 when not defined(release) or defined(debugDns):
   template debugv(text: string) = echo text
@@ -11,9 +12,6 @@ type
     ipaddr: IpAddrT
     running: bool
     err: bool
-
-  # DnsCbState = object
-  #   callback: DnsCallback
 
   DnsCallback* = proc(hostname: string; ipaddr: ptr IpAddrT)
 
@@ -36,7 +34,7 @@ proc dnsGethostbynameCb(hostname: cstring; ipaddr: ptr IpAddrT; arg: pointer) {.
   #GC_unref(state)
   callback($hostname, ipaddr)
 
-proc getHostByName*(hostname: string; callback: DnsCallback; timeoutMs: Natural = 5000): bool =
+proc getHostByName*(hostname: string; callback: DnsCallback): bool =
   var err: ErrEnumT
   var ipaddrIn: IpAddrT
 
@@ -70,12 +68,10 @@ proc getHostByName*(hostname: string; ipaddr: var IpAddrT; timeoutMs: Natural = 
       state.ipaddr = ipaddrOut[]
     state.err = ipaddrOut.isNil
     state.running = false
-  , timeoutMs = timeoutMs)
-  if not ok:
+  )
+  if not ok or state.err:
     return false
   if not state.running:
-    if state.err:
-      return false
     ipaddr = state.ipaddr
     return true
 
@@ -86,3 +82,21 @@ proc getHostByName*(hostname: string; ipaddr: var IpAddrT; timeoutMs: Natural = 
 
   ipaddr = state.ipaddr
   return true
+
+proc getHostByName*(hostname: string; timeoutMs: Natural = 5000): owned Future[IpAddrT] =
+  var retFuture = newFuture[IpAddrT]("getHostByName")
+  var state = DnsState(running: true)
+
+  let ok = getHostByName(hostname, proc (hostnameOut: string; ipaddrOut: ptr IpAddrT) =
+    state.running = false
+    state.err = ipaddrOut.isNil
+    if ipaddrOut != nil:
+      state.ipaddr = ipaddrOut[]
+      retFuture.complete(state.ipaddr)
+    else:
+      retFuture.fail(newException(CatchableError, "getHostByName: DNS not found for " & hostname))
+  )
+  if not ok or state.err:
+    retFuture.fail(newException(CatchableError, "getHostByName: DNS error for " & hostname))
+
+  return retFuture
