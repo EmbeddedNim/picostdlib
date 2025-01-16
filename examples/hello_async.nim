@@ -15,11 +15,13 @@ led.setDir(Out)
 led.put(Low)
 
 var state: State
+var complete = false
 
 proc atTimeWorkerCb(context: ptr AsyncContext; worker: ptr AsyncAtTimeWorker) {.cdecl.} =
   let state = cast[ptr State](worker.userData)
   inc(state.counter)
   echo "at time worker fired! ", state.counter
+  complete = true
 
 proc asyncable(): Future[int] {.async.} =
   assert 4321 == await Promise.resolve(4321).toFuture()
@@ -34,10 +36,10 @@ proc asyncable(): Future[int] {.async.} =
 
 proc performTest(context: ptr AsyncContext; blocking: bool) =
 
-  var complete = false
+  complete = false
 
   var atTimeWorker = AsyncAtTimeWorker(userData: state.addr, doWork: atTimeWorkerCb)
-  assert context.addAtTimeWorkerInMs(atTimeWorker.addr, 1_000)
+  assert context.addAtTimeWorkerInMs(atTimeWorker.addr, 3_000)
 
   echo "waiting for blinking"
   var blinky = asyncable()
@@ -52,15 +54,15 @@ proc performTest(context: ptr AsyncContext; blocking: bool) =
 
   waitFor(sleepAsync(500))
 
-  complete = true
+  # context.poll()
 
-  context.poll()
-
-  while true:
-    context.waitForWorkMs(5_000)
-    echo "polling"
-    context.poll()
-    if complete: break
+  while not complete:
+    if blocking:
+      wfe()
+    else:
+      context.waitForWorkMs(5_000)
+      echo "polling"
+      context.poll()
 
   echo "test complete!!"
 
