@@ -15,7 +15,7 @@ installExt    = @["nim", "nims", "h", "c", "cmake", "txt", "md"]
 requires "nim >= 2.0.0"
 requires "commandant >= 0.15.1"  # for piconim
 requires "micros >= 0.1.16"  # for the after build hook
-requires "futhark >= 0.13.7" # for bindings to lwip, cyw43_driver, btstack...
+requires "futhark == 0.13.9" # for bindings to lwip, cyw43_driver, btstack...
 
 # Tests
 
