@@ -578,7 +578,7 @@ proc connect*(self: var TcpContext; hostname: string; port: Port): bool =
     return self.connect(remoteAddr, port)
 
 # Stream callbacks
-proc client(cs: ClientStreamObj): ptr TcpContext {.inline.} =
+proc client(cs: ClientStream): ptr TcpContext {.inline.} =
   cast[ptr TcpContext](cs.client)
 proc csClose(s: Stream) =
   if not ClientStream(s).client.isNil:
