@@ -68,7 +68,7 @@ const armInstallInclude* = static:
     else: ""
   else: ""
 
-func futharkRenameCallback*(name: string; kind: string; partof: string): string =
+func futharkRenameCallback*(name: string; kind: string; partof: string; overloading: var bool): string =
   result = name
   if kind in ["struct", "anon", "typedef", "enum"] and result.len > 0:
     removePrefix(result, "struct_")

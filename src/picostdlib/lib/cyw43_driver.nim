@@ -71,9 +71,9 @@ else:
 
   const outputPath = when defined(futharkgen): futharkGenDir / "futhark_cyw43_driver.nim" else: ""
 
-  proc futharkRenameCallbackCyw43(name: string; kind: string; partof: string): string =
+  proc futharkRenameCallbackCyw43(name: string; kind: string; partof: string; overloading: var bool): string =
     var name = name.replace("CYW43_PERFORMANCE_PM", "CYW43_PERFORMANCE_PM_ignore")
-    return futharkRenameCallback(name, kind, partof)
+    return futharkRenameCallback(name, kind, partof, overloading)
 
   importc:
     outputPath outputPath
